@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit",
+      "state" : {
+        "revision" : "d458564516e5676af9c70b4f4b2a9178294f1bc6",
+        "version" : "5.0.1"
+      }
+    },
+    {
+      "identity" : "stem",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/linhay/Stem.git",
+      "state" : {
+        "revision" : "d0b7b04fe9d60793822a1b82f13d3de61d9aa5f1",
+        "version" : "1.0.8"
+      }
+    }
+  ],
+  "version" : 2
+}

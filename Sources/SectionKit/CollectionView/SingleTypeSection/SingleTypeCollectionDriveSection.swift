@@ -78,6 +78,10 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
         return cell
     }
     
+    open func singleTypeCell(at row: Int) -> Cell {
+        return cell(at: row) as! Cell
+    }
+    
     open func willDisplayItem(at row: Int) {
         willDisplayEvent.call(row)
     }
@@ -109,7 +113,23 @@ extension SingleTypeCollectionDriveSection {
         sectionView.insertItems(at: [indexPath(from: row)])
     }
     
+    public func delete(_ model: Cell.Model) where Cell.Model: Equatable {
+        let indexs = models.enumerated().compactMap { (offset, element) in
+            return element == model ? offset : nil
+        }
+        guard indexs.isEmpty == false else {
+            return
+        }
+        indexs.sorted(by: <).forEach { index in
+            models.remove(at: index)
+        }
+        sectionView.deleteItems(at: indexs.map({ indexPath(from: $0) }))
+    }
+    
     public func delete(at row: Int) {
+        guard row < models.count else {
+            return
+        }
         models.remove(at: row)
         if itemCount <= 0 {
             reload()

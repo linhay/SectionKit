@@ -37,7 +37,7 @@ extension ColorBlockCell {
 // MARK: - ConfigurableView
 extension ColorBlockCell: ConfigurableView {
     
-    struct Model {
+    struct Model: Equatable {
         let color: UIColor
         let text: String
         let size: CGSize
@@ -54,6 +54,13 @@ extension ColorBlockCell: ConfigurableView {
         contentView.backgroundColor = model.color
         titleLabel.text = model.text
         
+        contentView.layer.borderColor = UIColor.black.cgColor
+        contentView.layer.cornerRadius = 2
+    }
+    
+    func setHighlight() {
+        contentView.layer.borderColor = UIColor.red.cgColor
+        contentView.layer.cornerRadius = bounds.height / 2
     }
     
 }
@@ -62,11 +69,8 @@ extension ColorBlockCell: ConfigurableView {
 extension ColorBlockCell {
     
     private func setupView() {
-        contentView.layer.borderColor = UIColor.black.cgColor
         contentView.layer.borderWidth = 2
-        contentView.layer.cornerRadius = 2
         contentView.layer.cornerCurve = .continuous
-        
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview()

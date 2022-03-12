@@ -10,17 +10,19 @@ import SectionKit
 import Stem
 
 class SingleTypeSectionViewController: SectionCollectionViewController {
-
+    
     enum Action: String, CaseIterable {
         case reset
         case add
         case delete
+        case deleteModel = "delete.model"
         case insert
+        case swap
     }
     
     let leftController = LeftViewController()
     let rightController = RightViewController()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -48,15 +50,15 @@ class SingleTypeSectionViewController: SectionCollectionViewController {
             make.left.equalTo(leftController.view.snp.right)
         }
     }
-
+    
 }
 
 extension SingleTypeSectionViewController {
     
     class LeftViewController: SectionCollectionViewController {
-
+        
         let section = SingleTypeSection<HomeIndexCell<Action>>(Action.allCases)
-
+        
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
@@ -75,16 +77,23 @@ extension SingleTypeSectionViewController {
 extension SingleTypeSectionViewController {
     
     class RightViewController: SectionCollectionViewController {
+        let size = CGSize(width: 88, height: 44)
         
-        let section = SingleTypeSection<ColorBlockCell>()
-
+        lazy var section = SingleTypeSection<ColorBlockCell>((0...10).map({ offset in
+                .init(color: .white, text: offset.description, size: size)
+        }))
+        
+        var isAnimating = false
+        
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
         
         func send(_ action: Action) {
-            let size = CGSize(width: 88, height: 44)
+            guard isAnimating == false else {
+                return
+            }
             switch action {
             case .reset:
                 let models = section.models.enumerated().map { (offset, model) in
@@ -98,16 +107,51 @@ extension SingleTypeSectionViewController {
                                                                text: "\(section.models.count) New",
                                                                size: size)])
             case .insert:
-                let offset = (0...section.models.count-1).randomElement()!
+                guard section.models.isEmpty == false,
+                      let offset = (0...section.models.count-1).randomElement() else {
+                    return
+                }
                 section.insert(.init(color: StemColor.random.alpha(with: 0.4).convert(),
                                      text: "\(offset) New",
                                      size: size),
                                at: offset)
-            case .delete:
-                guard let offset = (0...section.models.count-1).randomElement() else {
+            case .deleteModel:
+                guard section.models.isEmpty == false,
+                      let offset = (0...section.models.count-1).randomElement() else {
                     return
                 }
-                section.delete(at: offset)
+                section.singleTypeCell(at: offset).setHighlight()
+                animate {
+                    self.section.delete(self.section.models[offset])
+                }
+            case .delete:
+                guard section.models.isEmpty == false,
+                      let offset = (0...section.models.count-1).randomElement() else {
+                    return
+                }
+                section.singleTypeCell(at: offset).setHighlight()
+                animate {
+                    self.section.delete(at: offset)
+                }
+            case .swap:
+                guard section.models.isEmpty == false,
+                      let offset1 = (0...section.models.count-1).randomElement(),
+                      let offset2 = (0...section.models.count-1).randomElement() else {
+                    return
+                }
+                section.singleTypeCell(at: offset1).setHighlight()
+                section.singleTypeCell(at: offset2).setHighlight()
+                animate {
+                    self.section.swapAt(offset1, offset2)
+                }
+            }
+        }
+        
+        func animate(_ event: @escaping () -> Void) {
+            isAnimating = true
+            Gcd.delay(.main, seconds: 0.3) {
+                self.isAnimating = false
+                event()
             }
         }
         

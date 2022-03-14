@@ -12,6 +12,7 @@ class HomeController: SectionCollectionViewController {
     
     enum Action: String, CaseIterable {
         case singleTypeSection = "SingleTypeSection"
+        case prefetch
     }
     
     let section = SingleTypeSection<HomeIndexCell<Action>>()
@@ -38,6 +39,8 @@ extension HomeController {
     func bindUI() {
         section.selectedEvent.delegate(on: self) { (self, action) in
             switch action {
+            case .prefetch:
+                self.navigationController?.pushViewController(PrefetchViewController(), animated: true)
             case .singleTypeSection:
                 self.navigationController?.pushViewController(SingleTypeSectionViewController(), animated: true)
             }

@@ -23,7 +23,7 @@
 #if canImport(UIKit)
 import UIKit
 
-open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & LoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol {
+open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & LoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
     
     public lazy var safeSize = defaultSafeSize
     
@@ -33,12 +33,16 @@ open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & Loa
     
     open var hiddenHeaderWhenNoItem: Bool = true
     open var hiddenFooterWhenNoItem: Bool = true
+    open var isPrefetchingEnabled: Bool = true
     
-    public private(set) var headerViewProvider = Delegate<SingleTypeSection<Cell>, UICollectionReusableView>()
-    public private(set) var footerViewProvider = Delegate<SingleTypeSection<Cell>, UICollectionReusableView>()
-    public private(set) var headerSizeProvider = Delegate<UICollectionView, CGSize>()
-    public private(set) var footerSizeProvider = Delegate<UICollectionView, CGSize>()
+    public private(set) lazy var headerViewProvider = Delegate<SingleTypeSection<Cell>, UICollectionReusableView>()
+    public private(set) lazy var footerViewProvider = Delegate<SingleTypeSection<Cell>, UICollectionReusableView>()
+    public private(set) lazy var headerSizeProvider = Delegate<UICollectionView, CGSize>()
+    public private(set) lazy var footerSizeProvider = Delegate<UICollectionView, CGSize>()
     
+    public private(set) lazy var prefetchEvent = Delegate<[Int], Void>()
+    public private(set) lazy var cancelPrefetchingEvent = Delegate<[Int], Void>()
+
     open var headerView: UICollectionReusableView? { headerViewProvider.call(self) }
     
     open var headerSize: CGSize { headerSizeProvider.call(sectionView) ?? .zero }
@@ -51,6 +55,10 @@ open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & Loa
         return Cell.preferredSize(limit: safeSize.size(self), model: models[row])
     }
 
+    open func prefetch(at rows: [Int]) { prefetchEvent.call(rows) }
+    
+    open func cancelPrefetching(at rows: [Int]) { cancelPrefetchingEvent.call(rows) }
+    
 }
 
 #endif

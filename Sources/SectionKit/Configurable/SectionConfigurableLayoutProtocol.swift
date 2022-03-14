@@ -20,27 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if canImport(UIKit)
-import Foundation
-import UIKit
-#if canImport(Combine)
-import Combine
-#endif
+#if canImport(CoreGraphics)
+import CoreGraphics
 
-public protocol SingleTypeDriveSectionProtocol {
-    
-    associatedtype Cell: LoadViewProtocol & SectionConfigurableModelProtocol
-    associatedtype ReusableView
-    
-    var publishers: SingleTypeDriveSectionPublishers<Cell.Model, ReusableView> { get }
-
-    var models: [Cell.Model] { get }
-    func config(models: [Cell.Model])
-    func validate(_ models: [Cell.Model]) -> [Cell.Model]
-    
-    func swapAt(_ i: Int, _ j: Int)
-    func insert(_ model: Cell.Model, at row: Int)
-    func delete(at row: Int)
+public protocol SectionConfigurableLayoutProtocol {
+    associatedtype Model
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize
 }
-
 #endif

@@ -22,20 +22,20 @@
 
 import Foundation
 
-public protocol ConfigurableModelProtocol {
+public protocol SectionConfigurableModelProtocol {
     associatedtype Model
     func config(_ model: Model)
     /// 数据是否可用
     static func validate(_ model: Model) -> Bool
 }
 
-public extension ConfigurableModelProtocol {
+public extension SectionConfigurableModelProtocol {
     
     static func validate(_ model: Model) -> Bool { true }
     
 }
 
-public extension ConfigurableModelProtocol where Model == Void {
+public extension SectionConfigurableModelProtocol where Model == Void {
     
     func config(_ model: Model) { }
     

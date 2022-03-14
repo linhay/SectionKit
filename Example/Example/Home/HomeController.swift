@@ -11,7 +11,7 @@ import SectionKit
 class HomeController: SectionCollectionViewController {
     
     enum Action: String, CaseIterable {
-        case singleTypeSection = "SingleTypeSection"
+        case singleTypeSection
         case prefetch
     }
     
@@ -38,12 +38,18 @@ extension HomeController {
     
     func bindUI() {
         section.selectedEvent.delegate(on: self) { (self, action) in
+            var controller: UIViewController?
             switch action {
             case .prefetch:
-                self.navigationController?.pushViewController(PrefetchViewController(), animated: true)
+                controller = PrefetchViewController()
             case .singleTypeSection:
-                self.navigationController?.pushViewController(SingleTypeSectionViewController(), animated: true)
+                controller = SingleTypeSectionViewController()
             }
+            guard let controller = controller else {
+                return
+            }
+            controller.title = action.rawValue.enumerated().map { $0.offset > 0 ? $0.element.description : $0.element.uppercased() }.joined()
+            self.navigationController?.pushViewController(controller, animated: true)
         }
     }
     

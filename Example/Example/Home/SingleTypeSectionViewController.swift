@@ -36,7 +36,6 @@ class SingleTypeSectionViewController: SectionCollectionViewController {
     }
     
     func setupUI() {
-        title = "SingleTypeSectionViewController"
         addChild(leftController)
         addChild(rightController)
         view.addSubview(leftController.view)

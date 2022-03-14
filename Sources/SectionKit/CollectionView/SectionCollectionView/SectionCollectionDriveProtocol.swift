@@ -70,15 +70,54 @@ public extension SectionCollectionDriveProtocol {
 
 public extension SectionCollectionDriveProtocol {
     
-    func cell(at row: Int) -> UICollectionViewCell? {
-        return sectionView.cellForItem(at: indexPath(from: row))
+    func layoutAttributesForItem(at row: Int) -> UICollectionViewLayoutAttributes? {
+        sectionView.layoutAttributesForItem(at: indexPath(from: row))
     }
 
-    func row(for cell: UICollectionViewCell) -> Int? {
-        guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == core?.index else {
+    func layoutAttributesForSupplementaryElement(ofKind kind: String, at row: Int) -> UICollectionViewLayoutAttributes? {
+        sectionView.layoutAttributesForSupplementaryElement(ofKind: kind, at: indexPath(from: row))
+    }
+
+    func indexForItem(at point: CGPoint) -> Int? {
+        guard let indexPath = sectionView.indexPathForItem(at: point), indexPath.section == index else {
             return nil
         }
         return indexPath.row
+    }
+
+    func index(for cell: UICollectionViewCell) -> Int? {
+        guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == index else {
+            return nil
+        }
+        return indexPath.row
+    }
+
+    // Returns any existing visible or prepared cell for the index path. Returns nil when no cell exists, or if index path is out of range.
+    func cellForItem(at row: Int) -> UICollectionViewCell? {
+        return sectionView.cellForItem(at: indexPath(from: row))
+    }
+
+    var visibleCells: [UICollectionViewCell] {
+        indexsForVisibleItems.map(indexPath(from:))
+            .compactMap { indexPath in
+                sectionView.cellForItem(at: indexPath)
+            }
+    }
+
+    var indexsForVisibleItems: [Int] {
+         sectionView.indexPathsForVisibleItems.filter({ $0.section == index }).map(\.row)
+    }
+
+    func supplementaryView(for elementKind: String, at row: Int) -> UICollectionReusableView? {
+        sectionView.supplementaryView(forElementKind: elementKind, at: indexPath(from: row))
+    }
+
+    func visibleSupplementaryViews(of elementKind: String) -> [UICollectionReusableView] {
+        sectionView.visibleSupplementaryViews(ofKind: elementKind)
+    }
+
+    func indexsForVisibleSupplementaryViews(of elementKind: String) -> [Int] {
+        sectionView.indexPathsForVisibleSupplementaryElements(ofKind: elementKind).filter({ $0.section == index }).map(\.row)
     }
 
 }

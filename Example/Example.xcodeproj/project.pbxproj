@@ -19,6 +19,7 @@
 		CD33B82C27DCEBB40032987B /* ColorBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B82B27DCEBB40032987B /* ColorBlockCell.swift */; };
 		CD33B82F27DCEC480032987B /* Stem in Frameworks */ = {isa = PBXBuildFile; productRef = CD33B82E27DCEC480032987B /* Stem */; };
 		CD33B83127DD05650032987B /* PrefetchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B83027DD05650032987B /* PrefetchViewController.swift */; };
+		CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		CD33B82927DCEB620032987B /* SingleTypeSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTypeSectionViewController.swift; sourceTree = "<group>"; };
 		CD33B82B27DCEBB40032987B /* ColorBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorBlockCell.swift; sourceTree = "<group>"; };
 		CD33B83027DD05650032987B /* PrefetchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefetchViewController.swift; sourceTree = "<group>"; };
+		CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSectionViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +103,7 @@
 			children = (
 				CD33B82727DCE6640032987B /* HomeController.swift */,
 				CD33B82927DCEB620032987B /* SingleTypeSectionViewController.swift */,
+				CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */,
 				CD33B83027DD05650032987B /* PrefetchViewController.swift */,
 				CD33B82227DCE4350032987B /* HomeIndexCell.swift */,
 				CD33B82B27DCEBB40032987B /* ColorBlockCell.swift */,
@@ -191,6 +194,7 @@
 				CD33B83127DD05650032987B /* PrefetchViewController.swift in Sources */,
 				CD33B82C27DCEBB40032987B /* ColorBlockCell.swift in Sources */,
 				CD33B80A27DCE3A70032987B /* SceneDelegate.swift in Sources */,
+				CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */,
 				CD33B82327DCE4350032987B /* HomeIndexCell.swift in Sources */,
 				CD33B82A27DCEB620032987B /* SingleTypeSectionViewController.swift in Sources */,
 				CD33B82827DCE6640032987B /* HomeController.swift in Sources */,

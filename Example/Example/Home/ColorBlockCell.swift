@@ -18,6 +18,8 @@ final class ColorBlockCell: UICollectionViewCell, LoadViewProtocol {
         return view
     }()
     
+    private var model: Model?
+
     override init(frame: CGRect) {
         super.init(frame: .zero)
         setupView()
@@ -51,16 +53,22 @@ extension ColorBlockCell: ConfigurableView {
     }
     
     func config(_ model: Model) {
+        self.model = model
         contentView.backgroundColor = model.color
         titleLabel.text = model.text
-        
         contentView.layer.borderColor = UIColor.black.cgColor
         contentView.layer.cornerRadius = 2
     }
     
+    func unhighlight() {
+        guard let model = model else {
+            return
+        }
+        config(model)
+    }
+    
     func setHighlight() {
-        contentView.layer.borderColor = UIColor.red.cgColor
-        contentView.layer.cornerRadius = bounds.height / 2
+        contentView.backgroundColor = .blue.withAlphaComponent(0.4)
     }
     
 }

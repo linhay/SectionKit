@@ -39,6 +39,8 @@ public class SectionCollectionManager {
     private let delegate   = SectionCollectionViewDelegateFlowLayout()
     private let prefetchDataSource = SectionDataSourcePrefetching()
 
+    private lazy var placeholderSection = PlaceholderSection()
+    
     @MainActor
     public init(sectionView: UICollectionView) {
         environment = .init(sectionView: sectionView, reloadDataEvent: nil)
@@ -74,8 +76,7 @@ public class SectionCollectionManager {
     
     private func section(at index: Int) -> SectionCollectionDriveProtocol {
         guard index >= 0, index < self.sections.count else {
-            assertionFailure("无对应的 section index: \(index)")
-            return PlaceholderSection()
+            return placeholderSection
         }
         return self.sections[index]
     }

@@ -54,9 +54,37 @@ public extension SectionTableProtocol {
 }
 
 public extension SectionTableProtocol {
-    
-    func cell(at row: Int) -> UITableViewCell? {
+
+    func indexForItem(at point: CGPoint) -> Int? {
+        guard let indexPath = sectionView.indexPathForRow(at: point), indexPath.section == index else {
+            return nil
+        }
+        return indexPath.row
+    }
+
+    func index(for cell: UITableViewCell) -> Int? {
+        guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == index else {
+            return nil
+        }
+        return indexPath.row
+    }
+
+    // Returns any existing visible or prepared cell for the index path. Returns nil when no cell exists, or if index path is out of range.
+    func cellForItem(at row: Int) -> UITableViewCell? {
         return sectionView.cellForRow(at: indexPath(from: row))
+    }
+
+    var visibleCells: [UITableViewCell] {
+         indexsForVisibleItems.map(indexPath(from:))
+             .compactMap { indexPath in
+                 sectionView.cellForRow(at: indexPath)
+             }
+     }
+
+    var indexsForVisibleItems: [Int] {
+         (sectionView.indexPathsForVisibleRows ?? [])
+            .filter({ $0.section == index })
+            .map(\.row)
     }
 
 }

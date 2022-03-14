@@ -12,6 +12,7 @@ class HomeController: SectionCollectionViewController {
     
     enum Action: String, CaseIterable {
         case singleTypeSection
+        case multiSection
         case prefetch
     }
     
@@ -44,6 +45,8 @@ extension HomeController {
                 controller = PrefetchViewController()
             case .singleTypeSection:
                 controller = SingleTypeSectionViewController()
+            case .multiSection:
+                controller = MultiSectionViewController()
             }
             guard let controller = controller else {
                 return

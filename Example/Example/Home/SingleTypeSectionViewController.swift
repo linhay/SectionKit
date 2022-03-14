@@ -119,7 +119,7 @@ extension SingleTypeSectionViewController {
                       let offset = (0...section.models.count-1).randomElement() else {
                     return
                 }
-                section.singleTypeCell(at: offset).setHighlight()
+                section.cellForTypeItem(at: offset).setHighlight()
                 animate {
                     self.section.delete(self.section.models[offset])
                 }
@@ -128,7 +128,7 @@ extension SingleTypeSectionViewController {
                       let offset = (0...section.models.count-1).randomElement() else {
                     return
                 }
-                section.singleTypeCell(at: offset).setHighlight()
+                section.cellForTypeItem(at: offset).setHighlight()
                 animate {
                     self.section.delete(at: offset)
                 }
@@ -138,8 +138,8 @@ extension SingleTypeSectionViewController {
                       let offset2 = (0...section.models.count-1).randomElement() else {
                     return
                 }
-                section.singleTypeCell(at: offset1).setHighlight()
-                section.singleTypeCell(at: offset2).setHighlight()
+                section.cellForTypeItem(at: offset1).setHighlight()
+                section.cellForTypeItem(at: offset2).setHighlight()
                 animate {
                     self.section.swapAt(offset1, offset2)
                 }
@@ -148,7 +148,7 @@ extension SingleTypeSectionViewController {
         
         func animate(_ event: @escaping () -> Void) {
             isAnimating = true
-            Gcd.delay(.main, seconds: 0.3) {
+            Gcd.delay(.main, seconds: 0.5) {
                 self.isAnimating = false
                 event()
             }

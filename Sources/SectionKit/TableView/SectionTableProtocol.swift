@@ -54,107 +54,90 @@ public extension SectionTableProtocol {
 }
 
 public extension SectionTableProtocol {
-
-    func dequeue<T: UITableViewCell>(at row: Int, identifier: String = String(describing: T.self)) -> T {
-        return sectionView.dequeueReusableCell(withIdentifier: identifier, for: indexPath(from: row)) as! T
-    }
-
-    func dequeue<T: UITableViewHeaderFooterView>(identifier: String = String(describing: T.self)) -> T {
-        return sectionView.dequeueReusableHeaderFooterView(withIdentifier: identifier) as! T
-    }
-
-}
-
-public extension SectionTableProtocol {
-
-    func deselect(at row: Int, animated: Bool) {
-        sectionView.deselectRow(at: indexPath(from: row), animated: animated)
-    }
-
+    
     func cell(at row: Int) -> UITableViewCell? {
         return sectionView.cellForRow(at: indexPath(from: row))
     }
 
-    func pick(_ updates: (() -> Void), completion: ((Bool) -> Void)?) {
-        if #available(iOS 11.0, *) {
-            sectionView.performBatchUpdates(updates, completion: completion)
-        } else {
-            sectionView.beginUpdates()
-            updates()
-            sectionView.endUpdates()
-            completion?(true)
-        }
-    }
-
 }
 
 public extension SectionTableProtocol {
 
-    /// 刷新整组元素
-    /// - Parameter animation: 动画
+    func pick(_ updates: (() -> Void), completion: ((Bool) -> Void)?) {
+        sectionView.performBatchUpdates(updates, completion: completion)
+    }
+
+}
+
+/// Interacting with the collection view.
+public extension SectionTableProtocol {
+
+    func scroll(to row: Int, at scrollPosition: UITableView.ScrollPosition, animated: Bool) {
+        sectionView.scrollToRow(at: indexPath(from: row), at: scrollPosition, animated: animated)
+    }
+
+}
+
+/// These properties control whether items can be selected, and if so, whether multiple items can be simultaneously selected.
+public extension SectionTableProtocol {
+    
+    var indexForSelectedItems: [Int] {
+        (sectionView.indexPathsForSelectedRows ?? [])
+            .filter({ $0.section == index })
+            .map(\.row)
+    }
+    
+    func selectItem(at row: Int?, animated: Bool, scrollPosition: UITableView.ScrollPosition) {
+        sectionView.selectRow(at: indexPath(from: row), animated: animated, scrollPosition: scrollPosition)
+    }
+
+    func deselectItem(at row: Int, animated: Bool) {
+        sectionView.deselectRow(at: indexPath(from: row), animated: animated)
+    }
+
+}
+
+/// These methods allow dynamic modification of the current set of items in the collection view
+public extension SectionTableProtocol {
+    
     func reload(with animation: UITableView.RowAnimation = .none) {
         sectionView.reloadSections(.init(integer: index), with: animation)
     }
 
-    /// 刷新单个元素
-    /// - Parameters:
-    ///   - row: 序号
-    ///   - animation: 动画
-    func reload(at row: Int, with animation: UITableView.RowAnimation = .none) {
-        reload(at: [row], with: animation)
-    }
-
-    /// 刷新多个元素
-    /// - Parameters:
-    ///   - row: 序号
-    ///   - animation: 动画
-    func reload(at rows: [Int], with animation: UITableView.RowAnimation = .none) {
-        sectionView.reloadRows(at: indexPaths(from: rows), with: animation)
-    }
-
-}
-
-public extension SectionTableProtocol {
-
-    func insert(at row: Int,
-                with animation: UITableView.RowAnimation = .none,
-                willUpdate: (() -> Void)) {
-        insert(at: [row], with: animation, willUpdate: willUpdate)
-    }
-
-    func insert(at rows: [Int],
-                with animation: UITableView.RowAnimation = .none,
-                willUpdate: (() -> Void)) {
+    func insertItems(at rows: [Int], with animation: UITableView.RowAnimation = .none) {
         guard rows.isEmpty == false else {
             return
         }
-        willUpdate()
         if let max = rows.max(), itemCount <= max {
             sectionView.reloadData()
         } else {
-            sectionView.insertRows(at: indexPaths(from: rows), with: animation)
+            sectionView.insertRows(at: indexPath(from: rows), with: animation)
         }
     }
-
-}
-
-public extension SectionTableProtocol {
-
-    func delete(at row: Int, with animation: UITableView.RowAnimation = .none, willUpdate: (() -> Void)) {
-        delete(at: [row], willUpdate: willUpdate)
-    }
-
-    func delete(at rows: [Int], with animation: UITableView.RowAnimation = .none, willUpdate: (() -> Void)) {
+    
+    func deleteItems(at rows: [Int], with animation: UITableView.RowAnimation = .none) {
         guard rows.isEmpty == false else {
             return
         }
-        willUpdate()
         if itemCount <= 0 {
             sectionView.reloadData()
         } else {
-            sectionView.deleteRows(at: indexPaths(from: rows), with: animation)
+            sectionView.deleteRows(at: indexPath(from: rows), with: animation)
         }
+    }
+    
+    func moveItem(at row: Int, to newIndexPath: IndexPath) {
+        sectionView.moveRow(at: indexPath(from: row), to: newIndexPath)
+    }
+    
+    func moveItem(at row1: Int, to row2: Int) {
+        sectionView.moveRow(at: indexPath(from: row1), to: indexPath(from: row2))
+    }
+    
+    func reloadItems(at rows: [Int], with animation: UITableView.RowAnimation = .none) {
+        sectionView.reloadRows(at: indexPath(from: rows), with: animation)
     }
 
 }
+
 #endif

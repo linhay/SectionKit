@@ -69,11 +69,7 @@ public extension SectionCollectionDriveProtocol {
 }
 
 public extension SectionCollectionDriveProtocol {
-
-    func deselect(at row: Int, animated: Bool) {
-        sectionView.deselectItem(at: indexPath(from: row), animated: animated)
-    }
-
+    
     func cell(at row: Int) -> UICollectionViewCell? {
         return sectionView.cellForItem(at: indexPath(from: row))
     }
@@ -85,73 +81,81 @@ public extension SectionCollectionDriveProtocol {
         return indexPath.row
     }
 
+}
+
+public extension SectionCollectionDriveProtocol {
+    
     func pick(_ updates: (() -> Void), completion: ((Bool) -> Void)? = nil) {
         sectionView.performBatchUpdates(updates, completion: completion)
     }
 
 }
 
-public extension SectionCollectionDriveProtocol {
-
-    func reload() {
-        core?.reloadDataEvent?()
-    }
-
-    func reload(at row: Int) {
-        reload(at: [row])
-    }
-
-    func reload(at rows: [Int]) {
-        sectionView.reloadItems(at: rows.map({ self.indexPath(from: $0) }))
-    }
-
-}
-
-public extension SectionCollectionDriveProtocol {
-
-    func insert(at row: Int, willUpdate: (() -> Void)) {
-        insert(at: [row], willUpdate: willUpdate)
-    }
-
-    func insert(at rows: [Int], willUpdate: (() -> Void)) {
-        guard rows.isEmpty == false else {
-            return
-        }
-        willUpdate()
-        sectionView.insertItems(at: indexPaths(from: rows))
-    }
-
-}
-
-public extension SectionCollectionDriveProtocol {
-
-    func delete(at row: Int, willUpdate: (() -> Void)) {
-        delete(at: [row], willUpdate: willUpdate)
-    }
-
-    func delete(at rows: [Int], willUpdate: (() -> Void)) {
-        guard rows.isEmpty == false else {
-            return
-        }
-        willUpdate()
-        if itemCount <= 0 {
-            core?.reloadDataEvent?()
-        } else {
-            sectionView.deleteItems(at: indexPaths(from: rows))
-        }
-    }
-
-}
-
+/// Interacting with the collection view.
 public extension SectionCollectionDriveProtocol {
 
     func scroll(to row: Int, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
         sectionView.scrollToItem(at: indexPath(from: row), at: scrollPosition, animated: animated)
     }
 
-    func select(at row: Int?, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
+}
+
+/// These properties control whether items can be selected, and if so, whether multiple items can be simultaneously selected.
+public extension SectionCollectionDriveProtocol {
+    
+    var indexForSelectedItems: [Int] {
+        (sectionView.indexPathsForSelectedItems ?? [])
+            .filter({ $0.section == index })
+            .map(\.row)
+    }
+    
+    func selectItem(at row: Int?, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
         sectionView.selectItem(at: indexPath(from: row), animated: animated, scrollPosition: scrollPosition)
     }
 
+    func deselectItem(at row: Int, animated: Bool) {
+        sectionView.deselectItem(at: indexPath(from: row), animated: animated)
+    }
+
 }
+
+/// These methods allow dynamic modification of the current set of items in the collection view
+public extension SectionCollectionDriveProtocol {
+    
+    func reload() {
+        core?.reloadDataEvent?()
+    }
+
+    func insertItems(at rows: [Int]) {
+        guard rows.isEmpty == false else {
+            return
+        }
+        sectionView.insertItems(at: indexPath(from: rows))
+    }
+    
+    func deleteItems(at rows: [Int]) {
+        guard rows.isEmpty == false else {
+            return
+        }
+        if itemCount <= 0 {
+            core?.reloadDataEvent?()
+        } else {
+            sectionView.deleteItems(at: indexPath(from: rows))
+        }
+    }
+    
+    func moveItem(at row: Int, to newIndexPath: IndexPath) {
+        sectionView.moveItem(at: indexPath(from: row), to: newIndexPath)
+    }
+    
+    func moveItem(at row1: Int, to row2: Int) {
+        sectionView.moveItem(at: indexPath(from: row1), to: indexPath(from: row2))
+    }
+    
+    func reloadItems(at rows: [Int]) {
+        sectionView.reloadItems(at: indexPath(from: rows))
+    }
+
+}
+
 #endif

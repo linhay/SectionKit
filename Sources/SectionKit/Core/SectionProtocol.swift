@@ -49,14 +49,12 @@ public protocol SectionProtocol: AnyObject {
     func canEditItem(at row: Int) -> Bool
     
     var indexTitle: String? { get }
-    
-    func deselect(at row: Int, animated: Bool)
-    
+        
     var itemCount: Int { get }
     
     func canMove(at: Int) -> Bool
     
-    func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath)
+    func move(from source: IndexPath, to destination: IndexPath)
     
     func pick(_ updates: (() -> Void), completion: ((Bool) -> Void)?)
 }
@@ -111,7 +109,7 @@ public extension SectionProtocol {
         return IndexPath(item: value, section: index)
     }
 
-    func indexPaths(from value: [Int]) -> [IndexPath] {
+    func indexPath(from value: [Int]) -> [IndexPath] {
         return value.map({ IndexPath(item: $0, section: index) })
     }
 

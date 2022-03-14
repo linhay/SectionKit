@@ -26,8 +26,8 @@ import UIKit
 // MARK: - UICollectionViewDelegate && UICollectionViewDataSource
 class SectionCollectionViewDelegate: SectionScrollViewDelegate, UICollectionViewDelegate {
     
-    let sectionEvent = Delegate<Int, SectionCollectionDriveProtocol>()
-    let sectionsEvent = Delegate<Void, LazyMapSequence<LazyFilterSequence<LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol?>>, SectionCollectionDriveProtocol>>()
+    let sectionEvent = SectionDelegate<Int, SectionCollectionDriveProtocol>()
+    let sectionsEvent = SectionDelegate<Void, LazyMapSequence<LazyFilterSequence<LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol?>>, SectionCollectionDriveProtocol>>()
 
     func section(from indexPath: IndexPath) -> SectionCollectionDriveProtocol? {
         return sectionEvent.call(indexPath.section)

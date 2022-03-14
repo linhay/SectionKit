@@ -11,7 +11,7 @@ import UIKit
 // MARK: - UITableViewDelegate
 class SectionTableViewDelegate: SectionScrollViewDelegate, UITableViewDelegate {
     
-    let sectionEvent = Delegate<Int, SectionTableProtocol>()
+    let sectionEvent = SectionDelegate<Int, SectionTableProtocol>()
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         sectionEvent.call(indexPath.section)?.didSelectItem(at: indexPath.item)

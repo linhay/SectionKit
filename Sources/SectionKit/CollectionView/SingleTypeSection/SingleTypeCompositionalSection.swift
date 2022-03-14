@@ -25,7 +25,7 @@ import UIKit
 
 open class SingleTypeCompositionalSection<Cell: UICollectionViewCell & ConfigurableView & LoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionCompositionalLayoutProtocol {
     
-    public let supplementaryProvider = Delegate<(section: SingleTypeCompositionalSection<Cell>, kind: String, at: IndexPath), UICollectionReusableView>()
+    public let supplementaryProvider = SectionDelegate<(section: SingleTypeCompositionalSection<Cell>, kind: String, at: IndexPath), UICollectionReusableView>()
     
     public func supplementaryView(kind: String, at indexPath: IndexPath) -> UICollectionReusableView? {
         supplementaryProvider.call((section: self, kind: kind, at: indexPath))

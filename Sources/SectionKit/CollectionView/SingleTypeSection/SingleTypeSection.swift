@@ -35,13 +35,13 @@ open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & Loa
     open var hiddenFooterWhenNoItem: Bool = true
     open var isPrefetchingEnabled: Bool = true
     
-    public private(set) lazy var headerViewProvider = Delegate<SingleTypeSection<Cell>, UICollectionReusableView>()
-    public private(set) lazy var footerViewProvider = Delegate<SingleTypeSection<Cell>, UICollectionReusableView>()
-    public private(set) lazy var headerSizeProvider = Delegate<UICollectionView, CGSize>()
-    public private(set) lazy var footerSizeProvider = Delegate<UICollectionView, CGSize>()
+    public private(set) lazy var headerViewProvider = SectionDelegate<SingleTypeSection<Cell>, UICollectionReusableView>()
+    public private(set) lazy var footerViewProvider = SectionDelegate<SingleTypeSection<Cell>, UICollectionReusableView>()
+    public private(set) lazy var headerSizeProvider = SectionDelegate<UICollectionView, CGSize>()
+    public private(set) lazy var footerSizeProvider = SectionDelegate<UICollectionView, CGSize>()
     
-    public private(set) lazy var prefetchEvent = Delegate<[Int], Void>()
-    public private(set) lazy var cancelPrefetchingEvent = Delegate<[Int], Void>()
+    public private(set) lazy var prefetchEvent = SectionDelegate<[Int], Void>()
+    public private(set) lazy var cancelPrefetchingEvent = SectionDelegate<[Int], Void>()
 
     open var headerView: UICollectionReusableView? { headerViewProvider.call(self) }
     

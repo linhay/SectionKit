@@ -24,7 +24,7 @@ public extension SectionDataSourcePrefetchingProtocol {
 
 class SectionDataSourcePrefetching: NSObject, UITableViewDataSourcePrefetching, UICollectionViewDataSourcePrefetching {
     
-    let sectionEvent = Delegate<Int, SectionDataSourcePrefetchingProtocol?>()
+    let sectionEvent = SectionDelegate<Int, SectionDataSourcePrefetchingProtocol?>()
     
     private func prefetch(at indexPaths: [IndexPath]) {
         indexPaths.reduce([Int: [Int]]()) { result, indexPath in

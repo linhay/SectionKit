@@ -65,7 +65,7 @@ import Foundation
 /// }
 /// ```
 ///
-public class Delegate<Input, Output> {
+public class SectionDelegate<Input, Output> {
     public init() {}
     
     private var block: ((Input) -> Output?)?
@@ -85,7 +85,7 @@ public class Delegate<Input, Output> {
     }
 }
 
-extension Delegate where Input == Void {
+extension SectionDelegate where Input == Void {
     public func call() -> Output? {
         return call(())
     }
@@ -95,7 +95,7 @@ extension Delegate where Input == Void {
     }
 }
 
-extension Delegate where Input == Void, Output: OptionalProtocol {
+extension SectionDelegate where Input == Void, Output: OptionalProtocol {
     public func call() -> Output {
         return call(())
     }
@@ -105,7 +105,7 @@ extension Delegate where Input == Void, Output: OptionalProtocol {
     }
 }
 
-extension Delegate where Output: OptionalProtocol {
+extension SectionDelegate where Output: OptionalProtocol {
     public func call(_ input: Input) -> Output {
         if let result = block?(input) {
             return result

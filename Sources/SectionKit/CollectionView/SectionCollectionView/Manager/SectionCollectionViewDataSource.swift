@@ -25,9 +25,9 @@ import UIKit
 
 class SectionCollectionViewDataSource: NSObject, UICollectionViewDataSource {
         
-    let count = Delegate<Void, Int>()
-    let sectionEvent = Delegate<Int, SectionCollectionDriveProtocol>()
-    let sectionsEvent = Delegate<Void, LazyMapSequence<LazyFilterSequence<LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol?>>, SectionCollectionDriveProtocol>>()
+    let count = SectionDelegate<Void, Int>()
+    let sectionEvent = SectionDelegate<Int, SectionCollectionDriveProtocol>()
+    let sectionsEvent = SectionDelegate<Void, LazyMapSequence<LazyFilterSequence<LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol?>>, SectionCollectionDriveProtocol>>()
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return sectionEvent.call(section)?.itemCount ?? 0

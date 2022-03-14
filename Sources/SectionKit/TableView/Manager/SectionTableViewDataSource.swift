@@ -11,8 +11,8 @@ import UIKit
 // MARK: - UITableViewDataSource
 class SectionTableViewDataSource: NSObject, UITableViewDataSource {
     
-    let sectionEvent = Delegate<Int, SectionTableProtocol>()
-    let count = Delegate<Void, Int>()
+    let sectionEvent = SectionDelegate<Int, SectionTableProtocol>()
+    let count = SectionDelegate<Void, Int>()
     
     public func numberOfSections(in tableView: UITableView) -> Int {
         return count.call() ?? 0

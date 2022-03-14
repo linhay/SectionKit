@@ -33,13 +33,13 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
     public private(set) var models: [Cell.Model]
     public let publishers = Publishers()
         
-    public let selectedEvent = Delegate<Cell.Model, Void>()
-    public let selectedRowEvent = Delegate<Int, Void>()
-    public let willDisplayEvent = Delegate<Int, Void>()
-    public let willDisplaySupplementaryViewEvent      = Delegate<Publishers.SupplementaryResult, Void>()
-    public let didEndDisplayingSupplementaryViewEvent = Delegate<Publishers.SupplementaryResult, Void>()
+    public let selectedEvent = SectionDelegate<Cell.Model, Void>()
+    public let selectedRowEvent = SectionDelegate<Int, Void>()
+    public let willDisplayEvent = SectionDelegate<Int, Void>()
+    public let willDisplaySupplementaryViewEvent      = SectionDelegate<Publishers.SupplementaryResult, Void>()
+    public let didEndDisplayingSupplementaryViewEvent = SectionDelegate<Publishers.SupplementaryResult, Void>()
     /// cell 样式配置
-    public let cellStyleProvider  = Delegate<(row: Int, cell: Cell), Void>()
+    public let cellStyleProvider  = SectionDelegate<(row: Int, cell: Cell), Void>()
     
     open var core: SectionState?
     

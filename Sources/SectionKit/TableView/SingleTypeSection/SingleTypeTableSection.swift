@@ -27,17 +27,17 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionTableProtocol w
     
     public private(set) var models: [Cell.Model]
     
-    public let selectedEvent = Delegate<Cell.Model, Void>()
-    public let selectedRowEvent = Delegate<Int, Void>()
-    public let willDisplayEvent = Delegate<Int, Void>()
+    public let selectedEvent = SectionDelegate<Cell.Model, Void>()
+    public let selectedRowEvent = SectionDelegate<Int, Void>()
+    public let willDisplayEvent = SectionDelegate<Int, Void>()
     /// cell 样式配置
-    public let configCellStyleEvent = Delegate<(row: Int, cell: Cell), Void>()
+    public let configCellStyleEvent = SectionDelegate<(row: Int, cell: Cell), Void>()
     
-    public let headerViewProvider = Delegate<SingleTypeTableSection, UITableViewHeaderFooterView>()
-    public let headerSizeProvider = Delegate<UITableView, CGSize>()
+    public let headerViewProvider = SectionDelegate<SingleTypeTableSection, UITableViewHeaderFooterView>()
+    public let headerSizeProvider = SectionDelegate<UITableView, CGSize>()
     
-    public let footerViewProvider = Delegate<SingleTypeTableSection, UITableViewHeaderFooterView>()
-    public let footerSizeProvider = Delegate<UITableView, CGSize>()
+    public let footerViewProvider = SectionDelegate<SingleTypeTableSection, UITableViewHeaderFooterView>()
+    public let footerSizeProvider = SectionDelegate<UITableView, CGSize>()
     
     open var headerView: UITableViewHeaderFooterView? { headerViewProvider.call(self) }
     open var footerView: UITableViewHeaderFooterView? { footerViewProvider.call(self) }

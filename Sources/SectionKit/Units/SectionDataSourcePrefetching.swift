@@ -10,8 +10,16 @@ import UIKit
 
 public protocol SectionDataSourcePrefetchingProtocol {
     var isPrefetchingEnabled: Bool { get }
-    func prefetch(at: [Int])
-    func cancelPrefetching(at: [Int])
+    func prefetch(at rows: [Int])
+    func cancelPrefetching(at rows: [Int])
+}
+
+public extension SectionDataSourcePrefetchingProtocol {
+    
+    var isPrefetchingEnabled: Bool { true }
+    func prefetch(at rows: [Int]) {}
+    func cancelPrefetching(at rows: [Int]) {}
+    
 }
 
 class SectionDataSourcePrefetching: NSObject, UITableViewDataSourcePrefetching, UICollectionViewDataSourcePrefetching {

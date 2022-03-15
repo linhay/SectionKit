@@ -59,21 +59,35 @@ extension ColorBlockCell: ConfigurableView {
         contentView.layer.borderColor = UIColor.black.cgColor
         contentView.layer.cornerRadius = 2
     }
+
+    
+    override var isSelected: Bool {
+        get {
+            super.isSelected
+        }
+        set {
+            super.isSelected = newValue
+            titleLabel.text = "$ \(model!.text) $"
+        }
+    }
+    
+    override var isHighlighted: Bool {
+        get {
+            super.isSelected
+        }
+        set {
+            super.isSelected = newValue
+            if newValue {
+                contentView.backgroundColor = .blue.withAlphaComponent(0.4)
+            } else {
+                contentView.backgroundColor = model?.color
+            }
+        }
+    }
     
     func update(text: String) {
         titleLabel.text = text
         model?.text = text
-    }
-    
-    func unhighlight() {
-        guard let model = model else {
-            return
-        }
-        config(model)
-    }
-    
-    func setHighlight() {
-        contentView.backgroundColor = .blue.withAlphaComponent(0.4)
     }
     
 }

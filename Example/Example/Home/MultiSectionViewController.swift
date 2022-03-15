@@ -114,11 +114,11 @@ extension MultiSectionViewController {
                 }
                 
                 section.visibleTypeItems.forEach { cell in
-                    cell.setHighlight()
+                    cell.isHighlighted = true
                 }
                 animate {
                     section.visibleTypeItems.forEach { cell in
-                        cell.unhighlight()
+                        cell.isHighlighted = false
                     }
                 }
             case .delete:
@@ -126,7 +126,7 @@ extension MultiSectionViewController {
                     return
                 }
                 random.visibleTypeItems.forEach { cell in
-                    cell.setHighlight()
+                    cell.isHighlighted = true
                 }
                 animate {
                     self.manager.delete(random)
@@ -137,12 +137,12 @@ extension MultiSectionViewController {
                     return
                 }
                 [random1, random2].map(\.visibleTypeItems).joined().forEach { cell in
-                    cell.setHighlight()
+                    cell.isHighlighted = true
                 }
                 self.manager.move(from: .section(random1), to: .section(random2))
                 animate {
                     [random1, random2].map(\.visibleTypeItems).joined().forEach { cell in
-                        cell.unhighlight()
+                        cell.isHighlighted = false
                     }
                 }
             }

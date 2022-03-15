@@ -25,27 +25,22 @@ import UIKit
 
 public protocol SectionCollectionDriveProtocol: SectionProtocol {
     
-    var sectionView: UICollectionView { get }
-
     func config(sectionView: UICollectionView)
     func item(at row: Int) -> UICollectionViewCell
     
     /// SupplementaryView
-    func willDisplaySupplementaryView(view: UICollectionReusableView, forElementKind elementKind: String, at row: Int)
-    func didEndDisplayingSupplementaryView(view: UICollectionReusableView, forElementKind elementKind: String, at row: Int)
+    func supplementaryView(willDisplay view: UICollectionReusableView, forElementKind elementKind: String, at row: Int)
+    func supplementaryView(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: String, at row: Int)
 
     /// contextMenu
     @available(iOS 13.0, *)
     func contextMenuConfiguration(at row: Int, point: CGPoint) -> UIContextMenuConfiguration?
-    
-    func reload()
 }
 
 public extension SectionCollectionDriveProtocol {
     
-    func willDisplaySupplementaryView(view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {}
-    
-    func didEndDisplayingSupplementaryView(view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {}
+    func supplementaryView(willDisplay view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {}
+    func supplementaryView(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {}
     
 }
 
@@ -63,7 +58,6 @@ public extension SectionCollectionDriveProtocol {
 
 public extension SectionCollectionDriveProtocol {
     
-    @available(iOS 13.0, *)
     func contextMenuConfiguration(at row: Int, point: CGPoint) -> UIContextMenuConfiguration? { nil }
     
 }

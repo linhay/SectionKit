@@ -25,7 +25,7 @@ import UIKit
 
 @available(iOS 13, *)
 @dynamicMemberLookup
-public final class SectionDifferenceWrapper<Section: SingleTypeDriveSectionProtocol & SectionProtocol>: SectionWrapperProtocol where Section.Cell.Model: Hashable {
+public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtocol & SectionProtocol>: SectionWrapperProtocol where Section.Cell.Model: Hashable {
         
     public let wrappedSection: Section
         
@@ -46,7 +46,7 @@ public final class SectionDifferenceWrapper<Section: SingleTypeDriveSectionProto
             for change in difference {
                 switch change {
                 case let .remove(offset, _, _):
-                    wrappedSection.delete(at: offset)
+                    wrappedSection.remove(at: offset)
                 case let .insert(offset, element, _):
                     wrappedSection.insert(element, at: offset)
                 }
@@ -61,7 +61,7 @@ public final class SectionDifferenceWrapper<Section: SingleTypeDriveSectionProto
 }
 
 @available(iOS 13, *)
-public extension SectionProtocol where Self: SingleTypeDriveSectionProtocol, Cell.Model: Hashable {
+public extension SectionProtocol where Self: SingleTypeSectionDataProtocol, Cell.Model: Hashable {
     
     var differenceWrapper: SectionDifferenceWrapper<Self> { .init(self) }
     

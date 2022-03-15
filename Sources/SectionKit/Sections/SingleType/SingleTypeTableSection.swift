@@ -23,15 +23,16 @@
 #if canImport(UIKit)
 import UIKit
 
-open class SingleTypeTableSection<Cell: UITableViewCell>: SectionTableProtocol where Cell: ConfigurableView & LoadViewProtocol {    
+open class SingleTypeTableSection<Cell: UITableViewCell>: SectionTableProtocol, SingleTypeSectionProtocol where Cell: ConfigurableView & LoadViewProtocol {
     
     public private(set) var models: [Cell.Model]
+    public var publishers = SingleTypeSectionPublishers<Cell.Model, UITableViewHeaderFooterView>()
     
     public let selectedEvent = SectionDelegate<Cell.Model, Void>()
     public let selectedRowEvent = SectionDelegate<Int, Void>()
     public let willDisplayEvent = SectionDelegate<Int, Void>()
     /// cell 样式配置
-    public let configCellStyleEvent = SectionDelegate<(row: Int, cell: Cell), Void>()
+    public let cellStyleEvent = SectionDelegate<(row: Int, cell: Cell), Void>()
     
     public let headerViewProvider = SectionDelegate<SingleTypeTableSection, UITableViewHeaderFooterView>()
     public let headerSizeProvider = SectionDelegate<UITableView, CGSize>()
@@ -42,13 +43,11 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionTableProtocol w
     open var headerView: UITableViewHeaderFooterView? { headerViewProvider.call(self) }
     open var footerView: UITableViewHeaderFooterView? { footerViewProvider.call(self) }
     
-    open var headerHeight: CGFloat { headerSizeProvider.call(sectionView)?.height ?? 0 }
-    open var footerHeight: CGFloat { footerSizeProvider.call(sectionView)?.height ?? 0 }
+    public var headerSize: CGSize { headerSizeProvider.call(sectionView) ?? .zero }
+    public var footerSize: CGSize { footerSizeProvider.call(sectionView) ?? .zero }
     
     public var core: SectionState?
-    
-    open var itemCount: Int { models.count }
-    
+        
     public init(_ models: [Cell.Model] = []) {
         self.models = models
     }
@@ -58,21 +57,11 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionTableProtocol w
         reload()
     }
     
-    /// 过滤无效数据
-    open func validate(_ models: [Cell.Model]) -> [Cell.Model] {
-        models.filter({ Cell.validate($0) })
-    }
-    
-    open func didSelectItem(at row: Int) {
-        selectedEvent.call(models[row])
-        selectedRowEvent.call(row)
-    }
-    
-    open func itemHeight(at row: Int) -> CGFloat {
+    public func itemSize(at row: Int) -> CGSize {
         let width = sectionView.bounds.width
         return Cell.preferredSize(limit: .init(width: width,
                                                height: sectionView.bounds.height),
-                                  model: models[row]).height
+                                  model: models[row])
     }
     
     open func config(sectionView: UITableView) {
@@ -82,12 +71,8 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionTableProtocol w
     open func item(at row: Int) -> UITableViewCell {
         let cell = dequeue(at: row) as Cell
         cell.config(models[row])
-        configCellStyleEvent.call((row: row, cell: cell))
+        cellStyleEvent.call((row: row, cell: cell))
         return cell
-    }
-    
-    open func willDisplayItem(at row: Int) {
-        willDisplayEvent.call(row)
     }
     
 }
@@ -95,24 +80,18 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionTableProtocol w
 /// 增删
 public extension SingleTypeTableSection {
     
-    func swapAt(_ i: Int, _ j: Int, animation: UITableView.RowAnimation = .automatic) {
-        models.swapAt(i, j)
-        sectionView.reloadRows(at: [indexPath(from: i), indexPath(from: j)], with: animation)
+    func insert(_ models: [Cell.Model], at row: Int) {
+        self.models.insert(contentsOf: models, at: row)
+        insertItems(at: [row])
     }
     
-    func insert(_ model: Cell.Model, at row: Int, animation: UITableView.RowAnimation = .automatic) {
-        models.insert(model, at: row)
-        sectionView.insertRows(at: [indexPath(from: row)], with: animation)
-    }
-    
-    func delete(at row: Int, animation: UITableView.RowAnimation = .automatic) {
-        models.remove(at: row)
-        if itemCount <= 0 {
-            reload(with: animation)
-        } else {
-            sectionView.deleteRows(at: [indexPath(from: row)], with: animation)
+    func remove(at rows: [Int]) {
+        rows.sorted(by: >).forEach { index in
+            models.remove(at: index)
         }
+        deleteItems(at: rows)
     }
+    
     
 }
 #endif

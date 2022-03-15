@@ -121,7 +121,7 @@ extension SingleTypeSectionViewController {
                 }
                 section.cellForTypeItem(at: offset).setHighlight()
                 animate {
-                    self.section.delete(self.section.models[offset])
+                    self.section.remove(self.section.models[offset])
                 }
             case .delete:
                 guard section.models.isEmpty == false,
@@ -130,7 +130,7 @@ extension SingleTypeSectionViewController {
                 }
                 section.cellForTypeItem(at: offset).setHighlight()
                 animate {
-                    self.section.delete(at: offset)
+                    self.section.remove(at: [offset])
                 }
             case .swap:
                 guard section.models.isEmpty == false,
@@ -141,7 +141,7 @@ extension SingleTypeSectionViewController {
                 section.cellForTypeItem(at: offset1).setHighlight()
                 section.cellForTypeItem(at: offset2).setHighlight()
                 animate {
-                    self.section.swapAt(offset1, offset2)
+                    self.section.moveItem(at: offset1, to: offset2)
                 }
             }
         }

@@ -25,7 +25,7 @@ import UIKit
 import Combine
 
 @dynamicMemberLookup
-public final class SectionSelectableWrapper<Section: SingleTypeDriveSectionProtocol & SectionProtocol>: SelectableCollectionProtocol, SectionWrapperProtocol where Section.Cell.Model: SelectableProtocol {
+public final class SectionSelectableWrapper<Section: SingleTypeSectionEventProtocol & SectionProtocol>: SelectableCollectionProtocol, SectionWrapperProtocol where Section.Cell.Model: SelectableProtocol {
         
     public let wrappedSection: Section
     public var selectables: [Section.Cell.Model] { wrappedSection.models }
@@ -53,7 +53,7 @@ public final class SectionSelectableWrapper<Section: SingleTypeDriveSectionProto
     
 }
 
-public extension SectionProtocol where Self: SingleTypeDriveSectionProtocol, Cell.Model: SelectableProtocol {
+public extension SectionProtocol where Self: SingleTypeSectionEventProtocol, Cell.Model: SelectableProtocol {
     
     func selectableWrapper(isUnique: Bool = true, needInvert: Bool = false) -> SectionSelectableWrapper<Self> {
         .init(self, isUnique: isUnique, needInvert: needInvert)

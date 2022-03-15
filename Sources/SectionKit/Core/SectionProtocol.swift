@@ -29,11 +29,11 @@ public protocol SectionProtocol: AnyObject {
     var index: Int { get set }
     
     /// UICollectionViewDelegate & UITableViewDelegate
-    func shouldSelectItem(at row: Int) -> Bool
-    func didSelectItem(at row: Int)
-    
-    func shouldDeselectItem(at row: Int) -> Bool
-    func didDeselectItem(at row: Int)
+    func item(selected row: Int)
+    func item(shouldSelect row: Int) -> Bool
+
+    func item(deselected row: Int)
+    func item(shouldDeselect row: Int) -> Bool
     
     /// MultipleSelectionInteraction
     func shouldBeginMultipleSelectionInteraction(at row: Int) -> Bool
@@ -41,9 +41,12 @@ public protocol SectionProtocol: AnyObject {
     func didEndMultipleSelectionInteraction()
     
     /// Managing Cell Highlighting
-    func shouldHighlightItem(at row: Int) -> Bool
-    func didHighlightItem(at row: Int)
-    func didUnhighlightItem(at row: Int)
+    func item(shouldHighlight row: Int) -> Bool
+    func item(didHighlight row: Int)
+    func item(didUnhighlight row: Int)
+    
+    func item(willDisplay row: Int)
+    func item(didEndDisplaying row: Int)
     
     /// Editing Items
     func canEditItem(at row: Int) -> Bool
@@ -74,11 +77,11 @@ public extension SectionProtocol {
 public extension SectionProtocol {
 
     /// UICollectionViewDelegate & UITableViewDelegate
-    func shouldSelectItem(at row: Int) -> Bool { true }
-    func didSelectItem(at row: Int) { }
-    
-    func shouldDeselectItem(at row: Int) -> Bool { true }
-    func didDeselectItem(at row: Int) {}
+    func item(selected row: Int) { }
+    func item(shouldSelect row: Int) -> Bool { true }
+
+    func item(deselected row: Int) { }
+    func item(shouldDeselect row: Int) -> Bool { true }
     
     /// MultipleSelectionInteraction
     func shouldBeginMultipleSelectionInteraction(at row: Int) -> Bool { false }
@@ -86,13 +89,13 @@ public extension SectionProtocol {
     func didEndMultipleSelectionInteraction() {}
     
     /// Managing Cell Highlighting
-    func shouldHighlightItem(at row: Int) -> Bool { true }
-    func didHighlightItem(at row: Int) {}
-    func didUnhighlightItem(at row: Int) {}
+    func item(shouldHighlight row: Int) -> Bool { true }
+    func item(didHighlight row: Int) { }
+    func item(didUnhighlight row: Int) { }
 
     /// Tracking the Addition and Removal of Views
-    func willDisplayItem(at row: Int) {}
-    func didEndDisplaying(at row: Int) {}
+    func item(willDisplay row: Int) {}
+    func item(didEndDisplaying row: Int) {}
     
     /// Editing Items
     func canEditItem(at row: Int) -> Bool { true }

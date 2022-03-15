@@ -24,23 +24,29 @@
 import UIKit
 
 public protocol SectionTableProtocol: SectionProtocol {
-    var headerHeight: CGFloat { get }
-    var footerHeight: CGFloat { get }
-    var sectionView: UITableView { get }
-    func itemHeight(at row: Int) -> CGFloat
-    var headerView: UITableViewHeaderFooterView? { get }
-    var footerView: UITableViewHeaderFooterView? { get }
+    
     func config(sectionView: UITableView)
     func item(at row: Int) -> UITableViewCell
+    func itemSize(at row: Int) -> CGSize
+
+    var headerView: UITableViewHeaderFooterView? { get }
+    var footerView: UITableViewHeaderFooterView? { get }
+    
+    var headerSize: CGSize { get }
+    var footerSize: CGSize { get }
+    
     func leadingSwipeActions(at row: Int) -> [UIContextualAction]
     func trailingSwipeActions(at row: Int) -> [UIContextualAction]
 }
 
 public extension SectionTableProtocol {
-    var headerHeight: CGFloat { 0 }
-    var footerHeight: CGFloat { 0 }
+    
     var headerView: UITableViewHeaderFooterView? { nil }
     var footerView: UITableViewHeaderFooterView? { nil }
+    
+    var headerSize: CGSize { .zero }
+    var footerSize: CGSize { .zero }
+    
     var sectionView: UITableView {
         guard let view = core?.sectionView as? UITableView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
@@ -128,11 +134,11 @@ public extension SectionTableProtocol {
 /// These methods allow dynamic modification of the current set of items in the collection view
 public extension SectionTableProtocol {
     
-    func reload(with animation: UITableView.RowAnimation = .none) {
+    func reload(with animation: UITableView.RowAnimation = .automatic) {
         sectionView.reloadSections(.init(integer: index), with: animation)
     }
 
-    func insertItems(at rows: [Int], with animation: UITableView.RowAnimation = .none) {
+    func insertItems(at rows: [Int], with animation: UITableView.RowAnimation = .automatic) {
         guard rows.isEmpty == false else {
             return
         }
@@ -143,7 +149,7 @@ public extension SectionTableProtocol {
         }
     }
     
-    func deleteItems(at rows: [Int], with animation: UITableView.RowAnimation = .none) {
+    func deleteItems(at rows: [Int], with animation: UITableView.RowAnimation = .automatic) {
         guard rows.isEmpty == false else {
             return
         }
@@ -162,7 +168,7 @@ public extension SectionTableProtocol {
         sectionView.moveRow(at: indexPath(from: row1), to: indexPath(from: row2))
     }
     
-    func reloadItems(at rows: [Int], with animation: UITableView.RowAnimation = .none) {
+    func reloadItems(at rows: [Int], with animation: UITableView.RowAnimation = .automatic) {
         sectionView.reloadRows(at: indexPath(from: rows), with: animation)
     }
 

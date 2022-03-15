@@ -14,7 +14,7 @@ class SectionTableViewDelegate: SectionScrollViewDelegate, UITableViewDelegate {
     let sectionEvent = SectionDelegate<Int, SectionTableProtocol>()
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        sectionEvent.call(indexPath.section)?.didSelectItem(at: indexPath.item)
+        sectionEvent.call(indexPath.section)?.item(selected: indexPath.item)
     }
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -22,11 +22,11 @@ class SectionTableViewDelegate: SectionScrollViewDelegate, UITableViewDelegate {
     }
     
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return sectionEvent.call(section)?.headerHeight ?? 0
+        return sectionEvent.call(section)?.headerSize.height ?? 0
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return sectionEvent.call(indexPath.section)?.itemHeight(at: indexPath.item) ?? 0
+        return sectionEvent.call(indexPath.section)?.itemSize(at: indexPath.row).height ?? 0
     }
     
     public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -34,7 +34,7 @@ class SectionTableViewDelegate: SectionScrollViewDelegate, UITableViewDelegate {
     }
     
     public func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return sectionEvent.call(section)?.footerHeight ?? 0
+        return sectionEvent.call(section)?.footerSize.height ?? 0
     }
     
     public func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {

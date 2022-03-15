@@ -35,57 +35,57 @@ class SectionCollectionViewDelegate: SectionScrollViewDelegate, UICollectionView
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return section(from: indexPath)?.shouldHighlightItem(at: indexPath.item) ?? true
+        return section(from: indexPath)?.item(shouldHighlight: indexPath.item) ?? true
     }
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-        section(from: indexPath)?.didHighlightItem(at: indexPath.item)
+        section(from: indexPath)?.item(didHighlight: indexPath.item)
     }
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-        section(from: indexPath)?.didUnhighlightItem(at: indexPath.item)
+        section(from: indexPath)?.item(didUnhighlight: indexPath.item)
     }
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return section(from: indexPath)?.shouldSelectItem(at: indexPath.item) ?? true
+        return section(from: indexPath)?.item(shouldSelect: indexPath.item) ?? true
     }
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-        return section(from: indexPath)?.shouldDeselectItem(at: indexPath.item) ?? true
+        return section(from: indexPath)?.item(shouldDeselect: indexPath.item) ?? true
     }
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        section(from: indexPath)?.didSelectItem(at: indexPath.item)
+        section(from: indexPath)?.item(selected: indexPath.item)
     }
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        section(from: indexPath)?.didDeselectItem(at: indexPath.item)
+        section(from: indexPath)?.item(deselected: indexPath.item)
     }
     
     @available(iOS 8.0, *)
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        section(from: indexPath)?.willDisplayItem(at: indexPath.item)
+        section(from: indexPath)?.item(willDisplay: indexPath.item)
     }
 
     @available(iOS 8.0, *)
     public func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        section(from: indexPath)?.willDisplaySupplementaryView(view: view, forElementKind: elementKind, at: indexPath.item)
+        section(from: indexPath)?.supplementaryView(willDisplay: view, forElementKind: elementKind, at: indexPath.item)
     }
     
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        section(from: indexPath)?.didEndDisplaying(at: indexPath.item)
+        section(from: indexPath)?.item(didEndDisplaying: indexPath.row)
     }
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        section(from: indexPath)?.didEndDisplayingSupplementaryView(view: view, forElementKind: elementKind, at: indexPath.item)
+        section(from: indexPath)?.supplementaryView(didEndDisplaying: view, forElementKind: elementKind, at: indexPath.item)
     }
 //
 //    @available(iOS, introduced: 6.0, deprecated: 13.0)

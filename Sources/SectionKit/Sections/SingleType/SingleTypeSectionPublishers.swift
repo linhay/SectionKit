@@ -24,7 +24,7 @@
 import UIKit
 import Combine
 
-public struct SingleTypeDriveSectionPublishers<Model, ReusableView> {
+public struct SingleTypeSectionPublishers<Model, ReusableView> {
     
     public struct SelectedResult<Model> {
         public let row: Int
@@ -50,9 +50,11 @@ public struct SingleTypeDriveSectionPublishers<Model, ReusableView> {
     public struct Cell {
         public var selected: AnyPublisher<SelectedResult<Model>, Never> { _selected.eraseToAnyPublisher() }
         public var willDisplay: AnyPublisher<Model, Never> { _willDisplay.eraseToAnyPublisher() }
+        public var didEndDisplaying: AnyPublisher<Model, Never> { _didEndDisplaying.eraseToAnyPublisher() }
         
         var _selected = PassthroughSubject<SelectedResult<Model>, Never>()
         var _willDisplay = PassthroughSubject<Model, Never>()
+        var _didEndDisplaying = PassthroughSubject<Model, Never>()
     }
 
     public let cell = Cell()

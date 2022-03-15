@@ -27,19 +27,19 @@ import UIKit
 import Combine
 #endif
 
-open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadViewProtocol & ConfigurableView>: SingleTypeDriveSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
+open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadViewProtocol & ConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
     
-    public typealias Publishers = SingleTypeDriveSectionPublishers<Cell.Model, UICollectionReusableView>
     public private(set) var models: [Cell.Model]
+    
+    public typealias Publishers = SingleTypeSectionPublishers<Cell.Model, UICollectionReusableView>
+    
     public let publishers = Publishers()
-        
     public let selectedEvent = SectionDelegate<Cell.Model, Void>()
     public let selectedRowEvent = SectionDelegate<Int, Void>()
     public let willDisplayEvent = SectionDelegate<Int, Void>()
-    public let willDisplaySupplementaryViewEvent      = SectionDelegate<Publishers.SupplementaryResult, Void>()
-    public let didEndDisplayingSupplementaryViewEvent = SectionDelegate<Publishers.SupplementaryResult, Void>()
+    
     /// cell 样式配置
-    public let cellStyleProvider  = SectionDelegate<(row: Int, cell: Cell), Void>()
+    public let cellStyleProvider = SectionDelegate<(row: Int, cell: Cell), Void>()
     
     open var core: SectionState?
     
@@ -54,23 +54,10 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
         reload()
     }
     
-    /// 过滤无效数据
-    open func validate(_ models: [Cell.Model]) -> [Cell.Model] {
-        models.filter({ Cell.validate($0) })
-    }
-    
-    open func didSelectItem(at row: Int) {
-        publishers.cell._selected.send(.init(row: row, model: models[row]))
-        selectedEvent.call(models[row])
-        selectedRowEvent.call(row)
-    }
-    
     open func config(sectionView: UICollectionView) {
         register(Cell.self)
     }
-    
-    open var itemCount: Int { models.count }
-    
+        
     open func item(at row: Int) -> UICollectionViewCell {
         let cell = dequeue(at: row) as Cell
         cell.config(models[row])
@@ -86,19 +73,13 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
         return visibleCells.compactMap({ $0 as? Cell })
     }
     
-    open func willDisplayItem(at row: Int) {
-        willDisplayEvent.call(row)
-    }
-    
-    open func willDisplaySupplementaryView(view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {
+    public func supplementaryView(willDisplay view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {
         let result = Publishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
-        willDisplaySupplementaryViewEvent.call(result)
         publishers.supplementary._willDisplay.send(result)
     }
     
-    open func didEndDisplayingSupplementaryView(view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {
+    public func supplementaryView(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {
         let result = Publishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
-        didEndDisplayingSupplementaryViewEvent.call(result)
         publishers.supplementary._didEndDisplaying.send(result)
     }
     
@@ -107,39 +88,16 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
 /// 增删
 extension SingleTypeCollectionDriveSection {
     
-    public func swapAt(_ i: Int, _ j: Int) {
-        models.swapAt(i, j)
-        sectionView.reloadItems(at: [indexPath(from: i), indexPath(from: j)])
+    public func insert(_ models: [Cell.Model], at row: Int) {
+        self.models.insert(contentsOf: models, at: row)
+        insertItems(at: [row])
     }
     
-    public func insert(_ model: Cell.Model, at row: Int) {
-        models.insert(model, at: row)
-        sectionView.insertItems(at: [indexPath(from: row)])
-    }
-    
-    public func delete(_ model: Cell.Model) where Cell.Model: Equatable {
-        let indexs = models.enumerated().compactMap { (offset, element) in
-            return element == model ? offset : nil
-        }
-        guard indexs.isEmpty == false else {
-            return
-        }
-        indexs.sorted(by: <).forEach { index in
+    public func remove(at rows: [Int]) {
+        rows.sorted(by: >).forEach { index in
             models.remove(at: index)
         }
-        sectionView.deleteItems(at: indexs.map({ indexPath(from: $0) }))
-    }
-    
-    public func delete(at row: Int) {
-        guard row < models.count else {
-            return
-        }
-        models.remove(at: row)
-        if itemCount <= 0 {
-            reload()
-        } else {
-            sectionView.deleteItems(at: [indexPath(from: row)])
-        }
+        deleteItems(at: rows)
     }
     
 }

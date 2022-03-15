@@ -69,10 +69,10 @@ public class SectionTableManager {
     }
     
     private class PlaceholderSection: SectionTableProtocol {
-        func itemHeight(at row: Int) -> CGFloat { 0 }
-        func config(sectionView: UITableView) {}
-        func item(at row: Int) -> UITableViewCell { UITableViewCell() }
         var core: SectionState?
+        func itemSize(at row: Int) -> CGSize { .zero }
+        func item(at row: Int) -> UITableViewCell { UITableViewCell() }
+        func config(sectionView: UITableView) {}
         let itemCount: Int = 0
     }
     

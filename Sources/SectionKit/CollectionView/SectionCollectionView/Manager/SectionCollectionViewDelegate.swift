@@ -125,7 +125,7 @@ class SectionCollectionViewDelegate: SectionScrollViewDelegate, UICollectionView
 //
     @available(iOS 14.0, *)
     public func collectionView(_ collectionView: UICollectionView, canEditItemAt indexPath: IndexPath) -> Bool {
-        return section(from: indexPath)?.canEditItem(at: indexPath.item) ?? true
+        return section(from: indexPath)?.item(canEdit: indexPath.item) ?? true
     }
 
 // @available(iOS 11.0, *)
@@ -133,18 +133,18 @@ class SectionCollectionViewDelegate: SectionScrollViewDelegate, UICollectionView
 
     @available(iOS 13.0, *)
     public func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
-            section(from: indexPath)?.shouldBeginMultipleSelectionInteraction(at: indexPath.item) ?? false
+            section(from: indexPath)?.multipleSelectionInteraction(shouldBegin: indexPath.item) ?? false
     }
 
     @available(iOS 13.0, *)
     public func collectionView(_ collectionView: UICollectionView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) {
-        section(from: indexPath)?.didBeginMultipleSelectionInteraction(at: indexPath.item)
+        section(from: indexPath)?.multipleSelectionInteraction(didBegin: indexPath.item)
     }
 
     @available(iOS 13.0, *)
     public func collectionViewDidEndMultipleSelectionInteraction(_ collectionView: UICollectionView) {
         sectionsEvent.call()?.forEach { section in
-            section.didEndMultipleSelectionInteraction()
+            section.multipleSelectionInteractionDidEnd()
         }
     }
 

@@ -27,7 +27,7 @@ class SectionTableViewDataSource: NSObject, UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return sectionEvent.call(indexPath.section)?.canEditItem(at: indexPath.item) ?? false
+        return sectionEvent.call(indexPath.section)?.item(canEdit: indexPath.item) ?? false
     }
     
     public func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {

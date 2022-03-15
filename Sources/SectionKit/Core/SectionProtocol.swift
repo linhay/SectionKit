@@ -35,11 +35,6 @@ public protocol SectionProtocol: AnyObject {
     func item(deselected row: Int)
     func item(shouldDeselect row: Int) -> Bool
     
-    /// MultipleSelectionInteraction
-    func shouldBeginMultipleSelectionInteraction(at row: Int) -> Bool
-    func didBeginMultipleSelectionInteraction(at row: Int)
-    func didEndMultipleSelectionInteraction()
-    
     /// Managing Cell Highlighting
     func item(shouldHighlight row: Int) -> Bool
     func item(didHighlight row: Int)
@@ -49,14 +44,18 @@ public protocol SectionProtocol: AnyObject {
     func item(didEndDisplaying row: Int)
     
     /// Editing Items
-    func canEditItem(at row: Int) -> Bool
+    func item(canEdit row: Int) -> Bool
+    func item(canMove row: Int) -> Bool
+
+    /// MultipleSelectionInteraction
+    func multipleSelectionInteraction(shouldBegin row: Int) -> Bool
+    func multipleSelectionInteraction(didBegin row: Int)
+    func multipleSelectionInteractionDidEnd()
     
     var indexTitle: String? { get }
         
     var itemCount: Int { get }
-    
-    func canMove(at: Int) -> Bool
-    
+        
     func move(from source: IndexPath, to destination: IndexPath)
     
     func pick(_ updates: (() -> Void), completion: ((Bool) -> Void)?)
@@ -83,22 +82,23 @@ public extension SectionProtocol {
     func item(deselected row: Int) { }
     func item(shouldDeselect row: Int) -> Bool { true }
     
-    /// MultipleSelectionInteraction
-    func shouldBeginMultipleSelectionInteraction(at row: Int) -> Bool { false }
-    func didBeginMultipleSelectionInteraction(at row: Int) {}
-    func didEndMultipleSelectionInteraction() {}
-    
     /// Managing Cell Highlighting
     func item(shouldHighlight row: Int) -> Bool { true }
     func item(didHighlight row: Int) { }
     func item(didUnhighlight row: Int) { }
 
     /// Tracking the Addition and Removal of Views
-    func item(willDisplay row: Int) {}
-    func item(didEndDisplaying row: Int) {}
+    func item(willDisplay row: Int) { }
+    func item(didEndDisplaying row: Int) { }
     
     /// Editing Items
-    func canEditItem(at row: Int) -> Bool { true }
+    func item(canEdit row: Int) -> Bool { false }
+    func item(canMove row: Int) -> Bool { false }
+
+    /// MultipleSelectionInteraction
+    func multipleSelectionInteraction(shouldBegin row: Int) -> Bool { false }
+    func multipleSelectionInteraction(didBegin row: Int) { }
+    func multipleSelectionInteractionDidEnd() { }
 
 }
 

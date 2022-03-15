@@ -68,8 +68,6 @@ public struct SingleTypeSectionPublishers<Model, ReusableView> {
     public let cell = Cell()
     public let supplementary = Supplementary()
     public let prefetch = Prefetch()
-
-
     
 }
 #endif

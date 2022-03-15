@@ -8,10 +8,12 @@
 import UIKit
 import SectionKit
 import Stem
+import Combine
 
 class PrefetchViewController: SectionCollectionViewController {
     
-    let section = SingleTypeSection<ColorBlockCell>()
+    private let section = SingleTypeSection<ColorBlockCell>()
+    private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,14 +37,15 @@ extension PrefetchViewController {
     }
     
     func bindUI() {
-        section.prefetchEvent.delegate(on: self) { (self, rows) in
+        section.publishers.prefetch.begin.sink { [weak self] rows in
+            guard let self = self else { return }
             guard let max = rows.max(), max >= self.section.models.count - 1 else {
                 print("prefetch: data loaded \(rows.map(\.description).joined(separator: ","))")
                 return
             }
             print("prefetch: \(rows.map(\.description).joined(separator: ","))")
             self.next()
-        }
+        }.store(in: &cancellables)
     }
     
     func setupUI() {

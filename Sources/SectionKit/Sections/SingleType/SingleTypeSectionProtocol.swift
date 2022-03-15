@@ -89,11 +89,11 @@ public protocol SingleTypeSectionEventProtocol {
     associatedtype ReusableView
     
     var models: [Cell.Model] { get }
+    
     var publishers: SingleTypeSectionPublishers<Cell.Model, ReusableView> { get }
     var selectedEvent: SectionDelegate<Cell.Model, Void> { get }
     var selectedRowEvent: SectionDelegate<Int, Void> { get }
     var willDisplayEvent: SectionDelegate<Int, Void> { get }
-    
 }
 
 public extension SingleTypeSectionEventProtocol where Self: SectionProtocol {
@@ -110,6 +110,19 @@ public extension SingleTypeSectionEventProtocol where Self: SectionProtocol {
     
     func item(didEndDisplaying row: Int) {
         publishers.cell._didEndDisplaying.send(models[row])
+    }
+    
+}
+
+
+public extension SingleTypeSectionEventProtocol where Self: SectionDataSourcePrefetchingProtocol {
+
+    func prefetch(at rows: [Int]) {
+        publishers.prefetch._begin.send(rows)
+    }
+    
+    func cancelPrefetching(at rows: [Int]) {
+        publishers.prefetch._cancel.send(rows)
     }
     
 }

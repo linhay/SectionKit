@@ -41,7 +41,7 @@ extension ColorBlockCell: ConfigurableView {
     
     struct Model: Equatable {
         let color: UIColor
-        let text: String
+        var text: String
         let size: CGSize
     }
     
@@ -58,6 +58,11 @@ extension ColorBlockCell: ConfigurableView {
         titleLabel.text = model.text
         contentView.layer.borderColor = UIColor.black.cgColor
         contentView.layer.cornerRadius = 2
+    }
+    
+    func update(text: String) {
+        titleLabel.text = text
+        model?.text = text
     }
     
     func unhighlight() {

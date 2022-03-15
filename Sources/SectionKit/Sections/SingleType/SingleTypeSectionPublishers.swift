@@ -57,8 +57,19 @@ public struct SingleTypeSectionPublishers<Model, ReusableView> {
         var _didEndDisplaying = PassthroughSubject<Model, Never>()
     }
 
+    public struct Prefetch {
+        public var begin: AnyPublisher<[Int], Never> { _begin.eraseToAnyPublisher() }
+        public var cancel: AnyPublisher<[Int], Never> { _cancel.eraseToAnyPublisher() }
+        
+        var _begin = PassthroughSubject<[Int], Never>()
+        var _cancel = PassthroughSubject<[Int], Never>()
+    }
+    
     public let cell = Cell()
     public let supplementary = Supplementary()
+    public let prefetch = Prefetch()
+
+
     
 }
 #endif

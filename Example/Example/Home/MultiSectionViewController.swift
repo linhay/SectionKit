@@ -82,7 +82,9 @@ extension MultiSectionViewController {
             let section = Section((0...4).map({ offset in
                     .init(color: .white, text: offset.description, size: size)
             }))
-            
+            section.cellStyleProvider.delegate(on: self) { (self, result) in
+                result.cell.update(text: "\(section.index) - \(result.row)")
+            }
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
             return section
@@ -104,7 +106,7 @@ extension MultiSectionViewController {
                 manager.reload()
             case .insert:
                 let section = newSection()
-
+                
                 if manager.sections.isEmpty == false, let random = (0..<manager.sections.count).randomElement() {
                     manager.insert(section, at: random)
                 } else {
@@ -134,14 +136,14 @@ extension MultiSectionViewController {
                       let random2 = manager.sections.randomElement() as? Section else {
                     return
                 }
-                random1.visibleTypeItems.forEach { cell in
+                [random1, random2].map(\.visibleTypeItems).joined().forEach { cell in
                     cell.setHighlight()
                 }
-                random2.visibleTypeItems.forEach { cell in
-                    cell.setHighlight()
-                }
+                self.manager.move(from: .section(random1), to: .section(random2))
                 animate {
-                    self.manager.move(from: .section(random1), to: .section(random2))
+                    [random1, random2].map(\.visibleTypeItems).joined().forEach { cell in
+                        cell.unhighlight()
+                    }
                 }
             }
         }

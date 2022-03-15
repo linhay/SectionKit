@@ -134,7 +134,7 @@ public extension SectionCollectionView {
                 result.merging(item, uniquingKeysWith: { $1 })
             }
         
-        item[.init(get: { section.isLoaded ? section.index : nil })] = backgroundView
+        item[.init(get: { section.isLoaded ? section.sectionIndex : nil })] = backgroundView
         sectionFlowLayout?.update(mode: .sectionBackgroundView(item))
     }
     

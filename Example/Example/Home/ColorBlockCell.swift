@@ -67,7 +67,7 @@ extension ColorBlockCell: ConfigurableView {
         }
         set {
             super.isSelected = newValue
-            titleLabel.text = "$ \(model!.text) $"
+            titleLabel.text = newValue ? "$ \(model!.text) $" : model!.text
         }
     }
     

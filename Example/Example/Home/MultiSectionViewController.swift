@@ -83,7 +83,7 @@ extension MultiSectionViewController {
                     .init(color: .white, text: offset.description, size: size)
             }))
             section.cellStyleProvider.delegate(on: self) { (self, result) in
-                result.cell.update(text: "\(section.index) - \(result.row)")
+                result.cell.update(text: "\(section.sectionIndex) - \(result.row)")
             }
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8

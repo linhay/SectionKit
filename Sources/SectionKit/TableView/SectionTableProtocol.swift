@@ -62,14 +62,14 @@ public extension SectionTableProtocol {
 public extension SectionTableProtocol {
 
     func indexForItem(at point: CGPoint) -> Int? {
-        guard let indexPath = sectionView.indexPathForRow(at: point), indexPath.section == index else {
+        guard let indexPath = sectionView.indexPathForRow(at: point), indexPath.section == sectionIndex else {
             return nil
         }
         return indexPath.row
     }
 
     func index(for cell: UITableViewCell) -> Int? {
-        guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == index else {
+        guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == sectionIndex else {
             return nil
         }
         return indexPath.row
@@ -89,7 +89,7 @@ public extension SectionTableProtocol {
 
     var indexsForVisibleItems: [Int] {
          (sectionView.indexPathsForVisibleRows ?? [])
-            .filter({ $0.section == index })
+            .filter({ $0.section == sectionIndex })
             .map(\.row)
     }
 
@@ -117,7 +117,7 @@ public extension SectionTableProtocol {
     
     var indexForSelectedItems: [Int] {
         (sectionView.indexPathsForSelectedRows ?? [])
-            .filter({ $0.section == index })
+            .filter({ $0.section == sectionIndex })
             .map(\.row)
     }
     
@@ -135,7 +135,7 @@ public extension SectionTableProtocol {
 public extension SectionTableProtocol {
     
     func reload(with animation: UITableView.RowAnimation = .automatic) {
-        sectionView.reloadSections(.init(integer: index), with: animation)
+        sectionView.reloadSections(.init(integer: sectionIndex), with: animation)
     }
 
     func insertItems(at rows: [Int], with animation: UITableView.RowAnimation = .automatic) {

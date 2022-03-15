@@ -27,7 +27,7 @@ import UIKit
 import Combine
 #endif
 
-open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadViewProtocol & ConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
+open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadViewProtocol & ConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {    
     
     public private(set) var models: [Cell.Model]
     

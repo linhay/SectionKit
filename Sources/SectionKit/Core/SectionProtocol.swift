@@ -26,7 +26,7 @@ import UIKit
 public protocol SectionProtocol: AnyObject {
     
     var core: SectionState? { get set }
-    var index: Int { get set }
+    var sectionIndex: Int { get set }
     
     /// UICollectionViewDelegate & UITableViewDelegate
     func item(selected row: Int)
@@ -63,7 +63,7 @@ public protocol SectionProtocol: AnyObject {
 
 public extension SectionProtocol {
 
-    var index: Int {
+    var sectionIndex: Int {
         set { core?.index = newValue }
         get { core?.index ?? 0 }
     }
@@ -105,15 +105,15 @@ public extension SectionProtocol {
 public extension SectionProtocol {
 
     func indexPath(from value: Int?) -> IndexPath? {
-        return value.map({ IndexPath(item: $0, section: index) })
+        return value.map({ IndexPath(item: $0, section: sectionIndex) })
     }
 
     func indexPath(from value: Int) -> IndexPath {
-        return IndexPath(item: value, section: index)
+        return IndexPath(item: value, section: sectionIndex)
     }
 
     func indexPath(from value: [Int]) -> [IndexPath] {
-        return value.map({ IndexPath(item: $0, section: index) })
+        return value.map({ IndexPath(item: $0, section: sectionIndex) })
     }
 
 }

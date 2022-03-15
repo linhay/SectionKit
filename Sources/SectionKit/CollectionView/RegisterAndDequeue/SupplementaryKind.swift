@@ -30,7 +30,7 @@ import UIKit
 /// - header: header
 /// - footer: footer
 /// - custom: custom
-public enum SupplementaryViewKindType: Equatable {
+public enum SupplementaryKind: Equatable {
     case header
     case footer
     case custom(_ value: String)

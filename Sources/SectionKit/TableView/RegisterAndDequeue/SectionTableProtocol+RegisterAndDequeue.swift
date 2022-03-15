@@ -36,7 +36,7 @@ public extension SectionTableProtocol {
         }
     }
 
-    func register<T: UITableViewHeaderFooterView>(_ view: T.Type, for kind: SupplementaryViewKindType) where T: LoadViewProtocol {
+    func register<T: UITableViewHeaderFooterView>(_ view: T.Type, for kind: SupplementaryKind) where T: LoadViewProtocol {
         if let nib = T.nib {
             sectionView.register(nib, forHeaderFooterViewReuseIdentifier: T.identifier)
         } else {

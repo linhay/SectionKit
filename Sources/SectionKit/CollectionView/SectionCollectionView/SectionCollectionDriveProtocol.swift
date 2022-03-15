@@ -73,14 +73,14 @@ public extension SectionCollectionDriveProtocol {
     }
 
     func indexForItem(at point: CGPoint) -> Int? {
-        guard let indexPath = sectionView.indexPathForItem(at: point), indexPath.section == index else {
+        guard let indexPath = sectionView.indexPathForItem(at: point), indexPath.section == sectionIndex else {
             return nil
         }
         return indexPath.row
     }
 
     func index(for cell: UICollectionViewCell) -> Int? {
-        guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == index else {
+        guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == sectionIndex else {
             return nil
         }
         return indexPath.row
@@ -99,7 +99,7 @@ public extension SectionCollectionDriveProtocol {
     }
 
     var indexsForVisibleItems: [Int] {
-         sectionView.indexPathsForVisibleItems.filter({ $0.section == index }).map(\.row)
+         sectionView.indexPathsForVisibleItems.filter({ $0.section == sectionIndex }).map(\.row)
     }
 
     func supplementaryView(for elementKind: String, at row: Int) -> UICollectionReusableView? {
@@ -111,7 +111,7 @@ public extension SectionCollectionDriveProtocol {
     }
 
     func indexsForVisibleSupplementaryViews(of elementKind: String) -> [Int] {
-        sectionView.indexPathsForVisibleSupplementaryElements(ofKind: elementKind).filter({ $0.section == index }).map(\.row)
+        sectionView.indexPathsForVisibleSupplementaryElements(ofKind: elementKind).filter({ $0.section == sectionIndex }).map(\.row)
     }
 
 }
@@ -138,7 +138,7 @@ public extension SectionCollectionDriveProtocol {
     
     var indexForSelectedItems: [Int] {
         (sectionView.indexPathsForSelectedItems ?? [])
-            .filter({ $0.section == index })
+            .filter({ $0.section == sectionIndex })
             .map(\.row)
     }
     

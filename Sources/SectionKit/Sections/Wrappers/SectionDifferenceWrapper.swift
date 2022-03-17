@@ -23,7 +23,6 @@
 #if canImport(UIKit)
 import UIKit
 
-@available(iOS 13, *)
 @dynamicMemberLookup
 public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtocol & SectionProtocol>: SectionWrapperProtocol {
         
@@ -31,9 +30,15 @@ public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtoc
     public typealias Cell  = Section.Cell
 
     public let wrappedSection: Section
+    private var otherWrapper: Any?
         
     public init(_ section: Section) {
         self.wrappedSection = section
+    }
+    
+    public convenience init<Wrapper: SectionWrapperProtocol>(_ wrapper: Wrapper) where Wrapper.Section == Section {
+        self.init(wrapper.wrappedSection)
+        self.otherWrapper = wrapper
     }
     
     public func config(models: [Model]) where Model: Hashable {
@@ -71,11 +76,17 @@ public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtoc
     
 }
 
-@available(iOS 13, *)
-public extension SectionProtocol where Self: SingleTypeSectionDataProtocol, Cell.Model: Hashable {
+public extension SectionProtocol where Self: SingleTypeSectionDataProtocol {
     
     var differenceWrapper: SectionDifferenceWrapper<Self> { .init(self) }
     
 }
 
+public extension SectionWrapperProtocol where Section: SingleTypeSectionDataProtocol {
+    
+    var differenceWrapper: SectionDifferenceWrapper<Section> {
+        .init(self)
+    }
+    
+}
 #endif

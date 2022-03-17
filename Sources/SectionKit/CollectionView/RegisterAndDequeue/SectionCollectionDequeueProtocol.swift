@@ -21,7 +21,7 @@ public extension SectionCollectionDequeueProtocol {
         return sectionView.dequeueReusableCell(withReuseIdentifier: T.identifier, for: .init(row: row, section: sectionIndex)) as! T
     }
     
-    func dequeue<T: UICollectionReusableView & LoadViewProtocol>(kind: SupplementaryKind) -> T {
+    func dequeue<T: UICollectionReusableView & LoadViewProtocol>(kind: SectionSupplementaryKind) -> T {
         return sectionView.dequeueReusableSupplementaryView(ofKind: kind.rawValue,
                                                                withReuseIdentifier: T.identifier,
                                                                for: IndexPath(row: 0, section: sectionIndex)) as! T
@@ -38,7 +38,7 @@ public extension SectionCollectionDequeueProtocol {
         }
     }
     
-    func register<T: UICollectionReusableView & LoadViewProtocol>(_ view: T.Type, for kind: SupplementaryKind) {
+    func register<T: UICollectionReusableView & LoadViewProtocol>(_ view: T.Type, for kind: SectionSupplementaryKind) {
         if let nib = T.nib {
             sectionView.register(nib, forSupplementaryViewOfKind: kind.rawValue, withReuseIdentifier: T.identifier)
         } else {

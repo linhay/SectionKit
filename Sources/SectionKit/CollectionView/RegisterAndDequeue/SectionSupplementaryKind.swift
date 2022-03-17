@@ -30,10 +30,19 @@ import UIKit
 /// - header: header
 /// - footer: footer
 /// - custom: custom
-public enum SupplementaryKind: Equatable {
+public enum SectionSupplementaryKind: Equatable, RawRepresentable {
+    
     case header
     case footer
     case custom(_ value: String)
+    
+    public init(rawValue: String) {
+        switch rawValue {
+        case UICollectionView.elementKindSectionHeader: self = .header
+        case UICollectionView.elementKindSectionFooter: self = .footer
+        default: self = .custom(rawValue)
+        }
+    }
     
     public var rawValue: String {
         switch self {

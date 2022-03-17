@@ -14,6 +14,7 @@ class HomeController: SectionCollectionViewController {
         case singleTypeSection
         case multiSection
         case prefetch
+        case compositionalLayout
     }
     
     let section = SingleTypeSection<HomeIndexCell<Action>>()
@@ -41,6 +42,8 @@ extension HomeController {
         section.selectedEvent.delegate(on: self) { (self, action) in
             var controller: UIViewController?
             switch action {
+            case .compositionalLayout:
+                controller = CompositionalViewController()
             case .prefetch:
                 controller = PrefetchViewController()
             case .singleTypeSection:

@@ -24,9 +24,9 @@ import Combine
 
 public class SelectableModel: Equatable {
     
-    let selectedSubject: Publishers.RemoveDuplicates<CurrentValueSubject<Bool, Never>>
-    let canSelectSubject: Publishers.RemoveDuplicates<CurrentValueSubject<Bool, Never>>
-    let changedSubject = PassthroughSubject<(isSelected: Bool, canSelect: Bool), Never>()
+    fileprivate let selectedSubject: Publishers.RemoveDuplicates<CurrentValueSubject<Bool, Never>>
+    fileprivate let canSelectSubject: Publishers.RemoveDuplicates<CurrentValueSubject<Bool, Never>>
+    fileprivate let changedSubject = PassthroughSubject<(isSelected: Bool, canSelect: Bool), Never>()
     
     public static func == (lhs: SelectableModel, rhs: SelectableModel) -> Bool {
        return lhs.isSelected == rhs.isSelected && lhs.canSelect == rhs.canSelect
@@ -70,9 +70,9 @@ public extension SelectableProtocol {
     var isSelected: Bool { selectableModel.isSelected }
     var canSelect: Bool { selectableModel.canSelect }
     
-    var selectedObservable: AnyPublisher<Bool, Never> { selectableModel.selectedSubject.eraseToAnyPublisher() }
-    var canSelectObservable: AnyPublisher<Bool, Never> { selectableModel.canSelectSubject.eraseToAnyPublisher() }
-    var changedObservable: AnyPublisher<(isSelected: Bool, canSelect: Bool), Never> { selectableModel.changedSubject.eraseToAnyPublisher() }
+    var selectedPublisher: AnyPublisher<Bool, Never> { selectableModel.selectedSubject.eraseToAnyPublisher() }
+    var canSelectPublisher: AnyPublisher<Bool, Never> { selectableModel.canSelectSubject.eraseToAnyPublisher() }
+    var changedPublisher: AnyPublisher<(isSelected: Bool, canSelect: Bool), Never> { selectableModel.changedSubject.eraseToAnyPublisher() }
 
 }
 
@@ -87,12 +87,12 @@ public protocol SelectableCollectionProtocol {
     /// - Parameters:
     ///   - index: 选中元素索引
     ///   - element: 选中元素
-    func didSelectElement(at index: Int, element: Element)
+    func element(selected index: Int, element: Element)
 }
 
 public extension SelectableCollectionProtocol {
 
-    func didSelectElement(at index: Int, element: Element) { }
+    func element(selected index: Int, element: Element) { }
 
 }
 
@@ -107,6 +107,16 @@ public extension SelectableCollectionProtocol {
     func firstSelectedIndex() -> Int? {
         return selectables.firstIndex(where: { $0.isSelected })
     }
+    
+    /// 已选中的元素
+    var selectedElements: [Element] {
+        selectables.filter(\.isSelected)
+    }
+    
+    /// 已选中的元素序列
+    var selectedIndexs: [Int] {
+        selectables.enumerated().filter({ $0.element.isSelected }).map(\.offset)
+    }
 
     /// 选中元素
     /// - Parameters:
@@ -114,7 +124,7 @@ public extension SelectableCollectionProtocol {
     ///   - isUnique: 是否保证选中在当前序列中是否唯一 | default: true
     ///   - needInvert: 是否需要支持反选操作 | default: false
     func select(at index: Int, isUnique: Bool = true, needInvert: Bool = false) {
-        guard index >= 0, index < selectables.count else {
+        guard (0..<selectables.count).contains(index) else {
             return
         }
         
@@ -126,7 +136,7 @@ public extension SelectableCollectionProtocol {
 
         guard isUnique else {
             element.selectableModel.isSelected = needInvert ? !element.isSelected : true
-            didSelectElement(at: index, element: element)
+            self.element(selected: index, element: element)
             return
         }
 
@@ -137,7 +147,7 @@ public extension SelectableCollectionProtocol {
                 item.selectableModel.isSelected = false
             }
         }
-        didSelectElement(at: index, element: element)
+        self.element(selected: index, element: element)
     }
 
 }
@@ -156,7 +166,7 @@ public extension SelectableCollectionProtocol where Element: Equatable {
         for (offset, item) in selectables.enumerated() {
             item.selectableModel.isSelected = needInvert ? !item.isSelected : item == element
             if item == element {
-                didSelectElement(at: offset, element: element)
+                self.element(selected: offset, element: element)
             }
         }
     }

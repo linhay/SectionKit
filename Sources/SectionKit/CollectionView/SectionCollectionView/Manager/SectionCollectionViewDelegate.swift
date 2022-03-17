@@ -27,7 +27,7 @@ import UIKit
 class SectionCollectionViewDelegate: SectionScrollViewDelegate, UICollectionViewDelegate {
     
     let sectionEvent = SectionDelegate<Int, SectionCollectionDriveProtocol>()
-    let sectionsEvent = SectionDelegate<Void, LazyMapSequence<LazyFilterSequence<LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol?>>, SectionCollectionDriveProtocol>>()
+    let sectionsEvent = SectionDelegate<Void, LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol>>()
 
     func section(from indexPath: IndexPath) -> SectionCollectionDriveProtocol? {
         return sectionEvent.call(indexPath.section)
@@ -75,7 +75,7 @@ class SectionCollectionViewDelegate: SectionScrollViewDelegate, UICollectionView
 
     @available(iOS 8.0, *)
     public func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        section(from: indexPath)?.supplementaryView(willDisplay: view, forElementKind: elementKind, at: indexPath.item)
+        section(from: indexPath)?.supplementary(willDisplay: view, forElementKind: .init(rawValue: elementKind), at: indexPath.item)
     }
     
     @available(iOS 6.0, *)
@@ -85,7 +85,7 @@ class SectionCollectionViewDelegate: SectionScrollViewDelegate, UICollectionView
 
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        section(from: indexPath)?.supplementaryView(didEndDisplaying: view, forElementKind: elementKind, at: indexPath.item)
+        section(from: indexPath)?.supplementary(didEndDisplaying: view, forElementKind: .init(rawValue: elementKind), at: indexPath.item)
     }
 //
 //    @available(iOS, introduced: 6.0, deprecated: 13.0)

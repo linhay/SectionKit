@@ -25,22 +25,15 @@ import UIKit
 
 open class SingleTypeCompositionalSection<Cell: UICollectionViewCell & ConfigurableView & LoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionCompositionalLayoutProtocol {
     
-    public let supplementaryProvider = SectionDelegate<(section: SingleTypeCompositionalSection<Cell>, kind: String, at: IndexPath), UICollectionReusableView>()
-    
-    public func supplementaryView(kind: String, at indexPath: IndexPath) -> UICollectionReusableView? {
-        supplementaryProvider.call((section: self, kind: kind, at: indexPath))
-    }
-    
-    public var layoutProvider: (_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection?
-    
-    public init(_ models: [Cell.Model] = [],
-                layoutProvider: @escaping (_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? = { environment in nil }) {
-        self.layoutProvider = layoutProvider
-        super.init(models)
+    public let supplementaryProvider = SectionDelegate<(section: SingleTypeCompositionalSection<Cell>, kind: SectionSupplementaryKind, at: Int), UICollectionReusableView>()
+    public var layoutProvider = SectionDelegate<NSCollectionLayoutEnvironment, NSCollectionLayoutSection?>()
+        
+    public func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+        supplementaryProvider.call((section: self, kind: kind, at: row))
     }
     
     open func compositionalLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? {
-        return layoutProvider(environment)
+        return layoutProvider.call(environment)
     }
     
 }

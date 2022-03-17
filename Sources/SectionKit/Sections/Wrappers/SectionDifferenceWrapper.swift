@@ -25,22 +25,33 @@ import UIKit
 
 @available(iOS 13, *)
 @dynamicMemberLookup
-public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtocol & SectionProtocol>: SectionWrapperProtocol where Section.Cell.Model: Hashable {
+public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtocol & SectionProtocol>: SectionWrapperProtocol {
         
+    public typealias Model = Section.Cell.Model
+    public typealias Cell  = Section.Cell
+
     public let wrappedSection: Section
         
     public init(_ section: Section) {
         self.wrappedSection = section
     }
     
-    public func config(models: [Section.Cell.Model]) {
+    public func config(models: [Model]) where Model: Hashable {
+        config(models: models, areEquivalent: { $0.hashValue == $1.hashValue })
+    }
+    
+    public func config<ID: Hashable>(models: [Model], id: KeyPath<Model, ID>) {
+        config(models: models, areEquivalent: { $0[keyPath: id] == $1[keyPath: id] })
+    }
+    
+    public func config(models: [Model], areEquivalent: (Model, Model) -> Bool) {
         let models = models.filter({ Section.Cell.validate($0) })
         guard models.isEmpty == false, wrappedSection.isLoaded else {
             wrappedSection.config(models: models)
             return
         }
 
-        let difference = models.difference(from: wrappedSection.models)
+        let difference = models.difference(from: wrappedSection.models, by: areEquivalent)
         wrappedSection.pick({
             wrappedSection.config(models: models)
             for change in difference {

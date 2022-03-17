@@ -27,20 +27,21 @@ public protocol SectionCollectionDriveProtocol: SectionProtocol {
     
     func config(sectionView: UICollectionView)
     func item(at row: Int) -> UICollectionViewCell
-    
+
     /// SupplementaryView
-    func supplementaryView(willDisplay view: UICollectionReusableView, forElementKind elementKind: String, at row: Int)
-    func supplementaryView(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: String, at row: Int)
+    func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView?
+    func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int)
+    func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int)
 
     /// contextMenu
-    @available(iOS 13.0, *)
     func contextMenuConfiguration(at row: Int, point: CGPoint) -> UIContextMenuConfiguration?
 }
 
 public extension SectionCollectionDriveProtocol {
     
-    func supplementaryView(willDisplay view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {}
-    func supplementaryView(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {}
+    func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? { nil }
+    func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {}
+    func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {}
     
 }
 
@@ -100,10 +101,6 @@ public extension SectionCollectionDriveProtocol {
 
     var indexsForVisibleItems: [Int] {
          sectionView.indexPathsForVisibleItems.filter({ $0.section == sectionIndex }).map(\.row)
-    }
-
-    func supplementaryView(for elementKind: String, at row: Int) -> UICollectionReusableView? {
-        sectionView.supplementaryView(forElementKind: elementKind, at: indexPath(from: row))
     }
 
     func visibleSupplementaryViews(of elementKind: String) -> [UICollectionReusableView] {

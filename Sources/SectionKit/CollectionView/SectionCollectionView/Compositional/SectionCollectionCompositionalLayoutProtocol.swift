@@ -23,16 +23,16 @@
 #if canImport(UIKit)
 import UIKit
 
-public protocol SectionCollectionCompositionalLayoutProtocol {
+public protocol SectionCollectionCompositionalLayoutProtocol: SectionCollectionDriveProtocol {
     
-    func supplementaryView(kind: String, at indexPath: IndexPath) -> UICollectionReusableView?
+    func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView?
     func compositionalLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection?
     
 }
 
 public extension SectionCollectionCompositionalLayoutProtocol {
     
-    func supplementaryView(kind: String, at indexPath: IndexPath) -> UICollectionReusableView? { nil }
+    func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? { nil }
 
 }
 #endif

@@ -25,9 +25,8 @@ import UIKit
 
 class SectionCollectionViewDataSource: NSObject, UICollectionViewDataSource {
         
-    let count = SectionDelegate<Void, Int>()
     let sectionEvent = SectionDelegate<Int, SectionCollectionDriveProtocol>()
-    let sectionsEvent = SectionDelegate<Void, LazyMapSequence<LazyFilterSequence<LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol?>>, SectionCollectionDriveProtocol>>()
+    let sectionsEvent = SectionDelegate<Void, LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol>>()
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return sectionEvent.call(section)?.itemCount ?? 0
@@ -38,25 +37,11 @@ class SectionCollectionViewDataSource: NSObject, UICollectionViewDataSource {
     }
 
     public func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return count.call() ?? 0
+        return sectionsEvent.call()?.count ?? 0
     }
     
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        var view: UICollectionReusableView?
-        
-        let section = sectionEvent.call(indexPath.section)
-        
-        if let section = section as? SectionCollectionFlowLayoutProtocol {
-            switch kind {
-            case UICollectionView.elementKindSectionHeader: view = section.headerView
-            case UICollectionView.elementKindSectionFooter: view = section.footerView
-            default: break
-            }
-        } else if let section = section as? SectionCollectionCompositionalLayoutProtocol {
-            view = section.supplementaryView(kind: kind, at: indexPath)
-        }
-
-        return view ?? UICollectionReusableView()
+        return sectionEvent.call(indexPath.section)?.supplementary(kind: .init(rawValue: kind), at: indexPath.row) ?? UICollectionReusableView()
     }
     
     public func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {

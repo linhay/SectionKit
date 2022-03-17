@@ -23,10 +23,8 @@
 #if canImport(UIKit)
 import UIKit
 
-public protocol SectionCollectionFlowLayoutProtocol {
+public protocol SectionCollectionFlowLayoutProtocol: SectionCollectionDriveProtocol {
     
-    var itemCount: Int { get }
-
     var minimumLineSpacing: CGFloat { get }
     var minimumInteritemSpacing: CGFloat { get }
     
@@ -45,6 +43,17 @@ public protocol SectionCollectionFlowLayoutProtocol {
 }
 
 extension SectionCollectionFlowLayoutProtocol {
+    
+    func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+        switch kind {
+        case .header:
+            return headerView
+        case .footer:
+            return footerView
+        case .custom:
+            return nil
+        }
+    }
     
     public var headerView: UICollectionReusableView? { nil }
     public var footerView: UICollectionReusableView? { nil }

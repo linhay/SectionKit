@@ -174,6 +174,16 @@ public extension SectionCollectionManager {
     }
     
     @MainActor
+    func append<Section: SectionWrapperProtocol>(_ sections: Section...) {
+        append(sections)
+    }
+    
+    @MainActor
+    func append<Section: SectionWrapperProtocol>(_ sections: [Section]) {
+        append(sections.map(\.eraseToDynamicType))
+    }
+    
+    @MainActor
     func insert<Section: SectionWrapperProtocol>(_ sections: Section..., at index: Int) {
         insert(sections, at: index)
     }
@@ -213,6 +223,16 @@ public extension SectionCollectionManager {
     }
     
     @MainActor
+    func append(_ sections: SectionCollectionDriveProtocol...) {
+        append(sections)
+    }
+    
+    @MainActor
+    func append(_ sections: [SectionCollectionDriveProtocol]) {
+        append(sections.map(\.eraseToDynamicType))
+    }
+    
+    @MainActor
     func insert(_ sections: SectionCollectionDriveProtocol..., at index: Int) {
         insert(sections, at: index)
     }
@@ -246,6 +266,11 @@ public extension SectionCollectionManager {
         let update = reducer.reducer(action: .update(types: types), environment: environment)
         types.map(\.section).compactMap({ $0 as? SectionCollectionDriveProtocol }).forEach({ $0.config(sectionView: sectionView) })
         operational(update)
+    }
+    
+    @MainActor
+    func append(_ types: [SectionDynamicType]) {
+        insert(types, at: dynamicTypes.count-1)
     }
     
     @MainActor

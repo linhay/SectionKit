@@ -29,6 +29,7 @@ public class SectionTableManager {
     private var reducer = SectionReducer(state: .init())
     
     var sectionView: UITableView { environment.sectionView }
+    public var dynamicTypes: [SectionDynamicType] { reducer.state.types }
     public var sections: LazyMapSequence<LazyFilterSequence<LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionTableProtocol?>>, SectionTableProtocol> { reducer.state.types.lazy.compactMap({ $0.section as? SectionTableProtocol }) }
     
     private let dataSource = SectionTableViewDataSource()
@@ -100,37 +101,130 @@ private extension SectionTableManager {
 public extension SectionTableManager {
     
     @MainActor
-    func reload() {
-        operational(reducer.reducer(action: .reload, environment: environment), with: .none)
+    func update<Section: SectionWrapperProtocol>(_ sections: Section...) {
+        update(sections)
     }
     
     @MainActor
-    func update(_ sections: SectionTableProtocol..., with animation: UITableView.RowAnimation = .none) {
-        update(sections, with: animation)
+    func update<Section: SectionWrapperProtocol>(_ sections: [Section]) {
+        update(sections.map(\.eraseToDynamicType))
     }
     
     @MainActor
-    func update(_ sections: [SectionTableProtocol], with animation: UITableView.RowAnimation = .none) {
-        let update = reducer.reducer(action: .update(types: sections.map({ .section($0) })), environment: environment)
-        sections.forEach({ $0.config(sectionView: sectionView) })
-        operational(update, with: animation)
+    func append<Section: SectionWrapperProtocol>(_ sections: Section..., with animation: UITableView.RowAnimation = .automatic) {
+        append(sections, with: animation)
     }
     
     @MainActor
-    func insert(_ sections: [SectionTableProtocol], at index: Int, with animation: UITableView.RowAnimation = .none) {
-        let insert = reducer.reducer(action: .insert(types: sections.map({ .section($0) }), at: index), environment: environment)
-        sections.forEach({ $0.config(sectionView: sectionView) })
+    func append<Section: SectionWrapperProtocol>(_ sections: [Section], with animation: UITableView.RowAnimation = .automatic) {
+        append(sections.map(\.eraseToDynamicType), with: animation)
+    }
+    
+    @MainActor
+    func insert<Section: SectionWrapperProtocol>(_ sections: Section..., at index: Int, with animation: UITableView.RowAnimation = .automatic) {
+        insert(sections, at: index, with: animation)
+    }
+    
+    @MainActor
+    func insert<Section: SectionWrapperProtocol>(_ sections: [Section], at index: Int, with animation: UITableView.RowAnimation = .automatic) {
+        insert(sections.map(\.eraseToDynamicType), at: index, with: animation)
+    }
+    
+    @MainActor
+    func delete<Section: SectionWrapperProtocol>(_ sections: Section..., with animation: UITableView.RowAnimation = .automatic) {
+        delete(sections, with: animation)
+    }
+    
+    @MainActor
+    func delete<Section: SectionWrapperProtocol>(_ sections: [Section], with animation: UITableView.RowAnimation = .automatic) {
+        delete(sections.map(\.eraseToDynamicType), with: animation)
+    }
+    
+    @MainActor
+    func move<Section1: SectionWrapperProtocol, Section2: SectionWrapperProtocol>(from: Section1, to: Section2) {
+        move(from: from.eraseToDynamicType, to: to.eraseToDynamicType)
+    }
+    
+}
+
+public extension SectionTableManager {
+    
+    @MainActor
+    func update(_ sections: SectionCollectionDriveProtocol...) {
+        update(sections)
+    }
+    
+    @MainActor
+    func update(_ sections: [SectionCollectionDriveProtocol]) {
+        update(sections.map(\.eraseToDynamicType))
+    }
+    
+    @MainActor
+    func append(_ sections: SectionCollectionDriveProtocol..., with animation: UITableView.RowAnimation = .automatic) {
+        append(sections, with: animation)
+    }
+    
+    @MainActor
+    func append(_ sections: [SectionCollectionDriveProtocol], with animation: UITableView.RowAnimation = .automatic) {
+        append(sections.map(\.eraseToDynamicType), with: animation)
+    }
+    
+    @MainActor
+    func insert(_ sections: SectionCollectionDriveProtocol..., at index: Int, with animation: UITableView.RowAnimation = .automatic) {
+        insert(sections, at: index, with: animation)
+    }
+    
+    @MainActor
+    func insert(_ sections: [SectionCollectionDriveProtocol], at index: Int, with animation: UITableView.RowAnimation = .automatic) {
+        insert(sections.map(\.eraseToDynamicType), at: index, with: animation)
+    }
+    
+    @MainActor
+    func delete(_ sections: SectionCollectionDriveProtocol..., with animation: UITableView.RowAnimation = .automatic) {
+        delete(sections, with: animation)
+    }
+    
+    @MainActor
+    func delete(_ sections: [SectionCollectionDriveProtocol], with animation: UITableView.RowAnimation = .automatic) {
+        delete(sections.map(\.eraseToDynamicType), with: animation)
+    }
+    
+    @MainActor
+    func move(from: SectionCollectionDriveProtocol, to: SectionCollectionDriveProtocol) {
+        move(from: from.eraseToDynamicType, to: to.eraseToDynamicType)
+    }
+    
+}
+
+public extension SectionTableManager {
+    
+    @MainActor
+    func update(_ types: [SectionDynamicType]) {
+        let update = reducer.reducer(action: .update(types: types), environment: environment)
+        types.map(\.section).compactMap({ $0 as? SectionTableProtocol }).forEach({ $0.config(sectionView: sectionView) })
+        operational(update, with: .none)
+    }
+    
+    @MainActor
+    func append(_ types: [SectionDynamicType], with animation: UITableView.RowAnimation = .automatic) {
+        insert(types, at: dynamicTypes.count-1)
+    }
+    
+    @MainActor
+    func insert(_ types: [SectionDynamicType], at index: Int, with animation: UITableView.RowAnimation = .automatic) {
+        let insert = reducer.reducer(action: .insert(types: types, at: index), environment: environment)
+        types.map(\.section).compactMap({ $0 as? SectionTableProtocol }).forEach({ $0.config(sectionView: sectionView) })
         operational(insert, with: animation)
     }
     
     @MainActor
-    func delete(_ sections: [SectionTableProtocol], with animation: UITableView.RowAnimation = .none) {
-        operational(reducer.reducer(action: .delete(types: sections.map({ .section($0) })), environment: environment), with: animation)
+    func delete(_ types: [SectionDynamicType], with animation: UITableView.RowAnimation = .automatic) {
+        operational(reducer.reducer(action: .delete(types: types), environment: environment), with: animation)
     }
     
     @MainActor
-    func move(from: SectionTableProtocol, to: SectionTableProtocol, with animation: UITableView.RowAnimation = .none) {
-        operational(reducer.reducer(action: .move(from: .section(from), to: .section(to)), environment: environment), with: animation)
+    func move(from: SectionDynamicType, to: SectionDynamicType) {
+        operational(reducer.reducer(action: .move(from: from, to: to), environment: environment), with: .automatic)
     }
     
 }

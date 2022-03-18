@@ -29,23 +29,87 @@ public protocol SectionTableProtocol: SectionProtocol {
     func item(at row: Int) -> UITableViewCell
     func itemSize(at row: Int) -> CGSize
 
+    func item(willSelect row: Int) -> Int?
+    func item(willDeselect row: Int) -> Int?
+    
+    func item(editingStyle row: Int) -> UITableViewCell.EditingStyle
+    func item(shouldIndentWhileEditing row: Int) -> Bool
+    func item(willBeginEditing row: Int)
+    func item(didEndEditing row: Int)
+    
+    /// SupplementaryView
+    func supplementary(kind: SectionSupplementaryKind) -> UIView?
+    func supplementarySize(kind: SectionSupplementaryKind) -> CGSize?
+    func supplementary(willDisplay view: UIView, forElementKind elementKind: SectionSupplementaryKind)
+    func supplementary(didEndDisplaying view: UIView, forElementKind elementKind: SectionSupplementaryKind)
+    
     var headerView: UITableViewHeaderFooterView? { get }
     var footerView: UITableViewHeaderFooterView? { get }
     
-    var headerSize: CGSize { get }
-    var footerSize: CGSize { get }
+    var headerSize: CGSize? { get }
+    var footerSize: CGSize? { get }
     
-    func leadingSwipeActions(at row: Int) -> [UIContextualAction]
-    func trailingSwipeActions(at row: Int) -> [UIContextualAction]
+    func swipeActions(leading row: Int) -> [UIContextualAction]
+    func swipeActions(trailing row: Int) -> [UIContextualAction]
+}
+
+public extension SectionTableProtocol {
+
+    func swipeActions(leading row: Int) -> [UIContextualAction] { [] }
+    func swipeActions(trailing row: Int) -> [UIContextualAction] { [] }
+    
+}
+
+public extension SectionTableProtocol {
+
+    func item(willSelect row: Int) -> Int? { nil }
+    func item(willDeselect row: Int) -> Int? { nil }
 }
 
 public extension SectionTableProtocol {
     
+    func item(editingStyle row: Int) -> UITableViewCell.EditingStyle { .none }
+    func item(shouldIndentWhileEditing row: Int) -> Bool { true }
+    func item(willBeginEditing row: Int) {}
+    func item(didEndEditing row: Int) {}
+}
+
+public extension SectionTableProtocol {
+
     var headerView: UITableViewHeaderFooterView? { nil }
     var footerView: UITableViewHeaderFooterView? { nil }
     
-    var headerSize: CGSize { .zero }
-    var footerSize: CGSize { .zero }
+    var headerSize: CGSize? { nil }
+    var footerSize: CGSize? { nil }
+    
+    func supplementary(kind: SectionSupplementaryKind) -> UIView? {
+        switch kind {
+        case .header:
+            return headerView
+        case .footer:
+            return footerView
+        case .custom:
+            return nil
+        }
+    }
+    
+    func supplementarySize(kind: SectionSupplementaryKind) -> CGSize? {
+        switch kind {
+        case .header:
+            return headerSize
+        case .footer:
+            return footerSize
+        case .custom:
+            return nil
+        }
+    }
+    
+    func supplementary(willDisplay view: UIView, forElementKind elementKind: SectionSupplementaryKind) {}
+    func supplementary(didEndDisplaying view: UIView, forElementKind elementKind: SectionSupplementaryKind) {}
+    
+}
+
+public extension SectionTableProtocol {
     
     var sectionView: UITableView {
         guard let view = core?.sectionView as? UITableView else {
@@ -54,9 +118,7 @@ public extension SectionTableProtocol {
         }
         return view
     }
-    
-    func leadingSwipeActions(at row: Int) -> [UIContextualAction] { return [] }
-    func trailingSwipeActions(at row: Int) -> [UIContextualAction] { return [] }
+
 }
 
 public extension SectionTableProtocol {

@@ -55,6 +55,14 @@ public extension SingleTypeSectionDataProtocol {
 
 public extension SingleTypeSectionDataProtocol {
     
+    func append(_ data: Cell.Model...) {
+        append(data)
+    }
+    
+    func append(_ data: [Cell.Model]) {
+        insert(data, at: models.count)
+    }
+    
     func insert(_ data: Cell.Model..., at row: Int) {
         insert(data, at: row)
     }

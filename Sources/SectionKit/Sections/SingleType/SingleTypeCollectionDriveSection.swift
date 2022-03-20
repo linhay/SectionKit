@@ -44,9 +44,17 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
     open var core: SectionState?
     
     private var cancellables = Set<AnyCancellable>()
-
+    
     public init(_ models: [Cell.Model] = []) {
         self.models = models
+    }
+    
+    public convenience init(count: Int) where Cell.Model == Void {
+        self.init(repeating: (), count: count)
+    }
+    
+    public convenience init(repeating: Cell.Model, count: Int) {
+        self.init(.init(repeating: repeating, count: count))
     }
     
     open func config(models: [Cell.Model]) {
@@ -57,7 +65,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
     open func config(sectionView: UICollectionView) {
         register(Cell.self)
     }
-        
+    
     open func item(at row: Int) -> UICollectionViewCell {
         let cell = dequeue(at: row) as Cell
         cell.config(models[row])

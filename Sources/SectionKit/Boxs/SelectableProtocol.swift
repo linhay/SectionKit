@@ -48,12 +48,12 @@ public class SelectableModel: Equatable {
         self.selectedSubject  = CurrentValueSubject<Bool, Never>(isSelected).removeDuplicates()
         self.canSelectSubject = CurrentValueSubject<Bool, Never>(canSelect).removeDuplicates()
         
-        self.selectedSubject.sink { value in
-            self.changedSubject.send((isSelected, canSelect))
+        self.selectedSubject.sink { [weak self] value in
+            self?.changedSubject.send((isSelected, canSelect))
         }.store(in: &cancellables)
         
-        self.canSelectSubject.sink { value in
-            self.changedSubject.send((isSelected, canSelect))
+        self.canSelectSubject.sink { [weak self] value in
+            self?.changedSubject.send((isSelected, canSelect))
         }.store(in: &cancellables)
     }
 

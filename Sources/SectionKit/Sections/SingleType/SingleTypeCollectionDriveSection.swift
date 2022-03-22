@@ -73,8 +73,8 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
         return cell
     }
     
-    open func cellForTypeItem(at row: Int) -> Cell {
-        return cellForItem(at: row) as! Cell
+    open func cellForTypeItem(at row: Int) -> Cell? {
+        return cellForItem(at: row) as? Cell
     }
     
     open var visibleTypeItems: [Cell] {

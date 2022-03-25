@@ -8,7 +8,7 @@
 import UIKit
 import SectionKit
 
-final class ColorBlockCell: UICollectionViewCell, LoadViewProtocol {
+final class ColorBlockCell: UICollectionViewCell, SectionLoadViewProtocol {
     
     private lazy var titleLabel: UILabel = {
         let view = UILabel(frame: .zero)

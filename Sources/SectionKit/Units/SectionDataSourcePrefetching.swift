@@ -5,7 +5,6 @@
 //  Created by linhey on 2022/3/12.
 //
 
-import Foundation
 import UIKit
 
 public protocol SectionDataSourcePrefetchingProtocol {

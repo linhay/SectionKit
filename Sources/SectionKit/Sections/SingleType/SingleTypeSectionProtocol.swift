@@ -31,7 +31,7 @@ typealias SingleTypeSectionProtocol = SingleTypeSectionDataProtocol & SingleType
 
 public protocol SingleTypeSectionDataProtocol {
     
-    associatedtype Cell: LoadViewProtocol & SectionConfigurableModelProtocol
+    associatedtype Cell: SectionLoadViewProtocol & SectionConfigurableModelProtocol
     
     var models: [Cell.Model] { get }
     func config(models: [Cell.Model])
@@ -93,7 +93,7 @@ public extension SingleTypeSectionDataProtocol {
 
 public protocol SingleTypeSectionEventProtocol {
     
-    associatedtype Cell: LoadViewProtocol & SectionConfigurableModelProtocol
+    associatedtype Cell: SectionLoadViewProtocol & SectionConfigurableModelProtocol
     associatedtype ReusableView
     
     var models: [Cell.Model] { get }

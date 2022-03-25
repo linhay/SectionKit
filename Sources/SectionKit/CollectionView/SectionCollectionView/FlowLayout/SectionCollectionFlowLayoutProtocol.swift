@@ -44,7 +44,7 @@ public protocol SectionCollectionFlowLayoutProtocol: SectionCollectionDriveProto
 
 extension SectionCollectionFlowLayoutProtocol {
     
-    func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+    public func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
         switch kind {
         case .header:
             return headerView

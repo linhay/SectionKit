@@ -23,7 +23,7 @@
 #if canImport(UIKit)
 import UIKit
 
-open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & LoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
+open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
     
     public lazy var safeSize = defaultSafeSize
     

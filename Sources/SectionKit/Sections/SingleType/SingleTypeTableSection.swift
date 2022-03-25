@@ -23,7 +23,7 @@
 #if canImport(UIKit)
 import UIKit
 
-open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefetchingProtocol, SectionTableProtocol, SingleTypeSectionProtocol where Cell: ConfigurableView & LoadViewProtocol {
+open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefetchingProtocol, SectionTableProtocol, SingleTypeSectionProtocol where Cell: ConfigurableView & SectionLoadViewProtocol {
     
     public private(set) var models: [Cell.Model]
     public var publishers = SingleTypeSectionPublishers<Cell.Model, UITableViewHeaderFooterView>()

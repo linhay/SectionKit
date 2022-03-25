@@ -156,6 +156,7 @@ public extension SectionCollectionView {
 private extension SectionCollectionView {
     
     func initialize() {
+        translatesAutoresizingMaskIntoConstraints = false
         if backgroundColor == .black {
             backgroundColor = .white
         }

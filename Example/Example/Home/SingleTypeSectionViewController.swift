@@ -126,7 +126,7 @@ extension SingleTypeSectionViewController {
                       let offset = (0...section.models.count-1).randomElement() else {
                     return
                 }
-                section.cellForTypeItem(at: offset).isHighlighted = true
+                section.cellForTypeItem(at: offset)?.isHighlighted = true
                 animate {
                     self.section.remove(self.section.models[offset])
                 }
@@ -135,7 +135,7 @@ extension SingleTypeSectionViewController {
                       let offset = (0...section.models.count-1).randomElement() else {
                     return
                 }
-                section.cellForTypeItem(at: offset).isHighlighted = true
+                section.cellForTypeItem(at: offset)?.isHighlighted = true
                 animate {
                     self.section.remove(at: [offset])
                 }
@@ -145,8 +145,8 @@ extension SingleTypeSectionViewController {
                       let offset2 = (0...section.models.count-1).randomElement() else {
                     return
                 }
-                section.cellForTypeItem(at: offset1).isHighlighted = true
-                section.cellForTypeItem(at: offset2).isHighlighted = true
+                section.cellForTypeItem(at: offset1)?.isHighlighted = true
+                section.cellForTypeItem(at: offset2)?.isHighlighted = true
                 animate {
                     self.section.moveItem(at: offset1, to: offset2)
                 }

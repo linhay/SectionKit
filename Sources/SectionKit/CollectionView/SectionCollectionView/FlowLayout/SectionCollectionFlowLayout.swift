@@ -25,7 +25,7 @@ import UIKit
 
 open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
     
-    public typealias DecorationView = UICollectionReusableView & LoadViewProtocol
+    public typealias DecorationView = UICollectionReusableView & SectionLoadViewProtocol
     public typealias DecorationElement = [BindingKey<Int>: DecorationView.Type]
     
     public class BindingKey<Value> {

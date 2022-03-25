@@ -23,7 +23,7 @@
 #if canImport(UIKit)
 import UIKit
 
-public typealias SectionCollectionProtocol = SectionCollectionDriveProtocol & SectionCollectionFlowLayoutProtocol
+public typealias SectionCollectionProtocol = SectionCollectionDriveProtocol & SectionCollectionFlowLayoutProtocol & SectionCollectionDequeueProtocol
 public typealias SectionCompositionalProtocol = SectionCollectionDriveProtocol & SectionCollectionCompositionalLayoutProtocol
 
 #endif

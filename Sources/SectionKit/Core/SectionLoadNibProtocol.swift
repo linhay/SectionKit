@@ -23,18 +23,17 @@
 #if canImport(UIKit)
 import UIKit
 
-open class SingleTypeCompositionalSection<Cell: UICollectionViewCell & ConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionCompositionalLayoutProtocol {
-    
-    public let supplementaryProvider = SectionDelegate<(section: SingleTypeCompositionalSection<Cell>, kind: SectionSupplementaryKind, at: Int), UICollectionReusableView>()
-    public var layoutProvider = SectionDelegate<NSCollectionLayoutEnvironment, NSCollectionLayoutSection?>()
-        
-    public func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
-        supplementaryProvider.call((section: self, kind: kind, at: row))
+public protocol SectionLoadNibProtocol: SectionLoadViewProtocol { }
+
+public extension SectionLoadNibProtocol {
+
+    static var nib: UINib? {
+        return UINib(nibName: self.identifier, bundle: .init(for: Self.self))
     }
-    
-    open func compositionalLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? {
-        return layoutProvider.call(environment)
+
+    static var loadFromNib: Self {
+        return nib!.instantiate(withOwner: nil, options: nil).first as! Self
     }
-    
+
 }
 #endif

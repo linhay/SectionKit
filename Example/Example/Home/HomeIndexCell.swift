@@ -9,7 +9,7 @@ import UIKit
 import SectionKit
 import SnapKit
 
-final class HomeIndexCell<Model: RawRepresentable>: UICollectionViewCell, LoadViewProtocol where Model.RawValue == String {
+final class HomeIndexCell<Model: RawRepresentable>: UICollectionViewCell, SectionLoadViewProtocol where Model.RawValue == String {
     
     private lazy var titleLabel: UILabel = {
         let view = UILabel(frame: .zero)

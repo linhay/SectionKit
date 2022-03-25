@@ -35,7 +35,7 @@ public final class SectionHorizontalWrapper<Section: SectionCollectionDriveProto
         register(SectionHorizontalCell<Section>.self)
     }
     
-    public var core: SectionState?
+    public var sectionState: SectionState?
     
     public var itemCount: Int = 1
     

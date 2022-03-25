@@ -48,7 +48,7 @@ public extension SectionCollectionDriveProtocol {
 public extension SectionCollectionDriveProtocol {
     
     var sectionView: UICollectionView {
-        guard let view = core?.sectionView as? UICollectionView else {
+        guard let view = sectionState?.sectionView as? UICollectionView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
             return UICollectionView()
         }
@@ -153,7 +153,7 @@ public extension SectionCollectionDriveProtocol {
 public extension SectionCollectionDriveProtocol {
     
     func reload() {
-        core?.reloadDataEvent?()
+        sectionState?.reloadDataEvent?()
     }
 
     func insertItems(at rows: [Int]) {
@@ -168,7 +168,7 @@ public extension SectionCollectionDriveProtocol {
             return
         }
         if itemCount <= 0 {
-            core?.reloadDataEvent?()
+            sectionState?.reloadDataEvent?()
         } else {
             sectionView.deleteItems(at: indexPath(from: rows))
         }

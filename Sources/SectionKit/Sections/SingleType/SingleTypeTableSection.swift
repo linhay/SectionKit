@@ -46,7 +46,7 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
     public var headerSize: CGSize { headerSizeProvider.call(sectionView) ?? .zero }
     public var footerSize: CGSize { footerSizeProvider.call(sectionView) ?? .zero }
     
-    public var core: SectionState?
+    public var sectionState: SectionState?
         
     public init(_ models: [Cell.Model] = []) {
         self.models = models

@@ -25,7 +25,7 @@ import UIKit
 
 public protocol SectionProtocol: AnyObject {
     
-    var core: SectionState? { get set }
+    var sectionState: SectionState? { get set }
     var sectionIndex: Int { get set }
     
     /// UICollectionViewDelegate & UITableViewDelegate
@@ -64,11 +64,11 @@ public protocol SectionProtocol: AnyObject {
 public extension SectionProtocol {
 
     var sectionIndex: Int {
-        set { core?.index = newValue }
-        get { core?.index ?? 0 }
+        set { sectionState?.index = newValue }
+        get { sectionState?.index ?? 0 }
     }
 
-    var isLoaded: Bool { core != nil }
+    var isLoaded: Bool { sectionState != nil }
 
 }
 

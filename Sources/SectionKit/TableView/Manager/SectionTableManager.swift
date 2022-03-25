@@ -70,7 +70,7 @@ public class SectionTableManager {
     }
     
     private class PlaceholderSection: SectionTableProtocol {
-        var core: SectionState?
+        var sectionState: SectionState?
         func itemSize(at row: Int) -> CGSize { .zero }
         func item(at row: Int) -> UITableViewCell { UITableViewCell() }
         func config(sectionView: UITableView) {}

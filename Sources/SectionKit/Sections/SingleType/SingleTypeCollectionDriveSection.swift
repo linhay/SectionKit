@@ -41,7 +41,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     /// cell 样式配置
     public let cellStyleProvider = SectionDelegate<(row: Int, cell: Cell), Void>()
     
-    open var core: SectionState?
+    open var sectionState: SectionState?
     
     private var cancellables = Set<AnyCancellable>()
     

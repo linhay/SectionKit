@@ -71,12 +71,12 @@ public struct SectionReducer {
         
         @MainActor
         func transfer(from: State, to: State) -> State {
-            from.types.forEach { $0.section.core = nil }
+            from.types.forEach { $0.section.sectionState = nil }
             to.types.enumerated().forEach { index, section in
-                section.section.core = SectionState()
-                section.section.core?.reloadDataEvent = reloadDataEvent
-                section.section.core?.index = index
-                section.section.core?.sectionView = weakBox.value
+                section.section.sectionState = SectionState()
+                section.section.sectionState?.reloadDataEvent = reloadDataEvent
+                section.section.sectionState?.index = index
+                section.section.sectionState?.sectionView = weakBox.value
             }
             return to
         }

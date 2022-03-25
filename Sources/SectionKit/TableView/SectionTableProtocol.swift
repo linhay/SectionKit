@@ -112,7 +112,7 @@ public extension SectionTableProtocol {
 public extension SectionTableProtocol {
     
     var sectionView: UITableView {
-        guard let view = core?.sectionView as? UITableView else {
+        guard let view = sectionState?.sectionView as? UITableView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
             return UITableView()
         }

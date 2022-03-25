@@ -81,7 +81,7 @@ public class SectionCollectionManager {
     private class PlaceholderSection: SectionCollectionDriveProtocol {
         func config(sectionView: UICollectionView) {}
         func item(at row: Int) -> UICollectionViewCell { UICollectionViewCell() }
-        var core: SectionState?
+        var sectionState: SectionState?
         let itemCount: Int = 0
     }
     

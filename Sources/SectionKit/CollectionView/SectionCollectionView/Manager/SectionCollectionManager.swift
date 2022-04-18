@@ -154,6 +154,17 @@ public extension SectionCollectionManager {
     }
     
     @MainActor
+    func pick(_ updates: @escaping (() async throws -> Void), completion: ((Bool) async throws -> Void)? = nil) {
+        Task {
+            isPicking = true
+            try await updates()
+            isPicking = false
+            reload()
+            try await completion?(true)
+        }
+    }
+    
+    @MainActor
     func reload() {
         let action = reducer.reducer(action: .reload, environment: environment)
         operational(action)

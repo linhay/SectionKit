@@ -35,7 +35,6 @@ public protocol SingleTypeSectionDataProtocol {
     
     var models: [Cell.Model] { get }
     func config(models: [Cell.Model])
-    func validate(_ models: [Cell.Model]) -> [Cell.Model]
     
     /// 该部分接口与 Array 保持一致
     func insert(_ models: [Cell.Model], at row: Int)
@@ -45,11 +44,6 @@ public protocol SingleTypeSectionDataProtocol {
 public extension SingleTypeSectionDataProtocol {
 
     var itemCount: Int { models.count }
-
-    /// 过滤无效数据
-    func validate(_ models: [Cell.Model]) -> [Cell.Model] {
-        models.filter({ Cell.validate($0) })
-    }
     
 }
 
@@ -71,7 +65,7 @@ public extension SingleTypeSectionDataProtocol {
         remove(at: [row])
     }
     
-    func removeALl() {
+    func removeAll() {
         remove(at: .init(0..<models.count))
     }
     
@@ -99,25 +93,20 @@ public protocol SingleTypeSectionEventProtocol {
     var models: [Cell.Model] { get }
     
     var publishers: SingleTypeSectionPublishers<Cell.Model, ReusableView> { get }
-    var selectedEvent: SectionDelegate<Cell.Model, Void> { get }
-    var selectedRowEvent: SectionDelegate<Int, Void> { get }
-    var willDisplayEvent: SectionDelegate<Int, Void> { get }
 }
 
 public extension SingleTypeSectionEventProtocol where Self: SectionProtocol {
     
     func item(selected row: Int) {
         publishers.cell._selected.send(.init(row: row, model: models[row]))
-        selectedEvent.call(models[row])
-        selectedRowEvent.call(row)
     }
     
     func item(willDisplay row: Int) {
-        publishers.cell._willDisplay.send(models[row])
+        publishers.cell._willDisplay.send(.init(row: row, model: models[row]))
     }
     
     func item(didEndDisplaying row: Int) {
-        publishers.cell._didEndDisplaying.send(models[row])
+        publishers.cell._didEndDisplaying.send(.init(row: row, model: models[row]))
     }
     
 }

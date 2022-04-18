@@ -19,11 +19,27 @@ public extension SectionCollectionDriveProtocol {
 
 public final class SectionHorizontalWrapper<Section: SectionCollectionDriveProtocol>: SectionCollectionProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionWrapperProtocol {
     
+    public var sectionState: SectionState?
+    public var itemCount: Int = 1
+
     public lazy var safeSize: SectionSafeSize = defaultSafeSize
+    let model: SectionHorizontalCell<Section>.Model
+    public var wrappedSection: Section { model.section }
+    private var containerStyle: ((SectionHorizontalCell<Section>, Int) -> Void)?
+    
+    public func apply(containerStyle: ((SectionHorizontalCell<Section>, Int) -> Void)?) -> Self {
+        self.containerStyle = containerStyle
+        return self
+    }
+    
+    public init(_ model: SectionHorizontalCell<Section>.Model) {
+        self.model = model
+    }
     
     public func item(at row: Int) -> UICollectionViewCell {
         let cell = dequeue(at: row) as SectionHorizontalCell<Section>
         cell.config(model)
+        containerStyle?(cell, row)
         return cell
     }
     
@@ -34,18 +50,6 @@ public final class SectionHorizontalWrapper<Section: SectionCollectionDriveProto
     public func config(sectionView: UICollectionView) {
         register(SectionHorizontalCell<Section>.self)
     }
-    
-    public var sectionState: SectionState?
-    
-    public var itemCount: Int = 1
-    
-    let model: SectionHorizontalCell<Section>.Model
-    public var wrappedSection: Section { model.section }
-    
-    init(_ model: SectionHorizontalCell<Section>.Model) {
-        self.model = model
-    }
-    
 }
 
 public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol>: UICollectionViewCell, ConfigurableView, SectionLoadViewProtocol {
@@ -127,6 +131,7 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
     
     private func initialize() {
         translatesAutoresizingMaskIntoConstraints = false
+        sectionView.translatesAutoresizingMaskIntoConstraints = false
         sectionView.backgroundColor = .clear
         contentView.addSubview(sectionView)
         sectionView.scrollDirection = .horizontal

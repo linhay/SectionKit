@@ -27,49 +27,55 @@ import UIKit
 import Combine
 #endif
 
-open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SectionLoadViewProtocol & ConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {    
+open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SectionLoadViewProtocol & ConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
     
-    public private(set) var models: [Cell.Model]
+    public typealias SectionPublishers = SingleTypeSectionPublishers<Cell.Model, UICollectionReusableView>
+    public let publishers = SectionPublishers()
     
-    public typealias Publishers = SingleTypeSectionPublishers<Cell.Model, UICollectionReusableView>
+    /// 原始数据
+    private let dataSubject: CurrentValueSubject<[Cell.Model], Never>
+    /// 数据转换器
+    private let dataTransforms: [DataTransform]
+    /// 内置数据转换器
+    private let systemDataTransforms = SystemTransforms()
+    /// UI驱动所用数据集
+    public private(set) var models: [Cell.Model] = []
     
-    public let publishers = Publishers()
-    public let selectedEvent = SectionDelegate<Cell.Model, Void>()
-    public let selectedRowEvent = SectionDelegate<Int, Void>()
-    public let willDisplayEvent = SectionDelegate<Int, Void>()
-    
-    /// cell 样式配置
-    public let cellStyleProvider = SectionDelegate<(row: Int, cell: Cell), Void>()
+
     
     open var sectionState: SectionState?
+    open var itemCount: Int { models.count }
+    
+    /// cell 样式配置
+    private var itemStyleProvider: ((_ row: Int, _ cell: Cell) -> Void)?
     
     private var cancellables = Set<AnyCancellable>()
+    /// 注册队列
+    private var registerQueue = [(SingleTypeCollectionDriveSection<Cell>) -> Void]()
     
-    public init(_ models: [Cell.Model] = []) {
-        self.models = models
-    }
-    
-    public convenience init(count: Int) where Cell.Model == Void {
-        self.init(repeating: (), count: count)
-    }
-    
-    public convenience init(repeating: Cell.Model, count: Int) {
-        self.init(.init(repeating: repeating, count: count))
+    public required init(_ models: [Cell.Model] = [], transforms: [DataTransform] = []) {
+        self.dataSubject = .init(models)
+        self.dataTransforms = systemDataTransforms.all + transforms
+        self.models = self.models(transforms: dataTransforms)
     }
     
     open func config(models: [Cell.Model]) {
-        self.models = validate(models)
+        dataSubject.send(models)
         reload()
     }
     
     open func config(sectionView: UICollectionView) {
         register(Cell.self)
+        registerQueue.forEach { task in
+            task(self)
+        }
+        registerQueue.removeAll()
     }
     
     open func item(at row: Int) -> UICollectionViewCell {
         let cell = dequeue(at: row) as Cell
         cell.config(models[row])
-        cellStyleProvider.call((row: row, cell: cell))
+        itemStyleProvider?(row, cell)
         return cell
     }
     
@@ -81,14 +87,176 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         return visibleCells.compactMap({ $0 as? Cell })
     }
     
-    public func supplementaryView(willDisplay view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {
-        let result = Publishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
+    open func item(willDisplay row: Int) {
+        publishers.cell._willDisplay.send(.init(row: row, model: models[row]))
+    }
+    
+    open func item(didEndDisplaying row: Int) {
+        publishers.cell._didEndDisplaying.send(.init(row: row, model: models[row]))
+    }
+    
+    open func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {
+        let result = SectionPublishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
         publishers.supplementary._willDisplay.send(result)
     }
     
-    public func supplementaryView(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: String, at row: Int) {
-        let result = Publishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
+    open func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {
+        let result = SectionPublishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
         publishers.supplementary._didEndDisplaying.send(result)
+    }
+    
+    private func models(transforms: [DataTransform]) -> [Cell.Model] {
+        var list = dataSubject.value
+        for transform in dataTransforms {
+            list = transform.task?(list) ?? list
+        }
+        return list
+    }
+    
+}
+
+/// DataTransform
+extension SingleTypeCollectionDriveSection {
+
+    open class DataTransform {
+        open var task: (([Cell.Model]) -> [Cell.Model])?
+        public init(task: (([Cell.Model]) -> [Cell.Model])?) {
+            self.task = task
+        }
+    }
+    
+    public class HiddenDataTransform: DataTransform {
+        func by(_ block: @escaping () -> Bool) {
+            task = { list in
+                block() ? [] : list
+            }
+        }
+    }
+    
+    private class SystemTransforms {
+        var hidden: HiddenDataTransform = .init(task: nil)
+        let validate: DataTransform = .init(task: { $0.filter(Cell.validate) })
+        lazy var all = [self.hidden, self.validate]
+    }
+    
+}
+
+/// init
+public extension SingleTypeCollectionDriveSection {
+    
+    convenience init(count: Int, transforms: [DataTransform] = []) where Cell.Model == Void {
+        self.init(repeating: (), count: count)
+    }
+    
+    convenience init(repeating: Cell.Model, count: Int, transforms: [DataTransform] = []) {
+        self.init(.init(repeating: repeating, count: count), transforms: transforms)
+    }
+    
+}
+
+/// register
+public extension SingleTypeCollectionDriveSection {
+    
+    /// 注册 View, Cell
+    func register(_ builds: ((SingleTypeCollectionDriveSection<Cell>) -> Void)...) {
+        register(builds)
+    }
+    
+    /// 注册 View, Cell
+    func register(_ builds: [(SingleTypeCollectionDriveSection<Cell>) -> Void]) {
+        if isLoaded {
+            builds.forEach { build in
+                build(self)
+            }
+        } else {
+            registerQueue.append(contentsOf: builds)
+        }
+    }
+    
+}
+
+/// 隐藏该 Section
+public extension SingleTypeCollectionDriveSection {
+    
+    /// 隐藏该 Section
+    /// - Parameter by: bool
+    /// - Returns: self
+    @discardableResult
+    func hidden(by: @escaping () -> Bool) -> Self {
+        systemDataTransforms.hidden.by(by)
+        reload()
+        return self
+    }
+    
+    @discardableResult
+    func hidden(_ value: Bool) -> Self {
+        self.hidden { value }
+        return self
+    }
+    
+    @discardableResult
+    func hidden<T: AnyObject>(by: T, _ keyPath: KeyPath<T, Bool>) -> Self {
+        self.hidden { [weak by] in
+            by?[keyPath: keyPath] ?? false
+        }
+        return self
+    }
+    
+    @discardableResult
+    func hidden<T>(by: T, _ keyPath: KeyPath<T, Bool>) -> Self {
+        self.hidden { by[keyPath: keyPath] }
+        return self
+    }
+    
+}
+
+/// 链式调用 - Style
+public extension SingleTypeCollectionDriveSection {
+    
+    @discardableResult
+    func itemStyle(_ builder: @escaping (_ row: Int, _ cell: Cell) -> Void) -> Self {
+        self.itemStyleProvider = builder
+        return self
+    }
+    
+    @discardableResult
+    func sectionStyle(_ builder: @escaping (_ section: Self) -> Void) -> Self {
+        builder(self)
+        return self
+    }
+    
+}
+
+public extension SingleTypeCollectionDriveSection {
+    
+    /// item 选中事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.selected.sink`)
+    /// - Parameter builder: 订阅回调
+    /// - Returns: self
+    func onItemSelected(_ builder: @escaping (_ row: Int, _ model: Cell.Model) -> Void) -> Self {
+        publishers.cell.selected.sink { result in
+            builder(result.row, result.model)
+        }.store(in: &cancellables)
+        return self
+    }
+    
+    /// item 显示事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.willDisplay.sink`)
+    /// - Parameter builder: 订阅回调
+    /// - Returns: self
+    func onItemWillDisplay(_ builder: @escaping (_ row: Int, _ model: Cell.Model) -> Void) -> Self {
+        publishers.cell.willDisplay.sink { result in
+            builder(result.row, result.model)
+        }.store(in: &cancellables)
+        return self
+    }
+    
+    /// item 结束显示事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.didEndDisplaying.sink`)
+    /// - Parameter builder: 订阅回调
+    /// - Returns: self
+    func onItemEndDisplay(_ builder: @escaping (_ row: Int, _ model: Cell.Model) -> Void) -> Self {
+        publishers.cell.didEndDisplaying.sink { result in
+            builder(result.row, result.model)
+        }.store(in: &cancellables)
+        return self
     }
     
 }

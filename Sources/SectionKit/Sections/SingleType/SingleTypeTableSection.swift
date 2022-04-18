@@ -53,7 +53,7 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
     }
     
     open func config(models: [Cell.Model]) {
-        self.models = validate(models)
+        self.models = models
         reload()
     }
     

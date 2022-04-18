@@ -34,7 +34,7 @@ public struct SingleTypeSectionPublishers<Model, ReusableView> {
     public struct SupplementaryResult {
 
         public let view: ReusableView
-        public let elementKind: String
+        public let elementKind: SectionSupplementaryKind
         public let row: Int
         
     }
@@ -49,12 +49,12 @@ public struct SingleTypeSectionPublishers<Model, ReusableView> {
     
     public struct Cell {
         public var selected: AnyPublisher<SelectedResult<Model>, Never> { _selected.eraseToAnyPublisher() }
-        public var willDisplay: AnyPublisher<Model, Never> { _willDisplay.eraseToAnyPublisher() }
-        public var didEndDisplaying: AnyPublisher<Model, Never> { _didEndDisplaying.eraseToAnyPublisher() }
+        public var willDisplay: AnyPublisher<SelectedResult<Model>, Never> { _willDisplay.eraseToAnyPublisher() }
+        public var didEndDisplaying: AnyPublisher<SelectedResult<Model>, Never> { _didEndDisplaying.eraseToAnyPublisher() }
         
         var _selected = PassthroughSubject<SelectedResult<Model>, Never>()
-        var _willDisplay = PassthroughSubject<Model, Never>()
-        var _didEndDisplaying = PassthroughSubject<Model, Never>()
+        var _willDisplay = PassthroughSubject<SelectedResult<Model>, Never>()
+        var _didEndDisplaying = PassthroughSubject<SelectedResult<Model>, Never>()
     }
 
     public struct Prefetch {

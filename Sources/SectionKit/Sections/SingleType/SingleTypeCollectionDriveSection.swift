@@ -84,7 +84,9 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     
     open func item(at row: Int) -> UICollectionViewCell {
         let cell = dequeue(at: row) as Cell
-        cell.config(models[row])
+        if let model = model(at: row) {
+            cell.config(model)
+        }
         itemStyleProvider?(row, cell)
         return cell
     }
@@ -98,11 +100,15 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     }
     
     open func item(willDisplay row: Int) {
-        publishers.cell._willDisplay.send(.init(row: row, model: models[row]))
+        if let model = model(at: row) {
+            publishers.cell._willDisplay.send(.init(row: row, model: model))
+        }
     }
     
     open func item(didEndDisplaying row: Int) {
-        publishers.cell._didEndDisplaying.send(.init(row: row, model: models[row]))
+        if let model = model(at: row) {
+            publishers.cell._didEndDisplaying.send(.init(row: row, model: model))
+        }
     }
     
     open func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {
@@ -113,6 +119,13 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     open func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {
         let result = SectionPublishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
         publishers.supplementary._didEndDisplaying.send(result)
+    }
+    
+    private func model(at: Int) -> Cell.Model? {
+        guard models.indices.contains(at) else {
+            return nil
+        }
+        return models[at]
     }
     
 }

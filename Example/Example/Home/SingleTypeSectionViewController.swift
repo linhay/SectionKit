@@ -31,7 +31,7 @@ class SingleTypeSectionViewController: SectionCollectionViewController {
     }
     
     func bindUI() {
-        leftController.section.selectedEvent.delegate(on: self) { (self, action) in
+        leftController.section.onItemSelected(on: self) { (self, row, action) in
             self.rightController.send(action)
         }
     }

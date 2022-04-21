@@ -39,9 +39,9 @@ extension HomeController {
 extension HomeController {
     
     func bindUI() {
-        section.selectedEvent.delegate(on: self) { (self, action) in
+        section.onItemSelected(on: self) { (self, row, model) in
             var controller: UIViewController?
-            switch action {
+            switch model {
             case .compositionalLayout:
                 controller = CompositionalViewController()
             case .prefetch:
@@ -54,9 +54,10 @@ extension HomeController {
             guard let controller = controller else {
                 return
             }
-            controller.title = action.rawValue.enumerated().map { $0.offset > 0 ? $0.element.description : $0.element.uppercased() }.joined()
+            controller.title = model.rawValue.enumerated().map { $0.offset > 0 ? $0.element.description : $0.element.uppercased() }.joined()
             self.navigationController?.pushViewController(controller, animated: true)
         }
+
     }
     
     func setupUI() {

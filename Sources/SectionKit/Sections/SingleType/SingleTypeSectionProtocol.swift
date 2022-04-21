@@ -34,16 +34,50 @@ public protocol SingleTypeSectionDataProtocol {
     associatedtype Cell: SectionLoadViewProtocol & SectionConfigurableModelProtocol
     
     var models: [Cell.Model] { get }
+    /// 数据转换器
+    var dataTransforms: [SectionDataTransform<Cell.Model>] { get }
+    /// 内置数据转换器
+    var dataDefaultTransforms: SectionTransforms<Cell> { get }
+    
     func config(models: [Cell.Model])
     
     /// 该部分接口与 Array 保持一致
     func insert(_ models: [Cell.Model], at row: Int)
     func remove(at rows: [Int])
+    
+    /// 重载数据
+    func reload()
 }
 
 public extension SingleTypeSectionDataProtocol {
-
+    
     var itemCount: Int { models.count }
+    
+    /// 采用 transforms 来处理原始数据集
+    /// - Parameters:
+    ///   - models: 原始数据集
+    ///   - transforms: 转换器
+    /// - Returns: 数据集
+    func modelsFilter(_ models: [Cell.Model], transforms: [SectionDataTransform<Cell.Model>]) -> [Cell.Model] {
+        var list = models
+        for transform in transforms {
+            list = transform.task?(list) ?? list
+        }
+        return list
+    }
+    
+    /// 采用 transforms 来处理原始数据集
+    /// - Parameters:
+    ///   - models: 原始数据集
+    ///   - transforms: 转换器
+    /// - Returns: 数据集
+    static func modelsFilter(_ models: [Cell.Model], transforms: [SectionDataTransform<Cell.Model>]) -> [Cell.Model] {
+        var list = models
+        for transform in transforms {
+            list = transform.task?(list) ?? list
+        }
+        return list
+    }
     
 }
 
@@ -83,6 +117,41 @@ public extension SingleTypeSectionDataProtocol {
         remove(at: indexs)
     }
 
+}
+
+/// DataTransform - Hidden
+public extension SingleTypeSectionDataProtocol {
+    
+    /// 隐藏该 Section
+    /// - Parameter by: bool
+    /// - Returns: self
+    @discardableResult
+    func hidden(by: @escaping () -> Bool) -> Self {
+        dataDefaultTransforms.hidden.by(by)
+        reload()
+        return self
+    }
+    
+    @discardableResult
+    func hidden(_ value: Bool) -> Self {
+        self.hidden { value }
+        return self
+    }
+    
+    @discardableResult
+    func hidden<T: AnyObject>(by: T, _ keyPath: KeyPath<T, Bool>) -> Self {
+        self.hidden { [weak by] in
+            by?[keyPath: keyPath] ?? false
+        }
+        return self
+    }
+    
+    @discardableResult
+    func hidden<T>(by: T, _ keyPath: KeyPath<T, Bool>) -> Self {
+        self.hidden { by[keyPath: keyPath] }
+        return self
+    }
+    
 }
 
 public protocol SingleTypeSectionEventProtocol {

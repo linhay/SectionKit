@@ -30,20 +30,20 @@ import Combine
 open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SectionLoadViewProtocol & ConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
     
     public typealias SectionPublishers = SingleTypeSectionPublishers<Cell.Model, UICollectionReusableView>
+    /// 视图事件回调(显示隐藏)
     public let publishers = SectionPublishers()
     
     /// 原始数据
-    private let dataSubject: CurrentValueSubject<[Cell.Model], Never>
+    public let dataSubject: CurrentValueSubject<(models: [Cell.Model], isUnTransformed: Bool), Never>
     /// 数据转换器
-    private let dataTransforms: [DataTransform]
+    public let dataTransforms: [SectionDataTransform<Cell.Model>]
     /// 内置数据转换器
-    private let systemDataTransforms = SystemTransforms()
+    public let dataDefaultTransforms = SectionTransforms<Cell>()
     /// UI驱动所用数据集
-    public private(set) var models: [Cell.Model] = []
-    
-
+    public var models: [Cell.Model] { self.dataSubject.value.models }
     
     open var sectionState: SectionState?
+    
     open var itemCount: Int { models.count }
     
     /// cell 样式配置
@@ -53,14 +53,24 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     /// 注册队列
     private var registerQueue = [(SingleTypeCollectionDriveSection<Cell>) -> Void]()
     
-    public required init(_ models: [Cell.Model] = [], transforms: [DataTransform] = []) {
-        self.dataSubject = .init(models)
-        self.dataTransforms = systemDataTransforms.all + transforms
-        self.models = self.models(transforms: dataTransforms)
+    public required init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
+        self.dataSubject = .init((models, true))
+        self.dataTransforms = dataDefaultTransforms.all + transforms
+        dataSubject
+            .filter(\.isUnTransformed)
+            .map(\.models)
+            .map { [weak self] models -> [Cell.Model] in
+                guard let self = self else { return [] }
+                return self.modelsFilter(models, transforms: self.dataTransforms)
+            }
+            .sink { [weak self] models in
+                guard let self = self else { return }
+                self.dataSubject.send((models, true))
+            }.store(in: &cancellables)
     }
     
     open func config(models: [Cell.Model]) {
-        dataSubject.send(models)
+        dataSubject.send((models, true))
         reload()
     }
     
@@ -105,50 +115,16 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         publishers.supplementary._didEndDisplaying.send(result)
     }
     
-    private func models(transforms: [DataTransform]) -> [Cell.Model] {
-        var list = dataSubject.value
-        for transform in dataTransforms {
-            list = transform.task?(list) ?? list
-        }
-        return list
-    }
-    
-}
-
-/// DataTransform
-extension SingleTypeCollectionDriveSection {
-
-    open class DataTransform {
-        open var task: (([Cell.Model]) -> [Cell.Model])?
-        public init(task: (([Cell.Model]) -> [Cell.Model])?) {
-            self.task = task
-        }
-    }
-    
-    public class HiddenDataTransform: DataTransform {
-        func by(_ block: @escaping () -> Bool) {
-            task = { list in
-                block() ? [] : list
-            }
-        }
-    }
-    
-    private class SystemTransforms {
-        var hidden: HiddenDataTransform = .init(task: nil)
-        let validate: DataTransform = .init(task: { $0.filter(Cell.validate) })
-        lazy var all = [self.hidden, self.validate]
-    }
-    
 }
 
 /// init
 public extension SingleTypeCollectionDriveSection {
     
-    convenience init(count: Int, transforms: [DataTransform] = []) where Cell.Model == Void {
+    convenience init(count: Int, transforms: [SectionDataTransform<Cell.Model>] = []) where Cell.Model == Void {
         self.init(repeating: (), count: count)
     }
     
-    convenience init(repeating: Cell.Model, count: Int, transforms: [DataTransform] = []) {
+    convenience init(repeating: Cell.Model, count: Int, transforms: [SectionDataTransform<Cell.Model>] = []) {
         self.init(.init(repeating: repeating, count: count), transforms: transforms)
     }
     
@@ -158,11 +134,13 @@ public extension SingleTypeCollectionDriveSection {
 public extension SingleTypeCollectionDriveSection {
     
     /// 注册 View, Cell
+    /// - Parameter builds: 待注册数据
     func register(_ builds: ((SingleTypeCollectionDriveSection<Cell>) -> Void)...) {
         register(builds)
     }
     
     /// 注册 View, Cell
+    /// - Parameter builds: 待注册数据
     func register(_ builds: [(SingleTypeCollectionDriveSection<Cell>) -> Void]) {
         if isLoaded {
             builds.forEach { build in
@@ -175,63 +153,30 @@ public extension SingleTypeCollectionDriveSection {
     
 }
 
-/// 隐藏该 Section
 public extension SingleTypeCollectionDriveSection {
     
-    /// 隐藏该 Section
-    /// - Parameter by: bool
-    /// - Returns: self
-    @discardableResult
-    func hidden(by: @escaping () -> Bool) -> Self {
-        systemDataTransforms.hidden.by(by)
-        reload()
-        return self
-    }
-    
-    @discardableResult
-    func hidden(_ value: Bool) -> Self {
-        self.hidden { value }
-        return self
-    }
-    
-    @discardableResult
-    func hidden<T: AnyObject>(by: T, _ keyPath: KeyPath<T, Bool>) -> Self {
-        self.hidden { [weak by] in
-            by?[keyPath: keyPath] ?? false
-        }
-        return self
-    }
-    
-    @discardableResult
-    func hidden<T>(by: T, _ keyPath: KeyPath<T, Bool>) -> Self {
-        self.hidden { by[keyPath: keyPath] }
-        return self
-    }
-    
-}
-
-/// 链式调用 - Style
-public extension SingleTypeCollectionDriveSection {
-    
+    /// 配置 Cell 样式
+    /// - Parameter builder: 回调
+    /// - Returns: 链式调用
     @discardableResult
     func itemStyle(_ builder: @escaping (_ row: Int, _ cell: Cell) -> Void) -> Self {
         self.itemStyleProvider = builder
         return self
     }
     
+    /// 配置当前 Section 样式
+    /// - Parameter builder: 回调
+    /// - Returns: 链式调用
     @discardableResult
     func sectionStyle(_ builder: @escaping (_ section: Self) -> Void) -> Self {
         builder(self)
         return self
     }
     
-}
-
-public extension SingleTypeCollectionDriveSection {
-    
     /// item 选中事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.selected.sink`)
     /// - Parameter builder: 订阅回调
     /// - Returns: self
+    @discardableResult
     func onItemSelected(_ builder: @escaping (_ row: Int, _ model: Cell.Model) -> Void) -> Self {
         publishers.cell.selected.sink { result in
             builder(result.row, result.model)
@@ -242,6 +187,7 @@ public extension SingleTypeCollectionDriveSection {
     /// item 显示事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.willDisplay.sink`)
     /// - Parameter builder: 订阅回调
     /// - Returns: self
+    @discardableResult
     func onItemWillDisplay(_ builder: @escaping (_ row: Int, _ model: Cell.Model) -> Void) -> Self {
         publishers.cell.willDisplay.sink { result in
             builder(result.row, result.model)
@@ -252,6 +198,7 @@ public extension SingleTypeCollectionDriveSection {
     /// item 结束显示事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.didEndDisplaying.sink`)
     /// - Parameter builder: 订阅回调
     /// - Returns: self
+    @discardableResult
     func onItemEndDisplay(_ builder: @escaping (_ row: Int, _ model: Cell.Model) -> Void) -> Self {
         publishers.cell.didEndDisplaying.sink { result in
             builder(result.row, result.model)
@@ -261,17 +208,84 @@ public extension SingleTypeCollectionDriveSection {
     
 }
 
+public extension SingleTypeCollectionDriveSection {
+    
+    /// 配置 Cell 样式
+    /// - Parameters:
+    ///   - target: weak 对象
+    ///   - builder: 回调
+    /// - Returns: 链式调用
+    @discardableResult
+    func itemStyle<T: AnyObject>(on target: T, _ builder: @escaping (_ self: T, _ row: Int, _ cell: Cell) -> Void) -> Self {
+        return itemStyle { [weak target] row, cell in
+            guard let target = target else { return }
+            builder(target, row, cell)
+        }
+    }
+    
+    /// 配置当前 Section 样式
+    /// - Parameters:
+    ///   - target: weak 对象
+    ///   - builder: 回调
+    /// - Returns: 链式调用
+    @discardableResult
+    func sectionStyle<T: AnyObject>(on target: T, _ builder: @escaping (_ self: T, _ section: Self) -> Void) -> Self {
+        return sectionStyle { [weak target] section in
+            guard let target = target else { return }
+            builder(target, section)
+        }
+    }
+    
+    /// item 选中事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.selected.sink`)
+    /// - target: weak 对象
+    /// - Parameter builder: 订阅回调
+    /// - Returns: self
+    @discardableResult
+    func onItemSelected<T: AnyObject>(on target: T, _ builder: @escaping (_ self: T, _ row: Int, _ model: Cell.Model) -> Void) -> Self {
+        return onItemSelected { [weak target] row, model in
+            guard let target = target else { return }
+            builder(target, row, model)
+        }
+    }
+    
+    /// item 显示事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.willDisplay.sink`)
+    /// - target: weak 对象
+    /// - Parameter builder: 订阅回调
+    /// - Returns: self
+    @discardableResult
+    func onItemWillDisplay<T: AnyObject>(on target: T, _ builder: @escaping (_ self: T, _ row: Int, _ model: Cell.Model) -> Void) -> Self {
+        return onItemWillDisplay { [weak target] row, model in
+            guard let target = target else { return }
+            builder(target, row, model)
+        }
+    }
+    
+    /// item 结束显示事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.didEndDisplaying.sink`)
+    ///   - target: weak 对象
+    /// - Parameter builder: 订阅回调
+    /// - Returns: self
+    @discardableResult
+    func onItemEndDisplay<T: AnyObject>(on target: T, _ builder: @escaping (_ self: T, _ row: Int, _ model: Cell.Model) -> Void) -> Self {
+        return onItemEndDisplay { [weak target] row, model in
+            guard let target = target else { return }
+            builder(target, row, model)
+        }
+    }
+    
+}
+
+
 /// 增删
 extension SingleTypeCollectionDriveSection {
     
     public func insert(_ models: [Cell.Model], at row: Int) {
-        self.models.insert(contentsOf: models, at: row)
+        self.dataSubject.value.models.insert(contentsOf: models, at: row)
         insertItems(at: [row])
     }
     
     public func remove(at rows: [Int]) {
         rows.sorted(by: >).forEach { index in
-            models.remove(at: index)
+            self.dataSubject.value.models.remove(at: index)
         }
         deleteItems(at: rows)
     }

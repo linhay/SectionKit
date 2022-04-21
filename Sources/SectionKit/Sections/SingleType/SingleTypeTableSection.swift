@@ -24,6 +24,9 @@
 import UIKit
 
 open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefetchingProtocol, SectionTableProtocol, SingleTypeSectionProtocol where Cell: ConfigurableView & SectionLoadViewProtocol {
+
+    public var dataDefaultTransforms: SectionTransforms<Cell> = .init()
+    public var dataTransforms: [SectionDataTransform<Cell.Model>] = SectionTransforms<Cell>().all
     
     public private(set) var models: [Cell.Model]
     public var publishers = SingleTypeSectionPublishers<Cell.Model, UITableViewHeaderFooterView>()
@@ -73,6 +76,10 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
         cell.config(models[row])
         cellStyleEvent.call((row: row, cell: cell))
         return cell
+    }
+    
+    public func reload() {
+        sectionState?.reloadDataEvent?()
     }
     
 }

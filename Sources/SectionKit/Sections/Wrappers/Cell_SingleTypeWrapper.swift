@@ -9,31 +9,31 @@ import UIKit
 
 public extension ConfigurableView where Self: UICollectionViewCell & SectionLoadViewProtocol {
     
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(count: Int, transforms: [Section.DataTransform] = []) -> Section where Model == Void {
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(count: Int, transforms: [SectionDataTransform<Model>] = []) -> Section where Model == Void {
         return singleTypeWrapper(repeating: (), count: count, transforms: transforms)
     }
     
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(repeating: Model, count: Int, transforms: [Section.DataTransform] = []) -> Section {
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(repeating: Model, count: Int, transforms: [SectionDataTransform<Model>] = []) -> Section {
         return singleTypeWrapper(.init(repeating: repeating, count: count), transforms: transforms)
     }
     
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ models: Model..., transforms: [Section.DataTransform] = []) -> Section {
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ models: Model..., transforms: [SectionDataTransform<Model>] = []) -> Section {
         return singleTypeWrapper(models, transforms: transforms)
     }
     
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ models: [Model] = [], transforms: [Section.DataTransform] = []) -> Section {
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ models: [Model] = [], transforms: [SectionDataTransform<Model>] = []) -> Section {
         return .init(models, transforms: transforms)
     }
     
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ tasks: (() -> Model)..., transforms: [Section.DataTransform] = []) -> Section {
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ tasks: (() -> Model)..., transforms: [SectionDataTransform<Model>] = []) -> Section {
         return singleTypeWrapper(tasks, transforms: transforms)
     }
     
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ tasks: [() -> Model], transforms: [Section.DataTransform] = []) -> Section {
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ tasks: [() -> Model], transforms: [SectionDataTransform<Model>] = []) -> Section {
         return singleTypeWrapper(tasks.map({ $0() }), transforms: transforms)
     }
     
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ tasks: [() async throws -> Model], transforms: [Section.DataTransform] = []) async throws -> Section {
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ tasks: [() async throws -> Model], transforms: [SectionDataTransform<Model>] = []) async throws -> Section {
         var models = [Model]()
         for task in tasks {
             models.append(try await task())

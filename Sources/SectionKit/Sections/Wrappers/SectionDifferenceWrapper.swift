@@ -50,7 +50,7 @@ public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtoc
     }
     
     public func config(models: [Model], areEquivalent: (Model, Model) -> Bool) {
-        let models = models.filter({ Section.Cell.validate($0) })
+        let models = wrappedSection.modelsFilter(models, transforms: wrappedSection.dataTransforms)
         guard models.isEmpty == false, wrappedSection.isLoaded else {
             wrappedSection.config(models: models)
             return

@@ -28,9 +28,10 @@ class MultiSectionViewController: SectionCollectionViewController {
     }
     
     func bindUI() {
-        leftController.section.selectedEvent.delegate(on: self) { (self, action) in
-            self.rightController.send(action)
-        }
+        leftController.section.onItemSelected(on: self, { (self, row, model) in
+            self.rightController.send(model)
+
+        })
     }
     
     func setupUI() {
@@ -82,9 +83,9 @@ extension MultiSectionViewController {
             let section = Section((0...4).map({ offset in
                     .init(color: .white, text: offset.description, size: size)
             }))
-            section.cellStyleProvider.delegate(on: self) { (self, result) in
-                result.cell.update(text: "\(section.sectionIndex) - \(result.row)")
-            }
+            section.itemStyle({ row, cell in
+                cell.update(text: "\(section.sectionIndex) - \(row)")
+            })
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
             return section

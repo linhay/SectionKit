@@ -49,7 +49,10 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     /// cell 样式配置
     private var itemStyleProvider: ((_ row: Int, _ cell: Cell) -> Void)?
     
+    /// 外部数据订阅
+    private var modelsCancellable: AnyCancellable?
     private var cancellables = Set<AnyCancellable>()
+    
     /// 注册队列
     private var registerQueue = [(SingleTypeCollectionDriveSection<Cell>) -> Void]()
     
@@ -65,7 +68,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
             }
             .sink { [weak self] models in
                 guard let self = self else { return }
-                self.dataSubject.send((models, true))
+                self.dataSubject.send((models, false))
             }.store(in: &cancellables)
     }
     
@@ -121,6 +124,11 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         publishers.supplementary._didEndDisplaying.send(result)
     }
     
+    open func reload() {
+        dataSubject.send((dataSubject.value.models, true))
+        sectionState?.reloadDataEvent?()
+    }
+    
     private func model(at: Int) -> Cell.Model? {
         guard models.indices.contains(at) else {
             return nil
@@ -162,6 +170,47 @@ public extension SingleTypeCollectionDriveSection {
         } else {
             registerQueue.append(contentsOf: builds)
         }
+    }
+    
+}
+
+/// 数据订阅
+public extension SingleTypeCollectionDriveSection {
+    
+    /// 覆盖现有数据
+    /// - Parameter models: Publisher
+    @discardableResult
+    func config(models: AnyPublisher<[Cell.Model], Never>) -> Self {
+        modelsCancellable = models.sink(receiveValue: { [weak self] models in
+            self?.config(models: models)
+        })
+        return self
+    }
+    
+    /// 新数据将拼接至最后
+    /// - Parameter models: Publisher
+    @discardableResult
+    func append(models: AnyPublisher<[Cell.Model], Never>) -> Self {
+        modelsCancellable = models.sink(receiveValue: { [weak self] models in
+            self?.append(models)
+        })
+        return self
+    }
+    
+}
+
+/// Transforms
+public extension SingleTypeCollectionDriveSection {
+    
+    /// 订阅隐藏消息
+    /// - Parameter publisher: Publisher
+    /// - Returns: 链式调用
+    @discardableResult
+    func hidden(by publisher: AnyPublisher<Bool, Never>) -> Self {
+        publisher.removeDuplicates().sink { [weak self] value in
+            self?.hidden(value)
+        }.store(in: &cancellables)
+        return self
     }
     
 }

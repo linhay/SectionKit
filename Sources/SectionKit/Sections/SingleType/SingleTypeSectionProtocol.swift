@@ -167,15 +167,31 @@ public protocol SingleTypeSectionEventProtocol {
 public extension SingleTypeSectionEventProtocol where Self: SectionProtocol {
     
     func item(selected row: Int) {
-        publishers.cell._selected.send(.init(row: row, model: models[row]))
+        guard let model = model(at: row) else {
+            return
+        }
+        publishers.cell._selected.send(.init(row: row, model: model))
     }
     
     func item(willDisplay row: Int) {
-        publishers.cell._willDisplay.send(.init(row: row, model: models[row]))
+        guard let model = model(at: row) else {
+            return
+        }
+        publishers.cell._willDisplay.send(.init(row: row, model: model))
     }
     
     func item(didEndDisplaying row: Int) {
-        publishers.cell._didEndDisplaying.send(.init(row: row, model: models[row]))
+        guard let model = model(at: row) else {
+            return
+        }
+        publishers.cell._didEndDisplaying.send(.init(row: row, model: model))
+    }
+    
+    private func model(at row: Int) -> Cell.Model? {
+        guard models.indices.contains(row) else {
+            return nil
+        }
+        return models[row]
     }
     
 }

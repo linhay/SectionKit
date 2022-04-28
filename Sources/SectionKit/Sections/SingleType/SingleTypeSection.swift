@@ -25,9 +25,7 @@ import UIKit
 import Combine
 
 open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
-    
-    private var cancellables = Set<AnyCancellable>()
-    
+        
     public lazy var safeSize = defaultSafeSize
     
     open var minimumLineSpacing: CGFloat = 0

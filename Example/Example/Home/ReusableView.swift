@@ -34,7 +34,7 @@ class ReusableView: UICollectionReusableView, SectionLoadViewProtocol, Configura
         super.init(frame: frame)
         layer.borderColor = UIColor.black.cgColor
         layer.borderWidth = 1
-        backgroundColor = .yellow
+        backgroundColor = StemColor.random.convert()
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview()

@@ -144,7 +144,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
     }
     
     private lazy var oldBounds = CGRect.zero
-    private lazy var decorationViewCache = Set<Int>()
+    private lazy var decorationViewCache = Set<IndexPath>()
     private lazy var sectionRects = [Int: CGRect]()
     
     override public func prepare() {
@@ -285,13 +285,12 @@ private extension SectionCollectionFlowLayout {
             }
         }.first
 
-        func task(section: Int, decoration: Decoration) -> UICollectionViewLayoutAttributes? {
-            if decorationViewCache.contains(section) {
+        func task(section: Int, index: Int, decoration: Decoration) -> UICollectionViewLayoutAttributes? {
+            let sectionIndexPath = IndexPath(item: index, section: section)
+            if decorationViewCache.contains(sectionIndexPath) {
                 return nil
             }
-            
-            let sectionIndexPath = IndexPath(item: 0, section: section)
-            
+                        
             var frames = [CGRect]()
 
             if decoration.layout.contains(.header),
@@ -338,18 +337,22 @@ private extension SectionCollectionFlowLayout {
             let attribute = UICollectionViewLayoutAttributes(forDecorationViewOfKind: decoration.viewType.identifier, with: sectionIndexPath)
             attribute.zIndex = decoration.zIndex
             attribute.frame = frame.apply(insets: decoration.insets)
-            decorationViewCache.update(with: attribute.indexPath.section)
+            decorationViewCache.update(with: sectionIndexPath)
             return attribute
         }
         
-        var dict = [Int: Decoration](minimumCapacity: decorations.count)
+        var dict = [Int: [Int: Decoration]](minimumCapacity: decorations.count)
         decorations.forEach { item in
             if let value = item.sectionIndex.wrappedValue {
-                dict[value] = item
+                if dict[value] == nil {
+                    dict[value] = [item.zIndex: item]
+                } else {
+                    dict[value]?[item.zIndex] = item
+                }
             }
         }
         
-        var all: Decoration?
+        var all: [Int: Decoration]?
         if let wrappedValue = BindingKey<Int>.all.wrappedValue {
             all = dict[wrappedValue]
         }
@@ -358,14 +361,15 @@ private extension SectionCollectionFlowLayout {
         let sections = attributes
             .map(\.indexPath.section)
             .filter({ sectionSet.insert($0).inserted })
+            .map { sectionIndex -> [UICollectionViewLayoutAttributes] in
+                if let decorations = dict[sectionIndex] ?? all {
+                    return decorations.values.enumerated().compactMap({ task(section: sectionIndex, index: $0, decoration: $1) })
+                } else {
+                    return [UICollectionViewLayoutAttributes]()
+                }
+            }.flatMap({ $0 })
         
-        return attributes + sections.compactMap { sectionIndex in
-            if let decoration = dict[sectionIndex] ?? all {
-                return task(section: sectionIndex, decoration: decoration)
-            } else {
-                return nil
-            }
-        }
+        return attributes + sections
     }
     
     func modeFixSupplementaryViewSize(_ collectionView: UICollectionView, attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {

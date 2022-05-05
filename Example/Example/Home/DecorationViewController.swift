@@ -23,6 +23,7 @@ class DecorationViewController: SectionCollectionViewController {
         case add_c_f
         case inset_10
         case inset_40
+        case zIndex
     }
     
     let leftController = LeftViewController()
@@ -105,6 +106,17 @@ extension DecorationViewController {
                 return
             }
             switch action {
+            case .zIndex:
+                update(
+                    .init(sectionIndex: .init(sections.first!), viewType: ReusableView.self, zIndex: -3, layout: [.header]),
+                    .init(sectionIndex: .init(sections.first!), viewType: ReusableView.self, zIndex: -2, layout: [.footer]),
+                    .init(sectionIndex: .init(sections.first!),
+                          viewType: ReusableView.self,
+                          zIndex: 2,
+                          layout: [.cells],
+                          insets: .init(top: 50, left: 50, bottom: 50, right: 50)),
+                    .init(sectionIndex: .init(sections.first!), viewType: ReusableView.self, zIndex: -1, layout: [.cells])
+                )
             case .fix_insets:
                 defaultPluginModes = [.fixSupplementaryViewInset(.all)]
                 sectionView.set(pluginModes: defaultPluginModes)
@@ -138,8 +150,8 @@ extension DecorationViewController {
             }
         }
         
-        func update(_ decoration: SectionCollectionFlowLayout.Decoration) {
-            sectionView.set(pluginModes: defaultPluginModes + [.decorations([decoration])])
+        func update(_ decoration: SectionCollectionFlowLayout.Decoration...) {
+            sectionView.set(pluginModes: defaultPluginModes + [.decorations(decoration)])
             sectionView.reloadData()
         }
         

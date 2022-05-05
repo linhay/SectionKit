@@ -123,7 +123,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
                 if set.insert(item.priority).inserted {
                     newPluginModes.append(item)
                 } else {
-                    assertionFailure("mode冲突: \(pluginModes.filter({ $0.priority == item.priority }))")
+                    assertionFailure("mode冲突: \(newPluginModes.filter({ $0.priority == item.priority }))")
                 }
             }
             /// mode 重排

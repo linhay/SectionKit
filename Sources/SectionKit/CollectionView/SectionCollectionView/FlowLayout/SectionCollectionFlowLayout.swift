@@ -281,16 +281,29 @@ private extension SectionCollectionFlowLayout {
             let sectionIndexPath = IndexPath(item: 0, section: section)
             
             var frames = [CGRect]()
-            let inset = insetForSection(at: section)
 
             if decoration.layout.contains(.header),
-               var frame = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: sectionIndexPath)?.frame,
-               frame.width > 0,
-               frame.height > 0 {
-                if hasFixSupplementaryViewInset {
-                    frame.origin.y += inset.top
+               let attributes = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: sectionIndexPath) {
+                let frame: CGRect = attributes.frame
+                if frame.width > 0, frame.height > 0 {
+                    if hasFixSupplementaryViewInset, let frame = modeFixSupplementaryViewInset(collectionView, attributes: [attributes])?.first?.frame {
+                        frames.append(frame)
+                    } else {
+                        frames.append(frame)
+                    }
                 }
-                frames.append(frame)
+            }
+            
+            if decoration.layout.contains(.footer),
+               let attributes = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: sectionIndexPath) {
+                let frame: CGRect = attributes.frame
+                if frame.width > 0, frame.height > 0 {
+                    if hasFixSupplementaryViewInset, let frame = modeFixSupplementaryViewInset(collectionView, attributes: [attributes])?.first?.frame {
+                        frames.append(frame)
+                    } else {
+                        frames.append(frame)
+                    }
+                }
             }
             
             if decoration.layout.contains(.cells) {
@@ -300,28 +313,13 @@ private extension SectionCollectionFlowLayout {
                 }
             }
             
-            if decoration.layout.contains(.footer),
-               var frame = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: sectionIndexPath)?.frame,
-               frame.width > 0,
-               frame.height > 0 {
-                if hasFixSupplementaryViewInset {
-                    frame.origin.y -= inset.bottom
-                }
-                frames.append(frame)
-            }
-            
-            guard var frame = CGRect.union(frames) else {
+            guard let frame = CGRect.union(frames) else {
                 return nil
             }
             
-            frame = .init(x: frame.origin.x+decoration.insets.left,
-                          y: frame.origin.y+decoration.insets.top,
-                          width: frame.width-decoration.insets.left-decoration.insets.right,
-                          height: frame.height-decoration.insets.top-decoration.insets.bottom)
-            
             let attribute = UICollectionViewLayoutAttributes(forDecorationViewOfKind: decoration.viewType.identifier, with: sectionIndexPath)
             attribute.zIndex = decoration.zIndex
-            attribute.frame = frame
+            attribute.frame = frame.apply(insets: decoration.insets)
             decorationViewCache.update(with: attribute.indexPath.section)
             return attribute
         }
@@ -372,8 +370,12 @@ private extension SectionCollectionFlowLayout {
                 let inset = insetForSection(at: attribute.indexPath.section)
                 if attribute.representedElementKind == UICollectionView.elementKindSectionFooter {
                     attribute.frame.origin.y -= inset.bottom
+                    attribute.frame.origin.x += inset.left
+                    attribute.frame.size.width -= (inset.left + inset.right)
                 } else if attribute.representedElementKind == UICollectionView.elementKindSectionHeader {
                     attribute.frame.origin.y += inset.top
+                    attribute.frame.origin.x += inset.left
+                    attribute.frame.size.width -= (inset.left + inset.right)
                 }
             }
         return attributes
@@ -527,13 +529,20 @@ private extension SectionCollectionFlowLayout {
     
 }
 
-extension CGRect {
+fileprivate extension CGRect {
     
     static func union(_ list: [CGRect]) -> CGRect? {
         guard let first = list.first else {
             return nil
         }
         return list.dropFirst().reduce(first, { $0.union($1) })
+    }
+    
+    func apply(insets: UIEdgeInsets) -> CGRect {
+        .init(x: origin.x+insets.left,
+                      y: origin.y+insets.top,
+                      width: width-insets.left-insets.right,
+                      height: height-insets.top-insets.bottom)
     }
     
 }

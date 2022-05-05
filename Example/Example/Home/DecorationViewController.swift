@@ -12,6 +12,8 @@ import Stem
 class DecorationViewController: SectionCollectionViewController {
     
     enum Action: String, CaseIterable {
+        case fix_insets
+        case no_fix_insets
         case add
         case all
         case add_header
@@ -91,6 +93,7 @@ extension DecorationViewController {
         }
         
         var isAnimating = false
+        var defaultPluginModes: [SectionCollectionFlowLayout.PluginMode] = [.fixSupplementaryViewInset]
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -102,6 +105,14 @@ extension DecorationViewController {
                 return
             }
             switch action {
+            case .fix_insets:
+                defaultPluginModes = [.fixSupplementaryViewInset]
+                sectionView.set(pluginModes: defaultPluginModes)
+                sectionView.reloadData()
+            case .no_fix_insets:
+                defaultPluginModes = []
+                sectionView.set(pluginModes: [])
+                sectionView.reloadData()
             case .all:
                 update(.init(sectionIndex: .all, viewType: ReusableView.self))
             case .add:
@@ -128,7 +139,7 @@ extension DecorationViewController {
         }
         
         func update(_ decoration: SectionCollectionFlowLayout.Decoration) {
-            sectionView.set(pluginModes: [.decorations([decoration])])
+            sectionView.set(pluginModes: defaultPluginModes + [.decorations([decoration])])
             sectionView.reloadData()
         }
         

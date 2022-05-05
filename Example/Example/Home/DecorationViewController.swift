@@ -93,7 +93,7 @@ extension DecorationViewController {
         }
         
         var isAnimating = false
-        var defaultPluginModes: [SectionCollectionFlowLayout.PluginMode] = [.fixSupplementaryViewInset]
+        var defaultPluginModes: [SectionCollectionFlowLayout.PluginMode] = [.fixSupplementaryViewInset(.all)]
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -106,7 +106,7 @@ extension DecorationViewController {
             }
             switch action {
             case .fix_insets:
-                defaultPluginModes = [.fixSupplementaryViewInset]
+                defaultPluginModes = [.fixSupplementaryViewInset(.all)]
                 sectionView.set(pluginModes: defaultPluginModes)
                 sectionView.reloadData()
             case .no_fix_insets:

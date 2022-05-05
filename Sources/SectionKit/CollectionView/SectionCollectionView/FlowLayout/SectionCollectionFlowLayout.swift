@@ -65,6 +65,12 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         
     }
     
+    public enum FixSupplementaryViewInset: Int {
+        case vertical
+        case horizontal
+        case all
+    }
+    
     /// 布局插件样式
     public enum PluginMode {
         /// 左对齐
@@ -72,7 +78,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         /// 居中对齐
         case centerX
         /// fix: header & footer 贴合 cell
-        case fixSupplementaryViewInset
+        case fixSupplementaryViewInset(FixSupplementaryViewInset)
         /// fix: header & footer size与设定值不符
         case fixSupplementaryViewSize
         /// 置顶section header view
@@ -245,8 +251,8 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
                 attributes = modeCenterX(collectionView, attributes: attributes) ?? []
             case .left:
                 attributes = modeLeft(collectionView, attributes: attributes) ?? []
-            case .fixSupplementaryViewInset:
-                attributes = modeFixSupplementaryViewInset(collectionView, attributes: attributes) ?? []
+            case .fixSupplementaryViewInset(let fixSupplementaryViewInset):
+                attributes = modeFixSupplementaryViewInset(collectionView, fixSupplementaryViewInset: fixSupplementaryViewInset, attributes: attributes) ?? []
             case .decorations(let decorations):
                 attributes = modeDecorations(collectionView, decorations: decorations, attributes: attributes) ?? []
             }
@@ -271,7 +277,13 @@ private extension SectionCollectionFlowLayout {
                          decorations: [Decoration],
                          attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
         
-        let hasFixSupplementaryViewInset = pluginModes.contains(where: { $0.id == PluginMode.fixSupplementaryViewInset.id })
+        let fixSupplementaryViewInset = pluginModes.compactMap { mode -> FixSupplementaryViewInset? in
+            if case .fixSupplementaryViewInset(let fixSupplementaryViewInset) = mode {
+                return fixSupplementaryViewInset
+            } else {
+                return nil
+            }
+        }.first
 
         func task(section: Int, decoration: Decoration) -> UICollectionViewLayoutAttributes? {
             if decorationViewCache.contains(section) {
@@ -286,7 +298,10 @@ private extension SectionCollectionFlowLayout {
                let attributes = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: sectionIndexPath) {
                 let frame: CGRect = attributes.frame
                 if frame.width > 0, frame.height > 0 {
-                    if hasFixSupplementaryViewInset, let frame = modeFixSupplementaryViewInset(collectionView, attributes: [attributes])?.first?.frame {
+                    if let fixSupplementaryViewInset = fixSupplementaryViewInset,
+                       let frame = modeFixSupplementaryViewInset(collectionView,
+                                                                 fixSupplementaryViewInset: fixSupplementaryViewInset,
+                                                                 attributes: [attributes])?.first?.frame {
                         frames.append(frame)
                     } else {
                         frames.append(frame)
@@ -298,7 +313,10 @@ private extension SectionCollectionFlowLayout {
                let attributes = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: sectionIndexPath) {
                 let frame: CGRect = attributes.frame
                 if frame.width > 0, frame.height > 0 {
-                    if hasFixSupplementaryViewInset, let frame = modeFixSupplementaryViewInset(collectionView, attributes: [attributes])?.first?.frame {
+                    if let fixSupplementaryViewInset = fixSupplementaryViewInset,
+                       let frame = modeFixSupplementaryViewInset(collectionView,
+                                                                 fixSupplementaryViewInset: fixSupplementaryViewInset,
+                                                                 attributes: [attributes])?.first?.frame {
                         frames.append(frame)
                     } else {
                         frames.append(frame)
@@ -363,19 +381,37 @@ private extension SectionCollectionFlowLayout {
         return attributes
     }
     
-    func modeFixSupplementaryViewInset(_ collectionView: UICollectionView, attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
+    func modeFixSupplementaryViewInset(_ collectionView: UICollectionView,
+                                       fixSupplementaryViewInset: FixSupplementaryViewInset,
+                                       attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
         attributes
             .filter { $0.representedElementCategory == .supplementaryView }
             .forEach { attribute in
                 let inset = insetForSection(at: attribute.indexPath.section)
                 if attribute.representedElementKind == UICollectionView.elementKindSectionFooter {
-                    attribute.frame.origin.y -= inset.bottom
-                    attribute.frame.origin.x += inset.left
-                    attribute.frame.size.width -= (inset.left + inset.right)
+                    switch fixSupplementaryViewInset {
+                    case .vertical:
+                        attribute.frame.origin.y -= inset.bottom
+                    case .horizontal:
+                        attribute.frame.origin.x += inset.left
+                        attribute.frame.size.width -= (inset.left + inset.right)
+                    case .all:
+                        attribute.frame.origin.y -= inset.bottom
+                        attribute.frame.origin.x += inset.left
+                        attribute.frame.size.width -= (inset.left + inset.right)
+                    }
                 } else if attribute.representedElementKind == UICollectionView.elementKindSectionHeader {
-                    attribute.frame.origin.y += inset.top
-                    attribute.frame.origin.x += inset.left
-                    attribute.frame.size.width -= (inset.left + inset.right)
+                    switch fixSupplementaryViewInset {
+                    case .vertical:
+                        attribute.frame.origin.y += inset.top
+                    case .horizontal:
+                        attribute.frame.origin.x += inset.left
+                        attribute.frame.size.width -= (inset.left + inset.right)
+                    case .all:
+                        attribute.frame.origin.y += inset.top
+                        attribute.frame.origin.x += inset.left
+                        attribute.frame.size.width -= (inset.left + inset.right)
+                    }
                 }
             }
         return attributes

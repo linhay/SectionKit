@@ -30,9 +30,4 @@ public protocol SectionCollectionCompositionalLayoutProtocol: SectionCollectionD
     
 }
 
-public extension SectionCollectionCompositionalLayoutProtocol {
-    
-    func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? { nil }
-
-}
 #endif

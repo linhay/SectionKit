@@ -12,9 +12,9 @@ import Combine
 final class SingleTypeWrapperTests: XCTestCase {
     
     func testCount() throws {
-        XCTAssert(SectionVoidCell.singleTypeWrapper(count: 0).models.count == 0)
-        XCTAssert(SectionVoidCell.singleTypeWrapper(count: 1).models.count == 1)
-        XCTAssert(SectionVoidCell.singleTypeWrapper(count: 2).models.count == 2)
+        for count in 0...Int.random(in: 0...1000) {
+            XCTAssert(SectionVoidCell.singleTypeWrapper(count: count).models.count == count)
+        }
     }
     
     @MainActor

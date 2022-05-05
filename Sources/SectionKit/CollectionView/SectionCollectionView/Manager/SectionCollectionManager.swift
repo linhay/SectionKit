@@ -79,6 +79,10 @@ public class SectionCollectionManager {
     }
     
     private class PlaceholderSection: SectionCollectionDriveProtocol {
+        func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+            nil
+        }
+        
         func config(sectionView: UICollectionView) {}
         func item(at row: Int) -> UICollectionViewCell { UICollectionViewCell() }
         var sectionState: SectionState?

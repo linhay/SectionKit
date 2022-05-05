@@ -39,7 +39,6 @@ public protocol SectionCollectionDriveProtocol: SectionProtocol {
 
 public extension SectionCollectionDriveProtocol {
     
-    func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? { nil }
     func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {}
     func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {}
     

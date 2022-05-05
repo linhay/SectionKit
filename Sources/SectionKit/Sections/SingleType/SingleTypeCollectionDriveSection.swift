@@ -94,6 +94,10 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         return cell
     }
     
+    public func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+        return nil
+    }
+    
     open func cellForTypeItem(at row: Int) -> Cell? {
         return cellForItem(at: row) as? Cell
     }

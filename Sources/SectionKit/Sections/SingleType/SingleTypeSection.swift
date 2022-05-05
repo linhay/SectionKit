@@ -53,6 +53,17 @@ open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & Sec
         return Cell.preferredSize(limit: safeSize.size(self), model: models[row])
     }
     
+    open override func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+        switch kind {
+        case .header:
+            return headerView
+        case .footer:
+            return footerView
+        case .custom:
+            return nil
+        }
+    }
+    
 }
 
 public extension SingleTypeSection {

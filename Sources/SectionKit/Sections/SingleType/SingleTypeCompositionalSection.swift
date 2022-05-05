@@ -28,7 +28,7 @@ open class SingleTypeCompositionalSection<Cell: UICollectionViewCell & Configura
     public let supplementaryProvider = SectionDelegate<(section: SingleTypeCompositionalSection<Cell>, kind: SectionSupplementaryKind, at: Int), UICollectionReusableView>()
     public var layoutProvider = SectionDelegate<NSCollectionLayoutEnvironment, NSCollectionLayoutSection?>()
         
-    public func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+    open override func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
         supplementaryProvider.call((section: self, kind: kind, at: row))
     }
     

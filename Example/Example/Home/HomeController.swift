@@ -15,6 +15,7 @@ class HomeController: SectionCollectionViewController {
         case multiSection
         case prefetch
         case compositionalLayout
+        case decoration
     }
     
     let section = SingleTypeSection<HomeIndexCell<Action>>()
@@ -50,6 +51,8 @@ extension HomeController {
                 controller = SingleTypeSectionViewController()
             case .multiSection:
                 controller = MultiSectionViewController()
+            case .decoration:
+                controller = DecorationViewController()
             }
             guard let controller = controller else {
                 return

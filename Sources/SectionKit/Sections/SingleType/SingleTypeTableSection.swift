@@ -99,6 +99,5 @@ public extension SingleTypeTableSection {
         deleteItems(at: rows)
     }
     
-    
 }
 #endif

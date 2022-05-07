@@ -33,14 +33,28 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     /// 视图事件回调(显示隐藏)
     public let publishers = SectionPublishers()
     
+    public struct DataModel {
+        public let models: [Cell.Model]
+        /// 是否经过转换器
+        public let isTransformed: Bool
+        /// 是否需要立即刷新视图
+        public let options: DataOptions
+    }
+    
+    public struct DataOptions {
+        /// 是否更新数据后立刻刷新视图
+        public var isNeedReload: Bool
+    }
+    
+    public let dataOptions: DataOptions
     /// 原始数据
-    public let dataSubject: CurrentValueSubject<(models: [Cell.Model], isUnTransformed: Bool), Never>
+    public let dataSubject: CurrentValueSubject<DataModel, Never>
     /// 数据转换器
     public let dataTransforms: [SectionDataTransform<Cell.Model>]
     /// 内置数据转换器
     public let dataDefaultTransforms = SectionTransforms<Cell>()
     /// UI驱动所用数据集
-    public var models: [Cell.Model] { self.dataSubject.value.models }
+    public private(set) lazy var models: [Cell.Model] = self.dataSubject.value.models
     
     open var sectionState: SectionState?
     
@@ -57,10 +71,12 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     private var registerQueue = [(SingleTypeCollectionDriveSection<Cell>) -> Void]()
     
     public required init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
-        self.dataSubject = .init((models, true))
+        let dataOptions = DataOptions(isNeedReload: true)
+        self.dataOptions = dataOptions
+        self.dataSubject = .init(.init(models: models, isTransformed: transforms.isEmpty, options: dataOptions))
         self.dataTransforms = dataDefaultTransforms.all + transforms
         dataSubject
-            .filter(\.isUnTransformed)
+            .filter({ !$0.isTransformed })
             .map(\.models)
             .map { [weak self] models -> [Cell.Model] in
                 guard let self = self else { return [] }
@@ -68,13 +84,23 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
             }
             .sink { [weak self] models in
                 guard let self = self else { return }
-                self.dataSubject.send((models, false))
+                self.dataSubject.send(.init(models: models, isTransformed: true, options: dataOptions))
             }.store(in: &cancellables)
+        
+        dataSubject
+            .filter(\.isTransformed)
+            .sink(receiveValue: { [weak self] model in
+                guard let self = self else { return }
+                self.models = model.models
+                if model.options.isNeedReload {
+                    self.reload()
+                }
+            })
+            .store(in: &cancellables)
     }
     
     open func config(models: [Cell.Model]) {
-        dataSubject.send((models, true))
-        reload()
+        dataSubject.send(.init(models: models, isTransformed: false, options: dataOptions))
     }
     
     open func config(sectionView: UICollectionView) {
@@ -129,7 +155,6 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     }
     
     open func reload() {
-        dataSubject.send((dataSubject.value.models, true))
         sectionState?.reloadDataEvent?()
     }
     
@@ -276,14 +301,36 @@ public extension SingleTypeCollectionDriveSection {
 extension SingleTypeCollectionDriveSection {
     
     public func insert(_ models: [Cell.Model], at row: Int) {
-        self.dataSubject.value.models.insert(contentsOf: models, at: row)
+        guard models.isEmpty == false else {
+            return
+        }
+        if !self.models.indices.contains(row) {
+            assertionFailure("数组越界")
+        }
+        var list = self.models
+        list.insert(contentsOf: models, at: row)
+        
+        var options = dataOptions
+        options.isNeedReload = false
+        self.dataSubject.send(.init(models: list, isTransformed: true, options: options))
         insertItems(at: [row])
     }
     
     public func remove(at rows: [Int]) {
-        rows.sorted(by: >).forEach { index in
-            self.dataSubject.value.models.remove(at: index)
+        guard rows.isEmpty == false else {
+            return
         }
+        if let max = rows.max(), !self.models.indices.contains(max) {
+            assertionFailure("数组越界")
+        }
+        var list = self.models
+        rows.sorted(by: >).forEach { index in
+            list.remove(at: index)
+        }
+        
+        var options = dataOptions
+        options.isNeedReload = false
+        self.dataSubject.send(.init(models: list, isTransformed: true, options: options))
         deleteItems(at: rows)
     }
     

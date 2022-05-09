@@ -1,6 +1,6 @@
 import XCTest
 import Combine
-@testable import SectionKit
+import SectionKit
 
 final class SingleTypeHiddenTests: XCTestCase {
     

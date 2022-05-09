@@ -33,6 +33,11 @@ public struct SelectableBox<SelectableValue>: SelectableProtocol {
         self.selectableModel = selectable
     }
     
+    public init(selectable: SelectableModel = SelectableModel()) where SelectableValue == Void {
+        self.value = ()
+        self.selectableModel = selectable
+    }
+    
     public subscript<T>(dynamicMember keyPath: WritableKeyPath<SelectableValue, T>) -> T {
         get { value[keyPath: keyPath] }
         set { value[keyPath: keyPath] = newValue }

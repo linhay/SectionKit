@@ -8,7 +8,7 @@
 import Foundation
 import XCTest
 import Combine
-@testable import SectionKit
+import SectionKit
 
 final class SingleTypeDataTransformTests: XCTestCase {
    

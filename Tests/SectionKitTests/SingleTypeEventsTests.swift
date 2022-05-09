@@ -7,7 +7,7 @@
 
 import XCTest
 import Combine
-@testable import SectionKit
+import SectionKit
 
 final class SingleTypeWrapperTests: XCTestCase {
     

@@ -7,5 +7,5 @@
 
 #if canImport(CoreGraphics)
 import Foundation
-public protocol ConfigurableView: SectionConfigurableModelProtocol & SectionConfigurableLayoutProtocol {}
+public protocol SectionConfigurableView: SectionConfigurableModelProtocol & SectionConfigurableLayoutProtocol {}
 #endif

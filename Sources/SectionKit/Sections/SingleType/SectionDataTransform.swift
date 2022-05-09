@@ -10,6 +10,7 @@ import Foundation
 open class SectionDataTransform<Model> {
     
     public var task: (([Model]) -> [Model])?
+    
     public init(task: (([Model]) -> [Model])?) {
         self.task = task
     }

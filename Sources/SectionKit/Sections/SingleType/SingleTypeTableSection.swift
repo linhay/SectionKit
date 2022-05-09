@@ -22,18 +22,19 @@
 
 #if canImport(UIKit)
 import UIKit
+#if canImport(Combine)
+import Combine
+#endif
 
-open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefetchingProtocol, SectionTableProtocol, SingleTypeSectionProtocol where Cell: ConfigurableView & SectionLoadViewProtocol {
-
-    public var dataDefaultTransforms: SectionTransforms<Cell> = .init()
-    public var dataTransforms: [SectionDataTransform<Cell.Model>] = SectionTransforms<Cell>().all
+open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefetchingProtocol, SectionTableProtocol, SingleTypeSectionProtocol where Cell: SectionConfigurableView & SectionLoadViewProtocol {
     
-    public private(set) var models: [Cell.Model]
-    public var publishers = SingleTypeSectionPublishers<Cell.Model, UITableViewHeaderFooterView>()
+    public typealias SectionPublishers = SingleTypeSectionPublishers<Cell.Model, UITableViewHeaderFooterView>
+    /// 视图事件回调(显示隐藏)
+    public let publishers = SectionPublishers()
+    public let dataSource: SingleTypeSectionDataSource<Cell>
+    /// UI驱动所用数据集
+    public private(set) lazy var models: [Cell.Model] = []
     
-    public let selectedEvent = SectionDelegate<Cell.Model, Void>()
-    public let selectedRowEvent = SectionDelegate<Int, Void>()
-    public let willDisplayEvent = SectionDelegate<Int, Void>()
     /// cell 样式配置
     public let cellStyleEvent = SectionDelegate<(row: Int, cell: Cell), Void>()
     
@@ -50,21 +51,25 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
     public var footerSize: CGSize { footerSizeProvider.call(sectionView) ?? .zero }
     
     public var sectionState: SectionState?
-        
-    public init(_ models: [Cell.Model] = []) {
-        self.models = models
+    internal var cancellables = Set<AnyCancellable>()
+
+    public required init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
+        dataSource = .init(models, transforms: transforms)
+        dataSource.reloadPublisher.sink { [weak self] _ in
+            self?.sectionState?.reloadDataEvent?()
+        }.store(in: &cancellables)
+        dataSource.dataSubject.filter(\.isTransformed).map(\.models).sink { [weak self] models in
+            self?.models = models
+        }.store(in: &cancellables)
     }
     
     open func config(models: [Cell.Model]) {
-        self.models = models
-        reload()
+        dataSource.dataSubject.send(.init(models: models, isTransformed: false, options: dataSource.dataOptions))
     }
     
     public func itemSize(at row: Int) -> CGSize {
         let width = sectionView.bounds.width
-        return Cell.preferredSize(limit: .init(width: width,
-                                               height: sectionView.bounds.height),
-                                  model: models[row])
+        return Cell.preferredSize(limit: .init(width: width, height: sectionView.bounds.height), model: models[row])
     }
     
     open func config(sectionView: UITableView) {
@@ -79,7 +84,7 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
     }
     
     public func reload() {
-        sectionState?.reloadDataEvent?()
+        dataSource.reload()
     }
     
 }

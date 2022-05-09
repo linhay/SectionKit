@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/3/25.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public extension SectionCollectionDriveProtocol {
@@ -52,7 +53,7 @@ public final class SectionHorizontalWrapper<Section: SectionCollectionDriveProto
     }
 }
 
-public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol>: UICollectionViewCell, ConfigurableView, SectionLoadViewProtocol {
+public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol>: UICollectionViewCell, SectionConfigurableView, SectionLoadViewProtocol {
     
     public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model = model else { return .zero}
@@ -139,3 +140,4 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
     }
     
 }
+#endif

@@ -34,10 +34,7 @@ public protocol SingleTypeSectionDataProtocol {
     associatedtype Cell: SectionLoadViewProtocol & SectionConfigurableModelProtocol
     
     var models: [Cell.Model] { get }
-    /// 数据转换器
-    var dataTransforms: [SectionDataTransform<Cell.Model>] { get }
-    /// 内置数据转换器
-    var dataDefaultTransforms: SectionTransforms<Cell> { get }
+    var dataSource: SingleTypeSectionDataSource<Cell> { get }
     
     func config(models: [Cell.Model])
     
@@ -52,32 +49,6 @@ public protocol SingleTypeSectionDataProtocol {
 public extension SingleTypeSectionDataProtocol {
     
     var itemCount: Int { models.count }
-    
-    /// 采用 transforms 来处理原始数据集
-    /// - Parameters:
-    ///   - models: 原始数据集
-    ///   - transforms: 转换器
-    /// - Returns: 数据集
-    func modelsFilter(_ models: [Cell.Model], transforms: [SectionDataTransform<Cell.Model>]) -> [Cell.Model] {
-        var list = models
-        for transform in transforms {
-            list = transform.task?(list) ?? list
-        }
-        return list
-    }
-    
-    /// 采用 transforms 来处理原始数据集
-    /// - Parameters:
-    ///   - models: 原始数据集
-    ///   - transforms: 转换器
-    /// - Returns: 数据集
-    static func modelsFilter(_ models: [Cell.Model], transforms: [SectionDataTransform<Cell.Model>]) -> [Cell.Model] {
-        var list = models
-        for transform in transforms {
-            list = transform.task?(list) ?? list
-        }
-        return list
-    }
     
 }
 
@@ -127,8 +98,7 @@ public extension SingleTypeSectionDataProtocol {
     /// - Returns: self
     @discardableResult
     func hidden(by: @escaping () -> Bool) -> Self {
-        dataDefaultTransforms.hidden.by(by)
-        reload()
+        dataSource.hidden(by: by)
         return self
     }
     

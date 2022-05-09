@@ -21,40 +21,19 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
-import Foundation
 import UIKit
 #if canImport(Combine)
 import Combine
 #endif
 
-open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SectionLoadViewProtocol & ConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
+open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SectionLoadViewProtocol & SectionConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
     
     public typealias SectionPublishers = SingleTypeSectionPublishers<Cell.Model, UICollectionReusableView>
     /// 视图事件回调(显示隐藏)
     public let publishers = SectionPublishers()
-    
-    public struct DataModel {
-        public let models: [Cell.Model]
-        /// 是否经过转换器
-        public let isTransformed: Bool
-        /// 是否需要立即刷新视图
-        public let options: DataOptions
-    }
-    
-    public struct DataOptions {
-        /// 是否更新数据后立刻刷新视图
-        public var isNeedReload: Bool
-    }
-    
-    public let dataOptions: DataOptions
-    /// 原始数据
-    public let dataSubject: CurrentValueSubject<DataModel, Never>
-    /// 数据转换器
-    public let dataTransforms: [SectionDataTransform<Cell.Model>]
-    /// 内置数据转换器
-    public let dataDefaultTransforms = SectionTransforms<Cell>()
+    public let dataSource: SingleTypeSectionDataSource<Cell>
     /// UI驱动所用数据集
-    public private(set) lazy var models: [Cell.Model] = self.dataSubject.value.models
+    public private(set) lazy var models: [Cell.Model] = []
     
     open var sectionState: SectionState?
     
@@ -71,36 +50,17 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     private var registerQueue = [(SingleTypeCollectionDriveSection<Cell>) -> Void]()
     
     public required init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
-        let dataOptions = DataOptions(isNeedReload: true)
-        self.dataOptions = dataOptions
-        self.dataSubject = .init(.init(models: models, isTransformed: transforms.isEmpty, options: dataOptions))
-        self.dataTransforms = dataDefaultTransforms.all + transforms
-        dataSubject
-            .filter({ !$0.isTransformed })
-            .map(\.models)
-            .map { [weak self] models -> [Cell.Model] in
-                guard let self = self else { return [] }
-                return self.modelsFilter(models, transforms: self.dataTransforms)
-            }
-            .sink { [weak self] models in
-                guard let self = self else { return }
-                self.dataSubject.send(.init(models: models, isTransformed: true, options: dataOptions))
-            }.store(in: &cancellables)
-        
-        dataSubject
-            .filter(\.isTransformed)
-            .sink(receiveValue: { [weak self] model in
-                guard let self = self else { return }
-                self.models = model.models
-                if model.options.isNeedReload {
-                    self.reload()
-                }
-            })
-            .store(in: &cancellables)
+        dataSource = .init(models, transforms: transforms)
+        dataSource.reloadPublisher.sink { [weak self] _ in
+            self?.sectionState?.reloadDataEvent?()
+        }.store(in: &cancellables)
+        dataSource.dataSubject.filter(\.isTransformed).map(\.models).sink { [weak self] models in
+            self?.models = models
+        }.store(in: &cancellables)
     }
     
     open func config(models: [Cell.Model]) {
-        dataSubject.send(.init(models: models, isTransformed: false, options: dataOptions))
+        dataSource.dataSubject.send(.init(models: models, isTransformed: false, options: dataSource.dataOptions))
     }
     
     open func config(sectionView: UICollectionView) {
@@ -155,7 +115,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     }
     
     open func reload() {
-        sectionState?.reloadDataEvent?()
+        dataSource.reload()
     }
     
     private func model(at: Int) -> Cell.Model? {
@@ -310,9 +270,9 @@ extension SingleTypeCollectionDriveSection {
         var list = self.models
         list.insert(contentsOf: models, at: row)
         
-        var options = dataOptions
+        var options = dataSource.dataOptions
         options.isNeedReload = false
-        self.dataSubject.send(.init(models: list, isTransformed: true, options: options))
+        self.dataSource.dataSubject.send(.init(models: list, isTransformed: true, options: options))
         insertItems(at: [row])
     }
     
@@ -328,9 +288,9 @@ extension SingleTypeCollectionDriveSection {
             list.remove(at: index)
         }
         
-        var options = dataOptions
+        var options = dataSource.dataOptions
         options.isNeedReload = false
-        self.dataSubject.send(.init(models: list, isTransformed: true, options: options))
+        self.dataSource.dataSubject.send(.init(models: list, isTransformed: true, options: options))
         deleteItems(at: rows)
     }
     

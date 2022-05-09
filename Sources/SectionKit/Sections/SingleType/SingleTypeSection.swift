@@ -24,7 +24,7 @@
 import UIKit
 import Combine
 
-open class SingleTypeSection<Cell: UICollectionViewCell & ConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
+open class SingleTypeSection<Cell: UICollectionViewCell & SectionConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
         
     public lazy var safeSize = defaultSafeSize
     
@@ -91,7 +91,7 @@ public extension SingleTypeSection {
     ///   - style: 自定义配置 View
     /// - Returns: Self
     @discardableResult
-    func setHeader<View: UICollectionReusableView & SectionLoadViewProtocol & ConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
+    func setHeader<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
         register { section in
             section.register(type, for: .header)
         }
@@ -115,7 +115,7 @@ public extension SingleTypeSection {
     ///   - style: 自定义配置 View
     /// - Returns: Self
     @discardableResult
-    func setFooter<View: UICollectionReusableView & SectionLoadViewProtocol & ConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
+    func setFooter<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
         register { section in
             section.register(type, for: .footer)
         }
@@ -133,12 +133,12 @@ public extension SingleTypeSection {
     }
     
     @discardableResult
-    func setHeader<View: UICollectionReusableView & SectionLoadViewProtocol & ConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
+    func setHeader<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
         return setHeader(type, model: (), style: style)
     }
     
     @discardableResult
-    func setFooter<View: UICollectionReusableView & SectionLoadViewProtocol & ConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
+    func setFooter<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
         return setFooter(type, model: (), style: style)
     }
     

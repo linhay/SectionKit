@@ -27,7 +27,7 @@ extension SectionVoidCell {
 }
 
 // MARK: - ConfigurableView
-extension SectionVoidCell: ConfigurableView {
+extension SectionVoidCell: SectionConfigurableView {
     
     typealias Model = Void
     

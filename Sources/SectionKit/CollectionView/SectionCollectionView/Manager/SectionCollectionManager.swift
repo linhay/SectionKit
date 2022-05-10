@@ -24,7 +24,6 @@
 import UIKit
 
 public class SectionCollectionManager {
-    
     private var environment: SectionReducer.Environment<UICollectionView>
     private var reducer = SectionReducer(state: .init())
     private var isPicking = false
@@ -32,16 +31,15 @@ public class SectionCollectionManager {
     public var sectionView: UICollectionView { environment.sectionView }
     public var dynamicTypes: [SectionDynamicType] { reducer.state.types }
     public var sections: LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol> {
-        return dynamicTypes.lazy.map({ $0.section as! SectionCollectionDriveProtocol })
+        return dynamicTypes.lazy.map { $0.section as! SectionCollectionDriveProtocol }
     }
     
     private let dataSource = SectionCollectionViewDataSource()
-    private let delegate   = SectionCollectionViewDelegateFlowLayout()
+    private let delegate = SectionCollectionViewDelegateFlowLayout()
     private let prefetchDataSource = SectionDataSourcePrefetching()
     
     private lazy var placeholderSection = PlaceholderSection()
     
-    @MainActor
     public init(sectionView: UICollectionView) {
         environment = .init(sectionView: sectionView, reloadDataEvent: nil)
         environment.reloadDataEvent = { [weak self] in
@@ -53,46 +51,44 @@ public class SectionCollectionManager {
         sectionView.dataSource = dataSource
         
         prefetchDataSource.sectionEvent.delegate(on: self) { (self, index) in
-            return self.section(at: index) as? SectionDataSourcePrefetchingProtocol
+            self.section(at: index) as? SectionDataSourcePrefetchingProtocol
         }
         
         dataSource.sectionsEvent.delegate(on: self) { (self, _) in
-            return self.sections
+            self.sections
         }
         dataSource.sectionEvent.delegate(on: self) { (self, index) in
-            return self.section(at: index)
+            self.section(at: index)
         }
         
         delegate.sectionsEvent.delegate(on: self) { (self, _) in
-            return self.sections
+            self.sections
         }
         delegate.sectionEvent.delegate(on: self) { (self, index) in
-            return self.section(at: index)
+            self.section(at: index)
         }
     }
     
     private func section(at index: Int) -> SectionCollectionDriveProtocol {
-        guard index >= 0, index < self.sections.count else {
+        guard index >= 0, index < sections.count else {
             return placeholderSection
         }
-        return self.sections[index]
+        return sections[index]
     }
     
     private class PlaceholderSection: SectionCollectionDriveProtocol {
-        func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+        func supplementary(kind _: SectionSupplementaryKind, at _: Int) -> UICollectionReusableView? {
             nil
         }
         
-        func config(sectionView: UICollectionView) {}
-        func item(at row: Int) -> UICollectionViewCell { UICollectionViewCell() }
+        func config(sectionView _: UICollectionView) {}
+        func item(at _: Int) -> UICollectionViewCell { UICollectionViewCell() }
         var sectionState: SectionState?
         let itemCount: Int = 0
     }
-    
 }
 
 public extension SectionCollectionManager {
-    
     enum Layout {
         case flow
         case compositional(UICollectionViewCompositionalLayoutConfiguration = UICollectionViewCompositionalLayoutConfiguration())
@@ -107,24 +103,23 @@ public extension SectionCollectionManager {
         switch layout {
         case .flow:
             return UICollectionViewFlowLayout()
-        case .compositional(let configuration):
+        case let .compositional(configuration):
             return UICollectionViewCompositionalLayout(sectionProvider: { [weak self] index, environment in
                 guard let self = self,
-                      let section = self.dynamicTypes[index].section as? SectionCollectionCompositionalLayoutProtocol else {
+                      let section = self.dynamicTypes[index].section as? SectionCollectionCompositionalLayoutProtocol
+                else {
                     assertionFailure("compositional 模式下 所有 section 都需要遵守 SectionCollectionCompositionalLayoutProtocol")
                     return nil
                 }
                 return section.compositionalLayout(environment: environment)
             }, configuration: configuration)
-        case .custom(let layout):
+        case let .custom(layout):
             return layout
         }
     }
-    
 }
 
 private extension SectionCollectionManager {
-    
     func operational(_ refresh: SectionReducer.OutputAction) {
         guard isPicking == false else {
             return
@@ -135,21 +130,18 @@ private extension SectionCollectionManager {
             break
         case .reload:
             sectionView.reloadData()
-        case .insert(let indexSet):
+        case let .insert(indexSet):
             sectionView.insertSections(indexSet)
-        case .delete(let indexSet):
+        case let .delete(indexSet):
             sectionView.deleteSections(indexSet)
-        case .move(from: let from, to: let to):
+        case let .move(from: from, to: to):
             sectionView.moveSection(from, toSection: to)
         }
     }
-    
 }
 
 public extension SectionCollectionManager {
-    
-    @MainActor
-    func pick(_ updates: (() -> Void), completion: ((Bool) -> Void)? = nil) {
+    func pick(_ updates: () -> Void, completion: ((Bool) -> Void)? = nil) {
         isPicking = true
         updates()
         isPicking = false
@@ -157,7 +149,6 @@ public extension SectionCollectionManager {
         completion?(true)
     }
     
-    @MainActor
     func pick(_ updates: @escaping (() async throws -> Void), completion: ((Bool) async throws -> Void)? = nil) {
         Task {
             isPicking = true
@@ -168,144 +159,112 @@ public extension SectionCollectionManager {
         }
     }
     
-    @MainActor
     func reload() {
         let action = reducer.reducer(action: .reload, environment: environment)
         operational(action)
     }
-    
 }
 
 public extension SectionCollectionManager {
-    
-    @MainActor
     func update<Section: SectionWrapperProtocol>(_ sections: Section...) {
         update(sections)
     }
     
-    @MainActor
     func update<Section: SectionWrapperProtocol>(_ sections: [Section]) {
         update(sections.map(\.eraseToDynamicType))
     }
     
-    @MainActor
     func append<Section: SectionWrapperProtocol>(_ sections: Section...) {
         append(sections)
     }
     
-    @MainActor
     func append<Section: SectionWrapperProtocol>(_ sections: [Section]) {
         append(sections.map(\.eraseToDynamicType))
     }
     
-    @MainActor
     func insert<Section: SectionWrapperProtocol>(_ sections: Section..., at index: Int) {
         insert(sections, at: index)
     }
     
-    @MainActor
     func insert<Section: SectionWrapperProtocol>(_ sections: [Section], at index: Int) {
         insert(sections.map(\.eraseToDynamicType), at: index)
     }
     
-    @MainActor
     func delete<Section: SectionWrapperProtocol>(_ sections: Section...) {
         delete(sections)
     }
     
-    @MainActor
     func delete<Section: SectionWrapperProtocol>(_ sections: [Section]) {
         delete(sections.map(\.eraseToDynamicType))
     }
     
-    @MainActor
     func move<Section1: SectionWrapperProtocol, Section2: SectionWrapperProtocol>(from: Section1, to: Section2) {
         move(from: from.eraseToDynamicType, to: to.eraseToDynamicType)
     }
-    
 }
 
 public extension SectionCollectionManager {
-    
-    @MainActor
     func update(_ sections: SectionCollectionDriveProtocol...) {
         update(sections)
     }
     
-    @MainActor
     func update(_ sections: [SectionCollectionDriveProtocol]) {
         update(sections.map(\.eraseToDynamicType))
     }
     
-    @MainActor
     func append(_ sections: SectionCollectionDriveProtocol...) {
         append(sections)
     }
     
-    @MainActor
     func append(_ sections: [SectionCollectionDriveProtocol]) {
         append(sections.map(\.eraseToDynamicType))
     }
     
-    @MainActor
     func insert(_ sections: SectionCollectionDriveProtocol..., at index: Int) {
         insert(sections, at: index)
     }
     
-    @MainActor
     func insert(_ sections: [SectionCollectionDriveProtocol], at index: Int) {
         insert(sections.map(\.eraseToDynamicType), at: index)
     }
     
-    @MainActor
     func delete(_ sections: SectionCollectionDriveProtocol...) {
         delete(sections)
     }
     
-    @MainActor
     func delete(_ sections: [SectionCollectionDriveProtocol]) {
         delete(sections.map(\.eraseToDynamicType))
     }
     
-    @MainActor
     func move(from: SectionCollectionDriveProtocol, to: SectionCollectionDriveProtocol) {
         move(from: from.eraseToDynamicType, to: to.eraseToDynamicType)
     }
-    
 }
 
 public extension SectionCollectionManager {
-    
-    @MainActor
     func update(_ types: [SectionDynamicType]) {
         let update = reducer.reducer(action: .update(types: types), environment: environment)
-        types.map(\.section).compactMap({ $0 as? SectionCollectionDriveProtocol }).forEach({ $0.config(sectionView: sectionView) })
+        types.map(\.section).compactMap { $0 as? SectionCollectionDriveProtocol }.forEach { $0.config(sectionView: sectionView) }
         operational(update)
     }
     
-    @MainActor
     func append(_ types: [SectionDynamicType]) {
-        insert(types, at: dynamicTypes.count-1)
+        insert(types, at: dynamicTypes.count - 1)
     }
     
-    @MainActor
     func insert(_ types: [SectionDynamicType], at index: Int) {
         let insert = reducer.reducer(action: .insert(types: types, at: index), environment: environment)
-        types.map(\.section).compactMap({ $0 as? SectionCollectionDriveProtocol }).forEach({ $0.config(sectionView: sectionView) })
+        types.map(\.section).compactMap { $0 as? SectionCollectionDriveProtocol }.forEach { $0.config(sectionView: sectionView) }
         operational(insert)
     }
     
-    @MainActor
     func delete(_ types: [SectionDynamicType]) {
         operational(reducer.reducer(action: .delete(types: types), environment: environment))
     }
     
-    @MainActor
     func move(from: SectionDynamicType, to: SectionDynamicType) {
         operational(reducer.reducer(action: .move(from: from, to: to), environment: environment))
     }
-    
 }
 
 #endif
-

@@ -24,22 +24,21 @@
 import UIKit
 
 open class SectionTableViewController: UIViewController {
-
     open lazy var sectionView = SectionTableView(frame: .zero, style: style)
     open lazy var manager = SectionTableManager(sectionView: sectionView)
     private let style: UITableView.Style
-
+    
     public init(style: UITableView.Style = .grouped) {
         self.style = style
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     public required init?(coder: NSCoder) {
-        self.style = .plain
+        style = .plain
         super.init(coder: coder)
     }
-
-    open override func viewDidLoad() {
+    
+    override open func viewDidLoad() {
         super.viewDidLoad()
         if view.backgroundColor == nil {
             view.backgroundColor = .white
@@ -53,26 +52,25 @@ open class SectionTableViewController: UIViewController {
         layout(anchor1: sectionView.leftAnchor, anchor2: safeArea.leftAnchor)
     }
     
-    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate { [weak self] context in
+        coordinator.animate { [weak self] _ in
             self?.sectionView.reloadData()
-        } completion: { [weak self] context in
+        } completion: { [weak self] _ in
             self?.sectionView.reloadData()
         }
     }
-
+    
     private func layout(anchor1: NSLayoutYAxisAnchor, anchor2: NSLayoutYAxisAnchor) {
         let constraint = anchor1.constraint(equalTo: anchor2)
         constraint.priority = .defaultLow
         constraint.isActive = true
     }
-
+    
     private func layout(anchor1: NSLayoutXAxisAnchor, anchor2: NSLayoutXAxisAnchor) {
         let constraint = anchor1.constraint(equalTo: anchor2)
         constraint.priority = .defaultLow
         constraint.isActive = true
     }
-
 }
 #endif

@@ -27,7 +27,6 @@ import Combine
 #endif
 
 open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SectionLoadViewProtocol & SectionConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
-    
     public typealias SectionPublishers = SingleTypeSectionPublishers<Cell.Model, UICollectionReusableView>
     /// 视图事件回调(显示隐藏)
     public let publishers = SectionPublishers()
@@ -63,7 +62,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         dataSource.dataSubject.send(.init(models: models, isTransformed: false, options: dataSource.dataOptions))
     }
     
-    open func config(sectionView: UICollectionView) {
+    open func config(sectionView _: UICollectionView) {
         register(Cell.self)
         registerQueue.forEach { task in
             task(self)
@@ -80,7 +79,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         return cell
     }
     
-    public func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+    public func supplementary(kind _: SectionSupplementaryKind, at _: Int) -> UICollectionReusableView? {
         return nil
     }
     
@@ -89,7 +88,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     }
     
     open var visibleTypeItems: [Cell] {
-        return visibleCells.compactMap({ $0 as? Cell })
+        return visibleCells.compactMap { $0 as? Cell }
     }
     
     open func item(willDisplay row: Int) {
@@ -124,21 +123,17 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         }
         return models[at]
     }
-    
 }
 
 /// init
 public extension SingleTypeCollectionDriveSection {
-    
     convenience init(repeating: Cell.Model, count: Int, transforms: [SectionDataTransform<Cell.Model>] = []) {
         self.init(.init(repeating: repeating, count: count), transforms: transforms)
     }
-    
 }
 
 /// register
 public extension SingleTypeCollectionDriveSection {
-    
     /// 注册 View, Cell
     /// - Parameter builds: 待注册数据
     func register(_ builds: ((SingleTypeCollectionDriveSection<Cell>) -> Void)...) {
@@ -156,12 +151,10 @@ public extension SingleTypeCollectionDriveSection {
             registerQueue.append(contentsOf: builds)
         }
     }
-    
 }
 
 /// 数据订阅
 public extension SingleTypeCollectionDriveSection {
-    
     /// 覆盖现有数据
     /// - Parameter models: Publisher
     @discardableResult
@@ -181,12 +174,10 @@ public extension SingleTypeCollectionDriveSection {
         })
         return self
     }
-    
 }
 
 /// Transforms
 public extension SingleTypeCollectionDriveSection {
-    
     /// 订阅隐藏消息
     /// - Parameter publisher: Publisher
     /// - Returns: 链式调用
@@ -197,19 +188,15 @@ public extension SingleTypeCollectionDriveSection {
         }.store(in: &cancellables)
         return self
     }
-    
 }
 
-
-
 public extension SingleTypeCollectionDriveSection {
-    
     /// 配置 Cell 样式
     /// - Parameter builder: 回调
     /// - Returns: 链式调用
     @discardableResult
     func itemStyle(_ builder: @escaping (_ row: Int, _ cell: Cell) -> Void) -> Self {
-        self.itemStyleProvider = builder
+        itemStyleProvider = builder
         return self
     }
     
@@ -254,13 +241,11 @@ public extension SingleTypeCollectionDriveSection {
         }.store(in: &cancellables)
         return self
     }
-    
 }
 
 /// 增删
-extension SingleTypeCollectionDriveSection {
-    
-    public func insert(_ models: [Cell.Model], at row: Int) {
+public extension SingleTypeCollectionDriveSection {
+    func insert(_ models: [Cell.Model], at row: Int) {
         guard models.isEmpty == false else {
             return
         }
@@ -272,27 +257,26 @@ extension SingleTypeCollectionDriveSection {
         
         var options = dataSource.dataOptions
         options.isNeedReload = false
-        self.dataSource.dataSubject.send(.init(models: list, isTransformed: true, options: options))
+        dataSource.dataSubject.send(.init(models: list, isTransformed: true, options: options))
         insertItems(at: [row])
     }
     
-    public func remove(at rows: [Int]) {
+    func remove(at rows: [Int]) {
         guard rows.isEmpty == false else {
             return
         }
         if let max = rows.max(), !self.models.indices.contains(max) {
             assertionFailure("数组越界")
         }
-        var list = self.models
+        var list = models
         rows.sorted(by: >).forEach { index in
             list.remove(at: index)
         }
         
         var options = dataSource.dataOptions
         options.isNeedReload = false
-        self.dataSource.dataSubject.send(.init(models: list, isTransformed: true, options: options))
+        dataSource.dataSubject.send(.init(models: list, isTransformed: true, options: options))
         deleteItems(at: rows)
     }
-    
 }
 #endif

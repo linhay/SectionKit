@@ -25,13 +25,12 @@ import UIKit
 
 @dynamicMemberLookup
 public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtocol & SectionProtocol>: SectionWrapperProtocol {
-        
     public typealias Model = Section.Cell.Model
-    public typealias Cell  = Section.Cell
-
+    public typealias Cell = Section.Cell
+    
     public let wrappedSection: Section
     private var otherWrapper: Any?
-        
+    
     public init(_ section: Section) {
         self.wrappedSection = section
     }
@@ -50,16 +49,14 @@ public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtoc
     }
     
     public func config(models: [Model], areEquivalent: (Model, Model) -> Bool) {
-        let models = wrappedSection.dataSource.modelsFilter(models, transforms: wrappedSection.dataSource.dataTransforms)
-        guard models.isEmpty == false, wrappedSection.isLoaded else {
-            wrappedSection.config(models: models)
+        let new = wrappedSection.dataSource.modelsFilter(models, transforms: wrappedSection.dataSource.dataTransforms)
+        guard new.isEmpty == false, wrappedSection.isLoaded else {
+            wrappedSection.config(models: new)
             return
         }
-
-        let difference = models.difference(from: wrappedSection.models, by: areEquivalent)
+        
         wrappedSection.pick({
-            wrappedSection.config(models: models)
-            for change in difference {
+            for change in new.difference(from: wrappedSection.models, by: areEquivalent) {
                 switch change {
                 case let .remove(offset, _, _):
                     wrappedSection.remove(at: offset)
@@ -73,20 +70,15 @@ public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtoc
     public subscript<T>(dynamicMember keyPath: KeyPath<Section, T>) -> T? {
         wrappedSection[keyPath: keyPath]
     }
-    
 }
 
 public extension SectionProtocol where Self: SingleTypeSectionDataProtocol {
-    
     var differenceWrapper: SectionDifferenceWrapper<Self> { .init(self) }
-    
 }
 
 public extension SectionWrapperProtocol where Section: SingleTypeSectionDataProtocol {
-    
     var differenceWrapper: SectionDifferenceWrapper<Section> {
         .init(self)
     }
-    
 }
 #endif

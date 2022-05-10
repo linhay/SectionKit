@@ -1,16 +1,15 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/5/5.
 //
 
-import UIKit
 import SectionKit
 import Stem
+import UIKit
 
 class DecorationViewController: SectionCollectionViewController {
-    
     enum Action: String, CaseIterable {
         case fix_insets
         case no_fix_insets
@@ -25,22 +24,22 @@ class DecorationViewController: SectionCollectionViewController {
         case inset_40
         case zIndex
     }
-    
+
     let leftController = LeftViewController()
     let rightController = RightViewController()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         bindUI()
     }
-    
+
     func bindUI() {
-        leftController.section.onItemSelected(on: self) { (self, row, action) in
+        leftController.section.onItemSelected(on: self) { (self, _, action) in
             self.rightController.send(action)
         }
     }
-    
+
     func setupUI() {
         addChild(leftController)
         addChild(rightController)
@@ -55,52 +54,46 @@ class DecorationViewController: SectionCollectionViewController {
             make.left.equalTo(leftController.view.snp.right)
         }
     }
-    
 }
 
 extension DecorationViewController {
-    
     class LeftViewController: SectionCollectionViewController {
-        
         let section = HomeIndexCell<Action>.singleTypeWrapper(Action.allCases)
-        
+
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
-        
+
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
             manager.update(section)
         }
-        
     }
-    
 }
 
 extension DecorationViewController {
-    
     class RightViewController: SectionCollectionViewController {
         let size = CGSize(width: 88, height: 44)
-        
-        lazy var sections = (0...10).map { sectionIndex in
+
+        lazy var sections = (0 ... 10).map { sectionIndex in
             ColorBlockCell
-                .singleTypeWrapper((0...10).map({ index in
-                        .init(color: .red, text: "\(sectionIndex - index)", size: size)
-                }))
+                .singleTypeWrapper((0 ... 10).map { index in
+                    .init(color: .red, text: "\(sectionIndex - index)", size: size)
+                })
                 .setHeader(ReusableView.self, model: "header - \(sectionIndex)")
                 .setFooter(ReusableView.self, model: "footer - \(sectionIndex)")
         }
-        
+
         var isAnimating = false
         var defaultPluginModes: [SectionCollectionFlowLayout.PluginMode] = [.fixSupplementaryViewInset(.all)]
-        
+
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
-        
+
         func send(_ action: Action) {
             guard isAnimating == false else {
                 return
@@ -149,12 +142,12 @@ extension DecorationViewController {
                              insets: .init(top: 40, left: 40, bottom: 40, right: 40)))
             }
         }
-        
+
         func update(_ decoration: SectionCollectionFlowLayout.Decoration...) {
             sectionView.set(pluginModes: defaultPluginModes + [.decorations(decoration)])
             sectionView.reloadData()
         }
-        
+
         func animate(_ event: @escaping () -> Void) {
             isAnimating = true
             Gcd.delay(.main, seconds: 0.5) {
@@ -162,7 +155,7 @@ extension DecorationViewController {
                 event()
             }
         }
-        
+
         func setupUI() {
             sections.forEach { section in
                 section.sectionInset = .init(top: 20, left: 8, bottom: 20, right: 8)
@@ -170,7 +163,5 @@ extension DecorationViewController {
             }
             manager.update(sections)
         }
-        
     }
-    
 }

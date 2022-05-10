@@ -23,13 +23,12 @@
 import Combine
 
 public class SelectableModel: Equatable {
-    
     fileprivate let selectedSubject: Publishers.RemoveDuplicates<CurrentValueSubject<Bool, Never>>
     fileprivate let canSelectSubject: Publishers.RemoveDuplicates<CurrentValueSubject<Bool, Never>>
     fileprivate let changedSubject = PassthroughSubject<(isSelected: Bool, canSelect: Bool), Never>()
     
     public static func == (lhs: SelectableModel, rhs: SelectableModel) -> Bool {
-       return lhs.isSelected == rhs.isSelected && lhs.canSelect == rhs.canSelect
+        return lhs.isSelected == rhs.isSelected && lhs.canSelect == rhs.canSelect
     }
     
     public var isSelected: Bool {
@@ -41,48 +40,42 @@ public class SelectableModel: Equatable {
         set { canSelectSubject.upstream.send(newValue) }
         get { canSelectSubject.upstream.value }
     }
-
+    
     private var cancellables = Set<AnyCancellable>()
     
     public init(isSelected: Bool = false, canSelect: Bool = true) {
-        self.selectedSubject  = CurrentValueSubject<Bool, Never>(isSelected).removeDuplicates()
-        self.canSelectSubject = CurrentValueSubject<Bool, Never>(canSelect).removeDuplicates()
+        selectedSubject = CurrentValueSubject<Bool, Never>(isSelected).removeDuplicates()
+        canSelectSubject = CurrentValueSubject<Bool, Never>(canSelect).removeDuplicates()
         
-        self.selectedSubject.sink { [weak self] value in
+        selectedSubject.sink { [weak self] _ in
             self?.changedSubject.send((isSelected, canSelect))
         }.store(in: &cancellables)
         
-        self.canSelectSubject.sink { [weak self] value in
+        canSelectSubject.sink { [weak self] _ in
             self?.changedSubject.send((isSelected, canSelect))
         }.store(in: &cancellables)
     }
-
 }
 
 public protocol SelectableProtocol {
-
     var selectableModel: SelectableModel { get }
-
 }
 
 public extension SelectableProtocol {
-
     var isSelected: Bool { selectableModel.isSelected }
     var canSelect: Bool { selectableModel.canSelect }
     
     var selectedPublisher: AnyPublisher<Bool, Never> { selectableModel.selectedSubject.eraseToAnyPublisher() }
     var canSelectPublisher: AnyPublisher<Bool, Never> { selectableModel.canSelectSubject.eraseToAnyPublisher() }
     var changedPublisher: AnyPublisher<(isSelected: Bool, canSelect: Bool), Never> { selectableModel.changedSubject.eraseToAnyPublisher() }
-
 }
 
 public protocol SelectableCollectionProtocol {
-    
     associatedtype Element: SelectableProtocol
-
+    
     /// 可选元素序列
     var selectables: [Element] { get }
-
+    
     /// 已选中某个元素
     /// - Parameters:
     ///   - index: 选中元素索引
@@ -91,18 +84,15 @@ public protocol SelectableCollectionProtocol {
 }
 
 public extension SelectableCollectionProtocol {
-
-    func element(selected index: Int, element: Element) { }
-
+    func element(selected _: Int, element _: Element) {}
 }
 
 public extension SelectableCollectionProtocol {
-
     /// 序列中第一个选中的元素
     func firstSelectedElement() -> Element? {
         return selectables.first(where: { $0.isSelected })
     }
-
+    
     /// 序列中第一个选中的元素的索引
     func firstSelectedIndex() -> Int? {
         return selectables.firstIndex(where: { $0.isSelected })
@@ -115,16 +105,16 @@ public extension SelectableCollectionProtocol {
     
     /// 已选中的元素序列
     var selectedIndexs: [Int] {
-        selectables.enumerated().filter({ $0.element.isSelected }).map(\.offset)
+        selectables.enumerated().filter { $0.element.isSelected }.map(\.offset)
     }
-
+    
     /// 选中元素
     /// - Parameters:
     ///   - index: 选择序号
     ///   - isUnique: 是否保证选中在当前序列中是否唯一 | default: true
     ///   - needInvert: 是否需要支持反选操作 | default: false
     func select(at index: Int, isUnique: Bool = true, needInvert: Bool = false) {
-        guard (0..<selectables.count).contains(index) else {
+        guard (0 ..< selectables.count).contains(index) else {
             return
         }
         
@@ -133,13 +123,13 @@ public extension SelectableCollectionProtocol {
         guard element.canSelect else {
             return
         }
-
+        
         guard isUnique else {
             element.selectableModel.isSelected = needInvert ? !element.isSelected : true
             self.element(selected: index, element: element)
             return
         }
-
+        
         for (offset, item) in selectables.enumerated() {
             if offset == index {
                 item.selectableModel.isSelected = needInvert ? !element.isSelected : true
@@ -149,11 +139,9 @@ public extension SelectableCollectionProtocol {
         }
         self.element(selected: index, element: element)
     }
-
 }
 
 public extension SelectableCollectionProtocol where Element: Equatable {
-
     /// 选中指定元素
     /// - Parameters:
     ///   - element: 指定元素
@@ -162,7 +150,7 @@ public extension SelectableCollectionProtocol where Element: Equatable {
         guard selectables.contains(element) else {
             return
         }
-
+        
         for (offset, item) in selectables.enumerated() {
             item.selectableModel.isSelected = needInvert ? !item.isSelected : item == element
             if item == element {
@@ -170,5 +158,4 @@ public extension SelectableCollectionProtocol where Element: Equatable {
             }
         }
     }
-
 }

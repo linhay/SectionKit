@@ -21,17 +21,16 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
-import UIKit
 import Combine
+import UIKit
 
 @dynamicMemberLookup
 public final class SectionSelectableWrapper<Section: SingleTypeSectionEventProtocol & SectionProtocol>: SelectableCollectionProtocol, SectionWrapperProtocol where Section.Cell.Model: SelectableProtocol {
-       
     public typealias Model = Section.Cell.Model
-    public typealias Cell  = Section.Cell
+    public typealias Cell = Section.Cell
     
     public var selectables: [Section.Cell.Model] { wrappedSection.models }
-
+    
     /// 是否保证选中在当前序列中是否唯一 | default: true
     private let isUnique: Bool
     /// 是否需要支持反选操作 | default: false
@@ -40,11 +39,12 @@ public final class SectionSelectableWrapper<Section: SingleTypeSectionEventProto
     public let wrappedSection: Section
     private var otherWrapper: Any?
     private var cancellables = Set<AnyCancellable>()
-        
+    
     public convenience init<Wrapper: SectionWrapperProtocol>(_ wrapper: Wrapper,
                                                              isUnique: Bool = true,
-                                                             needInvert: Bool = false) where Wrapper.Section == Section {
-        self.init(wrapper.wrappedSection, isUnique:isUnique , needInvert: needInvert)
+                                                             needInvert: Bool = false) where Wrapper.Section == Section
+    {
+        self.init(wrapper.wrappedSection, isUnique: isUnique, needInvert: needInvert)
         self.otherWrapper = wrapper
     }
     
@@ -61,22 +61,17 @@ public final class SectionSelectableWrapper<Section: SingleTypeSectionEventProto
     public subscript<T>(dynamicMember keyPath: KeyPath<Section, T>) -> T? {
         wrappedSection[keyPath: keyPath]
     }
-    
 }
 
 public extension SectionProtocol where Self: SingleTypeSectionEventProtocol, Cell.Model: SelectableProtocol {
-    
     func selectableWrapper(isUnique: Bool = true, needInvert: Bool = false) -> SectionSelectableWrapper<Self> {
         .init(self, isUnique: isUnique, needInvert: needInvert)
     }
-    
 }
 
 public extension SectionWrapperProtocol where Section: SingleTypeSectionEventProtocol, Section.Cell.Model: SelectableProtocol {
-    
     func selectableWrapper(isUnique: Bool = true, needInvert: Bool = false) -> SectionSelectableWrapper<Section> {
         .init(self, isUnique: isUnique, needInvert: needInvert)
     }
-    
 }
 #endif

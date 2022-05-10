@@ -24,11 +24,10 @@
 import UIKit
 
 public class STWaterfallFlowLayout: UICollectionViewFlowLayout {
-    
     /// 列缓存
-    private var colStore    = [Int: [UICollectionViewLayoutAttributes]]()
+    private var colStore = [Int: [UICollectionViewLayoutAttributes]]()
     /// 列宽度映射
-    private var widthStore  = [Int: CGFloat]()
+    private var widthStore = [Int: CGFloat]()
     /// 列高映射
     private var heightStore = [Int: CGFloat]()
     /// cell缓存
@@ -38,7 +37,7 @@ public class STWaterfallFlowLayout: UICollectionViewFlowLayout {
     
     private var cacheBounds = CGRect.zero
     
-    public override func prepare() {
+    override public func prepare() {
         super.prepare()
         colStore.removeAll()
         widthStore.removeAll()
@@ -48,9 +47,10 @@ public class STWaterfallFlowLayout: UICollectionViewFlowLayout {
         cacheBounds = collectionView?.bounds ?? .zero
     }
     
-    public override var collectionViewContentSize: CGSize {
+    override public var collectionViewContentSize: CGSize {
         guard let collectionView = collectionView,
-              let maxY = heightStore.values.max() else {
+              let maxY = heightStore.values.max()
+        else {
             return .zero
         }
         return .init(width: collectionView.bounds.width, height: maxY)
@@ -84,12 +84,12 @@ public class STWaterfallFlowLayout: UICollectionViewFlowLayout {
             initIndexPath = .init(row: 0, section: 0)
         }
         let initSection = initIndexPath.section
-        for section in (initIndexPath.section..<sectionCount) {
+        for section in initIndexPath.section ..< sectionCount {
             let count = dataSource.collectionView(collectionView, numberOfItemsInSection: section)
             if initIndexPath.item >= count {
                 continue
             }
-            for item in ((initSection == section ? initIndexPath.item : 0)..<count) {
+            for item in (initSection == section ? initIndexPath.item : 0) ..< count {
                 let cell = parseCell(at: .init(row: item, section: section))
                 cache.append(cell)
                 if let min = heightStore.values.min(), min > rect.maxY {
@@ -117,34 +117,34 @@ public class STWaterfallFlowLayout: UICollectionViewFlowLayout {
         attributes.frame.size = size
         attributes.frame.origin = .init(x: 0, y: 0)
         
-        let minX = widthStore.values.reduce(0, { $0 + $1 }) + CGFloat(widthStore.keys.count) * interitemSpacer
+        let minX = widthStore.values.reduce(0) { $0 + $1 } + CGFloat(widthStore.keys.count) * interitemSpacer
         if minX + size.width <= collectionView.bounds.width - inset.right - inset.left {
             attributes.frame.origin.x = minX + inset.left
             attributes.frame.origin.y = inset.top
             
             let index = colStore.keys.count
-            widthStore[index]  = attributes.frame.width
+            widthStore[index] = attributes.frame.width
             heightStore[index] = attributes.frame.maxY
-            colStore[index]    = [attributes]
+            colStore[index] = [attributes]
             return attributes
         }
         
         if let index = widthStore.compactMap({ $0.value == size.width ? $0.key : nil })
-            .sorted (by: { heightStore[$0] == heightStore[$1] ? $0 < $1 : heightStore[$0]! < heightStore[$1]! }).first,
-           let lastItem = colStore[index]?.last {
+            .sorted(by: { heightStore[$0] == heightStore[$1] ? $0 < $1 : heightStore[$0]! < heightStore[$1]! }).first,
+           let lastItem = colStore[index]?.last
+        {
             attributes.frame.origin = .init(x: lastItem.frame.minX, y: lastItem.frame.maxY + lineSpacer)
             colStore[index] = (colStore[index] ?? []) + [attributes]
             heightStore[index] = attributes.frame.maxY
         } else {
             let index = colStore.keys.count
             
-            widthStore[index]  = attributes.frame.width
+            widthStore[index] = attributes.frame.width
             heightStore[index] = attributes.frame.maxY
-            colStore[index]    = [attributes]
+            colStore[index] = [attributes]
         }
         
         return attributes
     }
-    
 }
 #endif

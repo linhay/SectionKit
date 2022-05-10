@@ -24,14 +24,12 @@
 import Foundation
 
 open class SectionAnyWrapper: SectionAnyWrapperProtocol {
-        
     public let wrappedSectionProtocol: SectionProtocol
     private let wrapper: Any?
-
+    
     public init<T: SectionWrapperProtocol>(_ wrapper: T) {
-        self.wrappedSectionProtocol = wrapper.wrappedSectionProtocol
+        wrappedSectionProtocol = wrapper.wrappedSectionProtocol
         self.wrapper = wrapper
     }
-    
 }
 #endif

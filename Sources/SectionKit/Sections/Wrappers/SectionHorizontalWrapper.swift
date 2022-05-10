@@ -9,20 +9,18 @@
 import UIKit
 
 public extension SectionCollectionDriveProtocol {
-    
     func horizontalWrapper(height: CGFloat,
                            insets: UIEdgeInsets = .zero,
-                           style: ((SectionCollectionView) -> Void)? = nil) -> SectionHorizontalWrapper<Self> {
+                           style: ((SectionCollectionView) -> Void)? = nil) -> SectionHorizontalWrapper<Self>
+    {
         .init(.init(section: self, height: height, insets: insets, style: style))
     }
-    
 }
 
 public final class SectionHorizontalWrapper<Section: SectionCollectionDriveProtocol>: SectionCollectionProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionWrapperProtocol {
-    
     public var sectionState: SectionState?
     public var itemCount: Int = 1
-
+    
     public lazy var safeSize: SectionSafeSize = defaultSafeSize
     let model: SectionHorizontalCell<Section>.Model
     public var wrappedSection: Section { model.section }
@@ -44,19 +42,18 @@ public final class SectionHorizontalWrapper<Section: SectionCollectionDriveProto
         return cell
     }
     
-    public func itemSize(at row: Int) -> CGSize {
+    public func itemSize(at _: Int) -> CGSize {
         SectionHorizontalCell<Section>.preferredSize(limit: safeSize.size(self), model: model)
     }
     
-    public func config(sectionView: UICollectionView) {
+    public func config(sectionView _: UICollectionView) {
         register(SectionHorizontalCell<Section>.self)
     }
 }
 
 public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol>: UICollectionViewCell, SectionConfigurableView, SectionLoadViewProtocol {
-    
     public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
-        guard let model = model else { return .zero}
+        guard let model = model else { return .zero }
         return CGSize(width: size.width, height: model.height + model.insets.top + model.insets.bottom)
     }
     
@@ -67,7 +64,6 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
     }
     
     public struct Model {
-        
         public let section: Section
         public let height: CGFloat
         public let insets: UIEdgeInsets
@@ -76,7 +72,8 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
         public init(section: Section,
                     height: CGFloat,
                     insets: UIEdgeInsets = .zero,
-                    style: ((SectionCollectionView) -> Void)? = nil) {
+                    style: ((SectionCollectionView) -> Void)? = nil)
+        {
             self.section = section
             self.height = height
             self.insets = insets
@@ -85,7 +82,6 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
     }
     
     private struct EdgeConstraint {
-        
         var all: [NSLayoutConstraint] { [top, left, right, bottom] }
         
         let top: NSLayoutConstraint
@@ -94,9 +90,9 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
         let bottom: NSLayoutConstraint
         
         init(_ view: UIView, superView: UIView) {
-            top    = view.topAnchor.constraint(equalTo: superView.topAnchor, constant: 0)
-            left   = view.leftAnchor.constraint(equalTo: superView.leftAnchor, constant: 0)
-            right  = view.rightAnchor.constraint(equalTo: superView.rightAnchor, constant: 0)
+            top = view.topAnchor.constraint(equalTo: superView.topAnchor, constant: 0)
+            left = view.leftAnchor.constraint(equalTo: superView.leftAnchor, constant: 0)
+            right = view.rightAnchor.constraint(equalTo: superView.rightAnchor, constant: 0)
             bottom = view.bottomAnchor.constraint(equalTo: superView.bottomAnchor, constant: 0)
         }
         
@@ -114,13 +110,12 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
         func deactivate() {
             NSLayoutConstraint.deactivate(all)
         }
-        
     }
     
     private lazy var sectionView = SectionCollectionView()
     private lazy var edgeConstraint = EdgeConstraint(sectionView, superView: contentView)
     
-    override init(frame: CGRect) {
+    override init(frame _: CGRect) {
         super.init(frame: .zero)
         initialize()
     }
@@ -138,6 +133,5 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
         sectionView.scrollDirection = .horizontal
         edgeConstraint.activate()
     }
-    
 }
 #endif

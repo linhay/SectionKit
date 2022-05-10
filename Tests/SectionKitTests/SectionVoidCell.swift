@@ -1,20 +1,19 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/4/21.
 //
 
-import UIKit
 import SectionKit
+import UIKit
 
 final class SectionVoidCell: UICollectionViewCell, SectionLoadViewProtocol {
-    
-    override init(frame: CGRect) {
+    override init(frame _: CGRect) {
         super.init(frame: .zero)
         setupView()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupView()
@@ -22,25 +21,21 @@ final class SectionVoidCell: UICollectionViewCell, SectionLoadViewProtocol {
 }
 
 // MARK: - Actions
-extension SectionVoidCell {
-    
-}
+
+extension SectionVoidCell {}
 
 // MARK: - ConfigurableView
+
 extension SectionVoidCell: SectionConfigurableView {
-    
     typealias Model = Void
-    
-    static func preferredSize(limit size: CGSize, model: Void?) -> CGSize {
+
+    static func preferredSize(limit size: CGSize, model _: Void?) -> CGSize {
         return size
     }
-    
 }
 
 // MARK: - UI
+
 extension SectionVoidCell {
-    
-    private func setupView() {
-        
-    }
+    private func setupView() {}
 }

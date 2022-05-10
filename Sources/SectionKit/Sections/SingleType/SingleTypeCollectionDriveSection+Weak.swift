@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/4/28.
 //
@@ -8,7 +8,6 @@
 import Foundation
 
 public extension SingleTypeCollectionDriveSection {
-    
     /// 配置 Cell 样式
     /// - Parameters:
     ///   - target: weak 对象
@@ -70,5 +69,4 @@ public extension SingleTypeCollectionDriveSection {
             builder(target, row, model)
         }
     }
-    
 }

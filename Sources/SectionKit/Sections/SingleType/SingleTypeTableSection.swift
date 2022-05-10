@@ -27,7 +27,6 @@ import Combine
 #endif
 
 open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefetchingProtocol, SectionTableProtocol, SingleTypeSectionProtocol where Cell: SectionConfigurableView & SectionLoadViewProtocol {
-    
     public typealias SectionPublishers = SingleTypeSectionPublishers<Cell.Model, UITableViewHeaderFooterView>
     /// 视图事件回调(显示隐藏)
     public let publishers = SectionPublishers()
@@ -52,7 +51,7 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
     
     public var sectionState: SectionState?
     internal var cancellables = Set<AnyCancellable>()
-
+    
     public required init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
         dataSource = .init(models, transforms: transforms)
         dataSource.reloadPublisher.sink { [weak self] _ in
@@ -72,7 +71,7 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
         return Cell.preferredSize(limit: .init(width: width, height: sectionView.bounds.height), model: models[row])
     }
     
-    open func config(sectionView: UITableView) {
+    open func config(sectionView _: UITableView) {
         register(Cell.self)
     }
     
@@ -86,12 +85,10 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
     public func reload() {
         dataSource.reload()
     }
-    
 }
 
 /// 增删
 public extension SingleTypeTableSection {
-    
     func insert(_ models: [Cell.Model], at row: Int) {
         self.models.insert(contentsOf: models, at: row)
         insertItems(at: [row])
@@ -103,6 +100,5 @@ public extension SingleTypeTableSection {
         }
         deleteItems(at: rows)
     }
-    
 }
 #endif

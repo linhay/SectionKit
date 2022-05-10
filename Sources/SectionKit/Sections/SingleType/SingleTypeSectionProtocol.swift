@@ -30,7 +30,6 @@ import Combine
 typealias SingleTypeSectionProtocol = SingleTypeSectionDataProtocol & SingleTypeSectionEventProtocol
 
 public protocol SingleTypeSectionDataProtocol {
-    
     associatedtype Cell: SectionLoadViewProtocol & SectionConfigurableModelProtocol
     
     var models: [Cell.Model] { get }
@@ -47,13 +46,10 @@ public protocol SingleTypeSectionDataProtocol {
 }
 
 public extension SingleTypeSectionDataProtocol {
-    
     var itemCount: Int { models.count }
-    
 }
 
 public extension SingleTypeSectionDataProtocol {
-    
     func append(_ data: Cell.Model...) {
         append(data)
     }
@@ -71,28 +67,26 @@ public extension SingleTypeSectionDataProtocol {
     }
     
     func removeAll() {
-        remove(at: .init(0..<models.count))
+        remove(at: .init(0 ..< models.count))
     }
     
     func remove(_ model: Cell.Model) where Cell.Model: AnyObject {
-        let indexs = models.enumerated().compactMap { (offset, element) in
-            return element === model ? offset : nil
+        let indexs = models.enumerated().compactMap { offset, element in
+            element === model ? offset : nil
         }
         remove(at: indexs)
     }
     
     func remove(_ model: Cell.Model) where Cell.Model: Equatable {
-        let indexs = models.enumerated().compactMap { (offset, element) in
-            return element == model ? offset : nil
+        let indexs = models.enumerated().compactMap { offset, element in
+            element == model ? offset : nil
         }
         remove(at: indexs)
     }
-
 }
 
 /// DataTransform - Hidden
 public extension SingleTypeSectionDataProtocol {
-    
     /// 隐藏该 Section
     /// - Parameter by: bool
     /// - Returns: self
@@ -104,13 +98,13 @@ public extension SingleTypeSectionDataProtocol {
     
     @discardableResult
     func hidden(_ value: Bool) -> Self {
-        self.hidden { value }
+        hidden { value }
         return self
     }
     
     @discardableResult
     func hidden<T: AnyObject>(by: T, _ keyPath: KeyPath<T, Bool>) -> Self {
-        self.hidden { [weak by] in
+        hidden { [weak by] in
             by?[keyPath: keyPath] ?? false
         }
         return self
@@ -118,14 +112,12 @@ public extension SingleTypeSectionDataProtocol {
     
     @discardableResult
     func hidden<T>(by: T, _ keyPath: KeyPath<T, Bool>) -> Self {
-        self.hidden { by[keyPath: keyPath] }
+        hidden { by[keyPath: keyPath] }
         return self
     }
-    
 }
 
 public protocol SingleTypeSectionEventProtocol {
-    
     associatedtype Cell: SectionLoadViewProtocol & SectionConfigurableModelProtocol
     associatedtype ReusableView
     
@@ -135,7 +127,6 @@ public protocol SingleTypeSectionEventProtocol {
 }
 
 public extension SingleTypeSectionEventProtocol where Self: SectionProtocol {
-    
     func item(selected row: Int) {
         guard let model = model(at: row) else {
             return
@@ -163,12 +154,9 @@ public extension SingleTypeSectionEventProtocol where Self: SectionProtocol {
         }
         return models[row]
     }
-    
 }
 
-
 public extension SingleTypeSectionEventProtocol where Self: SectionDataSourcePrefetchingProtocol {
-
     func prefetch(at rows: [Int]) {
         publishers.prefetch._begin.send(rows)
     }
@@ -176,7 +164,6 @@ public extension SingleTypeSectionEventProtocol where Self: SectionDataSourcePre
     func cancelPrefetching(at rows: [Int]) {
         publishers.prefetch._cancel.send(rows)
     }
-    
 }
 
 #endif

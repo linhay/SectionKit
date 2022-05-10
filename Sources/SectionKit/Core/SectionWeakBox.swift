@@ -24,7 +24,6 @@ import Foundation
 
 @dynamicMemberLookup
 final class SectionWeakBox<Value: AnyObject> {
-    
     weak var value: Value?
     
     init(_ value: Value?) {
@@ -35,5 +34,4 @@ final class SectionWeakBox<Value: AnyObject> {
         get { value?[keyPath: keyPath] }
         set { value?[keyPath: keyPath] = newValue }
     }
-    
 }

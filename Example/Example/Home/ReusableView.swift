@@ -5,23 +5,22 @@
 //  Created by linhey on 2022/5/5.
 //
 
-import UIKit
 import SectionKit
 import Stem
+import UIKit
 
 class ReusableView: UICollectionReusableView, SectionLoadViewProtocol, ConfigurableView {
-    
-    static func preferredSize(limit size: CGSize, model: String?) -> CGSize {
+    static func preferredSize(limit size: CGSize, model _: String?) -> CGSize {
         return .init(width: size.width, height: 44)
     }
-    
+
     func config(_ model: String) {
         backgroundColor = .clear
         layer.borderColor = UIColor.purple.cgColor
         layer.borderWidth = 1
         titleLabel.text = model
     }
-    
+
     private lazy var titleLabel: UILabel = {
         let view = UILabel(frame: .zero)
         view.textColor = .black
@@ -29,7 +28,7 @@ class ReusableView: UICollectionReusableView, SectionLoadViewProtocol, Configura
         view.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         return view
     }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         layer.borderColor = UIColor.black.cgColor
@@ -40,9 +39,9 @@ class ReusableView: UICollectionReusableView, SectionLoadViewProtocol, Configura
             make.edges.equalToSuperview()
         }
     }
-    
-    required init?(coder: NSCoder) {
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }

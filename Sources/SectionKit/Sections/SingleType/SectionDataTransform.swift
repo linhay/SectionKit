@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/4/19.
 //
@@ -8,20 +8,17 @@
 import Foundation
 
 open class SectionDataTransform<Model> {
-    
     public var task: (([Model]) -> [Model])?
     
     public init(task: (([Model]) -> [Model])?) {
         self.task = task
     }
-    
 }
 
 public class SectionHiddenTransform<Model>: SectionDataTransform<Model> {
-    
     private var list: [Model]?
     private var oldValue: Bool = false
-
+    
     func by(_ block: @escaping () -> Bool) {
         task = { [weak self] list in
             guard let self = self else { return [] }
@@ -46,11 +43,10 @@ public class SectionHiddenTransform<Model>: SectionDataTransform<Model> {
             }
         }
     }
-    
 }
 
 public class SectionTransforms<Cell: SectionConfigurableModelProtocol> {
-    public let hidden   = SectionHiddenTransform<Cell.Model>(task: nil)
+    public let hidden = SectionHiddenTransform<Cell.Model>(task: nil)
     public let validate = SectionDataTransform<Cell.Model>(task: { $0.filter(Cell.validate) })
     public lazy var all = [self.hidden, self.validate]
 }

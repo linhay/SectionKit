@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/4/28.
 //
@@ -8,15 +8,12 @@
 import Foundation
 
 public extension SingleTypeCollectionDriveSection where Cell.Model == Void {
-    
-    convenience init(count: Int, transforms: [SectionDataTransform<Cell.Model>] = []) {
+    convenience init(count: Int, transforms _: [SectionDataTransform<Cell.Model>] = []) {
         self.init(repeating: (), count: count)
     }
-    
 }
 
 public extension SingleTypeCollectionDriveSection where Cell.Model == Void {
-
     /// item 选中事件订阅 (可以同时订阅多次, 等同于 `publishers.cell.selected.sink`)
     /// - Parameter builder: 订阅回调
     /// - Returns: self
@@ -49,5 +46,4 @@ public extension SingleTypeCollectionDriveSection where Cell.Model == Void {
         }.store(in: &cancellables)
         return self
     }
-    
 }

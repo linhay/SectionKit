@@ -24,15 +24,12 @@
 import UIKit
 
 public struct SectionReducer {
-    
     struct State {
-        
         var types: [SectionDynamicType] = []
         
         func contains(_ type: SectionDynamicType) -> Bool {
             return types.contains { $0 == type }
         }
-        
     }
     
     enum InputAction {
@@ -53,7 +50,6 @@ public struct SectionReducer {
     }
     
     struct Environment<SectionView: UIView> {
-        
         let weakBox: SectionWeakBox<SectionView>
         var reloadDataEvent: (() -> Void)?
         var sectionView: SectionView {
@@ -65,11 +61,10 @@ public struct SectionReducer {
         }
         
         init(sectionView: SectionView, reloadDataEvent: (() -> Void)? = nil) {
-            self.weakBox = .init(sectionView)
+            weakBox = .init(sectionView)
             self.reloadDataEvent = reloadDataEvent
         }
         
-        @MainActor
         func transfer(from: State, to: State) -> State {
             from.types.forEach { $0.section.sectionState = nil }
             to.types.enumerated().forEach { index, section in
@@ -80,14 +75,11 @@ public struct SectionReducer {
             }
             return to
         }
-        
     }
     
     var state: State
     
-    @MainActor
     mutating func reducer<SectionView>(action: InputAction, environment: Environment<SectionView>) -> OutputAction {
-        
         func effect(action: InputAction) -> OutputAction {
             return reducer(action: action, environment: environment)
         }
@@ -95,12 +87,12 @@ public struct SectionReducer {
         switch action {
         case .reload:
             return effect(action: .reset(state: state, action: .reload))
-        case .reset(let state, let action):
+        case let .reset(state, action):
             self.state = environment.transfer(from: self.state, to: state)
             return action
-        case .update(let types):
+        case let .update(types):
             return effect(action: .reset(state: .init(types: types), action: .reload))
-        case .insert(types: let types, at: let index):
+        case let .insert(types: types, at: index):
             var state = state
             
             if state.types.isEmpty || state.types.count <= index {
@@ -109,8 +101,8 @@ public struct SectionReducer {
             }
             
             state.types.insert(contentsOf: types, at: index)
-            return effect(action: .reset(state: state, action: .insert(IndexSet(integersIn: index..<index + types.count))))
-        case .delete(let types):
+            return effect(action: .reset(state: state, action: .insert(IndexSet(integersIn: index ..< index + types.count))))
+        case let .delete(types):
             
             var state = state
             var set = IndexSet()
@@ -126,16 +118,16 @@ public struct SectionReducer {
             }
             
             return effect(action: .reset(state: state, action: .delete(set)))
-        case .move(let from, let to):
+        case let .move(from, to):
             guard let from = state.types.firstIndex(of: from),
-                  let to = state.types.firstIndex(of: to) else {
-                      return .none
-                  }
+                  let to = state.types.firstIndex(of: to)
+            else {
+                return .none
+            }
             var state = state
             state.types.swapAt(from, to)
             return effect(action: .reset(state: state, action: .move(from: from, to: to)))
         }
     }
-    
 }
 #endif

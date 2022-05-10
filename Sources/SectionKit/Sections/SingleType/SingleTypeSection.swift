@@ -21,11 +21,10 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
-import UIKit
 import Combine
+import UIKit
 
 open class SingleTypeSection<Cell: UICollectionViewCell & SectionConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
-        
     public lazy var safeSize = defaultSafeSize
     
     open var minimumLineSpacing: CGFloat = 0
@@ -53,7 +52,7 @@ open class SingleTypeSection<Cell: UICollectionViewCell & SectionConfigurableVie
         return Cell.preferredSize(limit: safeSize.size(self), model: models[row])
     }
     
-    open override func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+    override open func supplementary(kind: SectionSupplementaryKind, at _: Int) -> UICollectionReusableView? {
         switch kind {
         case .header:
             return headerView
@@ -63,24 +62,22 @@ open class SingleTypeSection<Cell: UICollectionViewCell & SectionConfigurableVie
             return nil
         }
     }
-    
 }
 
 public extension SingleTypeSection {
-    
     /// 移除 HeaderView
     @discardableResult
     func removeHeader() -> Self {
-        headerViewProvider.delegate(on: self, block: { _,_ in return .init() })
-        headerSizeProvider.delegate(on: self, block: { _,_ in return .zero })
+        headerViewProvider.delegate(on: self, block: { _, _ in .init() })
+        headerSizeProvider.delegate(on: self, block: { _, _ in .zero })
         return self
     }
     
     /// 移除 FooterView
     @discardableResult
     func removeFooter() -> Self {
-        footerViewProvider.delegate(on: self, block: { _,_ in return .init() })
-        footerSizeProvider.delegate(on: self, block: { _,_ in return .zero })
+        footerViewProvider.delegate(on: self, block: { _, _ in .init() })
+        footerSizeProvider.delegate(on: self, block: { _, _ in .zero })
         return self
     }
     
@@ -95,13 +92,13 @@ public extension SingleTypeSection {
         register { section in
             section.register(type, for: .header)
         }
-        headerViewProvider.delegate(on: self) { (self, section) in
+        headerViewProvider.delegate(on: self) { _, section in
             let view = section.dequeue(kind: .header) as View
             view.config(model)
             style?(view)
             return view
         }
-        headerSizeProvider.delegate(on: self) { (self, sectionView) in
+        headerSizeProvider.delegate(on: self) { (self, _) in
             let `self` = self as Self
             return View.preferredSize(limit: self.safeSize.size(self), model: model)
         }
@@ -119,13 +116,13 @@ public extension SingleTypeSection {
         register { section in
             section.register(type, for: .footer)
         }
-        footerViewProvider.delegate(on: self) { (self, section) in
+        footerViewProvider.delegate(on: self) { _, section in
             let view = section.dequeue(kind: .footer) as View
             view.config(model)
             style?(view)
             return view
         }
-        footerSizeProvider.delegate(on: self) { (self, sectionView) in
+        footerSizeProvider.delegate(on: self) { (self, _) in
             let `self` = self as Self
             return View.preferredSize(limit: self.safeSize.size(self), model: model)
         }
@@ -141,6 +138,5 @@ public extension SingleTypeSection {
     func setFooter<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
         return setFooter(type, model: (), style: style)
     }
-    
 }
 #endif

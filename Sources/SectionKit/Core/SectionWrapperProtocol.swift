@@ -24,23 +24,17 @@
 import Foundation
 
 public protocol SectionAnyWrapperProtocol {
-
     var wrappedSectionProtocol: SectionProtocol { get }
-
 }
 
 public protocol SectionWrapperProtocol: SectionAnyWrapperProtocol {
-    
     associatedtype Section: SectionProtocol
     var wrappedSection: Section { get }
-    
 }
 
 public extension SectionWrapperProtocol {
-    
     var wrappedSectionProtocol: SectionProtocol { wrappedSection }
     var eraseToAnyWrapper: SectionAnyWrapper { .init(self) }
     var eraseToDynamicType: SectionDynamicType { .wrapper(self) }
-
 }
 #endif

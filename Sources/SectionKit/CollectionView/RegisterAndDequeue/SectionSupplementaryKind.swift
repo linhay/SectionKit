@@ -31,7 +31,6 @@ import UIKit
 /// - footer: footer
 /// - custom: custom
 public enum SectionSupplementaryKind: Equatable, RawRepresentable {
-    
     case header
     case footer
     case custom(_ value: String)
@@ -48,7 +47,7 @@ public enum SectionSupplementaryKind: Equatable, RawRepresentable {
         switch self {
         case .header: return UICollectionView.elementKindSectionHeader
         case .footer: return UICollectionView.elementKindSectionFooter
-        case .custom(let value): return value
+        case let .custom(value): return value
         }
     }
 }

@@ -24,16 +24,14 @@
 import UIKit
 
 public class SectionScrollViewDelegate: NSObject, UIScrollViewDelegate {
-    
     private var observeScrollStore: [String: SectionWeakBox<UIScrollViewDelegate>] = [:]
-    
 }
 
 public extension SectionScrollViewDelegate {
-    
     // MARK: - ObserveScroll
+    
     func addObserveScroll(target: NSObject & UIScrollViewDelegate) {
-        observeScrollStore[target.self.description] = SectionWeakBox(target)
+        observeScrollStore[target.description] = SectionWeakBox(target)
     }
     
     func addObserveScroll(targets: [NSObject & UIScrollViewDelegate]) {
@@ -41,14 +39,13 @@ public extension SectionScrollViewDelegate {
     }
     
     func removeObserveScroll(target: NSObject & UIScrollViewDelegate) {
-        observeScrollStore[target.self.description] = nil
+        observeScrollStore[target.description] = nil
     }
-    
 }
 
 // MARK: - scrollViewDelegate
+
 public extension SectionScrollViewDelegate {
-    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         observeScrollStore.values.forEach { $0.value?.scrollViewDidScroll?(scrollView) }
     }
@@ -117,6 +114,5 @@ public extension SectionScrollViewDelegate {
     func scrollViewDidChangeAdjustedContentInset(_ scrollView: UIScrollView) {
         observeScrollStore.values.forEach { $0.value?.scrollViewDidChangeAdjustedContentInset?(scrollView) }
     }
-    
 }
 #endif

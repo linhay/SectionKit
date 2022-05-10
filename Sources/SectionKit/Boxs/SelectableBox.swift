@@ -24,7 +24,6 @@ import Foundation
 
 @dynamicMemberLookup
 public struct SelectableBox<SelectableValue>: SelectableProtocol {
-    
     public var selectableModel: SelectableModel
     public var value: SelectableValue
     
@@ -46,19 +45,14 @@ public struct SelectableBox<SelectableValue>: SelectableProtocol {
     public subscript<T>(dynamicMember keyPath: KeyPath<SelectableValue, T>) -> T {
         value[keyPath: keyPath]
     }
-    
 }
 
 extension SelectableBox: Equatable where SelectableValue: Equatable {
-    
     public static func == (lhs: SelectableBox<SelectableValue>, rhs: SelectableBox<SelectableValue>) -> Bool {
         return lhs.value == rhs.value && lhs.selectableModel == rhs.selectableModel
     }
-    
 }
 
 extension SelectableBox: Identifiable where SelectableValue: Identifiable {
-    
     public var id: SelectableValue.ID { value.id }
-    
 }

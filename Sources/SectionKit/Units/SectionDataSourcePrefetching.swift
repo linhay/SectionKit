@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/3/12.
 //
@@ -14,15 +14,12 @@ public protocol SectionDataSourcePrefetchingProtocol {
 }
 
 public extension SectionDataSourcePrefetchingProtocol {
-    
     var isPrefetchingEnabled: Bool { true }
-    func prefetch(at rows: [Int]) {}
-    func cancelPrefetching(at rows: [Int]) {}
-    
+    func prefetch(at _: [Int]) {}
+    func cancelPrefetching(at _: [Int]) {}
 }
 
 class SectionDataSourcePrefetching: NSObject, UITableViewDataSourcePrefetching, UICollectionViewDataSourcePrefetching {
-    
     let sectionEvent = SectionDelegate<Int, SectionDataSourcePrefetchingProtocol?>()
     
     private func prefetch(at indexPaths: [IndexPath]) {
@@ -37,7 +34,8 @@ class SectionDataSourcePrefetching: NSObject, UITableViewDataSourcePrefetching, 
             return result
         }.forEach { result in
             guard let section = sectionEvent.call(result.key),
-                  section.isPrefetchingEnabled else {
+                  section.isPrefetchingEnabled
+            else {
                 return
             }
             section.prefetch(at: result.value)
@@ -57,27 +55,27 @@ class SectionDataSourcePrefetching: NSObject, UITableViewDataSourcePrefetching, 
             return result
         }.forEach { result in
             guard let section = sectionEvent.call(result.key),
-                  section.isPrefetchingEnabled else {
+                  section.isPrefetchingEnabled
+            else {
                 return
             }
             section.cancelPrefetching(at: result.value)
         }
     }
     
-    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+    func tableView(_: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         prefetch(at: indexPaths)
     }
     
-    func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+    func tableView(_: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         cancelPrefetch(at: indexPaths)
     }
     
-    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+    func collectionView(_: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         prefetch(at: indexPaths)
     }
     
-    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
+    func collectionView(_: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
         cancelPrefetch(at: indexPaths)
     }
-    
 }

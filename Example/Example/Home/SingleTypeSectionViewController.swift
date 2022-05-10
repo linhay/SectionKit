@@ -5,12 +5,11 @@
 //  Created by linhey on 2022/3/12.
 //
 
-import UIKit
 import SectionKit
 import Stem
+import UIKit
 
 class SingleTypeSectionViewController: SectionCollectionViewController {
-    
     enum Action: String, CaseIterable {
         case reset
         case add
@@ -20,22 +19,22 @@ class SingleTypeSectionViewController: SectionCollectionViewController {
         case swap
         case select
     }
-    
+
     let leftController = LeftViewController()
     let rightController = RightViewController()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         bindUI()
     }
-    
+
     func bindUI() {
-        leftController.section.onItemSelected(on: self) { (self, row, action) in
+        leftController.section.onItemSelected(on: self) { (self, _, action) in
             self.rightController.send(action)
         }
     }
-    
+
     func setupUI() {
         addChild(leftController)
         addChild(rightController)
@@ -50,46 +49,40 @@ class SingleTypeSectionViewController: SectionCollectionViewController {
             make.left.equalTo(leftController.view.snp.right)
         }
     }
-    
 }
 
 extension SingleTypeSectionViewController {
-    
     class LeftViewController: SectionCollectionViewController {
-        
         let section = SingleTypeSection<HomeIndexCell<Action>>(Action.allCases)
-        
+
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
-        
+
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
             manager.update(section)
         }
-        
     }
-    
 }
 
 extension SingleTypeSectionViewController {
-    
     class RightViewController: SectionCollectionViewController {
         let size = CGSize(width: 88, height: 44)
-        
-        lazy var section = SingleTypeSection<ColorBlockCell>((0...10).map({ offset in
-                .init(color: .white, text: offset.description, size: size)
-        }))
-        
+
+        lazy var section = SingleTypeSection<ColorBlockCell>((0 ... 10).map { offset in
+            .init(color: .white, text: offset.description, size: size)
+        })
+
         var isAnimating = false
-        
+
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
-        
+
         func send(_ action: Action) {
             guard isAnimating == false else {
                 return
@@ -97,15 +90,16 @@ extension SingleTypeSectionViewController {
             switch action {
             case .select:
                 guard section.models.isEmpty == false,
-                      let offset = (0...section.models.count-1).randomElement() else {
+                      let offset = (0 ... section.models.count - 1).randomElement()
+                else {
                     return
                 }
                 section.selectItem(at: offset, animated: true, scrollPosition: .centeredVertically)
             case .reset:
-                let models = section.models.enumerated().map { (offset, model) in
-                    ColorBlockCell.Model.init(color: .white,
-                                              text: offset.description,
-                                              size: size)
+                let models = section.models.enumerated().map { offset, _ in
+                    ColorBlockCell.Model(color: .white,
+                                         text: offset.description,
+                                         size: size)
                 }
                 section.config(models: models)
             case .add:
@@ -114,7 +108,8 @@ extension SingleTypeSectionViewController {
                                                                size: size)])
             case .insert:
                 guard section.models.isEmpty == false,
-                      let offset = (0...section.models.count-1).randomElement() else {
+                      let offset = (0 ... section.models.count - 1).randomElement()
+                else {
                     return
                 }
                 section.insert(.init(color: StemColor.random.alpha(with: 0.4).convert(),
@@ -123,7 +118,8 @@ extension SingleTypeSectionViewController {
                                at: offset)
             case .deleteModel:
                 guard section.models.isEmpty == false,
-                      let offset = (0...section.models.count-1).randomElement() else {
+                      let offset = (0 ... section.models.count - 1).randomElement()
+                else {
                     return
                 }
                 section.cellForTypeItem(at: offset)?.isHighlighted = true
@@ -132,7 +128,8 @@ extension SingleTypeSectionViewController {
                 }
             case .delete:
                 guard section.models.isEmpty == false,
-                      let offset = (0...section.models.count-1).randomElement() else {
+                      let offset = (0 ... section.models.count - 1).randomElement()
+                else {
                     return
                 }
                 section.cellForTypeItem(at: offset)?.isHighlighted = true
@@ -141,8 +138,9 @@ extension SingleTypeSectionViewController {
                 }
             case .swap:
                 guard section.models.isEmpty == false,
-                      let offset1 = (0...section.models.count-1).randomElement(),
-                      let offset2 = (0...section.models.count-1).randomElement() else {
+                      let offset1 = (0 ... section.models.count - 1).randomElement(),
+                      let offset2 = (0 ... section.models.count - 1).randomElement()
+                else {
                     return
                 }
                 section.cellForTypeItem(at: offset1)?.isHighlighted = true
@@ -152,7 +150,7 @@ extension SingleTypeSectionViewController {
                 }
             }
         }
-        
+
         func animate(_ event: @escaping () -> Void) {
             isAnimating = true
             Gcd.delay(.main, seconds: 0.5) {
@@ -160,13 +158,11 @@ extension SingleTypeSectionViewController {
                 event()
             }
         }
-        
+
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
             manager.update(section)
         }
-        
     }
-    
 }

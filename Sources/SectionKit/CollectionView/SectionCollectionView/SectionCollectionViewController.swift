@@ -24,15 +24,14 @@
 import UIKit
 
 open class SectionCollectionViewController: UIViewController {
-    
-    public private(set) lazy var sectionView  = SectionCollectionView()
+    public private(set) lazy var sectionView = SectionCollectionView()
     public var manager: SectionCollectionManager { sectionView.manager }
-
+    
     public convenience init() {
         self.init(nibName: nil, bundle: nil)
     }
     
-    open override func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
         if view.backgroundColor == nil {
             view.backgroundColor = .white
@@ -46,7 +45,7 @@ open class SectionCollectionViewController: UIViewController {
         layout(anchor1: sectionView.leftAnchor, anchor2: safeArea.leftAnchor)
     }
     
-    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         coordinator.animate { [weak self] _ in
             guard let self = self else { return }
@@ -67,14 +66,14 @@ open class SectionCollectionViewController: UIViewController {
         constraint.priority = .defaultLow
         constraint.isActive = true
     }
-
+    
     private func layout(anchor1: NSLayoutXAxisAnchor, anchor2: NSLayoutXAxisAnchor) {
         let constraint = anchor1.constraint(equalTo: anchor2)
         constraint.priority = .defaultLow
         constraint.isActive = true
     }
     
-    open override func viewSafeAreaInsetsDidChange() {
+    override open func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
         guard sectionView.contentInset.bottom == 0 else {
             return
@@ -84,6 +83,5 @@ open class SectionCollectionViewController: UIViewController {
                                          bottom: view.safeAreaInsets.bottom,
                                          right: sectionView.contentInset.right)
     }
-    
 }
 #endif

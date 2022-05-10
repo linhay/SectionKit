@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/4/12.
 //
@@ -9,7 +9,7 @@
 import UIKit
 
 @resultBuilder
-public class SingleTypeWrapperBuilder<Model> {
+public enum SingleTypeWrapperBuilder<Model> {
     
     public struct Item {
         let models: [Model]
@@ -44,19 +44,17 @@ public class SingleTypeWrapperBuilder<Model> {
     }
     
     public static func buildBlock(_ components: Item...) -> Item {
-       buildArray(components)
+        buildArray(components)
     }
-    
 }
 
 public extension SingleTypeWrapperBuilder.Item {
-    
     static func model(_ value: [Model]) -> Self {
         .init(models: value)
     }
     
-    static  func model(_ value: [() -> Model]) -> Self {
-        .init(models: value.map({ $0() }))
+    static func model(_ value: [() -> Model]) -> Self {
+        .init(models: value.map { $0() })
     }
     
     static func model(_ value: Model...) -> Self {
@@ -74,50 +72,51 @@ public extension SingleTypeWrapperBuilder.Item {
     static func transform(_ value: SectionDataTransform<Model>...) -> Self {
         transform(value)
     }
-    
 }
 
 public extension SingleTypeWrapperBuilder.Item where Model == Void {
-
-   static func model(count: Int) -> Self {
+    static func model(count: Int) -> Self {
         model(.init(repeating: (), count: count))
     }
-    
 }
 
 public extension SectionConfigurableView where Self: UICollectionViewCell & SectionLoadViewProtocol {
-    
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>,
-                                  Builder: SingleTypeWrapperBuilder<Self.Model>>(_ builder: (_ builder: Builder.Item.Type) -> Builder.Item) -> Section {
-        let item = builder(Builder.Item.self)
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ builder: (_ builder: SingleTypeWrapperBuilder<Self.Model>.Item.Type) -> SingleTypeWrapperBuilder<Self.Model>.Item) -> Section
+    {
+        let item = builder(SingleTypeWrapperBuilder<Self.Model>.Item.self)
         return singleTypeWrapper(item.models, transforms: item.transforms)
-    }
-    
-    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ models: [Model] = [], transforms: [SectionDataTransform<Model>] = []) -> Section {
-        return .init(models, transforms: transforms)
     }
     
     static func singleTypeWrapper<Section: SingleTypeSection<Self>>(count: Int, transforms: [SectionDataTransform<Model>] = []) -> Section where Model == Void {
         return singleTypeWrapper(.init(repeating: (), count: count), transforms: transforms)
     }
     
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ models: [Model] = [], transforms: [SectionDataTransform<Model>] = []) -> Section {
+        return .init(models, transforms: transforms)
+    }
+    
+    static func singleTypeWrapper<Section: SingleTypeSection<Self>>(_ models: Model..., transforms: [SectionDataTransform<Model>] = []) -> Section {
+        return .init(models, transforms: transforms)
+    }
 }
 
 public extension SectionConfigurableView where Self: UITableViewCell & SectionLoadViewProtocol {
-    
-    static func singleTypeWrapper<Section: SingleTypeTableSection<Self>,
-                                  Builder: SingleTypeWrapperBuilder<Self.Model>>(_ builder: (_ builder: Builder.Item.Type) -> Builder.Item) -> Section {
-        let item = builder(Builder.Item.self)
+    static func singleTypeWrapper<Section: SingleTypeTableSection<Self>>(_ builder: (_ builder: SingleTypeWrapperBuilder<Self.Model>.Item.Type) -> SingleTypeWrapperBuilder<Self.Model>.Item) -> Section
+    {
+        let item = builder(SingleTypeWrapperBuilder<Self.Model>.Item.self)
         return singleTypeWrapper(item.models, transforms: item.transforms)
-    }
-    
-    static func singleTypeWrapper<Section: SingleTypeTableSection<Self>>(_ models: [Model] = [], transforms: [SectionDataTransform<Model>] = []) -> Section {
-        return .init(models, transforms: transforms)
     }
     
     static func singleTypeWrapper<Section: SingleTypeTableSection<Self>>(count: Int, transforms: [SectionDataTransform<Model>] = []) -> Section where Model == Void {
         return singleTypeWrapper(.init(repeating: (), count: count), transforms: transforms)
     }
     
+    static func singleTypeWrapper<Section: SingleTypeTableSection<Self>>(_ models: [Model] = [], transforms: [SectionDataTransform<Model>] = []) -> Section {
+        return .init(models, transforms: transforms)
+    }
+    
+    static func singleTypeWrapper<Section: SingleTypeTableSection<Self>>(_ models: Model..., transforms: [SectionDataTransform<Model>] = []) -> Section {
+        return .init(models, transforms: transforms)
+    }
 }
 #endif

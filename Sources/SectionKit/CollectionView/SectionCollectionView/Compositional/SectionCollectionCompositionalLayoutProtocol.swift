@@ -24,10 +24,8 @@
 import UIKit
 
 public protocol SectionCollectionCompositionalLayoutProtocol: SectionCollectionDriveProtocol {
-    
     func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView?
     func compositionalLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection?
-    
 }
 
 #endif

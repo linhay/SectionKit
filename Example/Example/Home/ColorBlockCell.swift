@@ -5,11 +5,10 @@
 //  Created by linhey on 2022/3/12.
 //
 
-import UIKit
 import SectionKit
+import UIKit
 
 final class ColorBlockCell: UICollectionViewCell, SectionLoadViewProtocol {
-    
     private lazy var titleLabel: UILabel = {
         let view = UILabel(frame: .zero)
         view.textColor = .black
@@ -17,14 +16,14 @@ final class ColorBlockCell: UICollectionViewCell, SectionLoadViewProtocol {
         view.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         return view
     }()
-    
+
     private var model: Model?
 
-    override init(frame: CGRect) {
+    override init(frame _: CGRect) {
         super.init(frame: .zero)
         setupView()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupView()
@@ -32,26 +31,25 @@ final class ColorBlockCell: UICollectionViewCell, SectionLoadViewProtocol {
 }
 
 // MARK: - Actions
-extension ColorBlockCell {
-    
-}
+
+extension ColorBlockCell {}
 
 // MARK: - ConfigurableView
+
 extension ColorBlockCell: ConfigurableView {
-    
     struct Model: Equatable {
         let color: UIColor
         var text: String
         let size: CGSize
     }
-    
-    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+
+    static func preferredSize(limit _: CGSize, model: Model?) -> CGSize {
         guard let model = model else {
             return .zero
         }
         return model.size
     }
-    
+
     func config(_ model: Model) {
         self.model = model
         contentView.backgroundColor = model.color
@@ -60,7 +58,6 @@ extension ColorBlockCell: ConfigurableView {
         contentView.layer.cornerRadius = 2
     }
 
-    
     override var isSelected: Bool {
         get {
             super.isSelected
@@ -70,7 +67,7 @@ extension ColorBlockCell: ConfigurableView {
             titleLabel.text = newValue ? "$ \(model!.text) $" : model!.text
         }
     }
-    
+
     override var isHighlighted: Bool {
         get {
             super.isSelected
@@ -84,17 +81,16 @@ extension ColorBlockCell: ConfigurableView {
             }
         }
     }
-    
+
     func update(text: String) {
         titleLabel.text = text
         model?.text = text
     }
-    
 }
 
 // MARK: - UI
+
 extension ColorBlockCell {
-    
     private func setupView() {
         contentView.layer.borderWidth = 2
         contentView.layer.cornerCurve = .continuous
@@ -103,5 +99,4 @@ extension ColorBlockCell {
             make.edges.equalToSuperview()
         }
     }
-    
 }

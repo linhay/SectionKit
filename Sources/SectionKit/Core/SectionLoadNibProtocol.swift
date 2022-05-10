@@ -23,17 +23,15 @@
 #if canImport(UIKit)
 import UIKit
 
-public protocol SectionLoadNibProtocol: SectionLoadViewProtocol { }
+public protocol SectionLoadNibProtocol: SectionLoadViewProtocol {}
 
 public extension SectionLoadNibProtocol {
-
     static var nib: UINib? {
-        return UINib(nibName: self.identifier, bundle: .init(for: Self.self))
+        return UINib(nibName: identifier, bundle: .init(for: Self.self))
     }
-
+    
     static var loadFromNib: Self {
         return nib!.instantiate(withOwner: nil, options: nil).first as! Self
     }
-
 }
 #endif

@@ -21,22 +21,19 @@
 // SOFTWARE.
 
 #if canImport(UIKit) && canImport(Combine)
-import UIKit
 import Combine
+import UIKit
 
 public struct SingleTypeSectionPublishers<Model, ReusableView> {
-    
     public struct SelectedResult<Model> {
         public let row: Int
         public let model: Model
     }
     
     public struct SupplementaryResult {
-
         public let view: ReusableView
         public let elementKind: SectionSupplementaryKind
         public let row: Int
-        
     }
     
     public struct Supplementary {
@@ -56,7 +53,7 @@ public struct SingleTypeSectionPublishers<Model, ReusableView> {
         var _willDisplay = PassthroughSubject<SelectedResult<Model>, Never>()
         var _didEndDisplaying = PassthroughSubject<SelectedResult<Model>, Never>()
     }
-
+    
     public struct Prefetch {
         public var begin: AnyPublisher<[Int], Never> { _begin.eraseToAnyPublisher() }
         public var cancel: AnyPublisher<[Int], Never> { _cancel.eraseToAnyPublisher() }
@@ -68,6 +65,5 @@ public struct SingleTypeSectionPublishers<Model, ReusableView> {
     public let cell = Cell()
     public let supplementary = Supplementary()
     public let prefetch = Prefetch()
-    
 }
 #endif

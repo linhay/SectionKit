@@ -5,35 +5,33 @@
 //  Created by linhey on 2022/3/14.
 //
 
-import UIKit
 import SectionKit
 import Stem
+import UIKit
 
 class MultiSectionViewController: SectionCollectionViewController {
-    
     enum Action: String, CaseIterable {
         case reset
         case insert
         case delete
         case move
     }
-    
+
     let leftController = LeftViewController()
     let rightController = RightViewController()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         bindUI()
     }
-    
-    func bindUI() {
-        leftController.section.onItemSelected(on: self, { (self, row, model) in
-            self.rightController.send(model)
 
-        })
+    func bindUI() {
+        leftController.section.onItemSelected(on: self) { (self, _, model) in
+            self.rightController.send(model)
+        }
     }
-    
+
     func setupUI() {
         addChild(leftController)
         addChild(rightController)
@@ -48,56 +46,50 @@ class MultiSectionViewController: SectionCollectionViewController {
             make.left.equalTo(leftController.view.snp.right)
         }
     }
-    
 }
 
 extension MultiSectionViewController {
-    
     class LeftViewController: SectionCollectionViewController {
-        
         let section = SingleTypeSection<HomeIndexCell<Action>>(Action.allCases)
-        
+
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
-        
+
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
             manager.update(section)
         }
-        
     }
-    
 }
 
 extension MultiSectionViewController {
-    
     class RightViewController: SectionCollectionViewController {
         let size = CGSize(width: 88, height: 44)
-        
+
         typealias Section = SingleTypeSection<ColorBlockCell>
-        
+
         func newSection() -> Section {
-            let section = Section((0...4).map({ offset in
-                    .init(color: .white, text: offset.description, size: size)
-            }))
-            section.itemStyle({ row, cell in
-                cell.update(text: "\(section.sectionIndex) - \(row)")
+            let section = Section((0 ... 4).map { offset in
+                .init(color: .white, text: offset.description, size: size)
             })
+            section.itemStyle { row, cell in
+                cell.update(text: "\(section.sectionIndex) - \(row)")
+            }
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
             return section
         }
-        
+
         var isAnimating = false
-        
+
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
-        
+
         func send(_ action: Action) {
             guard isAnimating == false else {
                 return
@@ -107,13 +99,13 @@ extension MultiSectionViewController {
                 manager.reload()
             case .insert:
                 let section = newSection()
-                
-                if manager.sections.isEmpty == false, let random = (0..<manager.sections.count).randomElement() {
+
+                if manager.sections.isEmpty == false, let random = (0 ..< manager.sections.count).randomElement() {
                     manager.insert(section, at: random)
                 } else {
                     manager.update(newSection())
                 }
-                
+
                 section.visibleTypeItems.forEach { cell in
                     cell.isHighlighted = true
                 }
@@ -134,13 +126,14 @@ extension MultiSectionViewController {
                 }
             case .move:
                 guard let random1 = manager.sections.randomElement() as? Section,
-                      let random2 = manager.sections.randomElement() as? Section else {
+                      let random2 = manager.sections.randomElement() as? Section
+                else {
                     return
                 }
                 [random1, random2].map(\.visibleTypeItems).joined().forEach { cell in
                     cell.isHighlighted = true
                 }
-                self.manager.move(from: .section(random1), to: .section(random2))
+                manager.move(from: .section(random1), to: .section(random2))
                 animate {
                     [random1, random2].map(\.visibleTypeItems).joined().forEach { cell in
                         cell.isHighlighted = false
@@ -148,7 +141,7 @@ extension MultiSectionViewController {
                 }
             }
         }
-        
+
         func animate(_ event: @escaping () -> Void) {
             isAnimating = true
             Gcd.delay(.main, seconds: 0.5) {
@@ -156,11 +149,9 @@ extension MultiSectionViewController {
                 event()
             }
         }
-        
+
         func setupUI() {
             manager.update(newSection())
         }
-        
     }
-    
 }

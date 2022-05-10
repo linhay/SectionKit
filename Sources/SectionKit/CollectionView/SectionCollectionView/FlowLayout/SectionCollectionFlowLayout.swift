@@ -24,7 +24,6 @@
 import UIKit
 
 open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
-    
     public typealias DecorationView = UICollectionReusableView & SectionLoadViewProtocol
     
     public enum DecorationLayout {
@@ -44,7 +43,8 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
                     viewType: SectionCollectionFlowLayout.DecorationView.Type,
                     zIndex: Int = -1,
                     layout: [SectionCollectionFlowLayout.DecorationLayout] = [.header, .cells, .footer],
-                    insets: UIEdgeInsets = .zero) {
+                    insets: UIEdgeInsets = .zero)
+        {
             self.sectionIndex = sectionIndex
             self.viewType = viewType
             self.zIndex = zIndex
@@ -54,7 +54,6 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
     }
     
     public class BindingKey<Value> {
-        
         private let closure: () -> Value?
         
         public var wrappedValue: Value? { closure() }
@@ -62,7 +61,6 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         public init(get closure: @escaping () -> Value?) {
             self.closure = closure
         }
-        
     }
     
     public enum FixSupplementaryViewInset: Int {
@@ -88,7 +86,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         
         var id: Int {
             switch self {
-            case .left:    return 1
+            case .left: return 1
             case .centerX: return 2
             case .fixSupplementaryViewSize: return 3
             case .fixSupplementaryViewInset: return 4
@@ -99,7 +97,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         
         var priority: Int {
             switch self {
-            case .left:    return 100
+            case .left: return 100
             case .centerX: return 100
             case .fixSupplementaryViewSize: return 1
             case .fixSupplementaryViewInset: return 2
@@ -116,7 +114,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
             
             /// 优先级冲突去重
             for item in pluginModes {
-                if case .decorations(let decorations) = item {
+                if case let .decorations(decorations) = item {
                     decorations.map(\.viewType).forEach { type in
                         if let nib = type.nib {
                             register(nib, forDecorationViewOfKind: type.identifier)
@@ -129,7 +127,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
                 if set.insert(item.priority).inserted {
                     newPluginModes.append(item)
                 } else {
-                    assertionFailure("mode冲突: \(newPluginModes.filter({ $0.priority == item.priority }))")
+                    assertionFailure("mode冲突: \(newPluginModes.filter { $0.priority == item.priority })")
                 }
             }
             /// mode 重排
@@ -138,9 +136,9 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
     }
     
     public func update(mode: PluginMode) {
-        var modes = pluginModes.filter({ $0.id != mode.id })
+        var modes = pluginModes.filter { $0.id != mode.id }
         modes.append(mode)
-        self.pluginModes = modes
+        pluginModes = modes
     }
     
     private lazy var oldBounds = CGRect.zero
@@ -157,20 +155,20 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         oldBounds = collectionView.bounds
     }
     
-    open override func invalidationContext(forBoundsChange newBounds: CGRect) -> UICollectionViewLayoutInvalidationContext {
+    override open func invalidationContext(forBoundsChange newBounds: CGRect) -> UICollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forBoundsChange: newBounds)
         for pluginMode in pluginModes {
             switch pluginMode {
-            case .sectionHeadersPinToVisibleBounds(let elements):
+            case let .sectionHeadersPinToVisibleBounds(elements):
                 if sectionHeadersPinToVisibleBounds {
                     assertionFailure("sectionHeadersPinToVisibleBounds == true 与 pluginMode.sectionHeadersPinToVisibleBounds 冲突")
                 }
                 let indexPaths = elements
                     .compactMap(\.wrappedValue)
                     .filter { index in
-                        return sectionRects[index]?.intersects(newBounds) ?? true
+                        sectionRects[index]?.intersects(newBounds) ?? true
                     }
-                    .map({ IndexPath(row: 0, section: $0) })
+                    .map { IndexPath(row: 0, section: $0) }
                 context.invalidateSupplementaryElements(ofKind: UICollectionView.elementKindSectionHeader, at: indexPaths)
             default:
                 break
@@ -179,7 +177,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         return context
     }
     
-    open override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+    override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         guard let attributes = super.layoutAttributesForSupplementaryView(ofKind: elementKind, at: indexPath) else {
             return nil
         }
@@ -189,10 +187,11 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         
         for pluginMode in pluginModes {
             switch pluginMode {
-            case .sectionHeadersPinToVisibleBounds(let elements):
+            case let .sectionHeadersPinToVisibleBounds(elements):
                 guard attributes.representedElementKind == UICollectionView.elementKindSectionHeader,
                       elements.compactMap(\.wrappedValue).contains(attributes.indexPath.section),
-                      let rect = sectionRects[indexPath.section] else {
+                      let rect = sectionRects[indexPath.section]
+                else {
                     break
                 }
                 attributes.zIndex += attributes.indexPath.section
@@ -212,7 +211,8 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
     
     override open func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         guard let collectionView = collectionView,
-              var attributes = super.layoutAttributesForElements(in: rect) else {
+              var attributes = super.layoutAttributesForElements(in: rect)
+        else {
             return nil
         }
         
@@ -220,12 +220,12 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
             return attributes
         }
         
-        attributes = attributes.compactMap({ $0.copy() as? UICollectionViewLayoutAttributes })
+        attributes = attributes.compactMap { $0.copy() as? UICollectionViewLayoutAttributes }
         for mode in pluginModes {
             switch mode {
             case .sectionHeadersPinToVisibleBounds:
                 attributes
-                    .filter({ attribute in
+                    .filter { attribute in
                         switch attribute.representedElementCategory {
                         case .supplementaryView:
                             return true
@@ -236,7 +236,7 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
                         @unknown default:
                             return false
                         }
-                    })
+                    }
                     .forEach { attribute in
                         if let rect = sectionRects[attribute.indexPath.section] {
                             sectionRects[attribute.indexPath.section] = rect.union(attribute.frame)
@@ -244,16 +244,15 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
                             sectionRects[attribute.indexPath.section] = attribute.frame
                         }
                     }
-                break
             case .fixSupplementaryViewSize:
                 attributes = modeFixSupplementaryViewSize(collectionView, attributes: attributes) ?? []
             case .centerX:
                 attributes = modeCenterX(collectionView, attributes: attributes) ?? []
             case .left:
                 attributes = modeLeft(collectionView, attributes: attributes) ?? []
-            case .fixSupplementaryViewInset(let fixSupplementaryViewInset):
+            case let .fixSupplementaryViewInset(fixSupplementaryViewInset):
                 attributes = modeFixSupplementaryViewInset(collectionView, fixSupplementaryViewInset: fixSupplementaryViewInset, attributes: attributes) ?? []
-            case .decorations(let decorations):
+            case let .decorations(decorations):
                 attributes = modeDecorations(collectionView, decorations: decorations, attributes: attributes) ?? []
             }
         }
@@ -267,40 +266,41 @@ open class SectionCollectionFlowLayout: UICollectionViewFlowLayout {
         || sectionFootersPinToVisibleBounds
         || pluginModes.contains(where: { $0.priority == PluginMode.sectionHeadersPinToVisibleBounds([]).priority })
     }
-    
 }
 
 // MARK: - Mode
+
 private extension SectionCollectionFlowLayout {
-    
     func modeDecorations(_ collectionView: UICollectionView,
                          decorations: [Decoration],
-                         attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
-        
+                         attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]?
+    {
         let fixSupplementaryViewInset = pluginModes.compactMap { mode -> FixSupplementaryViewInset? in
-            if case .fixSupplementaryViewInset(let fixSupplementaryViewInset) = mode {
+            if case let .fixSupplementaryViewInset(fixSupplementaryViewInset) = mode {
                 return fixSupplementaryViewInset
             } else {
                 return nil
             }
         }.first
-
+        
         func task(section: Int, index: Int, decoration: Decoration) -> UICollectionViewLayoutAttributes? {
             let sectionIndexPath = IndexPath(item: index, section: section)
             if decorationViewCache.contains(sectionIndexPath) {
                 return nil
             }
-                        
+            
             var frames = [CGRect]()
-
+            
             if decoration.layout.contains(.header),
-               let attributes = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: sectionIndexPath) {
+               let attributes = layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: sectionIndexPath)
+            {
                 let frame: CGRect = attributes.frame
                 if frame.width > 0, frame.height > 0 {
                     if let fixSupplementaryViewInset = fixSupplementaryViewInset,
                        let frame = modeFixSupplementaryViewInset(collectionView,
                                                                  fixSupplementaryViewInset: fixSupplementaryViewInset,
-                                                                 attributes: [attributes])?.first?.frame {
+                                                                 attributes: [attributes])?.first?.frame
+                    {
                         frames.append(frame)
                     } else {
                         frames.append(frame)
@@ -309,13 +309,15 @@ private extension SectionCollectionFlowLayout {
             }
             
             if decoration.layout.contains(.footer),
-               let attributes = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: sectionIndexPath) {
+               let attributes = layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: sectionIndexPath)
+            {
                 let frame: CGRect = attributes.frame
                 if frame.width > 0, frame.height > 0 {
                     if let fixSupplementaryViewInset = fixSupplementaryViewInset,
                        let frame = modeFixSupplementaryViewInset(collectionView,
                                                                  fixSupplementaryViewInset: fixSupplementaryViewInset,
-                                                                 attributes: [attributes])?.first?.frame {
+                                                                 attributes: [attributes])?.first?.frame
+                    {
                         frames.append(frame)
                     } else {
                         frames.append(frame)
@@ -324,7 +326,7 @@ private extension SectionCollectionFlowLayout {
             }
             
             if decoration.layout.contains(.cells) {
-                let cells = (0..<collectionView.numberOfItems(inSection: section)).compactMap({ layoutAttributesForItem(at: IndexPath(row: $0, section: section))?.frame })
+                let cells = (0 ..< collectionView.numberOfItems(inSection: section)).compactMap { layoutAttributesForItem(at: IndexPath(row: $0, section: section))?.frame }
                 if let frame = CGRect.union(cells) {
                     frames.append(frame)
                 }
@@ -360,19 +362,19 @@ private extension SectionCollectionFlowLayout {
         var sectionSet = Set<Int>()
         let sections = attributes
             .map(\.indexPath.section)
-            .filter({ sectionSet.insert($0).inserted })
+            .filter { sectionSet.insert($0).inserted }
             .map { sectionIndex -> [UICollectionViewLayoutAttributes] in
                 if let decorations = dict[sectionIndex] ?? all {
-                    return decorations.values.enumerated().compactMap({ task(section: sectionIndex, index: $0, decoration: $1) })
+                    return decorations.values.enumerated().compactMap { task(section: sectionIndex, index: $0, decoration: $1) }
                 } else {
                     return [UICollectionViewLayoutAttributes]()
                 }
-            }.flatMap({ $0 })
+            }.flatMap { $0 }
         
         return attributes + sections
     }
     
-    func modeFixSupplementaryViewSize(_ collectionView: UICollectionView, attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
+    func modeFixSupplementaryViewSize(_: UICollectionView, attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
         attributes
             .filter { $0.representedElementCategory == .supplementaryView }
             .forEach { attribute in
@@ -385,9 +387,10 @@ private extension SectionCollectionFlowLayout {
         return attributes
     }
     
-    func modeFixSupplementaryViewInset(_ collectionView: UICollectionView,
+    func modeFixSupplementaryViewInset(_: UICollectionView,
                                        fixSupplementaryViewInset: FixSupplementaryViewInset,
-                                       attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
+                                       attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]?
+    {
         attributes
             .filter { $0.representedElementCategory == .supplementaryView }
             .forEach { attribute in
@@ -422,23 +425,23 @@ private extension SectionCollectionFlowLayout {
     }
     
     func modeCenterX(_ collectionView: UICollectionView, attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
-        
         func appendLine(_ lineStore: [UICollectionViewLayoutAttributes],
-                        _ collectionView: UICollectionView) -> [UICollectionViewLayoutAttributes] {
+                        _ collectionView: UICollectionView) -> [UICollectionViewLayoutAttributes]
+        {
             guard let firstItem = lineStore.first else {
                 return lineStore
             }
             
-            var spacing = self.minimumInteritemSpacing
+            var spacing = minimumInteritemSpacing
             
             if let delegate = collectionView.delegate as? UICollectionViewDelegateFlowLayout {
                 spacing = delegate.collectionView?(collectionView, layout: self, minimumInteritemSpacingForSectionAt: firstItem.indexPath.section) ?? spacing
             }
             
-            let allWidth = lineStore.reduce(0, { $0 + $1.frame.width }) + spacing * CGFloat(lineStore.count - 1)
+            let allWidth = lineStore.reduce(0) { $0 + $1.frame.width } + spacing * CGFloat(lineStore.count - 1)
             let offset = (collectionView.bounds.width - allWidth) / 2
             firstItem.frame.origin.x = offset
-            _ = lineStore.dropFirst().reduce(firstItem) { (result, item) -> UICollectionViewLayoutAttributes in
+            _ = lineStore.dropFirst().reduce(firstItem) { result, item -> UICollectionViewLayoutAttributes in
                 item.frame.origin.x = result.frame.maxX + spacing
                 return item
             }
@@ -458,7 +461,8 @@ private extension SectionCollectionFlowLayout {
                 lineStore.append(item)
             } else if let lastItem = lineStore.last,
                       lastItem.indexPath.section == item.indexPath.section,
-                      lastItem.frame.minY == item.frame.minY {
+                      lastItem.frame.minY == item.frame.minY
+            {
                 lineStore.append(item)
             } else {
                 list.append(contentsOf: appendLine(lineStore, collectionView))
@@ -471,7 +475,6 @@ private extension SectionCollectionFlowLayout {
     }
     
     func modeLeft(_ collectionView: UICollectionView, attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
-        
         var list = [UICollectionViewLayoutAttributes]()
         var section = [UICollectionViewLayoutAttributes]()
         
@@ -535,15 +538,14 @@ private extension SectionCollectionFlowLayout {
         }
         return list
     }
-    
 }
 
 private extension SectionCollectionFlowLayout {
-    
     func headerSizeForSection(at section: Int) -> CGSize {
         guard let collectionView = collectionView,
               let delegate = collectionView.delegate as? UICollectionViewDelegateFlowLayout,
-              let size = delegate.collectionView?(collectionView, layout: self, referenceSizeForHeaderInSection: section) else {
+              let size = delegate.collectionView?(collectionView, layout: self, referenceSizeForHeaderInSection: section)
+        else {
             return .zero
         }
         return size
@@ -552,7 +554,8 @@ private extension SectionCollectionFlowLayout {
     func footerSizeForSection(at section: Int) -> CGSize {
         guard let collectionView = collectionView,
               let delegate = collectionView.delegate as? UICollectionViewDelegateFlowLayout,
-              let size = delegate.collectionView?(collectionView, layout: self, referenceSizeForFooterInSection: section) else {
+              let size = delegate.collectionView?(collectionView, layout: self, referenceSizeForFooterInSection: section)
+        else {
             return .zero
         }
         return size
@@ -561,60 +564,50 @@ private extension SectionCollectionFlowLayout {
     func insetForSection(at section: Int) -> UIEdgeInsets {
         guard let collectionView = collectionView,
               let delegate = collectionView.delegate as? UICollectionViewDelegateFlowLayout,
-              let inset = delegate.collectionView?(collectionView, layout: self, insetForSectionAt: section) else {
+              let inset = delegate.collectionView?(collectionView, layout: self, insetForSectionAt: section)
+        else {
             return sectionInset
         }
         return inset
     }
-    
 }
 
 fileprivate extension CGRect {
-    
     static func union(_ list: [CGRect]) -> CGRect? {
         guard let first = list.first else {
             return nil
         }
-        return list.dropFirst().reduce(first, { $0.union($1) })
+        return list.dropFirst().reduce(first) { $0.union($1) }
     }
     
     func apply(insets: UIEdgeInsets) -> CGRect {
-        .init(x: origin.x+insets.left,
-                      y: origin.y+insets.top,
-                      width: width-insets.left-insets.right,
-                      height: height-insets.top-insets.bottom)
+        .init(x: origin.x + insets.left,
+              y: origin.y + insets.top,
+              width: width - insets.left - insets.right,
+              height: height - insets.top - insets.bottom)
     }
-    
 }
 
 public extension SectionCollectionFlowLayout.BindingKey {
-    
     static func constant(_ value: Value) -> SectionCollectionFlowLayout.BindingKey<Value> {
         .init(get: { value })
     }
-    
 }
 
 public extension SectionCollectionFlowLayout.BindingKey where Value == Int {
-    
     static let all = SectionCollectionFlowLayout.BindingKey.constant(-1)
-    
 }
 
 extension SectionCollectionFlowLayout.BindingKey: Equatable where Value: Equatable {
-    
     public static func == (lhs: SectionCollectionFlowLayout.BindingKey<Value>, rhs: SectionCollectionFlowLayout.BindingKey<Value>) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
-    
 }
 
 extension SectionCollectionFlowLayout.BindingKey: Hashable where Value: Hashable {
-    
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(self.closure())
+        hasher.combine(closure())
     }
-    
 }
 
 #endif

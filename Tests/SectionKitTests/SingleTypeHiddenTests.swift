@@ -1,14 +1,13 @@
-import XCTest
 import Combine
 import SectionKit
+import XCTest
 
 final class SingleTypeHiddenTests: XCTestCase {
-    
     func testHiddenByValue() throws {
         XCTAssert(SectionVoidCell.singleTypeWrapper(count: 1).hidden(true).models.count == 0)
         XCTAssert(SectionVoidCell.singleTypeWrapper(count: 1).hidden(true).hidden(false).models.count == 1)
     }
-    
+
     func testHiddenByBlock() throws {
         var flag = false
         let section = SectionVoidCell.singleTypeWrapper(count: 1).hidden(by: { flag })
@@ -20,7 +19,7 @@ final class SingleTypeHiddenTests: XCTestCase {
         section.reload()
         XCTAssert(section.models.count == 1)
     }
-    
+
     func testHiddenByPublisher() throws {
         let publisher = PassthroughSubject<Bool, Never>()
         let section = SectionVoidCell.singleTypeWrapper(count: 1)
@@ -33,12 +32,12 @@ final class SingleTypeHiddenTests: XCTestCase {
         publisher.send(false)
         XCTAssert(section.models.count == 1)
     }
-    
+
     func testHiddenByKeyPath() throws {
         class Flag {
             var value = false
         }
-        
+
         let flag = Flag()
         let section = SectionVoidCell.singleTypeWrapper(count: 1)
         section.hidden(by: flag, \.value)
@@ -50,5 +49,4 @@ final class SingleTypeHiddenTests: XCTestCase {
         section.reload()
         XCTAssert(section.models.count == 1)
     }
-    
 }

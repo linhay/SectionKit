@@ -24,17 +24,15 @@
 import UIKit
 
 open class SingleTypeCompositionalSection<Cell: UICollectionViewCell & SectionConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionCompositionalLayoutProtocol {
-    
     public let supplementaryProvider = SectionDelegate<(section: SingleTypeCompositionalSection<Cell>, kind: SectionSupplementaryKind, at: Int), UICollectionReusableView>()
     public var layoutProvider = SectionDelegate<NSCollectionLayoutEnvironment, NSCollectionLayoutSection?>()
-        
-    open override func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+    
+    override open func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
         supplementaryProvider.call((section: self, kind: kind, at: row))
     }
     
     open func compositionalLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? {
         return layoutProvider.call(environment)
     }
-    
 }
 #endif

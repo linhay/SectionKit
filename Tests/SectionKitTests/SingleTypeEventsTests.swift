@@ -1,29 +1,27 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/4/27.
 //
 
-import XCTest
 import Combine
 import SectionKit
+import XCTest
 
 final class SingleTypeWrapperTests: XCTestCase {
-    
     func testCount() throws {
-        for count in 0...Int.random(in: 0...1000) {
+        for count in 0 ... Int.random(in: 0 ... 1000) {
             XCTAssert(SectionVoidCell.singleTypeWrapper(count: count).models.count == count)
         }
     }
-    
-    @MainActor
+
     func testEvents() throws {
         let section = SectionVoidCell.singleTypeWrapper(count: 3)
         let view = SectionCollectionView()
         view.frame.size = .init(width: 400, height: 400)
         view.manager.update(section)
-        
+
         var returnFlag = -1
         section.onItemSelected { row in
             XCTAssert(returnFlag == row)
@@ -34,8 +32,8 @@ final class SingleTypeWrapperTests: XCTestCase {
         section.onItemEndDisplay { row in
             XCTAssert(returnFlag == row)
         }
-        
-        for index in [1,2,0,-1,3] {
+
+        for index in [1, 2, 0, -1, 3] {
             returnFlag = index
             section.item(selected: index)
             section.item(willDisplay: index)

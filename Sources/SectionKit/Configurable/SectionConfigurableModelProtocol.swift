@@ -30,13 +30,9 @@ public protocol SectionConfigurableModelProtocol {
 }
 
 public extension SectionConfigurableModelProtocol {
-    
-    static func validate(_ model: Model) -> Bool { true }
-    
+    static func validate(_: Model) -> Bool { true }
 }
 
 public extension SectionConfigurableModelProtocol where Model == Void {
-    
-    func config(_ model: Model) { }
-    
+    func config(_: Model) {}
 }

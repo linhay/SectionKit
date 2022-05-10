@@ -24,28 +24,24 @@
 import UIKit
 
 public protocol SectionCollectionDriveProtocol: SectionProtocol {
-    
     func config(sectionView: UICollectionView)
     func item(at row: Int) -> UICollectionViewCell
-
+    
     /// SupplementaryView
     func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView?
     func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int)
     func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int)
-
+    
     /// contextMenu
     func contextMenuConfiguration(at row: Int, point: CGPoint) -> UIContextMenuConfiguration?
 }
 
 public extension SectionCollectionDriveProtocol {
-    
-    func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {}
-    func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {}
-    
+    func supplementary(willDisplay _: UICollectionReusableView, forElementKind _: SectionSupplementaryKind, at _: Int) {}
+    func supplementary(didEndDisplaying _: UICollectionReusableView, forElementKind _: SectionSupplementaryKind, at _: Int) {}
 }
 
 public extension SectionCollectionDriveProtocol {
-    
     var sectionView: UICollectionView {
         guard let view = sectionState?.sectionView as? UICollectionView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
@@ -53,108 +49,96 @@ public extension SectionCollectionDriveProtocol {
         }
         return view
     }
-    
 }
 
 public extension SectionCollectionDriveProtocol {
-    
-    func contextMenuConfiguration(at row: Int, point: CGPoint) -> UIContextMenuConfiguration? { nil }
-    
+    func contextMenuConfiguration(at _: Int, point _: CGPoint) -> UIContextMenuConfiguration? { nil }
 }
 
 public extension SectionCollectionDriveProtocol {
-    
     func layoutAttributesForItem(at row: Int) -> UICollectionViewLayoutAttributes? {
         sectionView.layoutAttributesForItem(at: indexPath(from: row))
     }
-
+    
     func layoutAttributesForSupplementaryElement(ofKind kind: String, at row: Int) -> UICollectionViewLayoutAttributes? {
         sectionView.layoutAttributesForSupplementaryElement(ofKind: kind, at: indexPath(from: row))
     }
-
+    
     func indexForItem(at point: CGPoint) -> Int? {
         guard let indexPath = sectionView.indexPathForItem(at: point), indexPath.section == sectionIndex else {
             return nil
         }
         return indexPath.row
     }
-
+    
     func index(for cell: UICollectionViewCell) -> Int? {
         guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == sectionIndex else {
             return nil
         }
         return indexPath.row
     }
-
+    
     // Returns any existing visible or prepared cell for the index path. Returns nil when no cell exists, or if index path is out of range.
     func cellForItem(at row: Int) -> UICollectionViewCell? {
         return sectionView.cellForItem(at: indexPath(from: row))
     }
-
+    
     var visibleCells: [UICollectionViewCell] {
         indexsForVisibleItems.map(indexPath(from:))
             .compactMap { indexPath in
                 sectionView.cellForItem(at: indexPath)
             }
     }
-
+    
     var indexsForVisibleItems: [Int] {
-         sectionView.indexPathsForVisibleItems.filter({ $0.section == sectionIndex }).map(\.row)
+        sectionView.indexPathsForVisibleItems.filter { $0.section == sectionIndex }.map(\.row)
     }
-
+    
     func visibleSupplementaryViews(of elementKind: String) -> [UICollectionReusableView] {
         sectionView.visibleSupplementaryViews(ofKind: elementKind)
     }
-
+    
     func indexsForVisibleSupplementaryViews(of elementKind: String) -> [Int] {
-        sectionView.indexPathsForVisibleSupplementaryElements(ofKind: elementKind).filter({ $0.section == sectionIndex }).map(\.row)
+        sectionView.indexPathsForVisibleSupplementaryElements(ofKind: elementKind).filter { $0.section == sectionIndex }.map(\.row)
     }
-
 }
 
 public extension SectionCollectionDriveProtocol {
-    
-    func pick(_ updates: (() -> Void), completion: ((Bool) -> Void)? = nil) {
+    func pick(_ updates: () -> Void, completion: ((Bool) -> Void)? = nil) {
         sectionView.performBatchUpdates(updates, completion: completion)
     }
-
 }
 
 /// Interacting with the collection view.
 public extension SectionCollectionDriveProtocol {
-
     func scroll(to row: Int, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
         sectionView.scrollToItem(at: indexPath(from: row), at: scrollPosition, animated: animated)
     }
-
 }
 
 /// These properties control whether items can be selected, and if so, whether multiple items can be simultaneously selected.
 public extension SectionCollectionDriveProtocol {
-    
     var indexForSelectedItems: [Int] {
         (sectionView.indexPathsForSelectedItems ?? [])
-            .filter({ $0.section == sectionIndex })
+            .filter { $0.section == sectionIndex }
             .map(\.row)
     }
     
     func selectItem(at row: Int?, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
         sectionView.selectItem(at: indexPath(from: row), animated: animated, scrollPosition: scrollPosition)
     }
-
+    
     func deselectItem(at row: Int, animated: Bool) {
         sectionView.deselectItem(at: indexPath(from: row), animated: animated)
     }
-
 }
 
 /// These methods allow dynamic modification of the current set of items in the collection view
 public extension SectionCollectionDriveProtocol {
-    
     func reload() {
         sectionState?.reloadDataEvent?()
     }
-
+    
     func insertItems(at rows: [Int]) {
         guard rows.isEmpty == false else {
             return
@@ -184,7 +168,6 @@ public extension SectionCollectionDriveProtocol {
     func reloadItems(at rows: [Int]) {
         sectionView.reloadItems(at: indexPath(from: rows))
     }
-
 }
 
 #endif

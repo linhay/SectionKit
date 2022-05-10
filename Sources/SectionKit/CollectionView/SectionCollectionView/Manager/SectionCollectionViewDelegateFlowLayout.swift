@@ -24,8 +24,8 @@
 import UIKit
 
 // MARK: - UICollectionViewDelegateFlowLayout
+
 class SectionCollectionViewDelegateFlowLayout: SectionCollectionViewDelegate, UICollectionViewDelegateFlowLayout {
-    
     private func flowLayoutSection(from indexPath: IndexPath) -> SectionCollectionFlowLayoutProtocol? {
         guard let layout = section(from: indexPath) as? SectionCollectionFlowLayoutProtocol else {
             assertionFailure("未实现 SectionCollectionFlowLayoutProtocol")
@@ -42,10 +42,10 @@ class SectionCollectionViewDelegateFlowLayout: SectionCollectionViewDelegate, UI
         return layout
     }
     
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let section = self.flowLayoutSection(from: indexPath) else {
+    public func collectionView(_: UICollectionView, layout _: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        guard let section = flowLayoutSection(from: indexPath) else {
             return .zero
-        }        
+        }
         let size = section.itemSize(at: indexPath.item)
         if indexPath.section == 0, indexPath.row == 0, size == .zero {
             return .init(width: 0.01, height: 0.01)
@@ -54,8 +54,8 @@ class SectionCollectionViewDelegateFlowLayout: SectionCollectionViewDelegate, UI
         }
     }
     
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        guard let section = self.flowLayoutSection(from: section) else {
+    public func collectionView(_: UICollectionView, layout _: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        guard let section = flowLayoutSection(from: section) else {
             return .zero
         }
         if section.hiddenHeaderWhenNoItem, section.itemCount == 0 {
@@ -65,8 +65,8 @@ class SectionCollectionViewDelegateFlowLayout: SectionCollectionViewDelegate, UI
         }
     }
     
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        guard let section = self.flowLayoutSection(from: section) else {
+    public func collectionView(_: UICollectionView, layout _: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        guard let section = flowLayoutSection(from: section) else {
             return .zero
         }
         if section.hiddenFooterWhenNoItem, section.itemCount == 0 {
@@ -76,22 +76,22 @@ class SectionCollectionViewDelegateFlowLayout: SectionCollectionViewDelegate, UI
         }
     }
     
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        guard let section = self.flowLayoutSection(from: section) else {
+    public func collectionView(_: UICollectionView, layout _: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        guard let section = flowLayoutSection(from: section) else {
             return .zero
         }
         return section.itemCount == 0 ? .zero : section.minimumLineSpacing
     }
     
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        guard let section = self.flowLayoutSection(from: section) else {
+    public func collectionView(_: UICollectionView, layout _: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        guard let section = flowLayoutSection(from: section) else {
             return .zero
         }
         return section.itemCount == 0 ? .zero : section.minimumInteritemSpacing
     }
     
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        guard let section = self.flowLayoutSection(from: section) else {
+    public func collectionView(_: UICollectionView, layout _: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        guard let section = flowLayoutSection(from: section) else {
             return .zero
         }
         if section.hiddenFooterWhenNoItem, section.hiddenHeaderWhenNoItem, section.itemCount == 0 {

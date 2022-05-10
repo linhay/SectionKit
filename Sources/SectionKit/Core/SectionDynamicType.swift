@@ -24,7 +24,6 @@
 import Foundation
 
 public enum SectionDynamicType: Equatable, Hashable {
-    
     case section(SectionProtocol)
     case wrapper(SectionAnyWrapperProtocol)
     
@@ -38,12 +37,11 @@ public enum SectionDynamicType: Equatable, Hashable {
     
     public var section: SectionProtocol {
         switch self {
-        case .section(let section):
+        case let .section(section):
             return section
-        case .wrapper(let wrapper):
+        case let .wrapper(wrapper):
             return wrapper.wrappedSectionProtocol
         }
     }
-    
 }
 #endif

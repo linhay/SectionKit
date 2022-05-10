@@ -24,10 +24,8 @@
 import UIKit
 
 open class SectionTableView: UITableView {
-    
     public convenience init() {
         self.init(frame: .zero, style: .plain)
     }
-    
 }
 #endif

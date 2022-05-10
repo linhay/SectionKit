@@ -79,42 +79,42 @@ public class SectionDelegate<Input, Output> {
     public func call(_ input: Input) -> Output? {
         return block?(input)
     }
-
+    
     public func callAsFunction(_ input: Input) -> Output? {
         return call(input)
     }
 }
 
-extension SectionDelegate where Input == Void {
-    public func call() -> Output? {
+public extension SectionDelegate where Input == Void {
+    func call() -> Output? {
         return call(())
     }
-
-    public func callAsFunction() -> Output? {
+    
+    func callAsFunction() -> Output? {
         return call()
     }
 }
 
-extension SectionDelegate where Input == Void, Output: OptionalProtocol {
-    public func call() -> Output {
+public extension SectionDelegate where Input == Void, Output: OptionalProtocol {
+    func call() -> Output {
         return call(())
     }
-
-    public func callAsFunction() -> Output {
+    
+    func callAsFunction() -> Output {
         return call()
     }
 }
 
-extension SectionDelegate where Output: OptionalProtocol {
-    public func call(_ input: Input) -> Output {
+public extension SectionDelegate where Output: OptionalProtocol {
+    func call(_ input: Input) -> Output {
         if let result = block?(input) {
             return result
         } else {
             return Output._createNil
         }
     }
-
-    public func callAsFunction(_ input: Input) -> Output {
+    
+    func callAsFunction(_ input: Input) -> Output {
         return call(input)
     }
 }
@@ -123,8 +123,8 @@ public protocol OptionalProtocol {
     static var _createNil: Self { get }
 }
 
-extension Optional : OptionalProtocol {
-    public static var _createNil: Optional<Wrapped> {
-         return nil
+extension Optional: OptionalProtocol {
+    public static var _createNil: Wrapped? {
+        return nil
     }
 }

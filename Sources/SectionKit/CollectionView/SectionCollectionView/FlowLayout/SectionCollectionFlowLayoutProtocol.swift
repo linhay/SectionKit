@@ -24,7 +24,6 @@
 import UIKit
 
 public protocol SectionCollectionFlowLayoutProtocol: SectionCollectionDriveProtocol {
-    
     var minimumLineSpacing: CGFloat { get }
     var minimumInteritemSpacing: CGFloat { get }
     
@@ -42,9 +41,8 @@ public protocol SectionCollectionFlowLayoutProtocol: SectionCollectionDriveProto
     func itemSize(at row: Int) -> CGSize
 }
 
-extension SectionCollectionFlowLayoutProtocol {
-    
-    public func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+public extension SectionCollectionFlowLayoutProtocol {
+    func supplementary(kind: SectionSupplementaryKind, at _: Int) -> UICollectionReusableView? {
         switch kind {
         case .header:
             return headerView
@@ -55,19 +53,19 @@ extension SectionCollectionFlowLayoutProtocol {
         }
     }
     
-    public var headerView: UICollectionReusableView? { nil }
-    public var footerView: UICollectionReusableView? { nil }
+    var headerView: UICollectionReusableView? { nil }
+    var footerView: UICollectionReusableView? { nil }
     
-    public var headerSize: CGSize { .zero }
-    public var footerSize: CGSize { .zero }
+    var headerSize: CGSize { .zero }
+    var footerSize: CGSize { .zero }
     
-    public var minimumLineSpacing: CGFloat { 0 }
-    public var minimumInteritemSpacing: CGFloat { 0 }
+    var minimumLineSpacing: CGFloat { 0 }
+    var minimumInteritemSpacing: CGFloat { 0 }
     
-    public var sectionInset: UIEdgeInsets { .zero }
+    var sectionInset: UIEdgeInsets { .zero }
     
-    public var hiddenHeaderWhenNoItem: Bool { true }
-    public var hiddenFooterWhenNoItem: Bool { true }
+    var hiddenHeaderWhenNoItem: Bool { true }
+    var hiddenFooterWhenNoItem: Bool { true }
 }
 
 #endif

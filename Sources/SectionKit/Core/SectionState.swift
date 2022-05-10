@@ -25,12 +25,11 @@
 import UIKit
 
 public class SectionState {
-
     var index: Int = 0
     weak var sectionView: UIView?
     var reloadDataEvent: (() -> Void)?
-
-    internal init() { }
+    
+    internal init() {}
 }
 
 #endif

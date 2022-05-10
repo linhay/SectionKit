@@ -29,13 +29,12 @@ public protocol SectionLoadViewProtocol: UIView {
 }
 
 public extension SectionLoadViewProtocol {
-
     static var identifier: String {
         return String(describing: Self.self)
     }
+    
     static var nib: UINib? {
         return nil
     }
-
 }
 #endif

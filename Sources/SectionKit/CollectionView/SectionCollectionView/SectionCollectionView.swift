@@ -24,9 +24,8 @@
 import UIKit
 
 open class SectionCollectionView: UICollectionView {
-    
     public private(set) lazy var manager = SectionCollectionManager(sectionView: self)
-        
+    
     public convenience init() {
         self.init(frame: .zero, layout: .flow)
     }
@@ -37,13 +36,13 @@ open class SectionCollectionView: UICollectionView {
             self.init(frame: frame, collectionViewLayout: SectionCollectionFlowLayout())
         case .compositional:
             self.init(frame: frame, collectionViewLayout: UICollectionViewLayout())
-            self.set(layout: layout)
-        case .custom(let layout):
+            set(layout: layout)
+        case let .custom(layout):
             self.init(frame: frame, collectionViewLayout: layout)
         }
     }
     
-    public override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+    override public init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
         initialize()
     }
@@ -53,11 +52,9 @@ open class SectionCollectionView: UICollectionView {
         collectionViewLayout = SectionCollectionFlowLayout()
         initialize()
     }
-    
 }
 
 public extension SectionCollectionView {
-    
     var sectionFlowLayout: SectionCollectionFlowLayout? { collectionViewLayout as? SectionCollectionFlowLayout }
     
     /// 滚动方向
@@ -84,12 +81,11 @@ public extension SectionCollectionView {
             }
         }
     }
-
 }
 
 // MARK: - Layout
+
 public extension SectionCollectionView {
-    
     enum Layout {
         case flow
         case compositional(UICollectionViewCompositionalLayoutConfiguration = UICollectionViewCompositionalLayoutConfiguration())
@@ -100,18 +96,17 @@ public extension SectionCollectionView {
         switch layout {
         case .flow:
             manager.set(layout: .custom(SectionCollectionFlowLayout()))
-        case .compositional(let configuration):
+        case let .compositional(configuration):
             manager.set(layout: .compositional(configuration))
-        case .custom(let layout):
+        case let .custom(layout):
             manager.set(layout: .custom(layout))
         }
     }
-    
 }
 
 // MARK: - PluginModes
+
 public extension SectionCollectionView {
-    
     /// 布局插件
     /// - Parameter pluginModes: 样式
     func set(pluginModes: [SectionCollectionFlowLayout.PluginMode]) {
@@ -121,14 +116,11 @@ public extension SectionCollectionView {
     /// 布局插件
     /// - Parameter pluginModes: 样式
     func set(pluginModes: SectionCollectionFlowLayout.PluginMode...) {
-        self.set(pluginModes: pluginModes)
+        set(pluginModes: pluginModes)
     }
-    
 }
 
-
 private extension SectionCollectionView {
-    
     func initialize() {
         translatesAutoresizingMaskIntoConstraints = false
         if backgroundColor == .black {
@@ -138,7 +130,6 @@ private extension SectionCollectionView {
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
     }
-    
 }
 
 #endif

@@ -1,15 +1,14 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/5/9.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 public class SingleTypeSectionDataSource<Cell: SectionConfigurableModelProtocol> {
-    
     public struct DataModel {
         public let models: [Cell.Model]
         /// 是否经过转换器
@@ -41,11 +40,11 @@ public class SingleTypeSectionDataSource<Cell: SectionConfigurableModelProtocol>
     public init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
         let dataOptions = DataOptions(isNeedReload: true)
         self.dataOptions = dataOptions
-        self.dataSubject = .init(.init(models: models, isTransformed: transforms.isEmpty, options: dataOptions))
-        self.dataTransforms = dataDefaultTransforms.all + transforms
+        dataSubject = .init(.init(models: models, isTransformed: transforms.isEmpty, options: dataOptions))
+        dataTransforms = dataDefaultTransforms.all + transforms
         
         dataSubject
-            .filter({ !$0.isTransformed })
+            .filter { !$0.isTransformed }
             .map(\.models)
             .map { [weak self] models -> [Cell.Model] in
                 guard let self = self else { return [] }
@@ -68,7 +67,7 @@ public class SingleTypeSectionDataSource<Cell: SectionConfigurableModelProtocol>
     }
     
     func reload() {
-       var model = dataSubject.value
+        var model = dataSubject.value
         model.isTransformed = false
         dataSubject.send(model)
     }
@@ -77,11 +76,9 @@ public class SingleTypeSectionDataSource<Cell: SectionConfigurableModelProtocol>
         dataDefaultTransforms.hidden.by(by)
         reload()
     }
-    
 }
 
 public extension SingleTypeSectionDataSource {
-    
     /// 采用 transforms 来处理原始数据集
     /// - Parameters:
     ///   - models: 原始数据集
@@ -103,5 +100,4 @@ public extension SingleTypeSectionDataSource {
         }
         return list
     }
-    
 }

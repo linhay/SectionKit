@@ -24,11 +24,10 @@
 import UIKit
 
 public protocol SectionTableProtocol: SectionProtocol {
-    
     func config(sectionView: UITableView)
     func item(at row: Int) -> UITableViewCell
     func itemSize(at row: Int) -> CGSize
-
+    
     func item(willSelect row: Int) -> Int?
     func item(willDeselect row: Int) -> Int?
     
@@ -54,28 +53,23 @@ public protocol SectionTableProtocol: SectionProtocol {
 }
 
 public extension SectionTableProtocol {
-
-    func swipeActions(leading row: Int) -> [UIContextualAction] { [] }
-    func swipeActions(trailing row: Int) -> [UIContextualAction] { [] }
-    
+    func swipeActions(leading _: Int) -> [UIContextualAction] { [] }
+    func swipeActions(trailing _: Int) -> [UIContextualAction] { [] }
 }
 
 public extension SectionTableProtocol {
-
-    func item(willSelect row: Int) -> Int? { nil }
-    func item(willDeselect row: Int) -> Int? { nil }
+    func item(willSelect _: Int) -> Int? { nil }
+    func item(willDeselect _: Int) -> Int? { nil }
 }
 
 public extension SectionTableProtocol {
-    
-    func item(editingStyle row: Int) -> UITableViewCell.EditingStyle { .none }
-    func item(shouldIndentWhileEditing row: Int) -> Bool { true }
-    func item(willBeginEditing row: Int) {}
-    func item(didEndEditing row: Int) {}
+    func item(editingStyle _: Int) -> UITableViewCell.EditingStyle { .none }
+    func item(shouldIndentWhileEditing _: Int) -> Bool { true }
+    func item(willBeginEditing _: Int) {}
+    func item(didEndEditing _: Int) {}
 }
 
 public extension SectionTableProtocol {
-
     var headerView: UITableViewHeaderFooterView? { nil }
     var footerView: UITableViewHeaderFooterView? { nil }
     
@@ -104,13 +98,11 @@ public extension SectionTableProtocol {
         }
     }
     
-    func supplementary(willDisplay view: UIView, forElementKind elementKind: SectionSupplementaryKind) {}
-    func supplementary(didEndDisplaying view: UIView, forElementKind elementKind: SectionSupplementaryKind) {}
-    
+    func supplementary(willDisplay _: UIView, forElementKind _: SectionSupplementaryKind) {}
+    func supplementary(didEndDisplaying _: UIView, forElementKind _: SectionSupplementaryKind) {}
 }
 
 public extension SectionTableProtocol {
-    
     var sectionView: UITableView {
         guard let view = sectionState?.sectionView as? UITableView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
@@ -118,88 +110,78 @@ public extension SectionTableProtocol {
         }
         return view
     }
-
 }
 
 public extension SectionTableProtocol {
-
     func indexForItem(at point: CGPoint) -> Int? {
         guard let indexPath = sectionView.indexPathForRow(at: point), indexPath.section == sectionIndex else {
             return nil
         }
         return indexPath.row
     }
-
+    
     func index(for cell: UITableViewCell) -> Int? {
         guard let indexPath = sectionView.indexPath(for: cell), indexPath.section == sectionIndex else {
             return nil
         }
         return indexPath.row
     }
-
+    
     // Returns any existing visible or prepared cell for the index path. Returns nil when no cell exists, or if index path is out of range.
     func cellForItem(at row: Int) -> UITableViewCell? {
         return sectionView.cellForRow(at: indexPath(from: row))
     }
-
+    
     var visibleCells: [UITableViewCell] {
-         indexsForVisibleItems.map(indexPath(from:))
-             .compactMap { indexPath in
-                 sectionView.cellForRow(at: indexPath)
-             }
-     }
-
+        indexsForVisibleItems.map(indexPath(from:))
+            .compactMap { indexPath in
+                sectionView.cellForRow(at: indexPath)
+            }
+    }
+    
     var indexsForVisibleItems: [Int] {
-         (sectionView.indexPathsForVisibleRows ?? [])
-            .filter({ $0.section == sectionIndex })
+        (sectionView.indexPathsForVisibleRows ?? [])
+            .filter { $0.section == sectionIndex }
             .map(\.row)
     }
-
 }
 
 public extension SectionTableProtocol {
-
-    func pick(_ updates: (() -> Void), completion: ((Bool) -> Void)?) {
+    func pick(_ updates: () -> Void, completion: ((Bool) -> Void)?) {
         sectionView.performBatchUpdates(updates, completion: completion)
     }
-
 }
 
 /// Interacting with the collection view.
 public extension SectionTableProtocol {
-
     func scroll(to row: Int, at scrollPosition: UITableView.ScrollPosition, animated: Bool) {
         sectionView.scrollToRow(at: indexPath(from: row), at: scrollPosition, animated: animated)
     }
-
 }
 
 /// These properties control whether items can be selected, and if so, whether multiple items can be simultaneously selected.
 public extension SectionTableProtocol {
-    
     var indexForSelectedItems: [Int] {
         (sectionView.indexPathsForSelectedRows ?? [])
-            .filter({ $0.section == sectionIndex })
+            .filter { $0.section == sectionIndex }
             .map(\.row)
     }
     
     func selectItem(at row: Int?, animated: Bool, scrollPosition: UITableView.ScrollPosition) {
         sectionView.selectRow(at: indexPath(from: row), animated: animated, scrollPosition: scrollPosition)
     }
-
+    
     func deselectItem(at row: Int, animated: Bool) {
         sectionView.deselectRow(at: indexPath(from: row), animated: animated)
     }
-
 }
 
 /// These methods allow dynamic modification of the current set of items in the collection view
 public extension SectionTableProtocol {
-    
     func reload(with animation: UITableView.RowAnimation = .automatic) {
         sectionView.reloadSections(.init(integer: sectionIndex), with: animation)
     }
-
+    
     func insertItems(at rows: [Int], with animation: UITableView.RowAnimation = .automatic) {
         guard rows.isEmpty == false else {
             return
@@ -233,7 +215,6 @@ public extension SectionTableProtocol {
     func reloadItems(at rows: [Int], with animation: UITableView.RowAnimation = .automatic) {
         sectionView.reloadRows(at: indexPath(from: rows), with: animation)
     }
-
 }
 
 #endif

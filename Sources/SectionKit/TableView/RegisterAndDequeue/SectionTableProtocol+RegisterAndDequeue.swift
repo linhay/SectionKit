@@ -24,19 +24,18 @@
 import UIKit
 
 public extension SectionTableProtocol {
-
     /// 注册 `LoadViewProtocol` 类型的 UICollectionViewCell
     ///
     /// - Parameter cell: UICollectionViewCell
-    func register<T: UITableViewCell>(_ cell: T.Type) where T: SectionLoadViewProtocol {
+    func register<T: UITableViewCell>(_: T.Type) where T: SectionLoadViewProtocol {
         if let nib = T.nib {
             sectionView.register(nib, forCellReuseIdentifier: T.identifier)
         } else {
             sectionView.register(T.self, forCellReuseIdentifier: T.identifier)
         }
     }
-
-    func register<T: UITableViewHeaderFooterView>(_ view: T.Type, for kind: SectionSupplementaryKind) where T: SectionLoadViewProtocol {
+    
+    func register<T: UITableViewHeaderFooterView>(_: T.Type, for _: SectionSupplementaryKind) where T: SectionLoadViewProtocol {
         if let nib = T.nib {
             sectionView.register(nib, forHeaderFooterViewReuseIdentifier: T.identifier)
         } else {
@@ -62,6 +61,5 @@ public extension SectionTableProtocol {
     func dequeue<T: UITableViewHeaderFooterView>() -> T where T: SectionLoadViewProtocol {
         return sectionView.dequeueReusableHeaderFooterView(withIdentifier: T.identifier) as! T
     }
-
 }
 #endif

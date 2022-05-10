@@ -24,31 +24,30 @@
 import UIKit
 
 class SectionCollectionViewDataSource: NSObject, UICollectionViewDataSource {
-        
     let sectionEvent = SectionDelegate<Int, SectionCollectionDriveProtocol>()
     let sectionsEvent = SectionDelegate<Void, LazyMapSequence<LazySequence<[SectionDynamicType]>.Elements, SectionCollectionDriveProtocol>>()
     
-    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return sectionEvent.call(section)?.itemCount ?? 0
     }
-
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    
+    public func collectionView(_: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         return sectionEvent.call(indexPath.section)?.item(at: indexPath.item) ?? UICollectionViewCell()
     }
-
-    public func numberOfSections(in collectionView: UICollectionView) -> Int {
+    
+    public func numberOfSections(in _: UICollectionView) -> Int {
         return sectionsEvent.call()?.count ?? 0
     }
     
-    public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    public func collectionView(_: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         return sectionEvent.call(indexPath.section)?.supplementary(kind: .init(rawValue: kind), at: indexPath.row) ?? UICollectionReusableView()
     }
     
-    public func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
+    public func collectionView(_: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
         return sectionEvent.call(indexPath.section)?.canMove(at: indexPath.item) ?? false
     }
-
-    public func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    
+    public func collectionView(_: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath.section == destinationIndexPath.section {
             sectionEvent.call(sourceIndexPath.section)?.move(from: sourceIndexPath, to: destinationIndexPath)
         } else {
@@ -57,13 +56,12 @@ class SectionCollectionViewDataSource: NSObject, UICollectionViewDataSource {
         }
     }
     
-    public func indexTitles(for collectionView: UICollectionView) -> [String]? {
+    public func indexTitles(for _: UICollectionView) -> [String]? {
         sectionsEvent.call()?.compactMap(\.indexTitle)
     }
-
-    public func collectionView(_ collectionView: UICollectionView, indexPathForIndexTitle title: String, at index: Int) -> IndexPath {
+    
+    public func collectionView(_: UICollectionView, indexPathForIndexTitle _: String, at index: Int) -> IndexPath {
         return .init(row: 0, section: index)
     }
-
 }
 #endif

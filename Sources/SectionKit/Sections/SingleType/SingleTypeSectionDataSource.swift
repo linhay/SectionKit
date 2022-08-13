@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-public class SingleTypeSectionDataSource<Cell: SectionConfigurableModelProtocol> {
+public class SingleTypeSectionDataSource<Cell: SKConfigurableModelProtocol> {
     public struct DataModel {
         public let models: [Cell.Model]
         /// 是否经过转换器
@@ -28,7 +28,7 @@ public class SingleTypeSectionDataSource<Cell: SectionConfigurableModelProtocol>
     /// 原始数据
     public let dataSubject: CurrentValueSubject<DataModel, Never>
     /// 数据转换器
-    public let dataTransforms: [SectionDataTransform<Cell.Model>]
+    public let dataTransforms: [SKDataTransform<Cell.Model>]
     
     /// 内置数据转换器
     private let dataDefaultTransforms = SectionTransforms<Cell>()
@@ -37,7 +37,7 @@ public class SingleTypeSectionDataSource<Cell: SectionConfigurableModelProtocol>
     
     private var cancellables = Set<AnyCancellable>()
     
-    public init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
+    public init(_ models: [Cell.Model] = [], transforms: [SKDataTransform<Cell.Model>] = []) {
         let dataOptions = DataOptions(isNeedReload: true)
         self.dataOptions = dataOptions
         dataSubject = .init(.init(models: models, isTransformed: transforms.isEmpty, options: dataOptions))
@@ -84,7 +84,7 @@ public extension SingleTypeSectionDataSource {
     ///   - models: 原始数据集
     ///   - transforms: 转换器
     /// - Returns: 数据集
-    func modelsFilter(_ models: [Cell.Model], transforms: [SectionDataTransform<Cell.Model>]) -> [Cell.Model] {
+    func modelsFilter(_ models: [Cell.Model], transforms: [SKDataTransform<Cell.Model>]) -> [Cell.Model] {
         return Self.modelsFilter(models, transforms: transforms)
     }
     
@@ -93,7 +93,7 @@ public extension SingleTypeSectionDataSource {
     ///   - models: 原始数据集
     ///   - transforms: 转换器
     /// - Returns: 数据集
-    static func modelsFilter(_ models: [Cell.Model], transforms: [SectionDataTransform<Cell.Model>]) -> [Cell.Model] {
+    static func modelsFilter(_ models: [Cell.Model], transforms: [SKDataTransform<Cell.Model>]) -> [Cell.Model] {
         var list = models
         for transform in transforms {
             list = transform.task?(list) ?? list

@@ -8,7 +8,7 @@
 import SectionKit
 import UIKit
 
-final class SectionGenericCell<Model>: UICollectionViewCell, SectionLoadViewProtocol {
+final class SectionGenericCell<Model>: UICollectionViewCell, SKLoadViewProtocol {
     override init(frame _: CGRect) {
         super.init(frame: .zero)
         setupView()
@@ -26,7 +26,7 @@ extension SectionGenericCell {}
 
 // MARK: - ConfigurableView
 
-extension SectionGenericCell: SectionConfigurableView {
+extension SectionGenericCell: SKConfigurableView {
     static func preferredSize(limit _: CGSize, model _: Model?) -> CGSize {
         return .init(width: 100, height: 100)
     }

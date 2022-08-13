@@ -9,7 +9,7 @@ import SectionKit
 import Stem
 import UIKit
 
-class MultiSectionViewController: SectionCollectionViewController {
+class MultiSectionViewController: SKCollectionViewController {
     enum Action: String, CaseIterable {
         case reset
         case insert
@@ -49,7 +49,7 @@ class MultiSectionViewController: SectionCollectionViewController {
 }
 
 extension MultiSectionViewController {
-    class LeftViewController: SectionCollectionViewController {
+    class LeftViewController: SKCollectionViewController {
         let section = SingleTypeSection<HomeIndexCell<Action>>(Action.allCases)
 
         override func viewDidLoad() {
@@ -66,7 +66,7 @@ extension MultiSectionViewController {
 }
 
 extension MultiSectionViewController {
-    class RightViewController: SectionCollectionViewController {
+    class RightViewController: SKCollectionViewController {
         let size = CGSize(width: 88, height: 44)
 
         typealias Section = SingleTypeSection<ColorBlockCell>

@@ -18,7 +18,7 @@ final class SingleTypeWrapperTests: XCTestCase {
 
     func testEvents() throws {
         let section = SectionVoidCell.singleTypeWrapper(count: 3)
-        let view = SectionCollectionView()
+        let view = SKCollectionView()
         view.frame.size = .init(width: 400, height: 400)
         view.manager.update(section)
 

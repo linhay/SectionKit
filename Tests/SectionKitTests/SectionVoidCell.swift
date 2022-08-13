@@ -8,7 +8,7 @@
 import SectionKit
 import UIKit
 
-final class SectionVoidCell: UICollectionViewCell, SectionLoadViewProtocol {
+final class SectionVoidCell: UICollectionViewCell, SKLoadViewProtocol {
     override init(frame _: CGRect) {
         super.init(frame: .zero)
         setupView()
@@ -26,7 +26,7 @@ extension SectionVoidCell {}
 
 // MARK: - ConfigurableView
 
-extension SectionVoidCell: SectionConfigurableView {
+extension SectionVoidCell: SKConfigurableView {
     typealias Model = Void
 
     static func preferredSize(limit size: CGSize, model _: Void?) -> CGSize {

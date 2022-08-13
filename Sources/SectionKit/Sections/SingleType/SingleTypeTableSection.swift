@@ -26,7 +26,7 @@ import UIKit
 import Combine
 #endif
 
-open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefetchingProtocol, SectionTableProtocol, SingleTypeSectionProtocol where Cell: SectionConfigurableView & SectionLoadViewProtocol {
+open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefetchingProtocol, SectionTableProtocol, SingleTypeSectionProtocol where Cell: SKConfigurableView & SKLoadViewProtocol {
     public typealias SectionPublishers = SingleTypeSectionPublishers<Cell.Model, UITableViewHeaderFooterView>
     /// 视图事件回调(显示隐藏)
     public let publishers = SectionPublishers()
@@ -49,10 +49,10 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
     public var headerSize: CGSize { headerSizeProvider.call(sectionView) ?? .zero }
     public var footerSize: CGSize { footerSizeProvider.call(sectionView) ?? .zero }
     
-    public var sectionState: SectionState?
+    public var sectionState: SKState?
     internal var cancellables = Set<AnyCancellable>()
     
-    public required init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
+    public required init(_ models: [Cell.Model] = [], transforms: [SKDataTransform<Cell.Model>] = []) {
         dataSource = .init(models, transforms: transforms)
         dataSource.reloadPublisher.sink { [weak self] _ in
             self?.sectionState?.reloadDataEvent?()

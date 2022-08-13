@@ -10,7 +10,7 @@ import SectionKit
 import Stem
 import UIKit
 
-class PrefetchViewController: SectionCollectionViewController {
+class PrefetchViewController: SKCollectionViewController {
     private let section = SingleTypeSection<ColorBlockCell>()
     private var cancellables = Set<AnyCancellable>()
 

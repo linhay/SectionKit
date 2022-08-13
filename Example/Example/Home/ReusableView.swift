@@ -9,7 +9,7 @@ import SectionKit
 import Stem
 import UIKit
 
-class ReusableView: UICollectionReusableView, SectionLoadViewProtocol, ConfigurableView {
+class ReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigurableView {
     static func preferredSize(limit size: CGSize, model _: String?) -> CGSize {
         return .init(width: size.width, height: 44)
     }

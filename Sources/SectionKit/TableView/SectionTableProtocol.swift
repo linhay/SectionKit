@@ -23,7 +23,7 @@
 #if canImport(UIKit)
 import UIKit
 
-public protocol SectionTableProtocol: SectionProtocol {
+public protocol SectionTableProtocol: SKSectionProtocol {
     func config(sectionView: UITableView)
     func item(at row: Int) -> UITableViewCell
     func itemSize(at row: Int) -> CGSize
@@ -37,10 +37,10 @@ public protocol SectionTableProtocol: SectionProtocol {
     func item(didEndEditing row: Int)
     
     /// SupplementaryView
-    func supplementary(kind: SectionSupplementaryKind) -> UIView?
-    func supplementarySize(kind: SectionSupplementaryKind) -> CGSize?
-    func supplementary(willDisplay view: UIView, forElementKind elementKind: SectionSupplementaryKind)
-    func supplementary(didEndDisplaying view: UIView, forElementKind elementKind: SectionSupplementaryKind)
+    func supplementary(kind: SKSupplementaryKind) -> UIView?
+    func supplementarySize(kind: SKSupplementaryKind) -> CGSize?
+    func supplementary(willDisplay view: UIView, forElementKind elementKind: SKSupplementaryKind)
+    func supplementary(didEndDisplaying view: UIView, forElementKind elementKind: SKSupplementaryKind)
     
     var headerView: UITableViewHeaderFooterView? { get }
     var footerView: UITableViewHeaderFooterView? { get }
@@ -76,7 +76,7 @@ public extension SectionTableProtocol {
     var headerSize: CGSize? { nil }
     var footerSize: CGSize? { nil }
     
-    func supplementary(kind: SectionSupplementaryKind) -> UIView? {
+    func supplementary(kind: SKSupplementaryKind) -> UIView? {
         switch kind {
         case .header:
             return headerView
@@ -87,7 +87,7 @@ public extension SectionTableProtocol {
         }
     }
     
-    func supplementarySize(kind: SectionSupplementaryKind) -> CGSize? {
+    func supplementarySize(kind: SKSupplementaryKind) -> CGSize? {
         switch kind {
         case .header:
             return headerSize
@@ -98,8 +98,8 @@ public extension SectionTableProtocol {
         }
     }
     
-    func supplementary(willDisplay _: UIView, forElementKind _: SectionSupplementaryKind) {}
-    func supplementary(didEndDisplaying _: UIView, forElementKind _: SectionSupplementaryKind) {}
+    func supplementary(willDisplay _: UIView, forElementKind _: SKSupplementaryKind) {}
+    func supplementary(didEndDisplaying _: UIView, forElementKind _: SKSupplementaryKind) {}
 }
 
 public extension SectionTableProtocol {

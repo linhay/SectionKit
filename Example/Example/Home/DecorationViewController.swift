@@ -9,7 +9,7 @@ import SectionKit
 import Stem
 import UIKit
 
-class DecorationViewController: SectionCollectionViewController {
+class DecorationViewController: SKCollectionViewController {
     enum Action: String, CaseIterable {
         case fix_insets
         case no_fix_insets
@@ -57,7 +57,7 @@ class DecorationViewController: SectionCollectionViewController {
 }
 
 extension DecorationViewController {
-    class LeftViewController: SectionCollectionViewController {
+    class LeftViewController: SKCollectionViewController {
         let section = HomeIndexCell<Action>.singleTypeWrapper(Action.allCases)
 
         override func viewDidLoad() {
@@ -74,7 +74,7 @@ extension DecorationViewController {
 }
 
 extension DecorationViewController {
-    class RightViewController: SectionCollectionViewController {
+    class RightViewController: SKCollectionViewController {
         let size = CGSize(width: 88, height: 44)
 
         lazy var sections = (0 ... 10).map { sectionIndex in
@@ -87,7 +87,7 @@ extension DecorationViewController {
         }
 
         var isAnimating = false
-        var defaultPluginModes: [SectionCollectionFlowLayout.PluginMode] = [.fixSupplementaryViewInset(.all)]
+        var defaultPluginModes: [SKCollectionFlowLayout.PluginMode] = [.fixSupplementaryViewInset(.all)]
 
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -143,7 +143,7 @@ extension DecorationViewController {
             }
         }
 
-        func update(_ decoration: SectionCollectionFlowLayout.Decoration...) {
+        func update(_ decoration: SKCollectionFlowLayout.Decoration...) {
             sectionView.set(pluginModes: defaultPluginModes + [.decorations(decoration)])
             sectionView.reloadData()
         }

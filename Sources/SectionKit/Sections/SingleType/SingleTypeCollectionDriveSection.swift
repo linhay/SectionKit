@@ -26,7 +26,7 @@ import UIKit
 import Combine
 #endif
 
-open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SectionLoadViewProtocol & SectionConfigurableView>: SingleTypeSectionProtocol, SectionCollectionDequeueProtocol, SectionCollectionDriveProtocol {
+open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SKLoadViewProtocol & SKConfigurableView>: SingleTypeSectionProtocol, SKCollectionDequeueProtocol, SKCollectionDriveProtocol {
     public typealias SectionPublishers = SingleTypeSectionPublishers<Cell.Model, UICollectionReusableView>
     /// 视图事件回调(显示隐藏)
     public let publishers = SectionPublishers()
@@ -34,7 +34,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     /// UI驱动所用数据集
     public private(set) lazy var models: [Cell.Model] = []
     
-    open var sectionState: SectionState?
+    open var sectionState: SKState?
     
     open var itemCount: Int { models.count }
     
@@ -48,7 +48,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
     /// 注册队列
     private var registerQueue = [(SingleTypeCollectionDriveSection<Cell>) -> Void]()
     
-    public required init(_ models: [Cell.Model] = [], transforms: [SectionDataTransform<Cell.Model>] = []) {
+    public required init(_ models: [Cell.Model] = [], transforms: [SKDataTransform<Cell.Model>] = []) {
         dataSource = .init(models, transforms: transforms)
         dataSource.reloadPublisher.sink { [weak self] _ in
             self?.sectionState?.reloadDataEvent?()
@@ -79,7 +79,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         return cell
     }
     
-    public func supplementary(kind _: SectionSupplementaryKind, at _: Int) -> UICollectionReusableView? {
+    public func supplementary(kind _: SKSupplementaryKind, at _: Int) -> UICollectionReusableView? {
         return nil
     }
     
@@ -103,12 +103,12 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
         }
     }
     
-    open func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {
+    open func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SKSupplementaryKind, at row: Int) {
         let result = SectionPublishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
         publishers.supplementary._willDisplay.send(result)
     }
     
-    open func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SectionSupplementaryKind, at row: Int) {
+    open func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SKSupplementaryKind, at row: Int) {
         let result = SectionPublishers.SupplementaryResult(view: view, elementKind: elementKind, row: row)
         publishers.supplementary._didEndDisplaying.send(result)
     }
@@ -127,7 +127,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & Section
 
 /// init
 public extension SingleTypeCollectionDriveSection {
-    convenience init(repeating: Cell.Model, count: Int, transforms: [SectionDataTransform<Cell.Model>] = []) {
+    convenience init(repeating: Cell.Model, count: Int, transforms: [SKDataTransform<Cell.Model>] = []) {
         self.init(.init(repeating: repeating, count: count), transforms: transforms)
     }
 }

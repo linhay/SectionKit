@@ -10,7 +10,7 @@ import UIKit
 
 // MARK: - UITableViewDelegate
 
-class SectionTableViewDelegate: SectionScrollViewDelegate, UITableViewDelegate {
+class SectionTableViewDelegate: SKScrollViewDelegate, UITableViewDelegate {
     let sectionEvent = SectionDelegate<Int, SectionTableProtocol>()
     
     private func section(_ indexPath: IndexPath) -> SectionTableProtocol? {

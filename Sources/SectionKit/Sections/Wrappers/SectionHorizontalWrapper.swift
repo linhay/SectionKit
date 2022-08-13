@@ -8,20 +8,20 @@
 #if canImport(UIKit)
 import UIKit
 
-public extension SectionCollectionDriveProtocol {
+public extension SKCollectionDriveProtocol {
     func horizontalWrapper(height: CGFloat,
                            insets: UIEdgeInsets = .zero,
-                           style: ((SectionCollectionView) -> Void)? = nil) -> SectionHorizontalWrapper<Self>
+                           style: ((SKCollectionView) -> Void)? = nil) -> SectionHorizontalWrapper<Self>
     {
         .init(.init(section: self, height: height, insets: insets, style: style))
     }
 }
 
-public final class SectionHorizontalWrapper<Section: SectionCollectionDriveProtocol>: SectionCollectionProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionWrapperProtocol {
-    public var sectionState: SectionState?
+public final class SectionHorizontalWrapper<Section: SKCollectionDriveProtocol>: SKCollectionProtocol, SKCollectionFlowLayoutSafeSizeProtocol, SKWrapperProtocol {
+    public var sectionState: SKState?
     public var itemCount: Int = 1
     
-    public lazy var safeSize: SectionSafeSize = defaultSafeSize
+    public lazy var safeSize: SKSafeSize = defaultSafeSize
     let model: SectionHorizontalCell<Section>.Model
     public var wrappedSection: Section { model.section }
     private var containerStyle: ((SectionHorizontalCell<Section>, Int) -> Void)?
@@ -51,7 +51,7 @@ public final class SectionHorizontalWrapper<Section: SectionCollectionDriveProto
     }
 }
 
-public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol>: UICollectionViewCell, SectionConfigurableView, SectionLoadViewProtocol {
+public final class SectionHorizontalCell<Section: SKCollectionDriveProtocol>: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
     public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model = model else { return .zero }
         return CGSize(width: size.width, height: model.height + model.insets.top + model.insets.bottom)
@@ -67,12 +67,12 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
         public let section: Section
         public let height: CGFloat
         public let insets: UIEdgeInsets
-        public let style: ((SectionCollectionView) -> Void)?
+        public let style: ((SKCollectionView) -> Void)?
         
         public init(section: Section,
                     height: CGFloat,
                     insets: UIEdgeInsets = .zero,
-                    style: ((SectionCollectionView) -> Void)? = nil)
+                    style: ((SKCollectionView) -> Void)? = nil)
         {
             self.section = section
             self.height = height
@@ -112,7 +112,7 @@ public final class SectionHorizontalCell<Section: SectionCollectionDriveProtocol
         }
     }
     
-    private lazy var sectionView = SectionCollectionView()
+    private lazy var sectionView = SKCollectionView()
     private lazy var edgeConstraint = EdgeConstraint(sectionView, superView: contentView)
     
     override init(frame _: CGRect) {

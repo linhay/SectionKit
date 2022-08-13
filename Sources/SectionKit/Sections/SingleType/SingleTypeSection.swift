@@ -24,7 +24,7 @@
 import Combine
 import UIKit
 
-open class SingleTypeSection<Cell: UICollectionViewCell & SectionConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionFlowLayoutProtocol, SectionCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
+open class SingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SKCollectionFlowLayoutProtocol, SKCollectionFlowLayoutSafeSizeProtocol, SectionDataSourcePrefetchingProtocol {
     public lazy var safeSize = defaultSafeSize
     
     open var minimumLineSpacing: CGFloat = 0
@@ -52,7 +52,7 @@ open class SingleTypeSection<Cell: UICollectionViewCell & SectionConfigurableVie
         return Cell.preferredSize(limit: safeSize.size(self), model: models[row])
     }
     
-    override open func supplementary(kind: SectionSupplementaryKind, at _: Int) -> UICollectionReusableView? {
+    override open func supplementary(kind: SKSupplementaryKind, at _: Int) -> UICollectionReusableView? {
         switch kind {
         case .header:
             return headerView
@@ -88,7 +88,7 @@ public extension SingleTypeSection {
     ///   - style: 自定义配置 View
     /// - Returns: Self
     @discardableResult
-    func setHeader<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
+    func setHeader<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
         register { section in
             section.register(type, for: .header)
         }
@@ -112,7 +112,7 @@ public extension SingleTypeSection {
     ///   - style: 自定义配置 View
     /// - Returns: Self
     @discardableResult
-    func setFooter<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
+    func setFooter<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
         register { section in
             section.register(type, for: .footer)
         }
@@ -130,12 +130,12 @@ public extension SingleTypeSection {
     }
     
     @discardableResult
-    func setHeader<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
+    func setHeader<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
         return setHeader(type, model: (), style: style)
     }
     
     @discardableResult
-    func setFooter<View: UICollectionReusableView & SectionLoadViewProtocol & SectionConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
+    func setFooter<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
         return setFooter(type, model: (), style: style)
     }
 }

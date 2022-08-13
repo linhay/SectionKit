@@ -9,7 +9,7 @@ import SectionKit
 import SnapKit
 import UIKit
 
-final class HomeIndexCell<Model: RawRepresentable>: UICollectionViewCell, SectionLoadViewProtocol where Model.RawValue == String {
+final class HomeIndexCell<Model: RawRepresentable>: UICollectionViewCell, SKLoadViewProtocol where Model.RawValue == String {
     private lazy var titleLabel: UILabel = {
         let view = UILabel(frame: .zero)
         view.textColor = .black
@@ -35,7 +35,7 @@ extension HomeIndexCell {}
 
 // MARK: - ConfigurableView
 
-extension HomeIndexCell: ConfigurableView {
+extension HomeIndexCell: SKConfigurableView {
     static func preferredSize(limit size: CGSize, model _: Model?) -> CGSize {
         return .init(width: size.width, height: 50)
     }

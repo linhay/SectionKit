@@ -9,7 +9,8 @@ import SectionKit
 import Stem
 import UIKit
 
-class SingleTypeSectionViewController: SectionCollectionViewController {
+class SingleTypeSectionViewController: SKCollectionViewController {
+    
     enum Action: String, CaseIterable {
         case reset
         case add
@@ -30,9 +31,14 @@ class SingleTypeSectionViewController: SectionCollectionViewController {
     }
 
     func bindUI() {
-        leftController.section.onItemSelected(on: self) { (self, _, action) in
-            self.rightController.send(action)
+        leftController.section.registrations.forEach { item in
+            item.onSelected {
+                self.rightController.send(item.model as! SingleTypeSectionViewController.Action)
+            }
         }
+//        leftController.section.onItemSelected(on: self) { (self, _, action) in
+//            self.rightController.send(action)
+//        }
     }
 
     func setupUI() {
@@ -52,8 +58,12 @@ class SingleTypeSectionViewController: SectionCollectionViewController {
 }
 
 extension SingleTypeSectionViewController {
-    class LeftViewController: SectionCollectionViewController {
-        let section = SingleTypeSection<HomeIndexCell<Action>>(Action.allCases)
+    
+    class LeftViewController: SKCollectionViewController {
+        
+        let section = STCollectionRegistrationSection()
+        
+        lazy var stmanager = STCollectionManager(sectionView: sectionView)
 
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -61,15 +71,17 @@ extension SingleTypeSectionViewController {
         }
 
         func setupUI() {
-            section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
-            section.minimumLineSpacing = 8
-            manager.update(section)
+            section.registrations = HomeIndexCell<Action>.registration(Action.allCases)
+// section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
+// section.minimumLineSpacing = 8
+            stmanager.update([section])
         }
+        
     }
 }
 
 extension SingleTypeSectionViewController {
-    class RightViewController: SectionCollectionViewController {
+    class RightViewController: SKCollectionViewController {
         let size = CGSize(width: 88, height: 44)
 
         lazy var section = SingleTypeSection<ColorBlockCell>((0 ... 10).map { offset in

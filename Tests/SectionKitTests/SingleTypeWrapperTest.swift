@@ -11,7 +11,7 @@ import SectionKit
 import XCTest
 
 final class SingleTypeWrapperTest: XCTestCase {
-    let collectionView = SectionCollectionView()
+    let collectionView = SKCollectionView()
 
     struct ReloadModel: Equatable {
         static func == (lhs: SingleTypeWrapperTest.ReloadModel, rhs: SingleTypeWrapperTest.ReloadModel) -> Bool {
@@ -41,11 +41,11 @@ final class SingleTypeWrapperTest: XCTestCase {
 
     func testUniqueSelectableWrapper() {
         let selectedIndex = [0, 2, 3]
-        let models = SelectableCollection<SelectableBox<Int>>(selectables: (0 ... (selectedIndex.max() ?? 0)).map { index in
+        let models = SelectableCollection<SKSelectableBox<Int>>(selectables: (0 ... (selectedIndex.max() ?? 0)).map { index in
             .init(index, selectable: .init(isSelected: false, canSelect: selectedIndex.contains(index)))
         })
 
-        let wrapper = SectionGenericCell<SelectableBox<Int>>.singleTypeWrapper { builder in
+        let wrapper = SectionGenericCell<SKSelectableBox<Int>>.singleTypeWrapper { builder in
             builder.model(models.selectables)
         }.selectableWrapper()
 
@@ -71,11 +71,11 @@ final class SingleTypeWrapperTest: XCTestCase {
 
     func testSelectableWrapper() {
         let selectedIndex = [0, 2, 3]
-        let models = SelectableCollection<SelectableBox<Int>>(selectables: (0 ... (selectedIndex.max() ?? 0)).map { index in
+        let models = SelectableCollection<SKSelectableBox<Int>>(selectables: (0 ... (selectedIndex.max() ?? 0)).map { index in
             .init(index, selectable: .init(isSelected: false, canSelect: selectedIndex.contains(index)))
         })
 
-        let wrapper = SectionGenericCell<SelectableBox<Int>>.singleTypeWrapper { builder in
+        let wrapper = SectionGenericCell<SKSelectableBox<Int>>.singleTypeWrapper { builder in
             builder.model(models.selectables)
         }.selectableWrapper(isUnique: false, needInvert: false)
 
@@ -91,11 +91,11 @@ final class SingleTypeWrapperTest: XCTestCase {
 
     func testInvertSelectableWrapper() {
         let selectedIndex = [0, 2, 3]
-        let models = SelectableCollection<SelectableBox<Int>>(selectables: (0 ... (selectedIndex.max() ?? 0)).map { index in
+        let models = SelectableCollection<SKSelectableBox<Int>>(selectables: (0 ... (selectedIndex.max() ?? 0)).map { index in
             .init(index, selectable: .init(isSelected: false, canSelect: selectedIndex.contains(index)))
         })
 
-        let wrapper = SectionGenericCell<SelectableBox<Int>>.singleTypeWrapper { builder in
+        let wrapper = SectionGenericCell<SKSelectableBox<Int>>.singleTypeWrapper { builder in
             builder.model(models.selectables)
         }.selectableWrapper(isUnique: false, needInvert: true)
 

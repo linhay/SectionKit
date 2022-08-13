@@ -27,7 +27,7 @@ public extension SectionTableProtocol {
     /// 注册 `LoadViewProtocol` 类型的 UICollectionViewCell
     ///
     /// - Parameter cell: UICollectionViewCell
-    func register<T: UITableViewCell>(_: T.Type) where T: SectionLoadViewProtocol {
+    func register<T: UITableViewCell>(_: T.Type) where T: SKLoadViewProtocol {
         if let nib = T.nib {
             sectionView.register(nib, forCellReuseIdentifier: T.identifier)
         } else {
@@ -35,7 +35,7 @@ public extension SectionTableProtocol {
         }
     }
     
-    func register<T: UITableViewHeaderFooterView>(_: T.Type, for _: SectionSupplementaryKind) where T: SectionLoadViewProtocol {
+    func register<T: UITableViewHeaderFooterView>(_: T.Type, for _: SKSupplementaryKind) where T: SKLoadViewProtocol {
         if let nib = T.nib {
             sectionView.register(nib, forHeaderFooterViewReuseIdentifier: T.identifier)
         } else {
@@ -47,7 +47,7 @@ public extension SectionTableProtocol {
     ///
     /// - Parameter indexPath: IndexPath
     /// - Returns: 具体类型的 `UITableViewCell`
-    func dequeue<T: SectionLoadViewProtocol>(at row: Int) -> T {
+    func dequeue<T: SKLoadViewProtocol>(at row: Int) -> T {
         if let cell = sectionView.dequeueReusableCell(withIdentifier: T.identifier, for: indexPath(from: row)) as? T {
             return cell
         }
@@ -58,7 +58,7 @@ public extension SectionTableProtocol {
     /// 从缓存池取出 UITableViewHeaderFooterView
     ///
     /// - Returns: 具体类型的 `UITableViewCell`
-    func dequeue<T: UITableViewHeaderFooterView>() -> T where T: SectionLoadViewProtocol {
+    func dequeue<T: UITableViewHeaderFooterView>() -> T where T: SKLoadViewProtocol {
         return sectionView.dequeueReusableHeaderFooterView(withIdentifier: T.identifier) as! T
     }
 }

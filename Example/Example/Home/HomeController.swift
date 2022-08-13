@@ -8,7 +8,7 @@
 import SectionKit
 import UIKit
 
-class HomeController: SectionCollectionViewController {
+class HomeController: SKCollectionViewController {
     enum Action: String, CaseIterable {
         case singleTypeSection
         case multiSection

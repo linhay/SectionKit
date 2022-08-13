@@ -8,7 +8,7 @@
 import Foundation
 
 public extension SingleTypeCollectionDriveSection where Cell.Model == Void {
-    convenience init(count: Int, transforms _: [SectionDataTransform<Cell.Model>] = []) {
+    convenience init(count: Int, transforms _: [SKDataTransform<Cell.Model>] = []) {
         self.init(repeating: (), count: count)
     }
 }

@@ -9,7 +9,7 @@ import SectionKit
 import Stem
 import UIKit
 
-class CompositionalViewController: SectionCollectionViewController {
+class CompositionalViewController: SKCollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         let horizontalSection = SingleTypeCompositionalSection<ColorBlockCell>((0 ... 9).map { index in

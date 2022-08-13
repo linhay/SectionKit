@@ -25,7 +25,7 @@ import Combine
 import UIKit
 
 @dynamicMemberLookup
-public final class SectionSelectableWrapper<Section: SingleTypeSectionEventProtocol & SectionProtocol>: SelectableCollectionProtocol, SectionWrapperProtocol where Section.Cell.Model: SelectableProtocol {
+public final class SectionSelectableWrapper<Section: SingleTypeSectionEventProtocol & SKSectionProtocol>: SelectableCollectionProtocol, SKWrapperProtocol where Section.Cell.Model: SelectableProtocol {
     public typealias Model = Section.Cell.Model
     public typealias Cell = Section.Cell
     
@@ -40,7 +40,7 @@ public final class SectionSelectableWrapper<Section: SingleTypeSectionEventProto
     private var otherWrapper: Any?
     private var cancellables = Set<AnyCancellable>()
     
-    public convenience init<Wrapper: SectionWrapperProtocol>(_ wrapper: Wrapper,
+    public convenience init<Wrapper: SKWrapperProtocol>(_ wrapper: Wrapper,
                                                              isUnique: Bool = true,
                                                              needInvert: Bool = false) where Wrapper.Section == Section
     {
@@ -63,13 +63,13 @@ public final class SectionSelectableWrapper<Section: SingleTypeSectionEventProto
     }
 }
 
-public extension SectionProtocol where Self: SingleTypeSectionEventProtocol, Cell.Model: SelectableProtocol {
+public extension SKSectionProtocol where Self: SingleTypeSectionEventProtocol, Cell.Model: SelectableProtocol {
     func selectableWrapper(isUnique: Bool = true, needInvert: Bool = false) -> SectionSelectableWrapper<Self> {
         .init(self, isUnique: isUnique, needInvert: needInvert)
     }
 }
 
-public extension SectionWrapperProtocol where Section: SingleTypeSectionEventProtocol, Section.Cell.Model: SelectableProtocol {
+public extension SKWrapperProtocol where Section: SingleTypeSectionEventProtocol, Section.Cell.Model: SelectableProtocol {
     func selectableWrapper(isUnique: Bool = true, needInvert: Bool = false) -> SectionSelectableWrapper<Section> {
         .init(self, isUnique: isUnique, needInvert: needInvert)
     }

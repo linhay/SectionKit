@@ -23,11 +23,11 @@
 #if canImport(UIKit)
 import UIKit
 
-open class SingleTypeCompositionalSection<Cell: UICollectionViewCell & SectionConfigurableView & SectionLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SectionCollectionCompositionalLayoutProtocol {
-    public let supplementaryProvider = SectionDelegate<(section: SingleTypeCompositionalSection<Cell>, kind: SectionSupplementaryKind, at: Int), UICollectionReusableView>()
+open class SingleTypeCompositionalSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SingleTypeCollectionDriveSection<Cell>, SKCollectionCompositionalLayoutProtocol {
+    public let supplementaryProvider = SectionDelegate<(section: SingleTypeCompositionalSection<Cell>, kind: SKSupplementaryKind, at: Int), UICollectionReusableView>()
     public var layoutProvider = SectionDelegate<NSCollectionLayoutEnvironment, NSCollectionLayoutSection?>()
     
-    override open func supplementary(kind: SectionSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+    override open func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView? {
         supplementaryProvider.call((section: self, kind: kind, at: row))
     }
     

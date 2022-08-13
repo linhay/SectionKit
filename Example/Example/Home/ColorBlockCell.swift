@@ -8,7 +8,7 @@
 import SectionKit
 import UIKit
 
-final class ColorBlockCell: UICollectionViewCell, SectionLoadViewProtocol {
+final class ColorBlockCell: UICollectionViewCell, SKLoadViewProtocol {
     private lazy var titleLabel: UILabel = {
         let view = UILabel(frame: .zero)
         view.textColor = .black
@@ -36,7 +36,7 @@ extension ColorBlockCell {}
 
 // MARK: - ConfigurableView
 
-extension ColorBlockCell: ConfigurableView {
+extension ColorBlockCell: SKConfigurableView {
     struct Model: Equatable {
         let color: UIColor
         var text: String

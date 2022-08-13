@@ -32,7 +32,7 @@ public struct SingleTypeSectionPublishers<Model, ReusableView> {
     
     public struct SupplementaryResult {
         public let view: ReusableView
-        public let elementKind: SectionSupplementaryKind
+        public let elementKind: SKSupplementaryKind
         public let row: Int
     }
     

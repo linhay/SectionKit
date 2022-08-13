@@ -24,7 +24,7 @@
 import UIKit
 
 @dynamicMemberLookup
-public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtocol & SectionProtocol>: SectionWrapperProtocol {
+public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtocol & SKSectionProtocol>: SKWrapperProtocol {
     public typealias Model = Section.Cell.Model
     public typealias Cell = Section.Cell
     
@@ -35,7 +35,7 @@ public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtoc
         self.wrappedSection = section
     }
     
-    public convenience init<Wrapper: SectionWrapperProtocol>(_ wrapper: Wrapper) where Wrapper.Section == Section {
+    public convenience init<Wrapper: SKWrapperProtocol>(_ wrapper: Wrapper) where Wrapper.Section == Section {
         self.init(wrapper.wrappedSection)
         self.otherWrapper = wrapper
     }
@@ -72,11 +72,11 @@ public final class SectionDifferenceWrapper<Section: SingleTypeSectionDataProtoc
     }
 }
 
-public extension SectionProtocol where Self: SingleTypeSectionDataProtocol {
+public extension SKSectionProtocol where Self: SingleTypeSectionDataProtocol {
     var differenceWrapper: SectionDifferenceWrapper<Self> { .init(self) }
 }
 
-public extension SectionWrapperProtocol where Section: SingleTypeSectionDataProtocol {
+public extension SKWrapperProtocol where Section: SingleTypeSectionDataProtocol {
     var differenceWrapper: SectionDifferenceWrapper<Section> {
         .init(self)
     }

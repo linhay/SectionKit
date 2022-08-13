@@ -30,7 +30,7 @@ import Combine
 typealias SingleTypeSectionProtocol = SingleTypeSectionDataProtocol & SingleTypeSectionEventProtocol
 
 public protocol SingleTypeSectionDataProtocol {
-    associatedtype Cell: SectionLoadViewProtocol & SectionConfigurableModelProtocol
+    associatedtype Cell: SKLoadViewProtocol & SKConfigurableModelProtocol
     
     var models: [Cell.Model] { get }
     var dataSource: SingleTypeSectionDataSource<Cell> { get }
@@ -118,7 +118,7 @@ public extension SingleTypeSectionDataProtocol {
 }
 
 public protocol SingleTypeSectionEventProtocol {
-    associatedtype Cell: SectionLoadViewProtocol & SectionConfigurableModelProtocol
+    associatedtype Cell: SKLoadViewProtocol & SKConfigurableModelProtocol
     associatedtype ReusableView
     
     var models: [Cell.Model] { get }
@@ -126,7 +126,7 @@ public protocol SingleTypeSectionEventProtocol {
     var publishers: SingleTypeSectionPublishers<Cell.Model, ReusableView> { get }
 }
 
-public extension SingleTypeSectionEventProtocol where Self: SectionProtocol {
+public extension SingleTypeSectionEventProtocol where Self: SKSectionProtocol {
     func item(selected row: Int) {
         guard let model = model(at: row) else {
             return

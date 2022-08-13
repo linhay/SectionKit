@@ -8,6 +8,7 @@
 import SectionKit
 import Stem
 import UIKit
+import StemColor
 
 class CompositionalViewController: SKCollectionViewController {
     override func viewDidLoad() {

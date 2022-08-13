@@ -15,7 +15,11 @@ public final class STCollectionRegistrationSection: STCollectionRegistrationSect
     
     public var sectionState: STCollectionSectionContext?
     
-    public init() {}
+    public init(supplementaries: [SKSupplementaryKind: any STCollectionReusableViewRegistrationProtocol] = [:],
+                  registrations: [any STCollectionCellRegistrationProtocol] = []) {
+        self.supplementaries = supplementaries
+        self.registrations = registrations
+    }
     
     public func config(sectionView: UICollectionView) {
         guard let sectionState = sectionState else {

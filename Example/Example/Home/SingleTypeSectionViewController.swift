@@ -8,6 +8,7 @@
 import SectionKit
 import Stem
 import UIKit
+import StemColor
 
 class SingleTypeSectionViewController: SKCollectionViewController {
     
@@ -32,7 +33,7 @@ class SingleTypeSectionViewController: SKCollectionViewController {
 
     func bindUI() {
         leftController.section.registrations.forEach { item in
-            item.onSelected {
+            item.onSelected { _ in
                 self.rightController.send(item.model as! SingleTypeSectionViewController.Action)
             }
         }

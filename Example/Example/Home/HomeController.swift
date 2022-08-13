@@ -10,6 +10,7 @@ import UIKit
 
 class HomeController: SKCollectionViewController {
     enum Action: String, CaseIterable {
+        case registration
         case singleTypeSection
         case multiSection
         case prefetch
@@ -38,6 +39,8 @@ extension HomeController {
         section.onItemSelected(on: self) { (self, _, model) in
             var controller: UIViewController?
             switch model {
+            case .registration:
+                controller = RegistrationViewController()
             case .compositionalLayout:
                 controller = CompositionalViewController()
             case .prefetch:

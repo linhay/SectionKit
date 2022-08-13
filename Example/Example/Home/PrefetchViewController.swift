@@ -9,6 +9,7 @@ import Combine
 import SectionKit
 import Stem
 import UIKit
+import StemColor
 
 class PrefetchViewController: SKCollectionViewController {
     private let section = SingleTypeSection<ColorBlockCell>()
@@ -36,10 +37,8 @@ extension PrefetchViewController {
         section.publishers.prefetch.begin.sink { [weak self] rows in
             guard let self = self else { return }
             guard let max = rows.max(), max >= self.section.models.count - 1 else {
-                print("prefetch: data loaded \(rows.map(\.description).joined(separator: ","))")
                 return
             }
-            print("prefetch: \(rows.map(\.description).joined(separator: ","))")
             self.next()
         }.store(in: &cancellables)
     }

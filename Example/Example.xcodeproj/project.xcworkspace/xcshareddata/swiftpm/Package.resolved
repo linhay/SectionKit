@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/linhay/Stem.git",
       "state" : {
-        "revision" : "d0b7b04fe9d60793822a1b82f13d3de61d9aa5f1",
-        "version" : "1.0.8"
+        "revision" : "c805890142fb0a936cf4a88d268274b0ab770ef3",
+        "version" : "1.1.2"
       }
     }
   ],

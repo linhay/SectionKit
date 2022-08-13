@@ -93,8 +93,6 @@ class STCollectionDelegate: NSObject, UICollectionViewDelegate {
         section(indexPath)?.item(performPrimaryAction: indexPath.item)
     }
     
-    
-    
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         section(indexPath)?.item(willDisplay: cell, row: indexPath.item)
     }

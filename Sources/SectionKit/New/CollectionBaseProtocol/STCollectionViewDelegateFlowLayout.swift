@@ -9,12 +9,20 @@ import UIKit
 
 class STCollectionViewDelegateFlowLayout: STCollectionDelegate, UICollectionViewDelegateFlowLayout {
     
-    private let section: (_ indexPath: IndexPath) -> STCollectionViewDelegateFlowLayoutProtocol?
+    private let _section: (_ indexPath: IndexPath) -> STCollectionViewDelegateFlowLayoutProtocol?
+    
+    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> STCollectionViewDelegateFlowLayoutProtocol? {
+        debugPrint("delegate - \(indexPath) - \(function)")
+        return _section(indexPath)
+    }
     
     init(section: @escaping (_ indexPath: IndexPath) -> STCollectionViewDelegateFlowLayoutProtocol?,
+         endDisplaySection: @escaping (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?,
          sections: @escaping () -> [STCollectionDelegateProtocol]) {
-        self.section = section
-        super.init(section: section, sections: sections)
+        self._section = section
+        super.init(section: section,
+                   endDisplaySection: endDisplaySection,
+                   sections: sections)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

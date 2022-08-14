@@ -14,21 +14,27 @@ public class STCollectionRegistrationManager {
     
     private var lock = false
     private var waitSections: [STCollectionRegistrationSectionProtocol]?
-
+    
     private lazy var delegate = STCollectionViewDelegateFlowLayout { [weak self] indexPath in
-        return self?.sectionsStore[indexPath.section]
+        guard let self = self, self.sections.indices.contains(indexPath.section) else {
+            return nil
+        }
+        return self.sections[indexPath.section]
+    } endDisplaySection: { [weak self] indexPath in
+        guard let self = self else { return nil }
+        return self.sectionsStore[indexPath.section] ?? self.sections[indexPath.section]
     } sections: { [weak self] in
         return self?.sections ?? []
     }
     
     private lazy var dataSource = STCollectionDataSource { [weak self] indexPath in
-        self?.sectionsStore[indexPath.section]
+        self?.sections[indexPath.section]
     } sections: { [weak self] in
         self?.sections ?? []
     }
     
     private lazy var prefetching = STCollectionViewDataSourcePrefetching { [weak self] section in
-        self?.sectionsStore[section] as? STCollectionViewDataSourcePrefetchingProtocol
+        self?.sections[section] as? STCollectionViewDataSourcePrefetchingProtocol
     }
     
     public weak var sectionView: UICollectionView?
@@ -81,9 +87,13 @@ public extension STCollectionRegistrationManager {
     func remove(_ input: [any STCollectionRegistrationSectionProtocol]) {
         let IDs = input.map({ ObjectIdentifier($0) })
         let sections = (waitSections ?? sections).filter({ !IDs.contains(ObjectIdentifier($0)) })
-        update(sections)
+        difference(sections)
     }
     func remove(_ input: STCollectionRegistrationSectionProtocol) { remove([input]) }
+    
+    func update(_ sections: [any STCollectionRegistrationSectionProtocol]) {
+        difference(sections)
+    }
     
     @MainActor
     private func pick(_ block: () -> Void) async {
@@ -96,7 +106,11 @@ public extension STCollectionRegistrationManager {
         }
     }
     
-    func update(_ sections: [any STCollectionRegistrationSectionProtocol]) {
+}
+
+private extension STCollectionRegistrationManager {
+    
+    func difference(_ sections: [any STCollectionRegistrationSectionProtocol], function: StaticString = #function) {
         
         guard !lock else {
             waitSections = sections
@@ -116,6 +130,8 @@ public extension STCollectionRegistrationManager {
                 return
             }
             
+            self.sectionsStore.removeAll()
+            
             /// 存储上一次 context 待函数结束自动释放
             let tempContext = context
             context = .init(sectionView)
@@ -128,12 +144,6 @@ public extension STCollectionRegistrationManager {
             
             if self.sections.isEmpty {
                 self.sections = sections
-                self.sectionsStore.removeAll()
-                for section in sections {
-                    if let index = section.sectionState?.index {
-                        self.sectionsStore[index] = section
-                    }
-                }
                 self.sectionView?.reloadData()
                 return
             }
@@ -143,29 +153,27 @@ public extension STCollectionRegistrationManager {
             }
             
             if !result.removals.isEmpty {
-                var removeIndexSet = IndexSet()
+                var indexSet = [Int]()
                 for changed in result.removals.reversed() {
                     switch changed {
-                    case let .remove(offset: offset, element: _, associatedWith: _):
-                        removeIndexSet.update(with: offset)
-                        self.sections.remove(at: offset)
+                    case let .remove(offset: offset, element: element, associatedWith: _):
+                        if let index = element.sectionState?.index {
+                            self.sectionsStore[index] = element
+                        }
+                        indexSet.append(offset)
                     default:
                         assertionFailure()
                     }
                 }
-                
                 await pick {
-                    sectionView.deleteSections(removeIndexSet)
+                    indexSet.forEach { offset in
+                        self.sections.remove(at: offset)
+                    }
+                    sectionView.deleteSections(.init(indexSet))
                 }
             }
             
             self.sections = sections
-            self.sectionsStore.removeAll()
-            for section in sections {
-                if let index = section.sectionState?.index {
-                    self.sectionsStore[index] = section
-                }
-            }
             
             if !result.insertions.isEmpty {
                 var insertIndexSet = IndexSet()
@@ -186,4 +194,3 @@ public extension STCollectionRegistrationManager {
     }
     
 }
-

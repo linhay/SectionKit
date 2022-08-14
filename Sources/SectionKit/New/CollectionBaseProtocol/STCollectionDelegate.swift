@@ -9,13 +9,31 @@ import UIKit
 
 class STCollectionDelegate: NSObject, UICollectionViewDelegate {
     
-    private var section: (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?
-    private var sections: () -> any Collection<STCollectionDelegateProtocol>
+    private var _section: (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?
+    private var _endDisplaySection: (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?
+    private var _sections: () -> any Collection<STCollectionDelegateProtocol>
+    
+    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> STCollectionDelegateProtocol? {
+        debugPrint("delegate - \(indexPath) - \(function)")
+       return _section(indexPath)
+    }
+    
+    private func endDisplaySection(_ indexPath: IndexPath, function: StaticString = #function) -> STCollectionDelegateProtocol? {
+        debugPrint("delegate - endDisplay - \(indexPath) - \(function)")
+       return _endDisplaySection(indexPath)
+    }
+    
+    private func sections(function: StaticString = #function) -> any Collection<STCollectionDelegateProtocol> {
+        debugPrint("delegate - sections - \(function)")
+       return _sections()
+    }
     
     init(section: @escaping (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?,
+         endDisplaySection: @escaping (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?,
          sections: @escaping () -> any Collection<STCollectionDelegateProtocol>) {
-        self.section = section
-        self.sections = sections
+        self._section = section
+        self._sections = sections
+        self._endDisplaySection = endDisplaySection
         super.init()
     }
     
@@ -102,11 +120,11 @@ class STCollectionDelegate: NSObject, UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        section(indexPath)?.item(didEndDisplaying: cell, row: indexPath.item)
+        endDisplaySection(indexPath)?.item(didEndDisplaying: cell, row: indexPath.item)
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        section(indexPath)?.supplementary(didEndDisplaying: view, kind: .init(rawValue: elementKind), at: indexPath.item)
+        endDisplaySection(indexPath)?.supplementary(didEndDisplaying: view, kind: .init(rawValue: elementKind), at: indexPath.item)
     }
     
     

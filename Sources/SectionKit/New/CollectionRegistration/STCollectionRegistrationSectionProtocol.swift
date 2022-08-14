@@ -19,12 +19,24 @@ public protocol STCollectionRegistrationSectionProtocol: STCollectionDataSourceP
 
 public extension STCollectionRegistrationSectionProtocol {
     
+    func registration(at row: Int, function: StaticString = #function) -> (any STCollectionCellRegistrationProtocol)? {
+        guard registrations.indices.contains(row) else {
+            debugPrint("\(ObjectIdentifier(self))")
+            debugPrint("\(function)")
+            debugPrint("\(sectionState!.index)-\(row)")
+            debugPrint(self.registrations.map(\.indexPath))
+            assertionFailure()
+            return nil
+        }
+        return registrations[row]
+    }
+    
     var safeSizeProvider: STSafeSizeProvider { defaultSafeSizeProvider }
     
     var itemCount: Int { registrations.count }
     
     func item(at row: Int) -> UICollectionViewCell {
-        return registrations[row].dequeue(sectionView: sectionView)
+        return registration(at: row)?.dequeue(sectionView: sectionView) ?? .init()
     }
     
     func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView? {
@@ -32,7 +44,7 @@ public extension STCollectionRegistrationSectionProtocol {
     }
     
     func itemSize(at row: Int) -> CGSize {
-        return registrations[row].preferredSize(limit: safeSizeProvider.size)
+        return registration(at: row)?.preferredSize(limit: safeSizeProvider.size) ?? .zero
     }
     
     var headerView: UICollectionReusableView? {
@@ -44,73 +56,73 @@ public extension STCollectionRegistrationSectionProtocol {
     }
     
     func item(shouldHighlight row: Int) -> Bool {
-        registrations[row].shouldHighlight?() ?? true
+        registration(at: row)?.shouldHighlight?() ?? true
     }
     
     func item(didHighlight row: Int) {
-        registrations[row].onHighlight?()
+        registration(at: row)?.onHighlight?()
     }
     
     func item(didUnhighlight row: Int) {
-        registrations[row].onUnhighlight?()
+        registration(at: row)?.onUnhighlight?()
     }
     
     func item(shouldSelect row: Int) -> Bool {
-        registrations[row].shouldHighlight?() ?? true
+        registration(at: row)?.shouldHighlight?() ?? true
     }
     func item(shouldDeselect row: Int) -> Bool {
-        registrations[row].shouldDeselect?() ?? true
+        registration(at: row)?.shouldDeselect?() ?? true
     }
     
     func item(selected row: Int) {
-        registrations[row].onSelected?()
+        registration(at: row)?.onSelected?()
     }
     
     func item(deselected row: Int) {
-        registrations[row].onDeselected?()
+        registration(at: row)?.onDeselected?()
     }
     
     @available(iOS 16.0, *)
     func item(canPerformPrimaryAction row: Int) -> Bool {
-        registrations[row].canPerformPrimaryAction?() ?? true
+        registration(at: row)?.canPerformPrimaryAction?() ?? true
     }
     
     @available(iOS 16.0, *)
     func item(performPrimaryAction row: Int) {
-        registrations[row].onPerformPrimaryAction?()
+        registration(at: row)?.onPerformPrimaryAction?()
     }
     
     func item(willDisplay view: UICollectionViewCell, row: Int) {
-        registrations[row].onWillDisplay?()
+        registration(at: row)?.onWillDisplay?()
     }
     
     func item(didEndDisplaying view: UICollectionViewCell, row: Int) {
-        registrations[row].onEndDisplaying?()
+        registration(at: row)?.onEndDisplaying?()
     }
     
     func item(canFocus row: Int) -> Bool {
-        registrations[row].canFocus?() ?? true
+        registration(at: row)?.canFocus?() ?? true
     }
     
     @available(iOS 15.0, *)
     func item(selectionFollowsFocus row: Int) -> Bool {
-        registrations[row].selectionFollowsFocus?() ?? true
+        registration(at: row)?.selectionFollowsFocus?() ?? true
     }
     
     @available(iOS 14.0, *)
     func item(canEdit row: Int) -> Bool {
-        registrations[row].canEdit?() ?? false
+        registration(at: row)?.canEdit?() ?? false
     }
     
     func item(shouldSpringLoad row: Int, with context: UISpringLoadedInteractionContext) -> Bool {
-        registrations[row].shouldSpringLoad?(context) ?? true
+        registration(at: row)?.shouldSpringLoad?(context) ?? true
     }
     
     func item(shouldBeginMultipleSelectionInteraction row: Int) -> Bool {
-        registrations[row].shouldBeginMultipleSelectionInteraction?() ?? false
+        registration(at: row)?.shouldBeginMultipleSelectionInteraction?() ?? false
     }
     
     func item(didBeginMultipleSelectionInteraction row: Int) {
-        registrations[row].onBeginMultipleSelectionInteraction?()
+        registration(at: row)?.onBeginMultipleSelectionInteraction?()
     }
 }

@@ -13,6 +13,8 @@ public class STCollectionManager {
     
     private lazy var delegate = STCollectionViewDelegateFlowLayout { [weak self] indexPath in
         self?.sections[indexPath.section] as? STCollectionViewDelegateFlowLayoutProtocol
+    } endDisplaySection: { [weak self] indexPath in
+        self?.sections[indexPath.section] as? STCollectionViewDelegateFlowLayoutProtocol
     } sections: { [weak self] in
         return self?.sections.lazy.compactMap({ $0 as? STCollectionViewDelegateFlowLayoutProtocol }) ?? []
     }

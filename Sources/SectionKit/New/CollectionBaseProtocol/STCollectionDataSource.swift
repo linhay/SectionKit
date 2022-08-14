@@ -9,13 +9,23 @@ import UIKit
 
 class STCollectionDataSource: NSObject, UICollectionViewDataSource {
     
-    var section: (_ indexPath: IndexPath) -> STCollectionDataSourceProtocol?
-    var sections: () -> [STCollectionDataSourceProtocol]
+    private var _section: (_ indexPath: IndexPath) -> STCollectionDataSourceProtocol?
+    private var _sections: () -> [STCollectionDataSourceProtocol]
+    
+    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> STCollectionDataSourceProtocol? {
+        debugPrint("datasource - \(indexPath) - \(function)")
+       return _section(indexPath)
+    }
+    
+    private func sections(function: StaticString = #function) -> [STCollectionDataSourceProtocol] {
+        debugPrint("datasource - sections - \(function)")
+       return _sections()
+    }
     
     init(section: @escaping (_ indexPath: IndexPath) -> STCollectionDataSourceProtocol?,
          sections: @escaping () -> [STCollectionDataSourceProtocol]) {
-        self.section = section
-        self.sections = sections
+        self._section = section
+        self._sections = sections
         super.init()
     }
     

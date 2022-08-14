@@ -60,12 +60,12 @@ extension RegistrationViewController {
             }
             
             manager.update([STCollectionRegistrationSection(registrations:
-                HomeIndexCell
-                    .registration(Action.allCases)
-                    .onSelected { model in
-                        self.event.call(model)
-                    }
-            )])
+                                                                HomeIndexCell
+                .registration(Action.allCases)
+                .onSelected { model in
+                    self.event.call(model)
+                }
+                                                           )])
         }
     }
     
@@ -82,22 +82,33 @@ extension RegistrationViewController {
             }
         }
         
-        func newSection() -> STCollectionRegistrationSection {
-            STCollectionRegistrationSection(registrations: [
-                ColorBlockCell.registration(.init(color: StemColor.random.convert(),
-                                                  text: manager.sections.count.description,
-                                                  size: .init(width: 60, height: 60)))
-                ])
+        func newSection(_ text: String? = nil, count: Int) -> STCollectionRegistrationSection {
+            STCollectionRegistrationSection(registrations: ColorBlockCell
+                .registration((1...count).map({ idx in
+                        .init(color: StemColor.random.convert(),
+                              text: text ?? "\(manager.sections.count)-\(idx.description)",
+                              size: .init(width: 60, height: 60))
+                }))
+            )
         }
         
         func on(action: Action) {
             switch action {
             case .reset:
-                manager.update([newSection()])
+                manager.update([
+                    newSection("1", count: 1),
+                    newSection("2", count: 2),
+                    newSection("3", count: 3),
+                    newSection("4", count: 4),
+                    newSection("5", count: 5),
+                    newSection("6", count: 6),
+                    newSection("7", count: 7),
+                    newSection("8", count: 8),
+                ])
             case .insert:
-                manager.insert(newSection(), at: manager.sections.indices.randomElement() ?? 0)
+                manager.insert(newSection(count: 4), at: manager.sections.indices.randomElement() ?? 0)
             case .append:
-                manager.append(newSection())
+                manager.append(newSection(count: 4))
             case .remove:
                 if let section = manager.sections.randomElement() {
                     manager.remove(section)

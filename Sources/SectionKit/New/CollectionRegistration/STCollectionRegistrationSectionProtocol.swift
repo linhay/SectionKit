@@ -12,12 +12,16 @@ public protocol STCollectionRegistrationSectionProtocol: STCollectionDataSourceP
                                                          STCollectionViewDelegateFlowLayoutProtocol,
                                                          STSafeSizeProviderProtocol {
     
-    var supplementaries: [SKSupplementaryKind: any STCollectionReusableViewRegistrationProtocol] { get }
+    var supplementaries: [any STCollectionReusableViewRegistrationProtocol] { get }
     var registrations: [any STCollectionCellRegistrationProtocol] { get }
     
 }
 
 public extension STCollectionRegistrationSectionProtocol {
+
+    func supplementary(_ kind: SKSupplementaryKind, function: StaticString = #function) -> (any STCollectionReusableViewRegistrationProtocol)? {
+        return supplementaries.first(where: { $0.kind == kind })
+    }
     
     func registration(at row: Int, function: StaticString = #function) -> (any STCollectionCellRegistrationProtocol)? {
         guard registrations.indices.contains(row) else {
@@ -40,7 +44,7 @@ public extension STCollectionRegistrationSectionProtocol {
     }
     
     func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView? {
-        supplementaries[kind]?.dequeue(sectionView: sectionView, kind: kind)
+        supplementary(kind)?.dequeue(sectionView: sectionView, kind: kind)
     }
     
     func itemSize(at row: Int) -> CGSize {
@@ -51,8 +55,16 @@ public extension STCollectionRegistrationSectionProtocol {
         supplementary(kind: .header, at: 0)
     }
     
+    var footerView: UICollectionReusableView? {
+        supplementary(kind: .footer, at: 0)
+    }
+    
     var headerSize: CGSize {
-        supplementaries[.header]?.preferredSize(limit: safeSizeProvider.size) ?? .zero
+        supplementary(.header)?.preferredSize(limit: safeSizeProvider.size) ?? .zero
+    }
+    
+    var footerSize: CGSize {
+        supplementary(.footer)?.preferredSize(limit: safeSizeProvider.size) ?? .zero
     }
     
     func item(shouldHighlight row: Int) -> Bool {

@@ -9,13 +9,13 @@ import UIKit
 
 public final class STCollectionRegistrationSection: STCollectionRegistrationSectionProtocol {
 
-    public var supplementaries: [SKSupplementaryKind : any STCollectionReusableViewRegistrationProtocol] = [:]
+    public var supplementaries: [any STCollectionReusableViewRegistrationProtocol] = []
     
     public var registrations: [any STCollectionCellRegistrationProtocol] = []
     
     public var sectionState: STCollectionSectionContext?
     
-    public init(supplementaries: [SKSupplementaryKind: any STCollectionReusableViewRegistrationProtocol] = [:],
+    public init(supplementaries: [any STCollectionReusableViewRegistrationProtocol] = [],
                   registrations: [any STCollectionCellRegistrationProtocol] = []) {
         self.supplementaries = supplementaries
         self.registrations = registrations
@@ -24,6 +24,11 @@ public final class STCollectionRegistrationSection: STCollectionRegistrationSect
     public func config(sectionView: UICollectionView) {
         guard let sectionState = sectionState else {
             return
+        }
+        supplementaries.forEach { item in
+            var item = item
+            item.register(sectionView: sectionView)
+            item.indexPath = .init(row: 0, section: sectionState.index)
         }
         registrations.enumerated().forEach { item in
             var element = item.element

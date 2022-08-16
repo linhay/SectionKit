@@ -66,12 +66,12 @@ public struct SKReducer {
         }
         
         func transfer(from: State, to: State) -> State {
-            from.types.forEach { $0.section.sectionState = nil }
+            from.types.forEach { $0.section.sectionInjection = nil }
             to.types.enumerated().forEach { index, section in
-                section.section.sectionState = SKState()
-                section.section.sectionState?.reloadDataEvent = reloadDataEvent
-                section.section.sectionState?.index = index
-                section.section.sectionState?.sectionView = weakBox.value
+                section.section.sectionInjection = SKState()
+                section.section.sectionInjection?.reloadDataEvent = reloadDataEvent
+                section.section.sectionInjection?.index = index
+                section.section.sectionInjection?.sectionView = weakBox.value
             }
             return to
         }

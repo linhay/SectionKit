@@ -104,7 +104,7 @@ public extension SectionTableProtocol {
 
 public extension SectionTableProtocol {
     var sectionView: UITableView {
-        guard let view = sectionState?.sectionView as? UITableView else {
+        guard let view = sectionInjection?.sectionView as? UITableView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
             return UITableView()
         }

@@ -10,7 +10,7 @@ import UIKit
 public protocol STCollectionActionProtocol: AnyObject {
     
     var sectionView: UICollectionView { get }
-    var sectionState: STCollectionSectionContext? { get set }
+    var sectionInjection: STCollectionSectionInjection? { get set }
     func config(sectionView: UICollectionView)
 
 }
@@ -18,7 +18,7 @@ public protocol STCollectionActionProtocol: AnyObject {
 public extension STCollectionActionProtocol {
     
     var sectionView: UICollectionView {
-        guard let view = sectionState?.sectionView else {
+        guard let view = sectionInjection?.sectionView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
             return UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         }
@@ -27,4 +27,13 @@ public extension STCollectionActionProtocol {
     
     func config(sectionView: UICollectionView) {}
             
+}
+
+
+public extension STCollectionActionProtocol {
+    
+    func reload() {
+        sectionInjection?.send(.reload)
+    }
+    
 }

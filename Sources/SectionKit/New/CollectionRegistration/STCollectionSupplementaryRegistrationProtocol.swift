@@ -7,18 +7,22 @@
 
 import UIKit
 
-public protocol STCollectionReusableViewRegistrationProtocol: AnyObject, STViewRegistrationProtocol where View: UICollectionReusableView {
+public protocol STCollectionSupplementaryRegistrationProtocol: AnyObject, STViewRegistrationProtocol where View: UICollectionReusableView {
     
+    typealias BoolBlock = () -> Bool
+    typealias BoolInputBlock = (View.Model) -> Bool
     typealias VoidBlock = () -> Void
     typealias VoidInputBlock = (View.Model) -> Void
     
     var kind: SKSupplementaryKind { get }
-    
+    var injection: (any STCollectionRegistrationInjectionProtocol)? { get set }
+
     var onWillDisplay: VoidBlock? { get set }
     var onEndDisplaying: VoidBlock? { get set }
+    
 }
 
-public extension STCollectionReusableViewRegistrationProtocol {
+public extension STCollectionSupplementaryRegistrationProtocol {
     
     func dequeue(sectionView: UICollectionView, kind: SKSupplementaryKind) -> View {
         guard let indexPath = indexPath else {
@@ -42,15 +46,7 @@ public extension STCollectionReusableViewRegistrationProtocol {
     
 }
 
-
-public extension STCollectionReusableViewRegistrationProtocol {
-    
-    private func wrapper(_ block: @escaping VoidInputBlock) -> VoidBlock {
-        return { [weak self] in
-            guard let self = self else { return }
-            block(self.model)
-        }
-    }
+public extension STCollectionSupplementaryRegistrationProtocol {
     
     func onWillDisplay(_ block: @escaping VoidInputBlock) -> Self {
         onWillDisplay = wrapper(block)
@@ -60,6 +56,24 @@ public extension STCollectionReusableViewRegistrationProtocol {
     func onEndDisplaying(_ block: @escaping VoidInputBlock) -> Self {
         onEndDisplaying = wrapper(block)
         return self
+    }
+    
+}
+
+extension STCollectionSupplementaryRegistrationProtocol {
+    
+     func wrapper(_ block: @escaping BoolInputBlock) -> BoolBlock {
+        return { [weak self] in
+            guard let self = self else { return false }
+            return block(self.model)
+        }
+    }
+    
+     func wrapper(_ block: @escaping VoidInputBlock) -> VoidBlock {
+        return { [weak self] in
+            guard let self = self else { return }
+            block(self.model)
+        }
     }
     
 }

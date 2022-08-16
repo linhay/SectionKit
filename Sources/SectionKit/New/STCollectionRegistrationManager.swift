@@ -39,7 +39,7 @@ public class STCollectionRegistrationManager {
     
     public weak var sectionView: UICollectionView?
     
-    private lazy var context = STCollectionSectionContext.SectionViewProvider(sectionView)
+    private lazy var context = STCollectionSectionInjection.SectionViewProvider(sectionView)
     
     public init(sectionView: UICollectionView) {
         self.sectionView = sectionView
@@ -138,7 +138,9 @@ private extension STCollectionRegistrationManager {
             
             sections.enumerated().forEach { element in
                 let section = element.element
-                section.sectionState = .init(index: element.offset, sectionView: context)
+                let injection = STCollectionSectionInjection(index: element.offset, sectionView: context)
+                section.sectionInjection = injection
+                section.prepare(injection: injection)
                 section.config(sectionView: sectionView)
             }
             
@@ -157,7 +159,7 @@ private extension STCollectionRegistrationManager {
                 for changed in result.removals.reversed() {
                     switch changed {
                     case let .remove(offset: offset, element: element, associatedWith: _):
-                        if let index = element.sectionState?.index {
+                        if let index = element.sectionInjection?.index {
                             self.sectionsStore[index] = element
                         }
                         indexSet.append(offset)

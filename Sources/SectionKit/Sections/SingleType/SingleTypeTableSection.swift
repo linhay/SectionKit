@@ -49,13 +49,13 @@ open class SingleTypeTableSection<Cell: UITableViewCell>: SectionDataSourcePrefe
     public var headerSize: CGSize { headerSizeProvider.call(sectionView) ?? .zero }
     public var footerSize: CGSize { footerSizeProvider.call(sectionView) ?? .zero }
     
-    public var sectionState: SKState?
+    public var sectionInjection: SKState?
     internal var cancellables = Set<AnyCancellable>()
     
     public required init(_ models: [Cell.Model] = [], transforms: [SKDataTransform<Cell.Model>] = []) {
         dataSource = .init(models, transforms: transforms)
         dataSource.reloadPublisher.sink { [weak self] _ in
-            self?.sectionState?.reloadDataEvent?()
+            self?.sectionInjection?.reloadDataEvent?()
         }.store(in: &cancellables)
         dataSource.dataSubject.filter(\.isTransformed).map(\.models).sink { [weak self] models in
             self?.models = models

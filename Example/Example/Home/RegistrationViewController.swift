@@ -12,10 +12,13 @@ import StemColor
 class RegistrationViewController: UIViewController {
     
     enum Action: String, CaseIterable {
-        case insert
-        case append
-        case remove
-        case reset
+        case reset          = "重置"
+        case section_insert = "组-插入"
+        case section_append = "组-拼接"
+        case section_remove = "组-移除"
+        case cell_insert    = "cell-插入"
+        case cell_append    = "cell-拼接"
+        case cell_remove    = "cell-移除"
     }
     
     override func viewDidLoad() {
@@ -107,14 +110,25 @@ extension RegistrationViewController {
                     newSection("7", count: 7),
                     newSection("8", count: 8),
                 ])
-            case .insert:
+            case .section_insert:
                 manager.insert(newSection(count: 4), at: manager.sections.indices.randomElement() ?? 0)
-            case .append:
+            case .section_append:
                 manager.append(newSection(count: 4))
-            case .remove:
+            case .section_remove:
                 if let section = manager.sections.randomElement() {
                     manager.remove(section)
                 }
+            case .cell_insert:
+                break
+            case .cell_append:
+                break
+            case .cell_remove:
+                if let section = manager.sections.randomElement(),
+                   let cell = section.registrations.randomElement() {
+                    debugPrint("\(action.rawValue) -> \(cell.indexPath!)")
+                    section.delete(cell)
+                }
+                break
             }
         }
     }

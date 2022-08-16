@@ -24,7 +24,7 @@
 import UIKit
 
 public protocol SKSectionProtocol: AnyObject {
-    var sectionState: SKState? { get set }
+    var sectionInjection: SKState? { get set }
     var sectionIndex: Int { get set }
     
     /// UICollectionViewDelegate & UITableViewDelegate
@@ -62,11 +62,11 @@ public protocol SKSectionProtocol: AnyObject {
 
 public extension SKSectionProtocol {
     var sectionIndex: Int {
-        set { sectionState?.index = newValue }
-        get { sectionState?.index ?? 0 }
+        set { sectionInjection?.index = newValue }
+        get { sectionInjection?.index ?? 0 }
     }
     
-    var isLoaded: Bool { sectionState != nil }
+    var isLoaded: Bool { sectionInjection != nil }
 }
 
 /// delegate

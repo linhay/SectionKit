@@ -43,7 +43,7 @@ public extension SKCollectionDriveProtocol {
 
 public extension SKCollectionDriveProtocol {
     var sectionView: UICollectionView {
-        guard let view = sectionState?.sectionView as? UICollectionView else {
+        guard let view = sectionInjection?.sectionView as? UICollectionView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
             return UICollectionView()
         }
@@ -136,7 +136,7 @@ public extension SKCollectionDriveProtocol {
 /// These methods allow dynamic modification of the current set of items in the collection view
 public extension SKCollectionDriveProtocol {
     func reload() {
-        sectionState?.reloadDataEvent?()
+        sectionInjection?.reloadDataEvent?()
     }
     
     func insertItems(at rows: [Int]) {
@@ -151,7 +151,7 @@ public extension SKCollectionDriveProtocol {
             return
         }
         if itemCount <= 0 {
-            sectionState?.reloadDataEvent?()
+            sectionInjection?.reloadDataEvent?()
         } else {
             sectionView.deleteItems(at: indexPath(from: rows))
         }

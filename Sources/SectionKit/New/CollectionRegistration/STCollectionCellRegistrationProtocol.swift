@@ -7,12 +7,7 @@
 
 import UIKit
 
-public protocol STCollectionCellRegistrationProtocol: AnyObject, STViewRegistrationProtocol where View: UICollectionViewCell {
-    
-    typealias BoolBlock = () -> Bool
-    typealias VoidBlock = () -> Void
-    typealias BoolInputBlock = (View.Model) -> Bool
-    typealias VoidInputBlock = (View.Model) -> Void
+public protocol STCollectionCellRegistrationProtocol: STCollectionSupplementaryRegistrationProtocol where View: UICollectionViewCell {
     
     var shouldHighlight: BoolBlock? { get set }
     var shouldSelect: BoolBlock? { get set }
@@ -60,20 +55,6 @@ public extension STCollectionCellRegistrationProtocol {
 }
 
 public extension STCollectionCellRegistrationProtocol {
-    
-    private func wrapper(_ block: @escaping BoolInputBlock) -> BoolBlock {
-        return { [weak self] in
-            guard let self = self else { return false }
-            return block(self.model)
-        }
-    }
-    
-    private func wrapper(_ block: @escaping VoidInputBlock) -> VoidBlock {
-        return { [weak self] in
-            guard let self = self else { return }
-            block(self.model)
-        }
-    }
     
     func shouldHighlight(_ block: @escaping BoolInputBlock) -> Self {
         shouldHighlight = wrapper(block)

@@ -18,7 +18,7 @@ public extension SKCollectionDriveProtocol {
 }
 
 public final class SectionHorizontalWrapper<Section: SKCollectionDriveProtocol>: SKCollectionProtocol, SKCollectionFlowLayoutSafeSizeProtocol, SKWrapperProtocol {
-    public var sectionState: SKState?
+    public var sectionInjection: SKState?
     public var itemCount: Int = 1
     
     public lazy var safeSize: SKSafeSize = defaultSafeSize

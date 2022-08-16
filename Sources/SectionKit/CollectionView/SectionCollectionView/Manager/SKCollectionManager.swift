@@ -83,7 +83,7 @@ public class SKCollectionManager {
         
         func config(sectionView _: UICollectionView) {}
         func item(at _: Int) -> UICollectionViewCell { UICollectionViewCell() }
-        var sectionState: SKState?
+        var sectionInjection: SKState?
         let itemCount: Int = 0
     }
 }

@@ -31,7 +31,7 @@ public class STCollectionManager {
     
     public weak var sectionView: UICollectionView?
     
-    private lazy var context = STCollectionSectionContext.SectionViewProvider(sectionView)
+    private lazy var context = STCollectionSectionInjection.SectionViewProvider(sectionView)
 
     public init(sectionView: UICollectionView) {
         self.sectionView = sectionView
@@ -54,7 +54,7 @@ public extension STCollectionManager {
         
         self.sections = sections.enumerated().map({ element in
             let section = element.element
-            section.sectionState = .init(index: element.offset, sectionView: context)
+            section.sectionInjection = .init(index: element.offset, sectionView: context)
             section.config(sectionView: sectionView)
             return section
         })

@@ -34,7 +34,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SKLoadV
     /// UI驱动所用数据集
     public private(set) lazy var models: [Cell.Model] = []
     
-    open var sectionState: SKState?
+    open var sectionInjection: SKState?
     
     open var itemCount: Int { models.count }
     
@@ -51,7 +51,7 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & SKLoadV
     public required init(_ models: [Cell.Model] = [], transforms: [SKDataTransform<Cell.Model>] = []) {
         dataSource = .init(models, transforms: transforms)
         dataSource.reloadPublisher.sink { [weak self] _ in
-            self?.sectionState?.reloadDataEvent?()
+            self?.sectionInjection?.reloadDataEvent?()
         }.store(in: &cancellables)
         dataSource.dataSubject.filter(\.isTransformed).map(\.models).sink { [weak self] models in
             self?.models = models

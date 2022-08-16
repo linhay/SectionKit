@@ -23,6 +23,9 @@ public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadVie
 
 public class STCollectionCellRegistration<View: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol, ID: Hashable>: STViewRegistration<View, ID>, STCollectionCellRegistrationProtocol {
     
+    public let kind: SKSupplementaryKind = .custom("cell")
+    public var injection: (any STCollectionRegistrationInjectionProtocol)?
+
     public var shouldHighlight: BoolBlock?
     public var shouldSelect: BoolBlock?
     public var shouldDeselect: BoolBlock?

@@ -7,7 +7,7 @@
 
 import UIKit
 
-public protocol STCollectionSupplementaryRegistrationProtocol: AnyObject, STViewRegistrationProtocol where View: UICollectionReusableView {
+public protocol SKCSupplementaryRegistrationProtocol: AnyObject, SKViewRegistrationProtocol where View: UICollectionReusableView {
     
     typealias BoolBlock = () -> Bool
     typealias BoolInputBlock = (View.Model) -> Bool
@@ -15,14 +15,14 @@ public protocol STCollectionSupplementaryRegistrationProtocol: AnyObject, STView
     typealias VoidInputBlock = (View.Model) -> Void
     
     var kind: SKSupplementaryKind { get }
-    var injection: (any STCollectionRegistrationInjectionProtocol)? { get set }
+    var injection: (any SKCRegistrationInjectionProtocol)? { get set }
 
     var onWillDisplay: VoidBlock? { get set }
     var onEndDisplaying: VoidBlock? { get set }
     
 }
 
-public extension STCollectionSupplementaryRegistrationProtocol {
+public extension SKCSupplementaryRegistrationProtocol {
     
     func dequeue(sectionView: UICollectionView, kind: SKSupplementaryKind) -> View {
         guard let indexPath = indexPath else {
@@ -46,7 +46,7 @@ public extension STCollectionSupplementaryRegistrationProtocol {
     
 }
 
-public extension STCollectionSupplementaryRegistrationProtocol {
+public extension SKCSupplementaryRegistrationProtocol {
     
     func onWillDisplay(_ block: @escaping VoidInputBlock) -> Self {
         onWillDisplay = wrapper(block)
@@ -60,7 +60,7 @@ public extension STCollectionSupplementaryRegistrationProtocol {
     
 }
 
-extension STCollectionSupplementaryRegistrationProtocol {
+extension SKCSupplementaryRegistrationProtocol {
     
      func wrapper(_ block: @escaping BoolInputBlock) -> BoolBlock {
         return { [weak self] in

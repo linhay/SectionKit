@@ -7,33 +7,33 @@
 
 import UIKit
 
-public protocol STCollectionRegistrationSectionProtocol: STCollectionDataSourceProtocol,
+public protocol SKCRegistrationSectionProtocol: STCollectionDataSourceProtocol,
                                                          STCollectionActionProtocol,
                                                          STCollectionViewDelegateFlowLayoutProtocol,
                                                          STSafeSizeProviderProtocol {
     
-    var supplementaries: [SKSupplementaryKind: any STCollectionSupplementaryRegistrationProtocol] { get set }
-    var registrations: [any STCollectionCellRegistrationProtocol] { get set }
-    var registrationSectionInjection: STCollectionRegistrationSectionInjection? { get set }
-    func prepare(injection: STCollectionRegistrationSectionInjection?)
+    var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] { get set }
+    var registrations: [any SKCCellRegistrationProtocol] { get set }
+    var registrationSectionInjection: SKCRegistrationSectionInjection? { get set }
+    func prepare(injection: SKCRegistrationSectionInjection?)
 }
 
-public extension STCollectionRegistrationSectionProtocol {
+public extension SKCRegistrationSectionProtocol {
     
     var sectionInjection: STCollectionSectionInjection? {
-        set { registrationSectionInjection = newValue as? STCollectionRegistrationSectionInjection }
+        set { registrationSectionInjection = newValue as? SKCRegistrationSectionInjection }
         get { registrationSectionInjection }
     }
     
 }
 
-public extension STCollectionRegistrationSectionProtocol {
+public extension SKCRegistrationSectionProtocol {
     
-    func supplementary(_ kind: SKSupplementaryKind, function: StaticString = #function) -> (any STCollectionSupplementaryRegistrationProtocol)? {
+    func supplementary(_ kind: SKSupplementaryKind, function: StaticString = #function) -> (any SKCSupplementaryRegistrationProtocol)? {
         return supplementaries[kind]
     }
     
-    func registration(at row: Int, function: StaticString = #function) -> (any STCollectionCellRegistrationProtocol)? {
+    func registration(at row: Int, function: StaticString = #function) -> (any SKCCellRegistrationProtocol)? {
         guard registrations.indices.contains(row) else {
             debugPrint("registration => ", "\(ObjectIdentifier(self))")
             debugPrint("registration => ", "\(function)")
@@ -158,9 +158,9 @@ public extension STCollectionRegistrationSectionProtocol {
 }
 
 
-public extension STCollectionRegistrationSectionProtocol {
+public extension SKCRegistrationSectionProtocol {
     
-    func prepare(injection: STCollectionRegistrationSectionInjection?) {
+    func prepare(injection: SKCRegistrationSectionInjection?) {
         guard let injection = injection else {
             supplementaries.forEach { item in
                 item.value.injection = nil
@@ -175,7 +175,7 @@ public extension STCollectionRegistrationSectionProtocol {
             var item = item.value
             item.register(sectionView: sectionView)
             item.indexPath = .init(row: 0, section: injection.index)
-            var viewInjection = STCollectionRegistrationInjection(index: injection.index)
+            var viewInjection = SKCRegistrationInjection(index: injection.index)
             item.injection = viewInjection
             viewInjection.add(.reload) { [weak injection] viewInjection in
                 guard let sectionView = injection?.sectionView else { return }
@@ -187,7 +187,7 @@ public extension STCollectionRegistrationSectionProtocol {
             var element = item.element
             element.register(sectionView: sectionView)
             element.indexPath = .init(row: item.offset, section: injection.index)
-            var viewInjection = STCollectionRegistrationInjection(index: item.offset)
+            var viewInjection = SKCRegistrationInjection(index: item.offset)
             element.injection = viewInjection
             viewInjection.add(.reload) { [weak injection] viewInjection in
                 guard let injection = injection,
@@ -209,21 +209,21 @@ public extension STCollectionRegistrationSectionProtocol {
     
 }
 
-public extension STCollectionRegistrationSectionProtocol {
+public extension SKCRegistrationSectionProtocol {
     
-    func apply(_ items: [SKSupplementaryKind: any STCollectionSupplementaryRegistrationProtocol]) {
+    func apply(_ items: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol]) {
         
     }
     
-    func apply(_ items: [any STCollectionSupplementaryRegistrationProtocol]) {
+    func apply(_ items: [any SKCSupplementaryRegistrationProtocol]) {
         
     }
     
-    func delete(_ item: any STCollectionSupplementaryRegistrationProtocol) {
+    func delete(_ item: any SKCSupplementaryRegistrationProtocol) {
         delete([item])
     }
     
-    func delete(_ items: [any STCollectionSupplementaryRegistrationProtocol]) {
+    func delete(_ items: [any SKCSupplementaryRegistrationProtocol]) {
         let set = Set(items.map(\.kind))
         supplementaries = supplementaries.filter({ item in
             if set.contains(item.value.kind) {
@@ -237,7 +237,7 @@ public extension STCollectionRegistrationSectionProtocol {
         injection.sectionView?.reloadSections(.init(integer: injection.index))
     }
     
-    func insert(_ items: [any STCollectionSupplementaryRegistrationProtocol]) {
+    func insert(_ items: [any SKCSupplementaryRegistrationProtocol]) {
         items.forEach { item in
             supplementaries[item.kind] = item
         }
@@ -245,10 +245,10 @@ public extension STCollectionRegistrationSectionProtocol {
     
 }
 
-public extension STCollectionRegistrationSectionProtocol {
+public extension SKCRegistrationSectionProtocol {
     
-    private func prepare(injection: STCollectionRegistrationSectionInjection,
-                         registrations: [any STCollectionCellRegistrationProtocol]) -> [any STCollectionCellRegistrationProtocol] {
+    private func prepare(injection: SKCRegistrationSectionInjection,
+                         registrations: [any SKCCellRegistrationProtocol]) -> [any SKCCellRegistrationProtocol] {
        return registrations
             .enumerated()
             .map { item in
@@ -258,11 +258,11 @@ public extension STCollectionRegistrationSectionProtocol {
             }
     }
     
-    func apply(_ registrations: any STCollectionCellRegistrationProtocol) {
+    func apply(_ registrations: any SKCCellRegistrationProtocol) {
         apply(registrations)
     }
     
-    func apply(_ registrations: [any STCollectionCellRegistrationProtocol]) {
+    func apply(_ registrations: [any SKCCellRegistrationProtocol]) {
         guard let injection = registrationSectionInjection else {
             self.registrations = registrations
             return
@@ -271,11 +271,11 @@ public extension STCollectionRegistrationSectionProtocol {
         injection.sectionView?.reloadSections(.init(integer: injection.index))
     }
     
-    func delete(_ item: any STCollectionCellRegistrationProtocol) {
+    func delete(_ item: any SKCCellRegistrationProtocol) {
         delete([item])
     }
     
-    func delete(_ items: [any STCollectionCellRegistrationProtocol]) {
+    func delete(_ items: [any SKCCellRegistrationProtocol]) {
         let set = Set(items.compactMap(\.indexPath))
         let registrations = registrations
             .filter({ item in

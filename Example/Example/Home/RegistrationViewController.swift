@@ -19,6 +19,8 @@ class RegistrationViewController: UIViewController {
         case cell_insert    = "cell-插入"
         case cell_append    = "cell-拼接"
         case cell_remove    = "cell-移除"
+        case cell_self_remove = "cell-self-移除"
+        case cell_self_reload = "cell-self-重载"
         case view_insert    = "view-插入"
         case view_append    = "view-拼接"
         case view_remove    = "view-移除"
@@ -65,7 +67,7 @@ extension RegistrationViewController {
                 make.edges.equalToSuperview()
             }
             
-           let section = STCollectionRegistrationSection {
+           let section = SKCRegistrationSection {
                 StringRawCell
                     .registration(Action.allCases)
                     .onSelected { model in
@@ -90,8 +92,8 @@ extension RegistrationViewController {
             }
         }
         
-        func newSection(_ text: String? = nil, count: Int) -> STCollectionRegistrationSection {
-            STCollectionRegistrationSection {
+        func newSection(_ text: String? = nil, count: Int) -> SKCRegistrationSection {
+            SKCRegistrationSection {
                 ReusableView.registration(count.description + " header", for: .header)
                 ReusableView.registration(count.description + " footer", for: .footer)
                 ColorBlockCell
@@ -140,10 +142,21 @@ extension RegistrationViewController {
                    let cell = section.registrations.randomElement() {
                     section.delete(cell)
                 }
+            case .cell_self_remove:
+                if let section = manager.sections.randomElement(),
+                   let cell = section.registrations.randomElement() {
+                    cell.injection?.delete()
+                }
+            case .cell_self_reload:
+                if let section = manager.sections.randomElement(),
+                   let cell = section.registrations.randomElement() {
+                    cell.injection?.reload()
+                }
             case .view_insert:
                 break
             case .view_append:
                 break
+                
             case .view_remove:
                 if let section = manager.sections.randomElement(),
                    let view = section.supplementaries.randomElement()?.value {

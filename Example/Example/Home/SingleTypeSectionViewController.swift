@@ -62,7 +62,7 @@ extension SingleTypeSectionViewController {
     
     class LeftViewController: SKCollectionViewController {
         
-        let section = STCollectionRegistrationSection()
+        let section = SKCRegistrationSection()
         
         lazy var stmanager = STCollectionManager(sectionView: sectionView)
 

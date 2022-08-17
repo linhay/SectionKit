@@ -9,17 +9,17 @@ import UIKit
 
 public extension SKConfigurableView where Self: UICollectionReusableView & SKLoadViewProtocol {
 
-    static func registration(_ model: Model, for kind: SKSupplementaryKind) -> STCollectionSupplementaryRegistration<Self, Int> {
+    static func registration(_ model: Model, for kind: SKSupplementaryKind) -> SKCSupplementaryRegistration<Self, Int> {
         return .init(kind: kind, model: model, type: Self.self)
     }
 
 }
 
-public class STCollectionSupplementaryRegistration<View: UICollectionReusableView & SKConfigurableView & SKLoadViewProtocol,
-                                                   ID: Hashable>: STViewRegistration<View, ID>,
-                                                                   STCollectionSupplementaryRegistrationProtocol {
+public class SKCSupplementaryRegistration<View: UICollectionReusableView & SKConfigurableView & SKLoadViewProtocol,
+                                                   ID: Hashable>: SKViewRegistration<View, ID>,
+                                                                   SKCSupplementaryRegistrationProtocol {
     
-    public var injection: (any STCollectionRegistrationInjectionProtocol)?
+    public var injection: (any SKCRegistrationInjectionProtocol)?
     public let kind: SKSupplementaryKind
     
     public var onWillDisplay: VoidBlock?

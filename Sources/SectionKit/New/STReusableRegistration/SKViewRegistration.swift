@@ -8,35 +8,18 @@
 import UIKit
 
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
-    
-    static func registration(_ model: Model) -> STViewRegistration<Self, Int> {
+    static func registration(_ model: Model) -> SKViewRegistration<Self, Int> {
         return .init(model: model, type: Self.self)
     }
     
-    static func registration(_ models: [Model]) -> [STViewRegistration<Self, Int>] {
+    static func registration(_ models: [Model]) -> [SKViewRegistration<Self, Int>] {
         return models.map { model in
                 .init(model: model, type: Self.self)
         }
     }
-    
 }
 
-public protocol STViewRegistrationProtocol {
-    associatedtype View: SKLoadViewProtocol & SKConfigurableView
-    var indexPath: IndexPath? { get set }
-    var model: View.Model { get }
-    var type: View.Type { get }
-}
-
-extension STViewRegistrationProtocol {
-    
-    func preferredSize(limit size: CGSize) -> CGSize {
-        View.preferredSize(limit: size, model: model)
-    }
-    
-}
-
-public class STViewRegistration<View: SKLoadViewProtocol & SKConfigurableView, ID: Hashable>: STViewRegistrationProtocol, Identifiable {
+public class SKViewRegistration<View: SKLoadViewProtocol & SKConfigurableView, ID: Hashable>: SKViewRegistrationProtocol, Identifiable {
     
     public var indexPath: IndexPath?
     public let model: View.Model

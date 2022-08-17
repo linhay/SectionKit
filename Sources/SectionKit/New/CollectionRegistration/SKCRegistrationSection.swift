@@ -7,11 +7,11 @@
 
 import UIKit
 
-public final class STCollectionRegistrationSection: STCollectionRegistrationSectionProtocol {
+public final class SKCRegistrationSection: SKCRegistrationSectionProtocol {
     
-    public var registrationSectionInjection: STCollectionRegistrationSectionInjection?
-    public var supplementaries: [SKSupplementaryKind: any STCollectionSupplementaryRegistrationProtocol]
-    public var registrations: [any STCollectionCellRegistrationProtocol]
+    public var registrationSectionInjection: SKCRegistrationSectionInjection?
+    public var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol]
+    public var registrations: [any SKCCellRegistrationProtocol]
     
     public convenience init() {
         self.init([:], [])
@@ -22,8 +22,8 @@ public final class STCollectionRegistrationSection: STCollectionRegistrationSect
         self.init(supplementaries.supplementaries, supplementaries.registrations)
     }
     
-    public init(_ supplementaries: [SKSupplementaryKind: any STCollectionSupplementaryRegistrationProtocol],
-                _ registrations: [any STCollectionCellRegistrationProtocol]) {
+    public init(_ supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol],
+                _ registrations: [any SKCCellRegistrationProtocol]) {
         self.supplementaries = supplementaries
         self.registrations = registrations
     }
@@ -31,19 +31,19 @@ public final class STCollectionRegistrationSection: STCollectionRegistrationSect
 }
 
 
-public extension STCollectionRegistrationSection {
+public extension SKCRegistrationSection {
     
     struct BuilderStore {
-        public var supplementaries: [SKSupplementaryKind: any STCollectionSupplementaryRegistrationProtocol] = [:]
-        public var registrations: [any STCollectionCellRegistrationProtocol] = []
+        public var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] = [:]
+        public var registrations: [any SKCCellRegistrationProtocol] = []
     }
     
     @resultBuilder
     struct Builder {
         
         public typealias Store = BuilderStore
-        public typealias CellView = STCollectionSupplementaryRegistrationProtocol
-        public typealias RegistrationView = STCollectionCellRegistrationProtocol
+        public typealias CellView = SKCSupplementaryRegistrationProtocol
+        public typealias RegistrationView = SKCCellRegistrationProtocol
         
         public static func buildExpression(_ expression: Void) -> Store {
             .init()

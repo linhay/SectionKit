@@ -7,7 +7,7 @@
 
 import UIKit
 
-public protocol STCollectionCellRegistrationProtocol: STCollectionSupplementaryRegistrationProtocol where View: UICollectionViewCell {
+public protocol SKCCellRegistrationProtocol: SKCSupplementaryRegistrationProtocol where View: UICollectionViewCell {
     
     var shouldHighlight: BoolBlock? { get set }
     var shouldSelect: BoolBlock? { get set }
@@ -32,10 +32,8 @@ public protocol STCollectionCellRegistrationProtocol: STCollectionSupplementaryR
     
 }
 
-public extension STCollectionCellRegistrationProtocol {
+public extension SKCCellRegistrationProtocol {
         
-    func earseAnyCellRegistration() -> any STCollectionCellRegistrationProtocol { self }
-
     func dequeue(sectionView: UICollectionView) -> View {
         guard let indexPath = indexPath else {
             assertionFailure()
@@ -56,7 +54,7 @@ public extension STCollectionCellRegistrationProtocol {
     
 }
 
-public extension STCollectionCellRegistrationProtocol {
+public extension SKCCellRegistrationProtocol {
     
     func shouldHighlight(_ block: @escaping BoolInputBlock) -> Self {
         shouldHighlight = wrapper(block)

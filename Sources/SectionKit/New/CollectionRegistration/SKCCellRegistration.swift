@@ -9,11 +9,11 @@ import UIKit
 
 public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
     
-    static func registration(_ model: Model) -> STCollectionCellRegistration<Self, Int> {
+    static func registration(_ model: Model) -> SKCCellRegistration<Self, Int> {
         return .init(model: model, type: Self.self)
     }
     
-    static func registration(_ models: [Model]) -> [STCollectionCellRegistration<Self, Int>] {
+    static func registration(_ models: [Model]) -> [SKCCellRegistration<Self, Int>] {
         return models.map { model in
                 .init(model: model, type: Self.self)
         }
@@ -21,10 +21,10 @@ public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadVie
     
 }
 
-public class STCollectionCellRegistration<View: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol, ID: Hashable>: STViewRegistration<View, ID>, STCollectionCellRegistrationProtocol {
+public class SKCCellRegistration<View: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol, ID: Hashable>: SKViewRegistration<View, ID>, SKCCellRegistrationProtocol {
     
     public let kind: SKSupplementaryKind = .cell
-    public var injection: (any STCollectionRegistrationInjectionProtocol)?
+    public var injection: (any SKCRegistrationInjectionProtocol)?
 
     public var shouldHighlight: BoolBlock?
     public var shouldSelect: BoolBlock?

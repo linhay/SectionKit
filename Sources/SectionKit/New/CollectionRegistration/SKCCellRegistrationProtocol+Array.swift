@@ -7,10 +7,8 @@
 
 import UIKit
 
-public extension Array where Element: STCollectionCellRegistrationProtocol {
-    
-    func earseAnyCellRegistration() -> [any STCollectionCellRegistrationProtocol] { self }
-    
+public extension Array where Element: SKCCellRegistrationProtocol {
+        
     func shouldHighlight(_ block: @escaping Element.BoolInputBlock) -> Self {
         return self.map { $0.shouldHighlight(block) }
     }

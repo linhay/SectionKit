@@ -95,6 +95,10 @@ public extension STCollectionRegistrationManager {
         difference(sections)
     }
     
+    func update(_ section: any STCollectionRegistrationSectionProtocol) {
+        difference([section])
+    }
+    
     @MainActor
     private func pick(_ block: () -> Void) async {
         await withUnsafeContinuation { continuation in
@@ -138,8 +142,8 @@ private extension STCollectionRegistrationManager {
             
             sections.enumerated().forEach { element in
                 let section = element.element
-                let injection = STCollectionSectionInjection(index: element.offset, sectionView: context)
-                section.sectionInjection = injection
+                let injection = STCollectionRegistrationSectionInjection(index: element.offset, sectionView: context)
+                section.registrationSectionInjection = injection
                 section.prepare(injection: injection)
                 section.config(sectionView: sectionView)
             }

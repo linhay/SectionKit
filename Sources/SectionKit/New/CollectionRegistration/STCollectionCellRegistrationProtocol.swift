@@ -33,7 +33,9 @@ public protocol STCollectionCellRegistrationProtocol: STCollectionSupplementaryR
 }
 
 public extension STCollectionCellRegistrationProtocol {
-    
+        
+    func earseAnyCellRegistration() -> any STCollectionCellRegistrationProtocol { self }
+
     func dequeue(sectionView: UICollectionView) -> View {
         guard let indexPath = indexPath else {
             assertionFailure()

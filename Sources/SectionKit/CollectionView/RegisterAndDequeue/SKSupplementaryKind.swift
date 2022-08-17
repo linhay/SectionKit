@@ -33,12 +33,14 @@ import UIKit
 public enum SKSupplementaryKind: Equatable, Hashable, RawRepresentable {
     case header
     case footer
+    case cell
     case custom(_ value: String)
     
     public init(rawValue: String) {
         switch rawValue {
         case UICollectionView.elementKindSectionHeader: self = .header
         case UICollectionView.elementKindSectionFooter: self = .footer
+        case "UICollectionViewCell": self = .cell
         default: self = .custom(rawValue)
         }
     }
@@ -47,6 +49,7 @@ public enum SKSupplementaryKind: Equatable, Hashable, RawRepresentable {
         switch self {
         case .header: return UICollectionView.elementKindSectionHeader
         case .footer: return UICollectionView.elementKindSectionFooter
+        case .cell: return "UICollectionViewCell"
         case let .custom(value): return value
         }
     }

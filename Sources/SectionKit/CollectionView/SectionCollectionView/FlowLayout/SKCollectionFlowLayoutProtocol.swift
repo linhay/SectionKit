@@ -48,7 +48,7 @@ public extension SKCollectionFlowLayoutProtocol {
             return headerView
         case .footer:
             return footerView
-        case .custom:
+        case .cell, .custom:
             return nil
         }
     }

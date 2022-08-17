@@ -58,7 +58,7 @@ open class SingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & S
             return headerView
         case .footer:
             return footerView
-        case .custom:
+        case .cell, .custom:
             return nil
         }
     }

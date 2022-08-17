@@ -82,7 +82,7 @@ public extension SectionTableProtocol {
             return headerView
         case .footer:
             return footerView
-        case .custom:
+        case .cell, .custom:
             return nil
         }
     }
@@ -93,7 +93,7 @@ public extension SectionTableProtocol {
             return headerSize
         case .footer:
             return footerSize
-        case .custom:
+        case .cell, .custom:
             return nil
         }
     }

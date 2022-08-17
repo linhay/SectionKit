@@ -19,6 +19,9 @@ class RegistrationViewController: UIViewController {
         case cell_insert    = "cell-插入"
         case cell_append    = "cell-拼接"
         case cell_remove    = "cell-移除"
+        case view_insert    = "view-插入"
+        case view_append    = "view-拼接"
+        case view_remove    = "view-移除"
     }
     
     override func viewDidLoad() {
@@ -62,13 +65,15 @@ extension RegistrationViewController {
                 make.edges.equalToSuperview()
             }
             
-            manager.update([STCollectionRegistrationSection(registrations:
-                                                                HomeIndexCell
-                .registration(Action.allCases)
-                .onSelected { model in
-                    self.event.call(model)
-                }
-                                                           )])
+           let section = STCollectionRegistrationSection {
+                HomeIndexCell
+                    .registration(Action.allCases)
+                    .onSelected { model in
+                        self.event.call(model)
+                    }
+            }
+            
+            manager.update([section])
         }
     }
     
@@ -86,15 +91,20 @@ extension RegistrationViewController {
         }
         
         func newSection(_ text: String? = nil, count: Int) -> STCollectionRegistrationSection {
-            STCollectionRegistrationSection(
-                supplementaries: [ReusableView.registration(count.description, for: .header)],
-                registrations: ColorBlockCell
-                    .registration((1...count).map({ idx in
-                            .init(color: StemColor.random.convert(),
-                                  text: text ?? "\(manager.sections.count)-\(idx.description)",
-                                  size: .init(width: 60, height: 60))
-                    }) )
-            )
+            STCollectionRegistrationSection {
+                ReusableView.registration(count.description + " header", for: .header)
+                ReusableView.registration(count.description + " footer", for: .footer)
+            } registrations: {
+                ColorBlockCell
+                    .registration((1...count)
+                        .map({ idx in
+                        .init(color: StemColor.random.convert(),
+                              text: text ?? "\(manager.sections.count)-\(idx.description)",
+                              size: .init(width: 60, height: 60))
+                }))
+                HomeIndexCell
+                    .registration(Action.view_remove)
+            }
         }
         
         func on(action: Action) {
@@ -125,8 +135,16 @@ extension RegistrationViewController {
             case .cell_remove:
                 if let section = manager.sections.randomElement(),
                    let cell = section.registrations.randomElement() {
-                    debugPrint("\(action.rawValue) -> \(cell.indexPath!)")
                     section.delete(cell)
+                }
+            case .view_insert:
+                break
+            case .view_append:
+                break
+            case .view_remove:
+                if let section = manager.sections.randomElement(),
+                   let view = section.supplementaries.randomElement()?.value {
+                    section.delete(view)
                 }
                 break
             }

@@ -12,25 +12,33 @@ public protocol STCollectionRegistrationSectionProtocol: STCollectionDataSourceP
                                                          STCollectionViewDelegateFlowLayoutProtocol,
                                                          STSafeSizeProviderProtocol {
     
-    var supplementaries: [any STCollectionSupplementaryRegistrationProtocol] { get set }
+    var supplementaries: [SKSupplementaryKind: any STCollectionSupplementaryRegistrationProtocol] { get set }
     var registrations: [any STCollectionCellRegistrationProtocol] { get set }
-    var endDisplayStore: STCollectionRegistrationEndDisplayStore { get }
+    var registrationSectionInjection: STCollectionRegistrationSectionInjection? { get set }
+    func prepare(injection: STCollectionRegistrationSectionInjection?)
+}
 
-    func prepare(injection: STCollectionSectionInjection?)
+public extension STCollectionRegistrationSectionProtocol {
+    
+    var sectionInjection: STCollectionSectionInjection? {
+        set { registrationSectionInjection = newValue as? STCollectionRegistrationSectionInjection }
+        get { registrationSectionInjection }
+    }
+    
 }
 
 public extension STCollectionRegistrationSectionProtocol {
     
     func supplementary(_ kind: SKSupplementaryKind, function: StaticString = #function) -> (any STCollectionSupplementaryRegistrationProtocol)? {
-        return supplementaries.first(where: { $0.kind == kind })
+        return supplementaries[kind]
     }
     
     func registration(at row: Int, function: StaticString = #function) -> (any STCollectionCellRegistrationProtocol)? {
         guard registrations.indices.contains(row) else {
-            debugPrint("\(ObjectIdentifier(self))")
-            debugPrint("\(function)")
-            debugPrint("\(sectionInjection!.index)-\(row)")
-            debugPrint(self.registrations.map(\.indexPath))
+            debugPrint("registration => ", "\(ObjectIdentifier(self))")
+            debugPrint("registration => ", "\(function)")
+            debugPrint("registration => ", "\(sectionInjection!.index)-\(row)")
+            debugPrint("registration => ", self.registrations.map(\.indexPath))
             assertionFailure()
             return nil
         }
@@ -111,15 +119,15 @@ public extension STCollectionRegistrationSectionProtocol {
     }
     
     func item(didEndDisplaying view: UICollectionViewCell, row: Int) {
-        (endDisplayStore.registration(at: row) ?? registration(at: row))?.onEndDisplaying?()
+        (registrationSectionInjection?.registration(at: row) ?? registration(at: row))?.onEndDisplaying?()
     }
     
     func supplementary(willDisplay view: UICollectionReusableView, kind: SKSupplementaryKind, at row: Int) {
-        (endDisplayStore.supplementary(kind) ?? supplementary(kind))?.onWillDisplay?()
+        (registrationSectionInjection?.supplementary(kind) ?? supplementary(kind))?.onWillDisplay?()
     }
     
     func supplementary(didEndDisplaying view: UICollectionReusableView, kind: SKSupplementaryKind, at row: Int) {
-        (endDisplayStore.supplementary(kind) ?? supplementary(kind))?.onEndDisplaying?()
+        (registrationSectionInjection?.supplementary(kind) ?? supplementary(kind))?.onEndDisplaying?()
     }
     
     func item(canFocus row: Int) -> Bool {
@@ -152,10 +160,10 @@ public extension STCollectionRegistrationSectionProtocol {
 
 public extension STCollectionRegistrationSectionProtocol {
     
-    func prepare(injection: STCollectionSectionInjection?) {
+    func prepare(injection: STCollectionRegistrationSectionInjection?) {
         guard let injection = injection else {
             supplementaries.forEach { item in
-                item.injection = nil
+                item.value.injection = nil
             }
             registrations.forEach { item in
                 item.injection = nil
@@ -164,7 +172,7 @@ public extension STCollectionRegistrationSectionProtocol {
         }
         
         supplementaries.forEach { item in
-            var item = item
+            var item = item.value
             item.register(sectionView: sectionView)
             item.indexPath = .init(row: 0, section: injection.index)
             var viewInjection = STCollectionRegistrationInjection(index: injection.index)
@@ -199,20 +207,27 @@ public extension STCollectionRegistrationSectionProtocol {
         }
     }
     
+}
+
+public extension STCollectionRegistrationSectionProtocol {
+    
+    func apply(_ items: [SKSupplementaryKind: any STCollectionSupplementaryRegistrationProtocol]) {
+        
+    }
+    
+    func apply(_ items: [any STCollectionSupplementaryRegistrationProtocol]) {
+        
+    }
+    
     func delete(_ item: any STCollectionSupplementaryRegistrationProtocol) {
         delete([item])
     }
     
-    func delete(_ item: any STCollectionCellRegistrationProtocol) {
-        delete([item])
-    }
-    
     func delete(_ items: [any STCollectionSupplementaryRegistrationProtocol]) {
-        endDisplayStore.supplementaries.removeAll()
         let set = Set(items.map(\.kind))
         supplementaries = supplementaries.filter({ item in
-            if set.contains(item.kind) {
-                endDisplayStore.supplementaries[item.kind] = item
+            if set.contains(item.value.kind) {
+                registrationSectionInjection?.supplementaries[item.value.kind] = item.value
                 return false
             } else {
                 return true
@@ -222,30 +237,64 @@ public extension STCollectionRegistrationSectionProtocol {
         injection.sectionView?.reloadSections(.init(integer: injection.index))
     }
     
+    func insert(_ items: [any STCollectionSupplementaryRegistrationProtocol]) {
+        items.forEach { item in
+            supplementaries[item.kind] = item
+        }
+    }
+    
+}
+
+public extension STCollectionRegistrationSectionProtocol {
+    
+    private func prepare(injection: STCollectionRegistrationSectionInjection,
+                         registrations: [any STCollectionCellRegistrationProtocol]) -> [any STCollectionCellRegistrationProtocol] {
+       return registrations
+            .enumerated()
+            .map { item in
+                var element = item.element
+                element.indexPath = .init(item: item.offset, section: injection.index)
+                return element
+            }
+    }
+    
+    func apply(_ registrations: any STCollectionCellRegistrationProtocol) {
+        apply(registrations)
+    }
+    
+    func apply(_ registrations: [any STCollectionCellRegistrationProtocol]) {
+        guard let injection = registrationSectionInjection else {
+            self.registrations = registrations
+            return
+        }
+        self.registrations = prepare(injection: injection, registrations: registrations)
+        injection.sectionView?.reloadSections(.init(integer: injection.index))
+    }
+    
+    func delete(_ item: any STCollectionCellRegistrationProtocol) {
+        delete([item])
+    }
+    
     func delete(_ items: [any STCollectionCellRegistrationProtocol]) {
-        endDisplayStore.registrations.removeAll()
         let set = Set(items.compactMap(\.indexPath))
-        registrations = registrations
+        let registrations = registrations
             .filter({ item in
                 guard let indexPath = item.indexPath else {
                     return false
                 }
                 
                 if set.contains(indexPath) {
-                    endDisplayStore.registrations[indexPath.item] = item
+                    registrationSectionInjection?.registrations[indexPath.item] = item
                     return false
                 } else {
                     return true
                 }
             })
-        
-        guard let injection = sectionInjection else { return }
-        registrations
-            .enumerated()
-            .forEach { item in
-                var element = item.element
-                element.indexPath = .init(item: item.offset, section: injection.index)
-            }
+        guard let injection = registrationSectionInjection else {
+            self.registrations = registrations
+            return
+        }
+        self.registrations = prepare(injection: injection, registrations: registrations)
         injection.sectionView?.deleteItems(at: .init(set))
     }
     

@@ -7,17 +7,21 @@
 
 import Foundation
 
-public class STCollectionRegistrationEndDisplayStore {
+public class STCollectionRegistrationSectionInjection: STCollectionSectionInjection {
     
     var supplementaries: [SKSupplementaryKind: any STCollectionSupplementaryRegistrationProtocol] = [:]
     var registrations: [Int: any STCollectionCellRegistrationProtocol] = [:]
     
     func supplementary(_ kind: SKSupplementaryKind, function: StaticString = #function) -> (any STCollectionSupplementaryRegistrationProtocol)? {
-        return supplementaries[kind]
+        let item = supplementaries[kind]
+        supplementaries[kind] = nil
+        return item
     }
     
     func registration(at row: Int, function: StaticString = #function) -> (any STCollectionCellRegistrationProtocol)? {
-        return registrations[row]
+        let item = registrations[row]
+        registrations[row] = nil
+        return item
     }
     
 }

@@ -94,7 +94,6 @@ extension RegistrationViewController {
             STCollectionRegistrationSection {
                 ReusableView.registration(count.description + " header", for: .header)
                 ReusableView.registration(count.description + " footer", for: .footer)
-            } registrations: {
                 ColorBlockCell
                     .registration((1...count)
                         .map({ idx in
@@ -102,8 +101,10 @@ extension RegistrationViewController {
                               text: text ?? "\(manager.sections.count)-\(idx.description)",
                               size: .init(width: 60, height: 60))
                 }))
-                HomeIndexCell
-                    .registration(Action.view_remove)
+                
+                for idx in 0...2 {
+                    HomeIndexCell.registration(Action.view_remove)
+                }
             }
         }
         

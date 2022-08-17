@@ -88,19 +88,19 @@ public extension SingleTypeSection {
     ///   - style: 自定义配置 View
     /// - Returns: Self
     @discardableResult
-    func setHeader<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
+    func setHeader<CellView: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: CellView.Type, model: CellView.Model, style: ((CellView) -> Void)? = nil) -> Self {
         register { section in
             section.register(type, for: .header)
         }
         headerViewProvider.delegate(on: self) { _, section in
-            let view = section.dequeue(kind: .header) as View
+            let view = section.dequeue(kind: .header) as CellView
             view.config(model)
             style?(view)
             return view
         }
         headerSizeProvider.delegate(on: self) { (self, _) in
             let `self` = self as Self
-            return View.preferredSize(limit: self.safeSize.size(self), model: model)
+            return CellView.preferredSize(limit: self.safeSize.size(self), model: model)
         }
         return self
     }
@@ -112,30 +112,30 @@ public extension SingleTypeSection {
     ///   - style: 自定义配置 View
     /// - Returns: Self
     @discardableResult
-    func setFooter<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: View.Type, model: View.Model, style: ((View) -> Void)? = nil) -> Self {
+    func setFooter<CellView: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: CellView.Type, model: CellView.Model, style: ((CellView) -> Void)? = nil) -> Self {
         register { section in
             section.register(type, for: .footer)
         }
         footerViewProvider.delegate(on: self) { _, section in
-            let view = section.dequeue(kind: .footer) as View
+            let view = section.dequeue(kind: .footer) as CellView
             view.config(model)
             style?(view)
             return view
         }
         footerSizeProvider.delegate(on: self) { (self, _) in
             let `self` = self as Self
-            return View.preferredSize(limit: self.safeSize.size(self), model: model)
+            return CellView.preferredSize(limit: self.safeSize.size(self), model: model)
         }
         return self
     }
     
     @discardableResult
-    func setHeader<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
+    func setHeader<CellView: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: CellView.Type, style: ((CellView) -> Void)? = nil) -> Self where CellView.Model == Void {
         return setHeader(type, model: (), style: style)
     }
     
     @discardableResult
-    func setFooter<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: View.Type, style: ((View) -> Void)? = nil) -> Self where View.Model == Void {
+    func setFooter<CellView: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(_ type: CellView.Type, style: ((CellView) -> Void)? = nil) -> Self where CellView.Model == Void {
         return setFooter(type, model: (), style: style)
     }
 }

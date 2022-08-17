@@ -58,7 +58,7 @@ class DecorationViewController: SKCollectionViewController {
 
 extension DecorationViewController {
     class LeftViewController: SKCollectionViewController {
-        let section = HomeIndexCell<Action>.singleTypeWrapper(Action.allCases)
+        let section = StringRawCell<Action>.singleTypeWrapper(Action.allCases)
 
         override func viewDidLoad() {
             super.viewDidLoad()

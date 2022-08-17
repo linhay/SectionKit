@@ -72,7 +72,7 @@ extension SingleTypeSectionViewController {
         }
 
         func setupUI() {
-            section.registrations = HomeIndexCell<Action>.registration(Action.allCases)
+            section.registrations = StringRawCell<Action>.registration(Action.allCases)
 // section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
 // section.minimumLineSpacing = 8
             stmanager.update([section])

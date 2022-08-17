@@ -9,7 +9,8 @@ import SectionKit
 import SnapKit
 import UIKit
 
-final class HomeIndexCell<Model: RawRepresentable>: UICollectionViewCell, SKLoadViewProtocol where Model.RawValue == String {
+final class StringRawCell<Model: RawRepresentable>: UICollectionViewCell, SKLoadViewProtocol where Model.RawValue == String {
+    
     private lazy var titleLabel: UILabel = {
         let view = UILabel(frame: .zero)
         view.textColor = .black
@@ -18,7 +19,7 @@ final class HomeIndexCell<Model: RawRepresentable>: UICollectionViewCell, SKLoad
         return view
     }()
 
-    override init(frame _: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: .zero)
         setupView()
     }
@@ -29,13 +30,9 @@ final class HomeIndexCell<Model: RawRepresentable>: UICollectionViewCell, SKLoad
     }
 }
 
-// MARK: - Actions
-
-extension HomeIndexCell {}
-
 // MARK: - ConfigurableView
 
-extension HomeIndexCell: SKConfigurableView {
+extension StringRawCell: SKConfigurableView {
     static func preferredSize(limit size: CGSize, model _: Model?) -> CGSize {
         return .init(width: size.width, height: 50)
     }
@@ -47,7 +44,7 @@ extension HomeIndexCell: SKConfigurableView {
 
 // MARK: - UI
 
-extension HomeIndexCell {
+extension StringRawCell {
     private func setupView() {
         contentView.layer.borderColor = UIColor.black.cgColor
         contentView.layer.borderWidth = 2

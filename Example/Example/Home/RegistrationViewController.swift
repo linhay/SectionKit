@@ -66,7 +66,7 @@ extension RegistrationViewController {
             }
             
            let section = STCollectionRegistrationSection {
-                HomeIndexCell
+                StringRawCell
                     .registration(Action.allCases)
                     .onSelected { model in
                         self.event.call(model)
@@ -103,7 +103,9 @@ extension RegistrationViewController {
                 }))
                 
                 for idx in 0...2 {
-                    HomeIndexCell.registration(Action.view_remove)
+                    StringCell
+                        .registration(.init(text: "cell-end",
+                                            size: .init(width: 100, height: 40)))
                 }
             }
         }

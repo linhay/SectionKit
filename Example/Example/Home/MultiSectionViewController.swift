@@ -50,7 +50,7 @@ class MultiSectionViewController: SKCollectionViewController {
 
 extension MultiSectionViewController {
     class LeftViewController: SKCollectionViewController {
-        let section = SingleTypeSection<HomeIndexCell<Action>>(Action.allCases)
+        let section = SingleTypeSection<StringRawCell<Action>>(Action.allCases)
 
         override func viewDidLoad() {
             super.viewDidLoad()

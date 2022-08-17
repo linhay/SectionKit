@@ -18,7 +18,7 @@ class HomeController: SKCollectionViewController {
         case decoration
     }
 
-    let section = SingleTypeSection<HomeIndexCell<Action>>()
+    let section = SingleTypeSection<StringRawCell<Action>>()
 
     override func viewDidLoad() {
         super.viewDidLoad()

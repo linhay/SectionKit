@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-public class STCollectionSectionInjection {
+public class SKCSectionInjection {
     
     public struct Action: OptionSet, Hashable {
         public let rawValue: Int
@@ -30,7 +30,7 @@ public class STCollectionSectionInjection {
     
     var sectionViewProvider: SectionViewProvider
     
-    private var events: [Action: (STCollectionSectionInjection) -> Void] = [:]
+    private var events: [Action: (SKCSectionInjection) -> Void] = [:]
     
     init(index: Int, sectionView: SectionViewProvider) {
         self.sectionViewProvider = sectionView
@@ -39,16 +39,16 @@ public class STCollectionSectionInjection {
     
 }
 
-public extension STCollectionSectionInjection.Action {
+public extension SKCSectionInjection.Action {
     
     static let reload = Self(rawValue: 1 << 1)
     static let delete = Self(rawValue: 1 << 2)
     
 }
 
-public extension STCollectionSectionInjection {
+public extension SKCSectionInjection {
     
-    func reset(_ events: [Action: (STCollectionSectionInjection) -> Void]) {
+    func reset(_ events: [Action: (SKCSectionInjection) -> Void]) {
         self.events = events
     }
     

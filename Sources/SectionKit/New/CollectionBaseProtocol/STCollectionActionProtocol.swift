@@ -10,7 +10,7 @@ import UIKit
 public protocol STCollectionActionProtocol: AnyObject {
     
     var sectionView: UICollectionView { get }
-    var sectionInjection: STCollectionSectionInjection? { get set }
+    var sectionInjection: SKCSectionInjection? { get set }
     func config(sectionView: UICollectionView)
 
 }

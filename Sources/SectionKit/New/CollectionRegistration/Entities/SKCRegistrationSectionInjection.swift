@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SKCRegistrationSectionInjection: STCollectionSectionInjection {
+public class SKCRegistrationSectionInjection: SKCSectionInjection {
     
     var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] = [:]
     var registrations: [Int: any SKCCellRegistrationProtocol] = [:]

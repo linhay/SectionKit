@@ -20,7 +20,7 @@ public protocol SKCRegistrationSectionProtocol: STCollectionDataSourceProtocol,
 
 public extension SKCRegistrationSectionProtocol {
     
-    var sectionInjection: STCollectionSectionInjection? {
+    var sectionInjection: SKCSectionInjection? {
         set { registrationSectionInjection = newValue as? SKCRegistrationSectionInjection }
         get { registrationSectionInjection }
     }

@@ -39,7 +39,7 @@ public class SKCollectionRegistrationManager {
     
     public weak var sectionView: UICollectionView?
     
-    private lazy var context = STCollectionSectionInjection.SectionViewProvider(sectionView)
+    private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView)
     
     public init(sectionView: UICollectionView) {
         self.sectionView = sectionView

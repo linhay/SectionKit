@@ -8,11 +8,11 @@
 import Foundation
 import UIKit
 
-public protocol STSafeSizeProviderProtocol: AnyObject {
-    var safeSizeProvider: STSafeSizeProvider { get }
+public protocol SKSafeSizeProviderProtocol: AnyObject {
+    var safeSizeProvider: SKSafeSizeProvider { get }
 }
 
-public struct STSafeSizeProvider {
+public struct SKSafeSizeProvider {
     
     public var size: CGSize { block() }
     private let block: () -> CGSize
@@ -25,8 +25,8 @@ public struct STSafeSizeProvider {
 
 public extension STCollectionViewDelegateFlowLayoutProtocol where Self: STCollectionActionProtocol {
     
-    var defaultSafeSizeProvider: STSafeSizeProvider {
-        STSafeSizeProvider { [weak self] in
+    var defaultSafeSizeProvider: SKSafeSizeProvider {
+        SKSafeSizeProvider { [weak self] in
             guard let self = self else { return .zero }
             let sectionView = self.sectionView
             let sectionInset = self.sectionInset

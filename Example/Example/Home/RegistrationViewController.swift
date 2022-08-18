@@ -58,7 +58,7 @@ extension RegistrationViewController {
         let event = SectionDelegate<Action, Void>()
         
         let sectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        lazy var manager = STCollectionRegistrationManager(sectionView: sectionView)
+        lazy var manager = SKCollectionRegistrationManager(sectionView: sectionView)
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -82,7 +82,7 @@ extension RegistrationViewController {
     class RightViewController: UIViewController {
         
         let sectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        lazy var manager = STCollectionRegistrationManager(sectionView: sectionView)
+        lazy var manager = SKCollectionRegistrationManager(sectionView: sectionView)
         
         override func viewDidLoad() {
             super.viewDidLoad()

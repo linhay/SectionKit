@@ -8,9 +8,9 @@
 import UIKit
 
 public protocol SKCRegistrationSectionProtocol: STCollectionDataSourceProtocol,
-                                                         STCollectionActionProtocol,
-                                                         STCollectionViewDelegateFlowLayoutProtocol,
-                                                         STSafeSizeProviderProtocol {
+                                                STCollectionActionProtocol,
+                                                STCollectionViewDelegateFlowLayoutProtocol,
+                                                SKSafeSizeProviderProtocol {
     
     var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] { get set }
     var registrations: [any SKCCellRegistrationProtocol] { get set }
@@ -45,7 +45,7 @@ public extension SKCRegistrationSectionProtocol {
         return registrations[row]
     }
     
-    var safeSizeProvider: STSafeSizeProvider { defaultSafeSizeProvider }
+    var safeSizeProvider: SKSafeSizeProvider { defaultSafeSizeProvider }
     
     var itemCount: Int { registrations.count }
     
@@ -249,7 +249,7 @@ public extension SKCRegistrationSectionProtocol {
     
     private func prepare(injection: SKCRegistrationSectionInjection,
                          registrations: [any SKCCellRegistrationProtocol]) -> [any SKCCellRegistrationProtocol] {
-       return registrations
+        return registrations
             .enumerated()
             .map { item in
                 var element = item.element

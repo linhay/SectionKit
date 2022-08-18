@@ -7,4 +7,4 @@
 
 import Foundation
  
-public typealias STCollectionSectionProtocol = STCollectionActionProtocol & STCollectionDataSourceProtocol & STCollectionDelegateProtocol
+public typealias STCollectionSectionProtocol = SKCSectionActionProtocol & STCollectionDataSourceProtocol & STCollectionDelegateProtocol

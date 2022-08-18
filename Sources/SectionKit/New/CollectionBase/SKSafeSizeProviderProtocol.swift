@@ -23,7 +23,7 @@ public struct SKSafeSizeProvider {
     
 }
 
-public extension STCollectionViewDelegateFlowLayoutProtocol where Self: STCollectionActionProtocol {
+public extension STCollectionViewDelegateFlowLayoutProtocol where Self: SKCSectionActionProtocol {
     
     var defaultSafeSizeProvider: SKSafeSizeProvider {
         SKSafeSizeProvider { [weak self] in

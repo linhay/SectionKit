@@ -8,7 +8,7 @@
 import UIKit
 
 public protocol SKCRegistrationSectionProtocol: STCollectionDataSourceProtocol,
-                                                STCollectionActionProtocol,
+                                                SKCSectionActionProtocol,
                                                 STCollectionViewDelegateFlowLayoutProtocol,
                                                 SKSafeSizeProviderProtocol {
     

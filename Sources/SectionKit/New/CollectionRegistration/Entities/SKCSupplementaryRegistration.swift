@@ -8,16 +8,16 @@
 import UIKit
 
 public extension SKConfigurableView where Self: UICollectionReusableView & SKLoadViewProtocol {
-
+    
     static func registration(_ model: Model, for kind: SKSupplementaryKind) -> SKCSupplementaryRegistration<Self, Int> {
         return .init(kind: kind, model: model, type: Self.self)
     }
-
+    
 }
 
 public class SKCSupplementaryRegistration<View: UICollectionReusableView & SKConfigurableView & SKLoadViewProtocol,
-                                                   ID: Hashable>: SKViewRegistration<View, ID>,
-                                                                   SKCSupplementaryRegistrationProtocol {
+                                          ID: Hashable>: SKViewRegistration<View, ID>,
+                                                         SKCSupplementaryRegistrationProtocol {
     
     public var injection: (any SKCRegistrationInjectionProtocol)?
     public let kind: SKSupplementaryKind
@@ -29,10 +29,10 @@ public class SKCSupplementaryRegistration<View: UICollectionReusableView & SKCon
         self.kind = kind
         super.init(model: model, type: type)
     }
-
+    
     public init(kind: SKSupplementaryKind, model: View.Model, type: View.Type, id: KeyPath<View.Model, ID>?) {
         self.kind = kind
         super.init(model: model, type: type, id: id)
     }
-
+    
 }

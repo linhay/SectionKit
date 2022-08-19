@@ -24,6 +24,8 @@ class SingleTypeSectionViewController: SKCollectionViewController {
 
     let leftController = LeftViewController()
     let rightController = RightViewController()
+    
+    lazy var stmanager = STCollectionManager(sectionView: sectionView)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,14 +34,11 @@ class SingleTypeSectionViewController: SKCollectionViewController {
     }
 
     func bindUI() {
-        leftController.section.registrations.forEach { item in
-            item.onSelected { _ in
-                self.rightController.send(item.model as! SingleTypeSectionViewController.Action)
+        leftController.section
+            .on(cellAction: .selected) { [weak self] result in
+                guard let self = self else { return }
+                self.rightController.send(result.model)
             }
-        }
-//        leftController.section.onItemSelected(on: self) { (self, _, action) in
-//            self.rightController.send(action)
-//        }
     }
 
     func setupUI() {
@@ -62,7 +61,7 @@ extension SingleTypeSectionViewController {
     
     class LeftViewController: SKCollectionViewController {
         
-        let section = SKCRegistrationSection()
+        let section = StringRawCell<Action>.singleTypeWrapper(Action.allCases)
         
         lazy var stmanager = STCollectionManager(sectionView: sectionView)
 
@@ -72,9 +71,8 @@ extension SingleTypeSectionViewController {
         }
 
         func setupUI() {
-            section.registrations = StringRawCell<Action>.registration(Action.allCases)
-// section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
-// section.minimumLineSpacing = 8
+            section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
+            section.minimumLineSpacing = 8
             stmanager.update([section])
         }
         

@@ -24,22 +24,24 @@ class DecorationViewController: SKCollectionViewController {
         case inset_40
         case zIndex
     }
-
+    
     let leftController = LeftViewController()
     let rightController = RightViewController()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         bindUI()
     }
-
+    
     func bindUI() {
-        leftController.section.onItemSelected(on: self) { (self, _, action) in
-            self.rightController.send(action)
-        }
+        leftController.section
+            .on(cellAction: .selected) { [weak self] result in
+                guard let self = self else { return }
+                self.rightController.send(result.model)
+            }
     }
-
+    
     func setupUI() {
         addChild(leftController)
         addChild(rightController)
@@ -58,17 +60,19 @@ class DecorationViewController: SKCollectionViewController {
 
 extension DecorationViewController {
     class LeftViewController: SKCollectionViewController {
+        
         let section = StringRawCell<Action>.singleTypeWrapper(Action.allCases)
-
+        lazy var skmanager = STCollectionManager(sectionView: sectionView)
+        
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
-
+        
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
-            manager.update(section)
+            skmanager.update([section])
         }
     }
 }
@@ -76,24 +80,25 @@ extension DecorationViewController {
 extension DecorationViewController {
     class RightViewController: SKCollectionViewController {
         let size = CGSize(width: 88, height: 44)
-
+        lazy var skmanager = STCollectionManager(sectionView: sectionView)
+        
         lazy var sections = (0 ... 10).map { sectionIndex in
             ColorBlockCell
                 .singleTypeWrapper((0 ... 10).map { index in
-                    .init(color: .red, text: "\(sectionIndex - index)", size: size)
+                        .init(color: .red, text: "\(sectionIndex - index)", size: size)
                 })
-                .setHeader(ReusableView.self, model: "header - \(sectionIndex)")
-                .setFooter(ReusableView.self, model: "footer - \(sectionIndex)")
+                .set(supplementary: .init(kind: .header, type: ReusableView.self, model: "header - \(sectionIndex)"))
+                .set(supplementary: .init(kind: .footer, type: ReusableView.self, model: "footer - \(sectionIndex)"))
         }
-
+        
         var isAnimating = false
         var defaultPluginModes: [SKCollectionFlowLayout.PluginMode] = [.fixSupplementaryViewInset(.all)]
-
+        
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUI()
         }
-
+        
         func send(_ action: Action) {
             guard isAnimating == false else {
                 return
@@ -142,12 +147,12 @@ extension DecorationViewController {
                              insets: .init(top: 40, left: 40, bottom: 40, right: 40)))
             }
         }
-
+        
         func update(_ decoration: SKCollectionFlowLayout.Decoration...) {
             sectionView.set(pluginModes: defaultPluginModes + [.decorations(decoration)])
             sectionView.reloadData()
         }
-
+        
         func animate(_ event: @escaping () -> Void) {
             isAnimating = true
             Gcd.delay(.main, seconds: 0.5) {
@@ -155,13 +160,13 @@ extension DecorationViewController {
                 event()
             }
         }
-
+        
         func setupUI() {
             sections.forEach { section in
                 section.sectionInset = .init(top: 20, left: 8, bottom: 20, right: 8)
                 section.minimumLineSpacing = 8
             }
-            manager.update(sections)
+            skmanager.update(sections)
         }
     }
 }

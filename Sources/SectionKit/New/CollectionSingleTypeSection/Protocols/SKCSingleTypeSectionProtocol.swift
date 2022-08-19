@@ -7,21 +7,13 @@
 
 import UIKit
 
-protocol SKCSingleTypeSectionProtocol: SKCDataSourceProtocol,
-                                       SKCSectionActionProtocol,
-                                       SKCViewDelegateFlowLayoutProtocol,
-                                       SKSafeSizeProviderProtocol {
+public protocol SKCSingleTypeSectionProtocol: SKCDataSourceProtocol,
+                                              SKCSectionActionProtocol,
+                                              SKCViewDelegateFlowLayoutProtocol,
+                                              SKSafeSizeProviderProtocol {
     
     associatedtype Cell: UICollectionViewCell & SKConfigurableView
     typealias Model = Cell.Model
-    
     var models: [Model] { get }
-    
-}
-
-extension SKCSingleTypeSectionProtocol {
-    
-    var itemCount: Int { models.count }
-    var safeSizeProvider: SKSafeSizeProvider { defaultSafeSizeProvider }
 
 }

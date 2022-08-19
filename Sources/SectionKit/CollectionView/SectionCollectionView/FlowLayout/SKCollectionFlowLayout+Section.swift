@@ -12,3 +12,17 @@ public extension SKCollectionFlowLayout.BindingKey where Value == Int {
         self.init(get: { section.isLoaded ? section.sectionIndex : nil })
     }
 }
+
+
+public extension SKCollectionFlowLayout.BindingKey where Value == Int {
+    
+    convenience init(_ section: SKCSectionActionProtocol) {
+        self.init(get: { [weak section] in
+            guard let section = section, let injection = section.sectionInjection else {
+                return nil
+            }
+            return injection.index
+        })
+    }
+    
+}

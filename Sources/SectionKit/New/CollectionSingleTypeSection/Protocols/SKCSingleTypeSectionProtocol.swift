@@ -7,9 +7,9 @@
 
 import UIKit
 
-protocol SKCSingleTypeSectionProtocol: STCollectionDataSourceProtocol,
+protocol SKCSingleTypeSectionProtocol: SKCDataSourceProtocol,
                                        SKCSectionActionProtocol,
-                                       STCollectionViewDelegateFlowLayoutProtocol,
+                                       SKCViewDelegateFlowLayoutProtocol,
                                        SKSafeSizeProviderProtocol {
     
     associatedtype Cell: UICollectionViewCell & SKConfigurableView

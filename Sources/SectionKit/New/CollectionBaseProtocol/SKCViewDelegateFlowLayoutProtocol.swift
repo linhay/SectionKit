@@ -7,7 +7,7 @@
 
 import UIKit
 
-public protocol STCollectionViewDelegateFlowLayoutProtocol: STCollectionDelegateProtocol {
+public protocol SKCViewDelegateFlowLayoutProtocol: SKCDelegateProtocol {
     
     func itemSize(at row: Int) -> CGSize
     
@@ -24,7 +24,7 @@ public protocol STCollectionViewDelegateFlowLayoutProtocol: STCollectionDelegate
     
 }
 
-public extension STCollectionViewDelegateFlowLayoutProtocol {
+public extension SKCViewDelegateFlowLayoutProtocol {
     
     var headerView: UICollectionReusableView? { nil }
     var footerView: UICollectionReusableView? { nil }

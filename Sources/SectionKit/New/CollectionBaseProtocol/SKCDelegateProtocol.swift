@@ -7,7 +7,7 @@
 
 import UIKit
 
-public protocol STCollectionDelegateProtocol {
+public protocol SKCDelegateProtocol {
     
     // 用于通知选择/取消选择和高亮/非高亮事件的方法。
     // 导致用户触摸选择的调用顺序是。
@@ -104,7 +104,7 @@ public protocol STCollectionDelegateProtocol {
 }
 
 
-public extension STCollectionDelegateProtocol {
+public extension SKCDelegateProtocol {
     
     // 用于通知选择/取消选择和高亮/非高亮事件的方法。
     // 导致用户触摸选择的调用顺序是。

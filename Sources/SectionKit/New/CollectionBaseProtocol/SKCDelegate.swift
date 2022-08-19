@@ -7,30 +7,30 @@
 
 import UIKit
 
-class STCollectionDelegate: NSObject, UICollectionViewDelegate {
+class SKCDelegate: NSObject, UICollectionViewDelegate {
     
-    private var _section: (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?
-    private var _endDisplaySection: (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?
-    private var _sections: () -> any Collection<STCollectionDelegateProtocol>
+    private var _section: (_ indexPath: IndexPath) -> SKCDelegateProtocol?
+    private var _endDisplaySection: (_ indexPath: IndexPath) -> SKCDelegateProtocol?
+    private var _sections: () -> any Collection<SKCDelegateProtocol>
     
-    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> STCollectionDelegateProtocol? {
+    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> SKCDelegateProtocol? {
         debugPrint("delegate - \(indexPath) - \(function)")
        return _section(indexPath)
     }
     
-    private func endDisplaySection(_ indexPath: IndexPath, function: StaticString = #function) -> STCollectionDelegateProtocol? {
+    private func endDisplaySection(_ indexPath: IndexPath, function: StaticString = #function) -> SKCDelegateProtocol? {
         debugPrint("delegate - endDisplay - \(indexPath) - \(function)")
        return _endDisplaySection(indexPath)
     }
     
-    private func sections(function: StaticString = #function) -> any Collection<STCollectionDelegateProtocol> {
+    private func sections(function: StaticString = #function) -> any Collection<SKCDelegateProtocol> {
         debugPrint("delegate - sections - \(function)")
        return _sections()
     }
     
-    init(section: @escaping (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?,
-         endDisplaySection: @escaping (_ indexPath: IndexPath) -> STCollectionDelegateProtocol?,
-         sections: @escaping () -> any Collection<STCollectionDelegateProtocol>) {
+    init(section: @escaping (_ indexPath: IndexPath) -> SKCDelegateProtocol?,
+         endDisplaySection: @escaping (_ indexPath: IndexPath) -> SKCDelegateProtocol?,
+         sections: @escaping () -> any Collection<SKCDelegateProtocol>) {
         self._section = section
         self._sections = sections
         self._endDisplaySection = endDisplaySection

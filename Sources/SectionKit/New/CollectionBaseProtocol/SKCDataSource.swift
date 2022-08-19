@@ -7,23 +7,23 @@
 
 import UIKit
 
-class STCollectionDataSource: NSObject, UICollectionViewDataSource {
+class SKCDataSource: NSObject, UICollectionViewDataSource {
     
-    private var _section: (_ indexPath: IndexPath) -> STCollectionDataSourceProtocol?
-    private var _sections: () -> [STCollectionDataSourceProtocol]
+    private var _section: (_ indexPath: IndexPath) -> SKCDataSourceProtocol?
+    private var _sections: () -> [SKCDataSourceProtocol]
     
-    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> STCollectionDataSourceProtocol? {
+    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> SKCDataSourceProtocol? {
         debugPrint("datasource - \(indexPath) - \(function)")
        return _section(indexPath)
     }
     
-    private func sections(function: StaticString = #function) -> [STCollectionDataSourceProtocol] {
+    private func sections(function: StaticString = #function) -> [SKCDataSourceProtocol] {
         debugPrint("datasource - sections - \(function)")
        return _sections()
     }
     
-    init(section: @escaping (_ indexPath: IndexPath) -> STCollectionDataSourceProtocol?,
-         sections: @escaping () -> [STCollectionDataSourceProtocol]) {
+    init(section: @escaping (_ indexPath: IndexPath) -> SKCDataSourceProtocol?,
+         sections: @escaping () -> [SKCDataSourceProtocol]) {
         self._section = section
         self._sections = sections
         super.init()

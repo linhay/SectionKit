@@ -9,24 +9,24 @@ import UIKit
 
 public class STCollectionManager {
     
-    public lazy var sections: [STCollectionSectionProtocol] = []
+    public lazy var sections: [SKCSectionProtocol] = []
     
-    private lazy var delegate = STCollectionViewDelegateFlowLayout { [weak self] indexPath in
-        self?.sections[indexPath.section] as? STCollectionViewDelegateFlowLayoutProtocol
+    private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
+        self?.sections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
     } endDisplaySection: { [weak self] indexPath in
-        self?.sections[indexPath.section] as? STCollectionViewDelegateFlowLayoutProtocol
+        self?.sections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
     } sections: { [weak self] in
-        return self?.sections.lazy.compactMap({ $0 as? STCollectionViewDelegateFlowLayoutProtocol }) ?? []
+        return self?.sections.lazy.compactMap({ $0 as? SKCViewDelegateFlowLayoutProtocol }) ?? []
     }
     
-    private lazy var dataSource = STCollectionDataSource { [weak self] indexPath in
+    private lazy var dataSource = SKCDataSource { [weak self] indexPath in
         self?.sections[indexPath.section]
     } sections: { [weak self] in
         self?.sections ?? []
     }
     
-    private lazy var prefetching = STCollectionViewDataSourcePrefetching { [weak self] section in
-        self?.sections[section] as? STCollectionViewDataSourcePrefetchingProtocol
+    private lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
+        self?.sections[section] as? SKCViewDataSourcePrefetchingProtocol
     }
     
     public weak var sectionView: UICollectionView?
@@ -44,7 +44,7 @@ public class STCollectionManager {
 
 public extension STCollectionManager {
     
-    func update(_ sections: [STCollectionSectionProtocol]) {
+    func update(_ sections: [SKCSectionProtocol]) {
         guard let sectionView = sectionView else {
             return
         }

@@ -7,9 +7,9 @@
 
 import UIKit
 
-public protocol SKCRegistrationSectionProtocol: STCollectionDataSourceProtocol,
+public protocol SKCRegistrationSectionProtocol: SKCDataSourceProtocol,
                                                 SKCSectionActionProtocol,
-                                                STCollectionViewDelegateFlowLayoutProtocol,
+                                                SKCViewDelegateFlowLayoutProtocol,
                                                 SKSafeSizeProviderProtocol {
     
     var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] { get set }

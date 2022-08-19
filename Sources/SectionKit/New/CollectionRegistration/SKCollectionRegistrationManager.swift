@@ -15,7 +15,7 @@ public class SKCollectionRegistrationManager {
     private var lock = false
     private var waitSections: [SKCRegistrationSectionProtocol]?
     
-    private lazy var delegate = STCollectionViewDelegateFlowLayout { [weak self] indexPath in
+    private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
         guard let self = self, self.sections.indices.contains(indexPath.section) else {
             return nil
         }
@@ -27,14 +27,14 @@ public class SKCollectionRegistrationManager {
         return self?.sections ?? []
     }
     
-    private lazy var dataSource = STCollectionDataSource { [weak self] indexPath in
+    private lazy var dataSource = SKCDataSource { [weak self] indexPath in
         self?.sections[indexPath.section]
     } sections: { [weak self] in
         self?.sections ?? []
     }
     
-    private lazy var prefetching = STCollectionViewDataSourcePrefetching { [weak self] section in
-        self?.sections[section] as? STCollectionViewDataSourcePrefetchingProtocol
+    private lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
+        self?.sections[section] as? SKCViewDataSourcePrefetchingProtocol
     }
     
     public weak var sectionView: UICollectionView?

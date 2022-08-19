@@ -7,7 +7,7 @@
 
 import UIKit
 
-public protocol STCollectionDataSourceProtocol {
+public protocol SKCDataSourceProtocol {
     var sectionIndex: Int? { get }
     
     @available(iOS 14.0, *)
@@ -23,7 +23,7 @@ public protocol STCollectionDataSourceProtocol {
     func move(from source: IndexPath, to destination: IndexPath)
 }
 
-public extension STCollectionDataSourceProtocol {
+public extension SKCDataSourceProtocol {
     
     var sectionIndex: Int? { nil }
     

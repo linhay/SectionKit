@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol STCollectionViewDataSourcePrefetchingProtocol {
+protocol SKCViewDataSourcePrefetchingProtocol {
     func prefetch(at rows: [Int])
     func cancelPrefetching(at rows: [Int])
 }

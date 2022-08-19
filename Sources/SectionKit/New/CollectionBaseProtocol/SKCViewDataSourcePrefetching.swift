@@ -7,11 +7,11 @@
 
 import UIKit
 
-class STCollectionViewDataSourcePrefetching: NSObject, UICollectionViewDataSourcePrefetching {
+class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourcePrefetching {
     
-    var section: (_ index: Int) -> STCollectionViewDataSourcePrefetchingProtocol?
+    var section: (_ index: Int) -> SKCViewDataSourcePrefetchingProtocol?
     
-    init(section: @escaping (_ indexPath: Int) -> STCollectionViewDataSourcePrefetchingProtocol?) {
+    init(section: @escaping (_ indexPath: Int) -> SKCViewDataSourcePrefetchingProtocol?) {
         self.section = section
         super.init()
     }
@@ -26,7 +26,7 @@ class STCollectionViewDataSourcePrefetching: NSObject, UICollectionViewDataSourc
     
 }
 
-private extension STCollectionViewDataSourcePrefetching {
+private extension SKCViewDataSourcePrefetching {
     
     func prefetch(at indexPaths: [IndexPath]) {
         indexPaths.reduce([Int: [Int]]()) { result, indexPath in

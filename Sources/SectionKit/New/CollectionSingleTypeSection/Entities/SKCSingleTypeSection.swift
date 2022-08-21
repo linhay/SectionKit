@@ -85,6 +85,55 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
 
 public extension SKCSingleTypeSection {
     
+    var indexForSelectedItems: [Int] {
+        (sectionView.indexPathsForSelectedItems ?? [])
+            .filter { $0.section == sectionIndex }
+            .map(\.row)
+    }
+    
+    func cellForItem(at row: Int) -> Cell? {
+        sectionView.cellForItem(at: indexPath(from: row)) as? Cell
+    }
+
+    var visibleCells: [Cell] {
+        indexsForVisibleItems
+            .compactMap(cellForItem(at:))
+    }
+    
+    var indexsForVisibleItems: [Int] {
+        sectionView.indexPathsForVisibleItems.filter { $0.section == sectionIndex }.map(\.row)
+    }
+    
+    func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
+        sectionView.visibleSupplementaryViews(ofKind: kind.rawValue)
+    }
+    
+    func indexsForVisibleSupplementaryViews(of kind: SKSupplementaryKind) -> [Int] {
+        sectionView
+            .indexPathsForVisibleSupplementaryElements(ofKind: kind.rawValue)
+            .filter { $0.section == sectionIndex }
+            .map(\.row)
+    }
+    
+    func selectItem(at row: Int?, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
+        guard let row = row else { return }
+        sectionView.selectItem(at: indexPath(from: row), animated: animated, scrollPosition: scrollPosition)
+    }
+    
+    func deselectItem(at row: Int, animated: Bool) {
+        sectionView.deselectItem(at: indexPath(from: row), animated: animated)
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    @discardableResult
+    func config(models: [Model]) -> Self {
+        reload(models)
+        return self
+    }
+    
     @discardableResult
     func set<T>(supplementary: SKCSupplementary<T>) -> Self {
         supplementaries[supplementary.kind] = supplementary
@@ -95,6 +144,89 @@ public extension SKCSingleTypeSection {
     func remove(supplementary kind: SKSupplementaryKind) -> Self {
         supplementaries[kind] = nil
         return self
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    func swapAt(_ i: Int, _ j: Int) {
+        sectionView.performBatchUpdates {
+            models.swapAt(i, j)
+            sectionView.moveItem(at: indexPath(from: i), to: indexPath(from: j))
+        }
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    func reload(_ models: [Model]) {
+        self.models = models
+        sectionView.reloadData()
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+        
+    func append(_ items: [Model]) {
+        insert(at: models.count, items)
+    }
+    
+    func append(_ item: Model) {
+        append([item])
+    }
+    
+    func insert(at row: Int, _ items: [Model]) {
+        guard !items.isEmpty else {
+            return
+        }
+        sectionView.performBatchUpdates {
+            models.insert(contentsOf: items, at: row)
+            sectionView.insertItems(at: (row..<(row + items.count)).map(indexPath(from:)))
+        }
+    }
+
+    func insert(at row: Int, _ item: Model) {
+        insert(at: row, [item])
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    func remove(_ row: Int) {
+        remove([row])
+    }
+    
+    func remove(_ rows: [Int]) {
+        var set = Set<Int>()
+        let rows = rows
+            .filter { set.insert($0).inserted }
+            .filter { models.indices.contains($0) }
+            .sorted(by: >)
+        guard !rows.isEmpty else {
+            return
+        }
+        sectionView.performBatchUpdates {
+            for row in rows {
+                models.remove(at: row)
+            }
+            sectionView.deleteItems(at: rows.map(indexPath(from:)))
+        }
+    }
+    
+    func remove(_ item: Model) where Model: Equatable {
+        remove([item])
+    }
+
+    func remove(_ items: [Model]) where Model: Equatable {
+        let rows = self.models
+            .enumerated()
+            .filter { items.contains($0.element) }
+            .map(\.offset)
+        remove(rows)
     }
     
 }

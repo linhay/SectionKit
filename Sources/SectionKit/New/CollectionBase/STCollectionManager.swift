@@ -43,6 +43,10 @@ public class STCollectionManager {
 }
 
 public extension STCollectionManager {
+
+    func update(_ section: SKCSectionProtocol) {
+        update([section])
+    }
     
     func update(_ sections: [SKCSectionProtocol]) {
         guard let sectionView = sectionView else {

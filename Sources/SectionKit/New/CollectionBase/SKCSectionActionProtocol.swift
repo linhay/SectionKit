@@ -29,7 +29,6 @@ public extension SKCSectionActionProtocol {
             
 }
 
-
 public extension SKCSectionActionProtocol {
     
     func reload() {

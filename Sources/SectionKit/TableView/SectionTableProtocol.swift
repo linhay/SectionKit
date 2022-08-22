@@ -37,8 +37,8 @@ public protocol SectionTableProtocol: SKSectionProtocol {
     func item(didEndEditing row: Int)
     
     /// SupplementaryView
-    func supplementary(kind: SKSupplementaryKind) -> UIView?
-    func supplementarySize(kind: SKSupplementaryKind) -> CGSize?
+    func supplementary(type: SKSupplementaryKind) -> UIView?
+    func supplementarySize(type: SKSupplementaryKind) -> CGSize?
     func supplementary(willDisplay view: UIView, forElementKind elementKind: SKSupplementaryKind)
     func supplementary(didEndDisplaying view: UIView, forElementKind elementKind: SKSupplementaryKind)
     
@@ -76,8 +76,8 @@ public extension SectionTableProtocol {
     var headerSize: CGSize? { nil }
     var footerSize: CGSize? { nil }
     
-    func supplementary(kind: SKSupplementaryKind) -> UIView? {
-        switch kind {
+    func supplementary(type: SKSupplementaryKind) -> UIView? {
+        switch type {
         case .header:
             return headerView
         case .footer:
@@ -87,8 +87,8 @@ public extension SectionTableProtocol {
         }
     }
     
-    func supplementarySize(kind: SKSupplementaryKind) -> CGSize? {
-        switch kind {
+    func supplementarySize(type: SKSupplementaryKind) -> CGSize? {
+        switch type {
         case .header:
             return headerSize
         case .footer:

@@ -25,7 +25,7 @@ import UIKit
 
 open class SKCollectionViewController: UIViewController {
     public private(set) lazy var sectionView = SKCollectionView()
-    public var manager: SKCollectionManager { sectionView.manager }
+    public var manager: STCollectionManager { sectionView.manager }
     
     public convenience init() {
         self.init(nibName: nil, bundle: nil)

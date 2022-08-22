@@ -50,11 +50,11 @@ class SectionTableViewDelegate: SKScrollViewDelegate, UITableViewDelegate {
     }
     
     func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        self.section(section)?.supplementarySize(kind: .header)?.height ?? .zero
+        self.section(section)?.supplementarySize(type: .header)?.height ?? .zero
     }
     
     func tableView(_: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        self.section(section)?.supplementarySize(kind: .footer)?.height ?? .zero
+        self.section(section)?.supplementarySize(type: .footer)?.height ?? .zero
     }
     
     // func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat
@@ -62,11 +62,11 @@ class SectionTableViewDelegate: SKScrollViewDelegate, UITableViewDelegate {
     // func tableView(_ tableView: UITableView, estimatedHeightForFooterInSection section: Int) -> CGFloat
     
     func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        self.section(section)?.supplementary(kind: .header)
+        self.section(section)?.supplementary(type: .header)
     }
     
     func tableView(_: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        self.section(section)?.supplementary(kind: .footer)
+        self.section(section)?.supplementary(type: .footer)
     }
     
     // func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath)

@@ -42,8 +42,8 @@ public protocol SKCollectionFlowLayoutProtocol: SKCollectionDriveProtocol {
 }
 
 public extension SKCollectionFlowLayoutProtocol {
-    func supplementary(kind: SKSupplementaryKind, at _: Int) -> UICollectionReusableView? {
-        switch kind {
+    func supplementary(type: SKSupplementaryKind, at _: Int) -> UICollectionReusableView? {
+        switch type {
         case .header:
             return headerView
         case .footer:

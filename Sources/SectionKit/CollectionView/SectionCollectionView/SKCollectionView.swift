@@ -24,22 +24,10 @@
 import UIKit
 
 open class SKCollectionView: UICollectionView {
-    public private(set) lazy var manager = SKCollectionManager(sectionView: self)
+    public private(set) lazy var manager = STCollectionManager(sectionView: self)
     
     public convenience init() {
-        self.init(frame: .zero, layout: .flow)
-    }
-    
-    public convenience init(frame: CGRect = .zero, layout: Layout) {
-        switch layout {
-        case .flow:
-            self.init(frame: frame, collectionViewLayout: SKCollectionFlowLayout())
-        case .compositional:
-            self.init(frame: frame, collectionViewLayout: UICollectionViewLayout())
-            set(layout: layout)
-        case let .custom(layout):
-            self.init(frame: frame, collectionViewLayout: layout)
-        }
+        self.init(frame: .zero, collectionViewLayout: SKCollectionFlowLayout())
     }
     
     override public init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
@@ -55,8 +43,6 @@ open class SKCollectionView: UICollectionView {
 }
 
 public extension SKCollectionView {
-    var sectionFlowLayout: SKCollectionFlowLayout? { collectionViewLayout as? SKCollectionFlowLayout }
-    
     /// 滚动方向
     var scrollDirection: UICollectionView.ScrollDirection {
         set {
@@ -83,34 +69,12 @@ public extension SKCollectionView {
     }
 }
 
-// MARK: - Layout
-
-public extension SKCollectionView {
-    enum Layout {
-        case flow
-        case compositional(UICollectionViewCompositionalLayoutConfiguration = UICollectionViewCompositionalLayoutConfiguration())
-        case custom(UICollectionViewFlowLayout)
-    }
-    
-    func set(layout: Layout) {
-        switch layout {
-        case .flow:
-            manager.set(layout: .custom(SKCollectionFlowLayout()))
-        case let .compositional(configuration):
-            manager.set(layout: .compositional(configuration))
-        case let .custom(layout):
-            manager.set(layout: .custom(layout))
-        }
-    }
-}
-
 // MARK: - PluginModes
-
 public extension SKCollectionView {
     /// 布局插件
     /// - Parameter pluginModes: 样式
     func set(pluginModes: [SKCollectionFlowLayout.PluginMode]) {
-        sectionFlowLayout?.pluginModes = pluginModes
+        (collectionViewLayout as? SKCollectionFlowLayout)?.pluginModes = pluginModes
     }
     
     /// 布局插件

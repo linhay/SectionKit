@@ -23,21 +23,22 @@ final class SingleTypeWrapperTests: XCTestCase {
         view.manager.update(section)
 
         var returnFlag = -1
-        section.onItemSelected { row in
-            XCTAssert(returnFlag == row)
-        }
-        section.onItemWillDisplay { row in
-            XCTAssert(returnFlag == row)
-        }
-        section.onItemEndDisplay { row in
-            XCTAssert(returnFlag == row)
-        }
+        section.onCellAction(.selected, block: { result in
+            XCTAssert(returnFlag == result.row)
+        })
+        section.onCellAction(.willDisplay, block: { result in
+            XCTAssert(returnFlag == result.row)
+        })
+        
+        section.onCellAction(.didEndDisplay, block: { result in
+            XCTAssert(returnFlag == result.row)
+        })
 
         for index in [1, 2, 0, -1, 3] {
             returnFlag = index
             section.item(selected: index)
-            section.item(willDisplay: index)
-            section.item(didEndDisplaying: index)
+            section.selectItem(at: index)
+            section.deselectItem(at: index)
         }
     }
 }

@@ -24,7 +24,7 @@
 import UIKit
 
 public protocol SKCollectionCompositionalLayoutProtocol: SKCollectionDriveProtocol {
-    func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView?
+    func supplementary(type: SKSupplementaryKind, at row: Int) -> UICollectionReusableView?
     func compositionalLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection?
 }
 

@@ -18,8 +18,8 @@ public extension SKCollectionDequeueProtocol {
         return sectionView.dequeueReusableCell(withReuseIdentifier: T.identifier, for: .init(row: row, section: sectionIndex)) as! T
     }
     
-    func dequeue<T: UICollectionReusableView & SKLoadViewProtocol>(kind: SKSupplementaryKind) -> T {
-        return sectionView.dequeueReusableSupplementaryView(ofKind: kind.rawValue,
+    func dequeue<T: UICollectionReusableView & SKLoadViewProtocol>(type: SKSupplementaryKind) -> T {
+        return sectionView.dequeueReusableSupplementaryView(ofKind: type.rawValue,
                                                             withReuseIdentifier: T.identifier,
                                                             for: IndexPath(row: 0, section: sectionIndex)) as! T
     }
@@ -35,11 +35,11 @@ public extension SKCollectionDequeueProtocol {
         }
     }
     
-    func register<T: UICollectionReusableView & SKLoadViewProtocol>(_: T.Type, for kind: SKSupplementaryKind) {
+    func register<T: UICollectionReusableView & SKLoadViewProtocol>(_: T.Type, for type: SKSupplementaryKind) {
         if let nib = T.nib {
-            sectionView.register(nib, forSupplementaryViewOfKind: kind.rawValue, withReuseIdentifier: T.identifier)
+            sectionView.register(nib, forSupplementaryViewOfKind: type.rawValue, withReuseIdentifier: T.identifier)
         } else {
-            sectionView.register(T.self, forSupplementaryViewOfKind: kind.rawValue, withReuseIdentifier: T.identifier)
+            sectionView.register(T.self, forSupplementaryViewOfKind: type.rawValue, withReuseIdentifier: T.identifier)
         }
     }
 }

@@ -10,8 +10,12 @@ import Combine
 
 public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
     
-   static func singleTypeWrapper(_ models: [Model] = []) -> SKCSingleTypeSection<Self> {
+    static func singleTypeWrapper(_ models: [Model] = []) -> SKCSingleTypeSection<Self> {
         .init(models)
+    }
+    
+    static func singleTypeWrapper(count: Int) -> SKCSingleTypeSection<Self> where Model == Void {
+        .init(.init(repeating: (), count: count))
     }
     
 }
@@ -19,21 +23,61 @@ public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadVie
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol {
     
     public typealias CellActionBlock = (CellActionResult) -> Void
+    public typealias CellStyleBlock  = (CellStyleResult) -> Void
+    public typealias CellStyleBox    = IDBox<UUID, CellStyleBlock>
+    public typealias SupplementaryActionBlock = (SupplementaryActionResult) -> Void
     
-    public enum CellActionKind: Int, Hashable {
+    public enum CellActionType: Int, Hashable {
         case selected
+        case willDisplay
+        case didEndDisplay
+        case config
     }
     
     public struct CellActionResult {
         public let section: SKCSingleTypeSection<Cell>
-        public let kind: CellActionKind
+        public let type: CellActionType
         public let model: Cell.Model
         public let row: Int
     }
     
+    public struct CellStyleResult {
+        
+        public let row: Int
+        public let model: Cell.Model
+        public let section: SKCSingleTypeSection<Cell>
+        
+        init(row: Int, model: Cell.Model, section: SKCSingleTypeSection<Cell>) {
+            self.row = row
+            self.model = model
+            self.section = section
+        }
+        
+    }
+    
+    public enum SupplementaryActionType: Int, Hashable {
+        case willDisplay
+        case didEndDisplay
+    }
+    
+    public struct SupplementaryActionResult {
+        public let section: SKCSingleTypeSection<Cell>
+        public let type: SupplementaryActionType
+        public let kind: SKSupplementaryKind
+        public let row: Int
+    }
+    
+    public struct IDBox<ID, Value> {
+        public typealias ID = ID
+        public let id: ID
+        public let value: Value
+    }
+    
     public struct Pulishers {
         lazy var cellActionPulisher = cellActionSubject.eraseToAnyPublisher()
+        lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
         fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionResult, Never>()
+        fileprivate lazy var supplementaryActionSubject = PassthroughSubject<SupplementaryActionResult, Never>()
     }
     
     open var sectionInjection: SKCSectionInjection?
@@ -44,14 +88,16 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open lazy var sectionInset: UIEdgeInsets = .zero
     open lazy var minimumLineSpacing: CGFloat = .zero
     open lazy var minimumInteritemSpacing: CGFloat = .zero
-
+    
     open var itemCount: Int { models.count }
     
     public private(set) lazy var pulishers = Pulishers()
     
     private lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
-    private lazy var cellActions: [CellActionKind: [CellActionBlock]] = [:]
-
+    private lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
+    private lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
+    private lazy var cellStyles: [CellStyleBox] = []
+    
     public init(_ models: [Model] = []) {
         self.models = models
     }
@@ -62,7 +108,14 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     open func item(at row: Int) -> UICollectionViewCell {
         let cell = dequeue(at: row) as Cell
-        cell.config(models[row])
+        let model = models[row]
+        cell.config(model)
+        if !cellStyles.isEmpty {
+            let result = CellStyleResult(row: row, model: model, section: self)
+            cellStyles.forEach { style in
+                style.value(result)
+            }
+        }
         return cell
     }
     
@@ -73,14 +126,48 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         return Cell.preferredSize(limit: safeSizeProvider.size, model: models[row])
     }
     
-    public func item(selected row: Int) {
-        let result = CellActionResult(section: self, kind: .selected, model: models[row], row: row)
-        cellActions[.selected]?.forEach({ block in
+    open func item(selected row: Int) {
+        sendAction(.selected, row: row)
+    }
+    
+    open func item(willDisplay view: UICollectionViewCell, row: Int) {
+        sendAction(.willDisplay, row: row)
+    }
+    
+    open func item(didEndDisplaying view: UICollectionViewCell, row: Int) {
+        sendAction(.didEndDisplay, row: row)
+    }
+    
+    open var headerSize: CGSize {
+        guard let supplementary = supplementaries[.header] else {
+            return .zero
+        }
+       return supplementary.size(safeSizeProvider.size, supplementary.type)
+    }
+    
+    open func supplementary(willDisplay view: UICollectionReusableView, kind: SKSupplementaryKind, at row: Int) {
+        sendSupplementaryAction(.willDisplay, kind: kind, row: row)
+    }
+    
+    open func supplementary(didEndDisplaying view: UICollectionReusableView, kind: SKSupplementaryKind, at row: Int) {
+        sendSupplementaryAction(.didEndDisplay, kind: kind, row: row)
+    }
+    
+    private func sendAction(_ type: CellActionType, row: Int) {
+        let result = CellActionResult(section: self, type: type, model: models[row], row: row)
+        cellActions[type]?.forEach({ block in
             block(result)
         })
         pulishers.cellActionSubject.send(result)
     }
     
+    private func sendSupplementaryAction(_ type: SupplementaryActionType, kind: SKSupplementaryKind, row: Int) {
+        let result = SupplementaryActionResult(section: self, type: type, kind: kind, row: row)
+        supplementaryActions[type]?.forEach({ block in
+            block(result)
+        })
+        pulishers.supplementaryActionSubject.send(result)
+    }
 }
 
 public extension SKCSingleTypeSection {
@@ -94,7 +181,7 @@ public extension SKCSingleTypeSection {
     func cellForItem(at row: Int) -> Cell? {
         sectionView.cellForItem(at: indexPath(from: row)) as? Cell
     }
-
+    
     var visibleCells: [Cell] {
         indexsForVisibleItems
             .compactMap(cellForItem(at:))
@@ -113,15 +200,6 @@ public extension SKCSingleTypeSection {
             .indexPathsForVisibleSupplementaryElements(ofKind: kind.rawValue)
             .filter { $0.section == sectionIndex }
             .map(\.row)
-    }
-    
-    func selectItem(at row: Int?, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
-        guard let row = row else { return }
-        sectionView.selectItem(at: indexPath(from: row), animated: animated, scrollPosition: scrollPosition)
-    }
-    
-    func deselectItem(at row: Int, animated: Bool) {
-        sectionView.deselectItem(at: indexPath(from: row), animated: animated)
     }
     
 }
@@ -169,7 +247,7 @@ public extension SKCSingleTypeSection {
 }
 
 public extension SKCSingleTypeSection {
-        
+    
     func append(_ items: [Model]) {
         insert(at: models.count, items)
     }
@@ -187,7 +265,7 @@ public extension SKCSingleTypeSection {
             sectionView.insertItems(at: (row..<(row + items.count)).map(indexPath(from:)))
         }
     }
-
+    
     func insert(at row: Int, _ item: Model) {
         insert(at: row, [item])
     }
@@ -220,7 +298,7 @@ public extension SKCSingleTypeSection {
     func remove(_ item: Model) where Model: Equatable {
         remove([item])
     }
-
+    
     func remove(_ items: [Model]) where Model: Equatable {
         let rows = self.models
             .enumerated()
@@ -234,12 +312,36 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
-    func on(cellAction kind: CellActionKind, block: @escaping CellActionBlock) -> Self {
+    @discardableResult
+    func onCellAction(_ kind: CellActionType, block: @escaping CellActionBlock) -> Self {
         if cellActions[kind] == nil {
             cellActions[kind] = []
         }
         cellActions[kind]?.append(block)
         return self
+    }
+    
+    @discardableResult
+    func setCellStyle(_ item: CellStyleBox) -> Self {
+        cellStyles.append(item)
+        return self
+    }
+    
+    func remove(cellStyle ids: [CellStyleBox.ID]) {
+        let ids = Set(ids)
+        self.cellStyles = cellStyles.filter { !ids.contains($0.id) }
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    func deselectItem(at row: Int, animated: Bool = true) {
+        sectionView.deselectItem(at: indexPath(from: row), animated: animated)
+    }
+    
+    func selectItem(at row: Int, animated: Bool = true, scrollPosition: UICollectionView.ScrollPosition = .bottom) {
+        sectionView.selectItem(at: indexPath(from: row), animated: animated, scrollPosition: scrollPosition)
     }
     
 }

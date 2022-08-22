@@ -36,7 +36,7 @@ class DecorationViewController: SKCollectionViewController {
     
     func bindUI() {
         leftController.section
-            .on(cellAction: .selected) { [weak self] result in
+            .onCellAction(.selected) { [weak self] result in
                 guard let self = self else { return }
                 self.rightController.send(result.model)
             }

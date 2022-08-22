@@ -28,7 +28,7 @@ public protocol SKCollectionDriveProtocol: SKSectionProtocol {
     func item(at row: Int) -> UICollectionViewCell
     
     /// SupplementaryView
-    func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView?
+    func supplementary(type: SKSupplementaryKind, at row: Int) -> UICollectionReusableView?
     func supplementary(willDisplay view: UICollectionReusableView, forElementKind elementKind: SKSupplementaryKind, at row: Int)
     func supplementary(didEndDisplaying view: UICollectionReusableView, forElementKind elementKind: SKSupplementaryKind, at row: Int)
     
@@ -60,8 +60,8 @@ public extension SKCollectionDriveProtocol {
         sectionView.layoutAttributesForItem(at: indexPath(from: row))
     }
     
-    func layoutAttributesForSupplementaryElement(ofKind kind: String, at row: Int) -> UICollectionViewLayoutAttributes? {
-        sectionView.layoutAttributesForSupplementaryElement(ofKind: kind, at: indexPath(from: row))
+    func layoutAttributesForSupplementaryElement(ofKind type: String, at row: Int) -> UICollectionViewLayoutAttributes? {
+        sectionView.layoutAttributesForSupplementaryElement(ofKind: type, at: indexPath(from: row))
     }
     
     func indexForItem(at point: CGPoint) -> Int? {

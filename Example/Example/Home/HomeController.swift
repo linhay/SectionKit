@@ -12,13 +12,11 @@ class HomeController: SKCollectionViewController {
     enum Action: String, CaseIterable {
         case registration
         case singleTypeSection
-        case multiSection
         case prefetch
-        case compositionalLayout
         case decoration
     }
 
-    let section = SingleTypeSection<StringRawCell<Action>>()
+    let section = SKCSingleTypeSection<StringRawCell<Action>>()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,26 +34,27 @@ extension HomeController {
 
 extension HomeController {
     func bindUI() {
-        section.onItemSelected(on: self) { (self, _, model) in
+        section.onCellAction(.selected) { result in
             var controller: UIViewController?
-            switch model {
+            switch result.model {
             case .registration:
                 controller = RegistrationViewController()
-            case .compositionalLayout:
-                controller = CompositionalViewController()
             case .prefetch:
-                controller = PrefetchViewController()
+//                controller = PrefetchViewController()
+                break
             case .singleTypeSection:
                 controller = SingleTypeSectionViewController()
-            case .multiSection:
-                controller = MultiSectionViewController()
             case .decoration:
                 controller = DecorationViewController()
             }
             guard let controller = controller else {
                 return
             }
-            controller.title = model.rawValue.enumerated().map { $0.offset > 0 ? $0.element.description : $0.element.uppercased() }.joined()
+            controller.title = result.model
+                .rawValue
+                .enumerated()
+                .map { $0.offset > 0 ? $0.element.description : $0.element.uppercased() }
+                .joined()
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }

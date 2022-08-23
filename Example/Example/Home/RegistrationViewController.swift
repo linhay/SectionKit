@@ -8,6 +8,7 @@
 import UIKit
 import SectionKit
 import StemColor
+import Delegate
 
 class RegistrationViewController: UIViewController {
     
@@ -55,7 +56,7 @@ extension RegistrationViewController {
     
     class LeftViewController: UIViewController {
         
-        let event = SectionDelegate<Action, Void>()
+        let event = Delegate<Action, Void>()
         
         let sectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         lazy var manager = SKCollectionRegistrationManager(sectionView: sectionView)

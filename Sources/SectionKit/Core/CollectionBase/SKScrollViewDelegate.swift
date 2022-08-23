@@ -24,62 +24,67 @@
 import UIKit
 
 public class SKScrollViewDelegate: NSObject, UIScrollViewDelegate {
-    private var observeScrollStore: [String: SKWeakBox<UIScrollViewDelegate>] = [:]
+    private var observeStore: [ObjectIdentifier: SKWeakBox<UIScrollViewDelegate>] = [:]
 }
 
 public extension SKScrollViewDelegate {
     // MARK: - ObserveScroll
     
-    func addObserveScroll(target: NSObject & UIScrollViewDelegate) {
-        observeScrollStore[target.description] = SKWeakBox(target)
+    func add(_ observer: AnyObject & UIScrollViewDelegate) {
+        observeStore[.init(observer)] = SKWeakBox(observer)
     }
     
-    func addObserveScroll(targets: [NSObject & UIScrollViewDelegate]) {
-        targets.forEach { addObserveScroll(target: $0) }
+    func add(_ observers: [AnyObject & UIScrollViewDelegate]) {
+        observers.forEach(add(_:))
     }
     
-    func removeObserveScroll(target: NSObject & UIScrollViewDelegate) {
-        observeScrollStore[target.description] = nil
+    func remove(_ observer: AnyObject & UIScrollViewDelegate) {
+        observeStore[.init(observer)] = nil
     }
+    
+    func remove(_ observers: [AnyObject & UIScrollViewDelegate]) {
+        observers.forEach(remove(_:))
+    }
+    
 }
 
 // MARK: - scrollViewDelegate
 
 public extension SKScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewDidScroll?(scrollView) }
+        observeStore.values.forEach { $0.value?.scrollViewDidScroll?(scrollView) }
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewDidZoom?(scrollView) }
+        observeStore.values.forEach { $0.value?.scrollViewDidZoom?(scrollView) }
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewWillBeginDragging?(scrollView) }
+        observeStore.values.forEach { $0.value?.scrollViewWillBeginDragging?(scrollView) }
     }
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewWillEndDragging?(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset) }
+        observeStore.values.forEach { $0.value?.scrollViewWillEndDragging?(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset) }
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate) }
+        observeStore.values.forEach { $0.value?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate) }
     }
     
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewWillBeginDecelerating?(scrollView) }
+        observeStore.values.forEach { $0.value?.scrollViewWillBeginDecelerating?(scrollView) }
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewDidEndDecelerating?(scrollView) }
+        observeStore.values.forEach { $0.value?.scrollViewDidEndDecelerating?(scrollView) }
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewDidEndScrollingAnimation?(scrollView) }
+        observeStore.values.forEach { $0.value?.scrollViewDidEndScrollingAnimation?(scrollView) }
     }
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        for box in observeScrollStore.values {
+        for box in observeStore.values {
             guard let target = box.value, let view = target.viewForZooming?(in: scrollView) else {
                 continue
             }
@@ -89,15 +94,15 @@ public extension SKScrollViewDelegate {
     }
     
     func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewWillBeginZooming?(scrollView, with: view) }
+        observeStore.values.forEach { $0.value?.scrollViewWillBeginZooming?(scrollView, with: view) }
     }
     
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewDidEndZooming?(scrollView, with: view, atScale: scale) }
+        observeStore.values.forEach { $0.value?.scrollViewDidEndZooming?(scrollView, with: view, atScale: scale) }
     }
     
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        for box in observeScrollStore.values {
+        for box in observeStore.values {
             guard let target = box.value, let result = target.scrollViewShouldScrollToTop?(scrollView), result == false else {
                 continue
             }
@@ -107,12 +112,12 @@ public extension SKScrollViewDelegate {
     }
     
     func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewDidScrollToTop?(scrollView) }
+        observeStore.values.forEach { $0.value?.scrollViewDidScrollToTop?(scrollView) }
     }
     
     @available(iOS 11.0, *)
     func scrollViewDidChangeAdjustedContentInset(_ scrollView: UIScrollView) {
-        observeScrollStore.values.forEach { $0.value?.scrollViewDidChangeAdjustedContentInset?(scrollView) }
+        observeStore.values.forEach { $0.value?.scrollViewDidChangeAdjustedContentInset?(scrollView) }
     }
 }
 #endif

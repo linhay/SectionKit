@@ -25,6 +25,7 @@
 		CD5A7AF02823BF1D00337098 /* ReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AEF2823BF1D00337098 /* ReusableView.swift */; };
 		CD74E9C127E0DC2E0085A6FB /* CompositionalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD74E9C027E0DC2E0085A6FB /* CompositionalViewController.swift */; };
 		CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */; };
+		CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */ = {isa = PBXBuildFile; productRef = CDA10DED28B4A90C000698F2 /* Delegate */; };
 		CDDD973828AD1EA3001942B0 /* StringRawCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDD973728AD1EA3001942B0 /* StringRawCell.swift */; };
 		CDDD973A28AD1ED6001942B0 /* StringCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDD973928AD1ED6001942B0 /* StringCell.swift */; };
 /* End PBXBuildFile section */
@@ -60,6 +61,7 @@
 				CD0621A128A7FBD200272233 /* Stem in Frameworks */,
 				CD0621A528A7FBD200272233 /* StemFilePath in Frameworks */,
 				CD33B82627DCE6190032987B /* SnapKit in Frameworks */,
+				CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,6 +162,7 @@
 				CD0621A028A7FBD200272233 /* Stem */,
 				CD0621A228A7FBD200272233 /* StemColor */,
 				CD0621A428A7FBD200272233 /* StemFilePath */,
+				CDA10DED28B4A90C000698F2 /* Delegate */,
 			);
 			productName = Example;
 			productReference = CD33B80427DCE3A70032987B /* Example.app */;
@@ -192,6 +195,7 @@
 			packageReferences = (
 				CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */,
 				CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */,
+				CDA10DEC28B4A90C000698F2 /* XCRemoteSwiftPackageReference "Delegate" */,
 			);
 			productRefGroup = CD33B80527DCE3A70032987B /* Products */;
 			projectDirPath = "";
@@ -465,6 +469,14 @@
 				minimumVersion = 5.0.0;
 			};
 		};
+		CDA10DEC28B4A90C000698F2 /* XCRemoteSwiftPackageReference "Delegate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Delegate";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -491,6 +503,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		CDA10DED28B4A90C000698F2 /* Delegate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDA10DEC28B4A90C000698F2 /* XCRemoteSwiftPackageReference "Delegate" */;
+			productName = Delegate;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

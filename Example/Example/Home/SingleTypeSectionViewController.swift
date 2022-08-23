@@ -25,7 +25,7 @@ class SingleTypeSectionViewController: SKCollectionViewController {
     let leftController = LeftViewController()
     let rightController = RightViewController()
     
-    lazy var stmanager = STCollectionManager(sectionView: sectionView)
+    lazy var stmanager = SKCManager(sectionView: sectionView)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,7 +63,7 @@ extension SingleTypeSectionViewController {
         
         let section = StringRawCell<Action>.singleTypeWrapper(Action.allCases)
         
-        lazy var stmanager = STCollectionManager(sectionView: sectionView)
+        lazy var stmanager = SKCManager(sectionView: sectionView)
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -90,7 +90,7 @@ extension SingleTypeSectionViewController {
         
         lazy var section = SKCSingleTypeSection<ColorBlockCell>(defaultModels)
         
-        lazy var skmanager = STCollectionManager(sectionView: sectionView)
+        lazy var skmanager = SKCManager(sectionView: sectionView)
         
         var isAnimating = false
         

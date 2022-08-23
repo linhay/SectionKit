@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class STCollectionManager {
+public class SKCManager {
     
     public lazy var sections: [SKCSectionProtocol] = []
     
@@ -42,7 +42,7 @@ public class STCollectionManager {
     
 }
 
-public extension STCollectionManager {
+public extension SKCManager {
 
     func update(_ section: SKCSectionProtocol) {
         update([section])

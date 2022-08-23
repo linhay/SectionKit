@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "delegate",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Delegate",
+      "state" : {
+        "revision" : "499e507f2a68d6e8737f7f6f7c0385596b4398fc",
+        "version" : "1.2.0"
+      }
+    },
+    {
       "identity" : "snapkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SnapKit/SnapKit",

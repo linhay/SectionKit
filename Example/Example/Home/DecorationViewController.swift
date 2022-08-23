@@ -62,7 +62,7 @@ extension DecorationViewController {
     class LeftViewController: SKCollectionViewController {
         
         let section = StringRawCell<Action>.singleTypeWrapper(Action.allCases)
-        lazy var skmanager = STCollectionManager(sectionView: sectionView)
+        lazy var skmanager = SKCManager(sectionView: sectionView)
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -80,7 +80,7 @@ extension DecorationViewController {
 extension DecorationViewController {
     class RightViewController: SKCollectionViewController {
         let size = CGSize(width: 88, height: 44)
-        lazy var skmanager = STCollectionManager(sectionView: sectionView)
+        lazy var skmanager = SKCManager(sectionView: sectionView)
         
         lazy var sections = (0 ... 10).map { sectionIndex in
             ColorBlockCell

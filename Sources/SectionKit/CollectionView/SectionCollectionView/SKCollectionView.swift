@@ -24,7 +24,7 @@
 import UIKit
 
 open class SKCollectionView: UICollectionView {
-    public private(set) lazy var manager = STCollectionManager(sectionView: self)
+    public private(set) lazy var manager = SKCManager(sectionView: self)
     
     public convenience init() {
         self.init(frame: .zero, collectionViewLayout: SKCollectionFlowLayout())

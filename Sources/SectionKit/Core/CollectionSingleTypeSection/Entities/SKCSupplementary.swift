@@ -5,19 +5,19 @@
 //  Created by linhey on 2022/8/19.
 //
 
-import Foundation
+import UIKit
 
-public struct SKCSupplementary<View: SKLoadViewProtocol>: SKCSupplementaryProtocol {
+public struct SKCSupplementary<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>: SKCSupplementaryProtocol {
     
     public let kind: SKSupplementaryKind
     public let type: View.Type
     public let config: ((View) -> Void)?
-    public let size: ((_ limitSize: CGSize, _ type: View.Type) -> CGSize)?
+    public let size: (CGSize) -> CGSize
 
     public init(kind: SKSupplementaryKind,
                 type: View.Type,
                 config: ((View) -> Void)? = nil,
-                size: ((_ limitSize: CGSize, _ type: View.Type) -> CGSize)?) {
+                size: @escaping (_ limitSize: CGSize) -> CGSize) {
         self.kind = kind
         self.type = type
         self.config = config
@@ -27,9 +27,10 @@ public struct SKCSupplementary<View: SKLoadViewProtocol>: SKCSupplementaryProtoc
     public init(kind: SKSupplementaryKind, type: View.Type, model: View.Model) where View: SKConfigurableView {
         self.init(kind: kind, type: type) { view in
             view.config(model)
-        } size: { limitSize, type in
-            type.preferredSize(limit: limitSize, model: model)
+        } size: { limitSize in
+            View.preferredSize(limit: limitSize, model: model)
         }
+
     }
     
 }

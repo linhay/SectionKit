@@ -10,22 +10,25 @@ import Stem
 import UIKit
 import StemColor
 
-class SingleTypeSectionViewController: SKCollectionViewController {
+class SingleTypeViewController: SKCollectionViewController {
     
     enum Action: String, CaseIterable {
+        case reload
         case reset
         case add
         case delete
-        case deleteModel = "delete.model"
+        case delete_model = "delete.model"
         case insert
         case swap
         case select
+        case setHeader
+        case setFooter
+        case removeHeader
+        case removeFooter
     }
     
     let leftController = LeftViewController()
     let rightController = RightViewController()
-    
-    lazy var stmanager = SKCManager(sectionView: sectionView)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,13 +60,11 @@ class SingleTypeSectionViewController: SKCollectionViewController {
     }
 }
 
-extension SingleTypeSectionViewController {
+extension SingleTypeViewController {
     
     class LeftViewController: SKCollectionViewController {
         
-        let section = StringRawCell<Action>.singleTypeWrapper(Action.allCases)
-        
-        lazy var stmanager = SKCManager(sectionView: sectionView)
+        let section = StringRawCell.singleTypeWrapper(Action.allCases)
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -73,24 +74,22 @@ extension SingleTypeSectionViewController {
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
-            stmanager.update([section])
+            manager.update([section])
         }
         
     }
 }
 
-extension SingleTypeSectionViewController {
+extension SingleTypeViewController {
     
     class RightViewController: SKCollectionViewController {
-        let size = CGSize(width: 88, height: 44)
+        let size = CGSize(width: 60, height: 60)
         
         lazy var defaultModels = (0 ... 10).map { offset in
             ColorBlockCell.Model(color: .white, text: offset.description, size: size)
         }
         
         lazy var section = SKCSingleTypeSection<ColorBlockCell>(defaultModels)
-        
-        lazy var skmanager = SKCManager(sectionView: sectionView)
         
         var isAnimating = false
         
@@ -104,13 +103,10 @@ extension SingleTypeSectionViewController {
                 return
             }
             switch action {
+            case .reload:
+                manager.sectionView?.reloadData()
             case .select:
-                guard section.models.isEmpty == false,
-                      let offset = (0 ... section.models.count - 1).randomElement()
-                else {
-                    return
-                }
-                section.selectItem(at: offset, animated: true, scrollPosition: .centeredVertically)
+                section.selectItem(at: (0..<section.itemCount).randomElement()!)
             case .reset:
                 section.config(models: defaultModels)
             case .add:
@@ -118,24 +114,20 @@ extension SingleTypeSectionViewController {
                                      text: "\(section.models.count) New",
                                      size: size))
             case .insert:
-                guard section.models.isEmpty == false,
-                      let offset = (0 ... section.models.count - 1).randomElement()
-                else {
-                    return
-                }
+                let offset = (0..<section.itemCount).randomElement()!
                 section.insert(at: offset,
                                .init(color: StemColor.random.alpha(with: 0.4).convert(),
                                      text: "\(offset) New",
                                      size: size))
-            case .deleteModel:
-                guard section.models.isEmpty == false,
-                      let offset = (0 ... section.models.count - 1).randomElement()
-                else {
+            case .delete_model:
+                guard let model = section.models.randomElement() else {
                     return
                 }
-                section.cellForItem(at: offset)?.isHighlighted = true
+                section.rows(with: model).forEach({ row in
+                    section.cellForItem(at: row)?.isHighlighted = true
+                })
                 animate {
-                    self.section.remove(self.section.models[offset])
+                    self.section.remove(model)
                 }
             case .delete:
                 guard section.models.isEmpty == false,
@@ -149,31 +141,56 @@ extension SingleTypeSectionViewController {
                 }
             case .swap:
                 guard section.models.isEmpty == false,
-                      let offset1 = (0 ... section.models.count - 1).randomElement(),
-                      let offset2 = (0 ... section.models.count - 1).randomElement()
+                      let model1 = section.models.randomElement(),
+                      let model2 = section.models.randomElement()
                 else {
                     return
                 }
-                section.cellForItem(at: offset1)?.isHighlighted = true
-                section.cellForItem(at: offset2)?.isHighlighted = true
+                let row1 = section.rows(with: model1)
+                let row2 = section.rows(with: model2)
+
+                row1.forEach({ row in
+                    section.cellForItem(at: row)?.isHighlighted = true
+                })
+                row2.forEach({ row in
+                    section.cellForItem(at: row)?.isHighlighted = true
+                })
                 animate {
-                    self.section.swapAt(offset1, offset2)
+                    self.section.swapAt(row1.first!, row2.first!)
+                } finish: {
+                    self.section.rows(with: model1).forEach({ row in
+                        self.section.cellForItem(at: row)?.isHighlighted = false
+                    })
+                    self.section.rows(with: model2).forEach({ row in
+                        self.section.cellForItem(at: row)?.isHighlighted = false
+                    })
                 }
+            case .setHeader:
+                section.set(supplementary: SKCSupplementary(kind: .header, type: ReusableView.self, model: "header"))
+            case .setFooter:
+                section.set(supplementary: SKCSupplementary(kind: .footer, type: ReusableView.self, model: "footer"))
+            case .removeHeader:
+                section.remove(supplementary: .header)
+            case .removeFooter:
+                section.remove(supplementary: .footer)
             }
         }
         
-        func animate(_ event: @escaping () -> Void) {
+        func animate(_ event: @escaping () -> Void, finish: (() -> Void)? = nil) {
             isAnimating = true
             Gcd.delay(.main, seconds: 0.5) {
-                self.isAnimating = false
                 event()
+                Gcd.delay(.main, seconds: 0.5) {
+                    self.isAnimating = false
+                    finish?()
+                }
             }
         }
         
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
-            section.minimumLineSpacing = 8
-            skmanager.update(section)
+            section.minimumLineSpacing = 2
+            manager.update(section)
         }
     }
 }

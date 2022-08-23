@@ -43,7 +43,7 @@ extension HomeController {
 //                controller = PrefetchViewController()
                 break
             case .singleTypeSection:
-                controller = SingleTypeSectionViewController()
+                controller = SingleTypeViewController()
             case .decoration:
                 controller = DecorationViewController()
             }

@@ -17,7 +17,7 @@
 		CD33B81F27DCE3F30032987B /* SectionKit in Frameworks */ = {isa = PBXBuildFile; productRef = CD33B81E27DCE3F30032987B /* SectionKit */; };
 		CD33B82627DCE6190032987B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = CD33B82527DCE6190032987B /* SnapKit */; };
 		CD33B82827DCE6640032987B /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B82727DCE6640032987B /* HomeController.swift */; };
-		CD33B82A27DCEB620032987B /* SingleTypeSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B82927DCEB620032987B /* SingleTypeSectionViewController.swift */; };
+		CD33B82A27DCEB620032987B /* SingleTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B82927DCEB620032987B /* SingleTypeViewController.swift */; };
 		CD33B82C27DCEBB40032987B /* ColorBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B82B27DCEBB40032987B /* ColorBlockCell.swift */; };
 		CD33B83127DD05650032987B /* PrefetchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B83027DD05650032987B /* PrefetchViewController.swift */; };
 		CD3ABCC028A7D5CE006BD03D /* RegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */; };
@@ -39,7 +39,7 @@
 		CD33B81527DCE3A80032987B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CD33B81C27DCE3B70032987B /* SectionKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SectionKit; path = ..; sourceTree = "<group>"; };
 		CD33B82727DCE6640032987B /* HomeController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
-		CD33B82927DCEB620032987B /* SingleTypeSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTypeSectionViewController.swift; sourceTree = "<group>"; };
+		CD33B82927DCEB620032987B /* SingleTypeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTypeViewController.swift; sourceTree = "<group>"; };
 		CD33B82B27DCEBB40032987B /* ColorBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorBlockCell.swift; sourceTree = "<group>"; };
 		CD33B83027DD05650032987B /* PrefetchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefetchViewController.swift; sourceTree = "<group>"; };
 		CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationViewController.swift; sourceTree = "<group>"; };
@@ -120,7 +120,7 @@
 				CDDD973628AD1D9E001942B0 /* Cells */,
 				CD33B82727DCE6640032987B /* HomeController.swift */,
 				CD5A7AE8282394AA00337098 /* DecorationViewController.swift */,
-				CD33B82927DCEB620032987B /* SingleTypeSectionViewController.swift */,
+				CD33B82927DCEB620032987B /* SingleTypeViewController.swift */,
 				CD74E9C027E0DC2E0085A6FB /* CompositionalViewController.swift */,
 				CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */,
 				CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */,
@@ -233,7 +233,7 @@
 				CD3ABCC028A7D5CE006BD03D /* RegistrationViewController.swift in Sources */,
 				CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */,
 				CD74E9C127E0DC2E0085A6FB /* CompositionalViewController.swift in Sources */,
-				CD33B82A27DCEB620032987B /* SingleTypeSectionViewController.swift in Sources */,
+				CD33B82A27DCEB620032987B /* SingleTypeViewController.swift in Sources */,
 				CD33B82827DCE6640032987B /* HomeController.swift in Sources */,
 				CDDD973A28AD1ED6001942B0 /* StringCell.swift in Sources */,
 			);

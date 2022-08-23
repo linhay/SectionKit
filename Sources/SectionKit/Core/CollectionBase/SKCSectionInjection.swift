@@ -48,8 +48,9 @@ public extension SKCSectionInjection.Action {
 
 public extension SKCSectionInjection {
     
-    func reset(_ events: [Action: (SKCSectionInjection) -> Void]) {
+    func reset(_ events: [Action: (SKCSectionInjection) -> Void]) -> Self {
         self.events = events
+        return self
     }
     
     func send(_ action: Action) {

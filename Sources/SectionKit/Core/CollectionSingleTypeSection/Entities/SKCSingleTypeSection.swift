@@ -154,7 +154,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     open var footerSize: CGSize {
-        guard let supplementary = supplementaries[.header] else {
+        guard let supplementary = supplementaries[.footer] else {
             return .zero
         }
         return supplementary.size(safeSizeProvider.size)
@@ -165,6 +165,17 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             return nil
         }
         return supplementary.dequeue(from: sectionView, indexPath: indexPath(from: 0))
+    }
+    
+    open func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView? {
+        switch kind {
+        case .header:
+            return headerView
+        case .footer:
+            return footerView
+        case .cell, .custom:
+            return nil
+        }
     }
     
     open func supplementary(willDisplay view: UICollectionReusableView, kind: SKSupplementaryKind, at row: Int) {
@@ -226,12 +237,14 @@ public extension SKCSingleTypeSection {
     func set<T>(supplementary: SKCSupplementary<T>) -> Self {
         register(supplementary.type, for: supplementary.kind)
         supplementaries[supplementary.kind] = supplementary
+        reload()
         return self
     }
     
     @discardableResult
     func remove(supplementary kind: SKSupplementaryKind) -> Self {
         supplementaries[kind] = nil
+        reload()
         return self
     }
     
@@ -240,9 +253,15 @@ public extension SKCSingleTypeSection {
 public extension SKCSingleTypeSection {
     
     func swapAt(_ i: Int, _ j: Int) {
+        guard i != j else {
+            return
+        }
+        let x = min(i, j)
+        let y = max(i, j)
         sectionView.performBatchUpdates {
-            models.swapAt(i, j)
-            sectionView.moveItem(at: indexPath(from: i), to: indexPath(from: j))
+            models.swapAt(x, y)
+            sectionView.moveItem(at: indexPath(from: x), to: indexPath(from: y))
+            sectionView.moveItem(at: indexPath(from: y), to: indexPath(from: x))
         }
     }
     
@@ -307,19 +326,50 @@ public extension SKCSingleTypeSection {
     }
     
     func remove(_ item: Model) where Model: Equatable {
-        remove([item])
+        remove(rows(with: item))
     }
     
     func remove(_ items: [Model]) where Model: Equatable {
-        let rows = self.models
-            .enumerated()
-            .filter { items.contains($0.element) }
-            .map(\.offset)
-        remove(rows)
+        remove(rows(with: items))
+    }
+    
+    func remove(_ item: Model) where Model: AnyObject {
+        remove(rows(with: item))
+    }
+    
+    func remove(_ items: [Model]) where Model: AnyObject {
+        remove(rows(with: items))
     }
     
 }
 
+
+public extension SKCSingleTypeSection {
+    
+    func rows(with item: Model) -> [Int] where Model: Equatable {
+        rows(with: [item])
+    }
+    
+    func rows(with items: [Model]) -> [Int] where Model: Equatable  {
+        self.models
+            .enumerated()
+            .filter { items.contains($0.element) }
+            .map(\.offset)
+    }
+    
+    func rows(with item: Model) -> [Int] where Model: AnyObject {
+        rows(with: [item])
+    }
+    
+    func rows(with items: [Model]) -> [Int] where Model: AnyObject {
+        let items = Set(items.map({ ObjectIdentifier($0) }))
+        return self.models
+            .enumerated()
+            .filter { items.contains(ObjectIdentifier($0.element)) }
+            .map(\.offset)
+    }
+    
+}
 
 public extension SKCSingleTypeSection {
     
@@ -351,10 +401,38 @@ public extension SKCSingleTypeSection {
         sectionView.deselectItem(at: indexPath(from: row), animated: animated)
     }
     
+    func deselectItem(at item: Model, animated: Bool = true) where Model: Equatable {
+            rows(with: item)
+            .forEach { index in
+                self.deselectItem(at: index, animated: animated)
+            }
+    }
+    
+    func deselectItem(at item: Model, animated: Bool = true) where Model: AnyObject {
+        rows(with: item)
+        .forEach { index in
+            self.deselectItem(at: index, animated: animated)
+        }
+    }
+    
     func selectItem(at row: Int, animated: Bool = true, scrollPosition: UICollectionView.ScrollPosition = .bottom) {
         sectionView.selectItem(at: indexPath(from: row), animated: animated, scrollPosition: scrollPosition)
     }
     
+    func selectItem(at item: Model, animated: Bool = true, scrollPosition: UICollectionView.ScrollPosition = .bottom) where Model: Equatable {
+        rows(with: item)
+        .forEach { index in
+            self.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
+        }
+    }
+
+    func selectItem(at item: Model, animated: Bool = true, scrollPosition: UICollectionView.ScrollPosition = .bottom) where Model: AnyObject {
+        rows(with: item)
+        .forEach { index in
+            self.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
+        }
+    }
+
 }
 
 

@@ -215,6 +215,9 @@ public extension SKCSingleTypeSection {
     
     @discardableResult
     func config(models: [Model]) -> Self {
+        models.enumerated().forEach { item in
+            deletedModels[item.offset] = item.element
+        }
         reload(models)
         return self
     }

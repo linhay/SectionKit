@@ -98,6 +98,29 @@ open class SingleTypeCollectionDriveSection<Cell: UICollectionViewCell & LoadVie
         publishers.supplementary._didEndDisplaying.send(result)
     }
     
+    
+    /// UICollectionViewDelegate & UITableViewDelegate
+    open func shouldSelectItem(at row: Int) -> Bool { true }
+    
+    open func shouldDeselectItem(at row: Int) -> Bool { true }
+    open func didDeselectItem(at row: Int) {}
+    
+    /// MultipleSelectionInteraction
+    open func shouldBeginMultipleSelectionInteraction(at row: Int) -> Bool { false }
+    open func didBeginMultipleSelectionInteraction(at row: Int) {}
+    open func didEndMultipleSelectionInteraction() {}
+    
+    /// Managing Cell Highlighting
+    open func shouldHighlightItem(at row: Int) -> Bool { true }
+    open func didHighlightItem(at row: Int) {}
+    open func didUnhighlightItem(at row: Int) {}
+
+    /// Tracking the Addition and Removal of Views
+    open func didEndDisplaying(at row: Int) {}
+    
+    /// Editing Items
+    open func canEditItem(at row: Int) -> Bool { true }
+    
 }
 
 /// 增删

@@ -24,9 +24,11 @@
 import UIKit
 
 open class SKCollectionViewController: UIViewController {
+    
     public private(set) lazy var sectionView = SKCollectionView()
     public var manager: SKCManager { sectionView.manager }
-    
+    public var registrationManager: SKCRegistrationManager { sectionView.registrationManager }
+
     public convenience init() {
         self.init(nibName: nil, bundle: nil)
     }

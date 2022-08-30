@@ -21,7 +21,7 @@ public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadVie
 }
 
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol {
-    
+
     public typealias CellActionBlock = (CellActionResult) -> Void
     public typealias CellStyleBlock  = (CellStyleResult) -> Void
     public typealias CellStyleBox    = IDBox<UUID, CellStyleBlock>
@@ -37,6 +37,12 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public enum SupplementaryActionType: Int, Hashable {
         case willDisplay
         case didEndDisplay
+    }
+    
+    
+    public enum PrefetchType: Int, Hashable {
+        case begin
+        case cancel
     }
     
     public struct CellActionResult {
@@ -73,9 +79,17 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         public let value: Value
     }
     
-    public struct Pulishers {
-        lazy var cellActionPulisher = cellActionSubject.eraseToAnyPublisher()
-        lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
+    public struct PrefetchResult {
+        public let type: PrefetchType
+        public let rows: [Int]
+    }
+    
+    public class Pulishers {
+        public private(set) lazy var prefetchPulisher = prefetchSubject.eraseToAnyPublisher()
+        public private(set) lazy var cellActionPulisher = cellActionSubject.eraseToAnyPublisher()
+        public private(set) lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
+        
+        fileprivate lazy var prefetchSubject = PassthroughSubject<PrefetchResult, Never>()
         fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionResult, Never>()
         fileprivate lazy var supplementaryActionSubject = PassthroughSubject<SupplementaryActionResult, Never>()
     }
@@ -184,6 +198,14 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     open func supplementary(didEndDisplaying view: UICollectionReusableView, kind: SKSupplementaryKind, at row: Int) {
         sendSupplementaryAction(.didEndDisplay, kind: kind, row: row)
+    }
+    
+    open func prefetch(at rows: [Int]) {
+        self.pulishers.prefetchSubject.send(PrefetchResult(type: .begin, rows: rows))
+    }
+    
+    open func cancelPrefetching(at rows: [Int]) {
+        self.pulishers.prefetchSubject.send(PrefetchResult(type: .cancel, rows: rows))
     }
     
 }

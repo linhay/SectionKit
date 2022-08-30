@@ -23,7 +23,6 @@
 		CD3ABCC028A7D5CE006BD03D /* RegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */; };
 		CD5A7AE9282394AA00337098 /* DecorationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AE8282394AA00337098 /* DecorationViewController.swift */; };
 		CD5A7AF02823BF1D00337098 /* ReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AEF2823BF1D00337098 /* ReusableView.swift */; };
-		CD74E9C127E0DC2E0085A6FB /* CompositionalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD74E9C027E0DC2E0085A6FB /* CompositionalViewController.swift */; };
 		CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */; };
 		CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */ = {isa = PBXBuildFile; productRef = CDA10DED28B4A90C000698F2 /* Delegate */; };
 		CDDD973828AD1EA3001942B0 /* StringRawCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDD973728AD1EA3001942B0 /* StringRawCell.swift */; };
@@ -45,7 +44,6 @@
 		CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationViewController.swift; sourceTree = "<group>"; };
 		CD5A7AE8282394AA00337098 /* DecorationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecorationViewController.swift; sourceTree = "<group>"; };
 		CD5A7AEF2823BF1D00337098 /* ReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReusableView.swift; sourceTree = "<group>"; };
-		CD74E9C027E0DC2E0085A6FB /* CompositionalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionalViewController.swift; sourceTree = "<group>"; };
 		CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSectionViewController.swift; sourceTree = "<group>"; };
 		CDDD973728AD1EA3001942B0 /* StringRawCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringRawCell.swift; sourceTree = "<group>"; };
 		CDDD973928AD1ED6001942B0 /* StringCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringCell.swift; sourceTree = "<group>"; };
@@ -121,7 +119,6 @@
 				CD33B82727DCE6640032987B /* HomeController.swift */,
 				CD5A7AE8282394AA00337098 /* DecorationViewController.swift */,
 				CD33B82927DCEB620032987B /* SingleTypeViewController.swift */,
-				CD74E9C027E0DC2E0085A6FB /* CompositionalViewController.swift */,
 				CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */,
 				CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */,
 				CD33B83027DD05650032987B /* PrefetchViewController.swift */,
@@ -232,7 +229,6 @@
 				CD5A7AE9282394AA00337098 /* DecorationViewController.swift in Sources */,
 				CD3ABCC028A7D5CE006BD03D /* RegistrationViewController.swift in Sources */,
 				CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */,
-				CD74E9C127E0DC2E0085A6FB /* CompositionalViewController.swift in Sources */,
 				CD33B82A27DCEB620032987B /* SingleTypeViewController.swift in Sources */,
 				CD33B82827DCE6640032987B /* HomeController.swift in Sources */,
 				CDDD973A28AD1ED6001942B0 /* StringCell.swift in Sources */,

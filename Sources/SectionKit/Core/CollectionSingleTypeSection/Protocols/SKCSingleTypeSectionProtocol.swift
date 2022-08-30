@@ -9,6 +9,7 @@ import UIKit
 
 public protocol SKCSingleTypeSectionProtocol: SKCDataSourceProtocol,
                                               SKCSectionActionProtocol,
+                                              SKCViewDataSourcePrefetchingProtocol,
                                               SKCViewDelegateFlowLayoutProtocol,
                                               SKSafeSizeProviderProtocol {
     

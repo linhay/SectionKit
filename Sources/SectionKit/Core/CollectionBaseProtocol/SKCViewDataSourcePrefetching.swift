@@ -9,10 +9,15 @@ import UIKit
 
 class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourcePrefetching {
     
-    var section: (_ index: Int) -> SKCViewDataSourcePrefetchingProtocol?
+    var _section: (_ index: Int) -> SKCViewDataSourcePrefetchingProtocol?
+    
+    private func section(_ index: Int, function: StaticString = #function) -> SKCViewDataSourcePrefetchingProtocol? {
+        debugPrint("prefetch - \(index) - \(function)")
+        return _section(index)
+    }
     
     init(section: @escaping (_ indexPath: Int) -> SKCViewDataSourcePrefetchingProtocol?) {
-        self.section = section
+        self._section = section
         super.init()
     }
     

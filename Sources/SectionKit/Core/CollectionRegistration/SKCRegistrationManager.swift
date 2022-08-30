@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class SKCollectionRegistrationManager {
+public class SKCRegistrationManager {
     
     public lazy var sections: [SKCRegistrationSectionProtocol] = []
     public lazy var sectionsStore: [Int: SKCRegistrationSectionProtocol] = [:]
@@ -50,7 +50,7 @@ public class SKCollectionRegistrationManager {
     
 }
 
-public extension SKCollectionRegistrationManager {
+public extension SKCRegistrationManager {
     
     func insert(_ input: SKCRegistrationSectionProtocol, at: Int) {
         insert([input], at: at)
@@ -112,7 +112,7 @@ public extension SKCollectionRegistrationManager {
     
 }
 
-private extension SKCollectionRegistrationManager {
+private extension SKCRegistrationManager {
     
     func difference(_ sections: [any SKCRegistrationSectionProtocol], function: StaticString = #function) {
         

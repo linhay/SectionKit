@@ -15,9 +15,9 @@ class HomeController: SKCollectionViewController {
         case prefetch
         case decoration
     }
-
+    
     let section = SKCSingleTypeSection<StringRawCell<Action>>()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -40,7 +40,7 @@ extension HomeController {
             case .registration:
                 controller = RegistrationViewController()
             case .prefetch:
-//                controller = PrefetchViewController()
+                controller = PrefetchViewController()
                 break
             case .singleTypeSection:
                 controller = SingleTypeViewController()
@@ -58,7 +58,7 @@ extension HomeController {
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
-
+    
     func setupUI() {
         section.sectionInset = .init(top: 20, left: 20, bottom: 0, right: 20)
         section.minimumLineSpacing = 8

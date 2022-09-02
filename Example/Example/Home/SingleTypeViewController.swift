@@ -64,7 +64,10 @@ extension SingleTypeViewController {
     
     class LeftViewController: SKCollectionViewController {
         
-        let section = StringRawCell.singleTypeWrapper(Action.allCases)
+        let section = StringRawCell
+            .singleTypeWrapper(builder: {
+                Action.allCases
+            })
         
         override func viewDidLoad() {
             super.viewDidLoad()

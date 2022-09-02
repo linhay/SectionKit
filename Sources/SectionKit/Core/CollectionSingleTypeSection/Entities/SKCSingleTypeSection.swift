@@ -8,18 +8,6 @@
 import UIKit
 import Combine
 
-public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
-    
-    static func singleTypeWrapper(_ models: [Model] = []) -> SKCSingleTypeSection<Self> {
-        .init(models)
-    }
-    
-    static func singleTypeWrapper(count: Int) -> SKCSingleTypeSection<Self> where Model == Void {
-        .init(.init(repeating: (), count: count))
-    }
-    
-}
-
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol {
 
     public typealias CellActionBlock = (CellActionResult) -> Void

@@ -89,8 +89,20 @@ public class SectionCollectionManager {
 
 }
 
-private extension SectionCollectionManager {
-
+public extension SectionCollectionManager {
+    
+    func addObserveScroll(target: NSObject & UIScrollViewDelegate) {
+        delegate.addObserveScroll(target: target)
+    }
+    
+    func addObserveScroll(targets: [NSObject & UIScrollViewDelegate]) {
+        delegate.addObserveScroll(targets: targets)
+    }
+    
+    func removeObserveScroll(target: NSObject & UIScrollViewDelegate) {
+        delegate.removeObserveScroll(target: target)
+    }
+    
 }
 
 public extension SectionCollectionManager {

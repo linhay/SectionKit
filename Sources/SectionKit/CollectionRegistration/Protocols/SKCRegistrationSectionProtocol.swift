@@ -50,7 +50,8 @@ public extension SKCRegistrationSectionProtocol {
     var itemCount: Int { registrations.count }
     
     func item(at row: Int) -> UICollectionViewCell {
-        return registration(at: row)?.dequeue(sectionView: sectionView) ?? .init()
+        let cell = registration(at: row)?.dequeue(sectionView: sectionView)
+        return cell ?? .init()
     }
     
     func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView? {
@@ -212,11 +213,20 @@ public extension SKCRegistrationSectionProtocol {
 public extension SKCRegistrationSectionProtocol {
     
     func apply(_ items: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol]) {
-        
+        guard let injection = registrationSectionInjection else {
+            self.supplementaries = items
+            return
+        }
+        self.supplementaries = items
+        injection.sectionView?.reloadSections(.init(integer: injection.index))
     }
     
     func apply(_ items: [any SKCSupplementaryRegistrationProtocol]) {
-        
+        var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] = [:]
+        for item in items {
+            supplementaries[item.kind] = item
+        }
+        apply(supplementaries)
     }
     
     func delete(_ item: any SKCSupplementaryRegistrationProtocol) {
@@ -247,8 +257,7 @@ public extension SKCRegistrationSectionProtocol {
 
 public extension SKCRegistrationSectionProtocol {
     
-    private func prepare(injection: SKCRegistrationSectionInjection,
-                         registrations: [any SKCCellRegistrationProtocol]) -> [any SKCCellRegistrationProtocol] {
+    private func prepare(injection: SKCRegistrationSectionInjection, registrations: [any SKCCellRegistrationProtocol]) -> [any SKCCellRegistrationProtocol] {
         return registrations
             .enumerated()
             .map { item in

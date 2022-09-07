@@ -96,8 +96,12 @@ public extension SKCRegistrationManager {
         difference(sections)
     }
     
+    func reload(@SectionArrayResultBuilder<any SKCRegistrationSectionProtocol> _ builder: () -> [any SKCRegistrationSectionProtocol]) {
+        reload(builder())
+    }
+    
     func reload(_ section: any SKCRegistrationSectionProtocol) {
-        difference([section])
+        reload([section])
     }
     
     @MainActor

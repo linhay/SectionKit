@@ -24,38 +24,38 @@ import Combine
 
 public class SKSelectableModel: Equatable {
     
-    fileprivate let selectedSubject: Publishers.RemoveDuplicates<CurrentValueSubject<Bool, Never>>
-    fileprivate let canSelectSubject: Publishers.RemoveDuplicates<CurrentValueSubject<Bool, Never>>
-    fileprivate lazy var changedSubject = CurrentValueSubject<(isSelected: Bool, canSelect: Bool), Never>((isSelected, canSelect))
+    fileprivate let selectedSubject: CurrentValueSubject<Bool, Never>
+    fileprivate let canSelectSubject: CurrentValueSubject<Bool, Never>
+    fileprivate lazy var changedSubject = PassthroughSubject<SKSelectableModel, Never>()
 
     public static func == (lhs: SKSelectableModel, rhs: SKSelectableModel) -> Bool {
         return lhs.isSelected == rhs.isSelected && lhs.canSelect == rhs.canSelect
     }
     
     public var isSelected: Bool {
-        set { selectedSubject.upstream.send(newValue) }
-        get { selectedSubject.upstream.value }
+        set { selectedSubject.send(newValue) }
+        get { selectedSubject.value }
     }
     
     public var canSelect: Bool {
-        set { canSelectSubject.upstream.send(newValue) }
-        get { canSelectSubject.upstream.value }
+        set { canSelectSubject.send(newValue) }
+        get { canSelectSubject.value }
     }
     
     private var cancellables = Set<AnyCancellable>()
     
     public init(isSelected: Bool = false, canSelect: Bool = true) {
-        selectedSubject = CurrentValueSubject<Bool, Never>(isSelected).removeDuplicates()
-        canSelectSubject = CurrentValueSubject<Bool, Never>(canSelect).removeDuplicates()
+        selectedSubject = CurrentValueSubject<Bool, Never>(isSelected)
+        canSelectSubject = CurrentValueSubject<Bool, Never>(canSelect)
         
         selectedSubject.sink { [weak self] value in
             guard let self = self else { return }
-            self.changedSubject.send((value, canSelect))
+            self.changedSubject.send(self)
         }.store(in: &cancellables)
         
         canSelectSubject.sink { [weak self] value in
             guard let self = self else { return }
-            self.changedSubject.send((isSelected, value))
+            self.changedSubject.send(self)
         }.store(in: &cancellables)
     }
 }
@@ -65,12 +65,18 @@ public protocol SelectableProtocol {
 }
 
 public extension SelectableProtocol {
-    var isSelected: Bool { selectableModel.isSelected }
-    var canSelect: Bool { selectableModel.canSelect }
+    var isSelected: Bool {
+        get { selectableModel.isSelected }
+        nonmutating set { selectableModel.isSelected = newValue }
+    }
+    var canSelect: Bool {
+        get { selectableModel.canSelect }
+        nonmutating set { selectableModel.canSelect = newValue }
+    }
     
     var selectedPublisher: AnyPublisher<Bool, Never> { selectableModel.selectedSubject.eraseToAnyPublisher() }
     var canSelectPublisher: AnyPublisher<Bool, Never> { selectableModel.canSelectSubject.eraseToAnyPublisher() }
-    var changedPublisher: AnyPublisher<(isSelected: Bool, canSelect: Bool), Never> { selectableModel.changedSubject.eraseToAnyPublisher() }
+    var changedPublisher: AnyPublisher<SKSelectableModel, Never> { selectableModel.changedSubject.eraseToAnyPublisher() }
 }
 
 public protocol SelectableCollectionProtocol {

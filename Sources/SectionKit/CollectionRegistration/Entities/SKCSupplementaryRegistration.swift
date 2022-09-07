@@ -22,6 +22,7 @@ public class SKCSupplementaryRegistration<View: UICollectionReusableView & SKCon
     public var injection: (any SKCRegistrationInjectionProtocol)?
     public let kind: SKSupplementaryKind
     
+    public var viewStyle: ViewInputBlock?
     public var onWillDisplay: VoidBlock?
     public var onEndDisplaying: VoidBlock?
     

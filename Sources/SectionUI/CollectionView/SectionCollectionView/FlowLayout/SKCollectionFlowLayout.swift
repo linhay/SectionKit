@@ -22,6 +22,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SectionKit
 
 open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
     public typealias DecorationView = UICollectionReusableView & SKLoadViewProtocol

@@ -105,7 +105,7 @@ extension RegistrationViewController {
                               size: .init(width: 60, height: 60))
                 }))
                 
-                for idx in 0...2 {
+                for _ in 0...2 {
                     StringCell
                         .registration(.init(text: "cell-end",
                                             size: .init(width: 100, height: 40)))

@@ -5,7 +5,7 @@
 //  Created by linhey on 2022/5/5.
 //
 
-import SectionKit
+import SectionUI
 import Stem
 import UIKit
 

@@ -137,7 +137,7 @@ private extension SKCRegistrationManager {
             self.sectionsStore.removeAll()
             
             /// 存储上一次 context 待函数结束自动释放
-            let tempContext = context
+            _ = context
             context = .init(sectionView)
             
             sections.enumerated().forEach { element in

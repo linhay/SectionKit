@@ -5,7 +5,7 @@
 //  Created by linhey on 2022/3/12.
 //
 
-import SectionKit
+import SectionUI
 import UIKit
 
 class HomeController: SKCollectionViewController {

@@ -21,6 +21,7 @@
 		CD33B82C27DCEBB40032987B /* ColorBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B82B27DCEBB40032987B /* ColorBlockCell.swift */; };
 		CD33B83127DD05650032987B /* PrefetchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B83027DD05650032987B /* PrefetchViewController.swift */; };
 		CD3ABCC028A7D5CE006BD03D /* RegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */; };
+		CD57AEAA28C87E880004FA56 /* SectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = CD57AEA928C87E880004FA56 /* SectionUI */; };
 		CD5A7AE9282394AA00337098 /* DecorationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AE8282394AA00337098 /* DecorationViewController.swift */; };
 		CD5A7AF02823BF1D00337098 /* ReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AEF2823BF1D00337098 /* ReusableView.swift */; };
 		CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */; };
@@ -54,6 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD57AEAA28C87E880004FA56 /* SectionUI in Frameworks */,
 				CD33B81F27DCE3F30032987B /* SectionKit in Frameworks */,
 				CD0621A328A7FBD200272233 /* StemColor in Frameworks */,
 				CD0621A128A7FBD200272233 /* Stem in Frameworks */,
@@ -160,6 +162,7 @@
 				CD0621A228A7FBD200272233 /* StemColor */,
 				CD0621A428A7FBD200272233 /* StemFilePath */,
 				CDA10DED28B4A90C000698F2 /* Delegate */,
+				CD57AEA928C87E880004FA56 /* SectionUI */,
 			);
 			productName = Example;
 			productReference = CD33B80427DCE3A70032987B /* Example.app */;
@@ -499,6 +502,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		CD57AEA928C87E880004FA56 /* SectionUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SectionUI;
 		};
 		CDA10DED28B4A90C000698F2 /* Delegate */ = {
 			isa = XCSwiftPackageProductDependency;

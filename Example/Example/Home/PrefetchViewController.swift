@@ -6,7 +6,7 @@
 //
 
 import Combine
-import SectionKit
+import SectionUI
 import Stem
 import UIKit
 import StemColor

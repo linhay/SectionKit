@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SectionKit
 
 public extension SKCollectionFlowLayout.BindingKey where Value == Int {
     

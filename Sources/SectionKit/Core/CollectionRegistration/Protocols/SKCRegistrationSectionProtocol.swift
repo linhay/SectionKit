@@ -259,7 +259,7 @@ public extension SKCRegistrationSectionProtocol {
     }
     
     func apply(_ registrations: any SKCCellRegistrationProtocol) {
-        apply(registrations)
+        apply([registrations])
     }
     
     func apply(_ registrations: [any SKCCellRegistrationProtocol]) {

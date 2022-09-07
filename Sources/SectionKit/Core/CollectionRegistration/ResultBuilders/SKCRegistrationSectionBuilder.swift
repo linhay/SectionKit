@@ -20,20 +20,20 @@ public class SKCRegistrationSectionBuilder: SectionArrayResultBuilder<SKCRegistr
         [.supplementary(expression())]
     }
     
-    public static func buildExpression(_ expression: () -> any SKCCellRegistrationProtocol) -> [SKCRegistrationSectionBuilderStore] {
-        [.registration(expression())]
-    }
-    
     public static func buildExpression(_ expression: any SKCSupplementaryRegistrationProtocol) -> [SKCRegistrationSectionBuilderStore] {
         [.supplementary(expression)]
     }
     
-    public static func buildExpression(_ expression: any SKCCellRegistrationProtocol) -> [SKCRegistrationSectionBuilderStore] {
-        [.registration(expression)]
-    }
-    
     public static func buildExpression(_ expression: [any SKCSupplementaryRegistrationProtocol]) -> [SKCRegistrationSectionBuilderStore] {
         expression.map({ .supplementary($0) })
+    }
+    
+    public static func buildExpression(_ expression: () -> any SKCCellRegistrationProtocol) -> [SKCRegistrationSectionBuilderStore] {
+        [.registration(expression())]
+    }
+    
+    public static func buildExpression(_ expression: any SKCCellRegistrationProtocol) -> [SKCRegistrationSectionBuilderStore] {
+        [.registration(expression)]
     }
     
     public static func buildExpression(_ expression: [any SKCCellRegistrationProtocol]) -> [SKCRegistrationSectionBuilderStore] {

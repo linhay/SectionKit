@@ -62,6 +62,6 @@ extension HomeController {
     func setupUI() {
         section.sectionInset = .init(top: 20, left: 20, bottom: 0, right: 20)
         section.minimumLineSpacing = 8
-        manager.update(section)
+        manager.reload(section)
     }
 }

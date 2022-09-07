@@ -44,11 +44,11 @@ public class SKCManager {
 
 public extension SKCManager {
 
-    func update(_ section: SKCSectionProtocol) {
-        update([section])
+    func reload(_ section: SKCSectionProtocol) {
+        reload([section])
     }
     
-    func update(_ sections: [SKCSectionProtocol]) {
+    func reload(_ sections: [SKCSectionProtocol]) {
         guard let sectionView = sectionView else {
             return
         }

@@ -77,7 +77,7 @@ extension SingleTypeViewController {
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
-            manager.update([section])
+            manager.reload([section])
         }
         
     }
@@ -193,7 +193,7 @@ extension SingleTypeViewController {
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 2
-            manager.update(section)
+            manager.reload(section)
         }
     }
 }

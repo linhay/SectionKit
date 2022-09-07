@@ -12,7 +12,8 @@ public class SKCRegistrationManager {
     public lazy var sections: [SKCRegistrationSectionProtocol] = []
     public lazy var sectionsStore: [Int: SKCRegistrationSectionProtocol] = [:]
     
-    private var lock = false
+    /// difference 计算时, 新的数据将放入 waitSections 中等待下一次 difference 计算
+    private var differenceLock = false
     private var waitSections: [SKCRegistrationSectionProtocol]?
     
     private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
@@ -114,17 +115,17 @@ public extension SKCRegistrationManager {
 
 private extension SKCRegistrationManager {
     
-    func difference(_ sections: [any SKCRegistrationSectionProtocol], function: StaticString = #function) {
+    func difference(_ sections: [any SKCRegistrationSectionProtocol]) {
         
-        guard !lock else {
+        guard !differenceLock else {
             waitSections = sections
             return
         }
-        lock = true
+        differenceLock = true
         
         Task { @MainActor in
             defer {
-                lock = false
+                differenceLock = false
                 if let section = waitSections {
                     update(section)
                     waitSections = nil

@@ -72,7 +72,7 @@ extension DecorationViewController {
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 8
-            skmanager.update([section])
+            skmanager.reload([section])
         }
     }
 }
@@ -166,7 +166,7 @@ extension DecorationViewController {
                 section.sectionInset = .init(top: 20, left: 8, bottom: 20, right: 8)
                 section.minimumLineSpacing = 8
             }
-            skmanager.update(sections)
+            skmanager.reload(sections)
         }
     }
 }

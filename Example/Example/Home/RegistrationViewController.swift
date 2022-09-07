@@ -76,7 +76,7 @@ extension RegistrationViewController {
                     }
             }
             
-            manager.update([section])
+            manager.reload([section])
         }
     }
     
@@ -116,7 +116,7 @@ extension RegistrationViewController {
         func on(action: Action) {
             switch action {
             case .reset:
-                manager.update([
+                manager.reload([
                     newSection("1", count: 1),
                     newSection("2", count: 2),
                     newSection("3", count: 3),

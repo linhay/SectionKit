@@ -59,7 +59,7 @@ public extension SKCRegistrationManager {
     func insert(_ input: [any SKCRegistrationSectionProtocol], at: Int) {
         var sections = (waitSections ?? sections)
         sections.insert(contentsOf: input, at: at)
-        update(sections)
+        reload(sections)
     }
     
     func insert(_ input: SKCRegistrationSectionProtocol, before: SKCRegistrationSectionProtocol) {
@@ -83,7 +83,7 @@ public extension SKCRegistrationManager {
     }
     
     func append(_ input: SKCRegistrationSectionProtocol) { append([input]) }
-    func append(_ input: [any SKCRegistrationSectionProtocol]) { update((waitSections ?? sections) + input) }
+    func append(_ input: [any SKCRegistrationSectionProtocol]) { reload((waitSections ?? sections) + input) }
     
     func remove(_ input: [any SKCRegistrationSectionProtocol]) {
         let IDs = input.map({ ObjectIdentifier($0) })
@@ -92,11 +92,11 @@ public extension SKCRegistrationManager {
     }
     func remove(_ input: SKCRegistrationSectionProtocol) { remove([input]) }
     
-    func update(_ sections: [any SKCRegistrationSectionProtocol]) {
+    func reload(_ sections: [any SKCRegistrationSectionProtocol]) {
         difference(sections)
     }
     
-    func update(_ section: any SKCRegistrationSectionProtocol) {
+    func reload(_ section: any SKCRegistrationSectionProtocol) {
         difference([section])
     }
     
@@ -127,7 +127,7 @@ private extension SKCRegistrationManager {
             defer {
                 differenceLock = false
                 if let section = waitSections {
-                    update(section)
+                    reload(section)
                     waitSections = nil
                 }
             }

@@ -19,8 +19,11 @@ public class SKCSupplementaryRegistration<View: UICollectionReusableView & SKCon
                                           ID: Hashable>: SKViewRegistration<View, ID>,
                                                          SKCSupplementaryRegistrationProtocol {
     
-    public var injection: (any SKCRegistrationInjectionProtocol)?
+    
     public let kind: SKSupplementaryKind
+    public var tags: Set<String> = .init()
+    
+    public var injection: (any SKCRegistrationInjectionProtocol)?
     
     public var viewStyle: ViewInputBlock?
     public var onWillDisplay: VoidBlock?

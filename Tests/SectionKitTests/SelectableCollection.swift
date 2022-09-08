@@ -8,6 +8,6 @@
 import Foundation
 import SectionUI
 
-struct SelectableCollection<Element: SelectableProtocol>: SelectableCollectionProtocol {
+struct SelectableCollection<Element: SKSelectionProtocol>: SKSelectionSequenceProtocol {
     let selectables: [Element]
 }

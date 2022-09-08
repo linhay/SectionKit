@@ -12,9 +12,14 @@ public protocol SKCRegistrationSectionProtocol: SKCDataSourceProtocol,
                                                 SKCViewDelegateFlowLayoutProtocol,
                                                 SKSafeSizeProviderProtocol {
     
+    /// SupplementaryView 集合
     var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] { get set }
+    /// Cell 集合
     var registrations: [any SKCCellRegistrationProtocol] { get set }
+    /// manager 注入功能
     var registrationSectionInjection: SKCRegistrationSectionInjection? { get set }
+    /// manager 设置 `registrationSectionInjection`
+    /// - Parameter injection: injection
     func prepare(injection: SKCRegistrationSectionInjection?)
 }
 
@@ -204,7 +209,6 @@ public extension SKCRegistrationSectionProtocol {
                 }
                 sectionView.deleteItems(at: [.init(item: viewInjection.index, section: injection.index)])
             }
-            
         }
     }
     

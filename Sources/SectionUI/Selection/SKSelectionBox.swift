@@ -23,19 +23,19 @@
 import Foundation
 
 @dynamicMemberLookup
-public struct SKSelectableBox<SelectableValue>: SelectableProtocol {
+public struct SKSelectionBox<SelectableValue>: SKSelectionProtocol {
     
-    public var selectableModel: SKSelectableModel
+    public var selection: SKSelectionState
     public var value: SelectableValue
     
-    public init(_ value: SelectableValue, selectable: SKSelectableModel = SKSelectableModel()) {
+    public init(_ value: SelectableValue,
+                _ selection: SKSelectionState = .init()) {
         self.value = value
-        self.selectableModel = selectable
+        self.selection = selection
     }
     
-    public init(selectable: SKSelectableModel = SKSelectableModel()) where SelectableValue == Void {
-        self.value = ()
-        self.selectableModel = selectable
+    public init(_ selection: SKSelectionState = .init()) where SelectableValue == Void {
+        self.init((), selection)
     }
     
     public subscript<T>(dynamicMember keyPath: WritableKeyPath<SelectableValue, T>) -> T {
@@ -48,12 +48,12 @@ public struct SKSelectableBox<SelectableValue>: SelectableProtocol {
     }
 }
 
-extension SKSelectableBox: Equatable where SelectableValue: Equatable {
-    public static func == (lhs: SKSelectableBox<SelectableValue>, rhs: SKSelectableBox<SelectableValue>) -> Bool {
-        return lhs.value == rhs.value && lhs.selectableModel == rhs.selectableModel
+extension SKSelectionBox: Equatable where SelectableValue: Equatable {
+    public static func == (lhs: SKSelectionBox<SelectableValue>, rhs: SKSelectionBox<SelectableValue>) -> Bool {
+        return lhs.value == rhs.value && lhs.selection == rhs.selection
     }
 }
 
-extension SKSelectableBox: Identifiable where SelectableValue: Identifiable {
+extension SKSelectionBox: Identifiable where SelectableValue: Identifiable {
     public var id: SelectableValue.ID { value.id }
 }

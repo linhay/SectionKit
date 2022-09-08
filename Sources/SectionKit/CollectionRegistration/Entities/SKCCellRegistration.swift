@@ -22,8 +22,9 @@ public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadVie
 }
 
 public class SKCCellRegistration<View: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol, ID: Hashable>: SKViewRegistration<View, ID>, SKCCellRegistrationProtocol {
-   
+    
     public let kind: SKSupplementaryKind = .cell
+    public var tags: Set<String> = .init()
     
     public var injection: (any SKCRegistrationInjectionProtocol)?
 

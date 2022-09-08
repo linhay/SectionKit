@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SectionKit
+import SectionUI
 
 struct SelectableCollection<Element: SelectableProtocol>: SelectableCollectionProtocol {
     let selectables: [Element]

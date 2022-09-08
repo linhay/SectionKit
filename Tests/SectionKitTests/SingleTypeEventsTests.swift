@@ -6,7 +6,7 @@
 //
 
 import Combine
-import SectionKit
+import SectionUI
 import XCTest
 
 final class SingleTypeWrapperTests: XCTestCase {
@@ -20,7 +20,7 @@ final class SingleTypeWrapperTests: XCTestCase {
         let section = SectionVoidCell.singleTypeWrapper(count: 3)
         let view = SKCollectionView()
         view.frame.size = .init(width: 400, height: 400)
-        view.manager.update(section)
+        view.manager.reload(section)
 
         var returnFlag = -1
         section.onCellAction(.selected, block: { result in

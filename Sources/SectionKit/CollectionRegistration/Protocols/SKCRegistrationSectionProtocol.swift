@@ -10,8 +10,10 @@ import UIKit
 public protocol SKCRegistrationSectionProtocol: SKCDataSourceProtocol,
                                                 SKCSectionActionProtocol,
                                                 SKCViewDelegateFlowLayoutProtocol,
+                                                SKCViewDataSourcePrefetchingProtocol,
                                                 SKSafeSizeProviderProtocol {
     
+    var prefetch: SKCPrefetch { get }
     /// SupplementaryView 集合
     var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] { get set }
     /// Cell 集合
@@ -21,6 +23,7 @@ public protocol SKCRegistrationSectionProtocol: SKCDataSourceProtocol,
     /// manager 设置 `registrationSectionInjection`
     /// - Parameter injection: injection
     func prepare(injection: SKCRegistrationSectionInjection?)
+    
 }
 
 public extension SKCRegistrationSectionProtocol {
@@ -309,6 +312,23 @@ public extension SKCRegistrationSectionProtocol {
         }
         self.registrations = prepare(injection: injection, registrations: registrations)
         injection.sectionView?.deleteItems(at: .init(set))
+    }
+    
+}
+
+/// SKCViewDataSourcePrefetchingProtocol
+public extension SKCRegistrationSectionProtocol {
+    
+    /// 预测加载 rows
+    /// - Parameter rows: rows
+    func prefetch(at rows: [Int]) {
+        prefetch.prefetch.send(rows)
+    }
+    
+    /// 取消加载
+    /// - Parameter rows: rows
+    func cancelPrefetching(at rows: [Int]) {
+        prefetch.cancelPrefetching.send(rows)
     }
     
 }

@@ -9,13 +9,16 @@ import UIKit
 
 public final class SKCRegistrationSection: SKCRegistrationSectionProtocol {
     
+    public private(set) lazy var prefetch: SKCPrefetch = .init { [weak self] in
+        return self?.itemCount ?? 0
+    }
     public var registrationSectionInjection: SKCRegistrationSectionInjection?
     public var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol]
     public var registrations: [any SKCCellRegistrationProtocol]
     
-    public var minimumLineSpacing: CGFloat = 0
-    public var minimumInteritemSpacing: CGFloat = 0
-    public var sectionInset: UIEdgeInsets = .zero
+    public lazy var minimumLineSpacing: CGFloat = 0
+    public lazy var minimumInteritemSpacing: CGFloat = 0
+    public lazy var sectionInset: UIEdgeInsets = .zero
     
     public convenience init() {
         self.init([:], [])

@@ -11,7 +11,7 @@ public protocol SKCSupplementaryRegistrationProtocol: AnyObject, SKViewRegistrat
     
     typealias BoolBlock = () -> Bool
     typealias VoidBlock = () -> Void
-    typealias ViewInputBlock = (_  view: View) -> Void
+    typealias ViewInputBlock = (_  view: View, _ model: View.Model) -> Void
     typealias BoolInputBlock = (_ model: View.Model) -> Bool
     typealias VoidInputBlock = (_ model: View.Model) -> Void
     
@@ -20,6 +20,7 @@ public protocol SKCSupplementaryRegistrationProtocol: AnyObject, SKViewRegistrat
     var injection: (any SKCRegistrationInjectionProtocol)? { get set }
 
     var viewStyle: ViewInputBlock? { get set }
+    
     var onWillDisplay: VoidBlock? { get set }
     var onEndDisplaying: VoidBlock? { get set }
     
@@ -36,7 +37,7 @@ public extension SKCSupplementaryRegistrationProtocol {
                                                                 withReuseIdentifier: View.identifier,
                                                                 for: indexPath) as! View
         view.config(model)
-        viewStyle?(view)
+        viewStyle?(view, model)
         return view
     }
     

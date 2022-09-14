@@ -22,38 +22,40 @@
 
 import Foundation
 
+@frozen
+@propertyWrapper
 @dynamicMemberLookup
-public struct SKSelectionBox<SelectableValue>: SKSelectionProtocol {
+public struct SKSelectionWrapper<WrappedValue>: SKSelectionProtocol {
     
     public var selection: SKSelectionState
-    public var value: SelectableValue
+    public var wrappedValue: WrappedValue
     
-    public init(_ value: SelectableValue,
+    public init(_ value: WrappedValue,
                 _ selection: SKSelectionState = .init()) {
-        self.value = value
+        self.wrappedValue = value
         self.selection = selection
     }
     
-    public init(_ selection: SKSelectionState = .init()) where SelectableValue == Void {
+    public init(_ selection: SKSelectionState = .init()) where WrappedValue == Void {
         self.init((), selection)
     }
     
-    public subscript<T>(dynamicMember keyPath: WritableKeyPath<SelectableValue, T>) -> T {
-        get { value[keyPath: keyPath] }
-        set { value[keyPath: keyPath] = newValue }
+    public subscript<T>(dynamicMember keyPath: WritableKeyPath<WrappedValue, T>) -> T {
+        get { wrappedValue[keyPath: keyPath] }
+        set { wrappedValue[keyPath: keyPath] = newValue }
     }
     
-    public subscript<T>(dynamicMember keyPath: KeyPath<SelectableValue, T>) -> T {
-        value[keyPath: keyPath]
+    public subscript<T>(dynamicMember keyPath: KeyPath<WrappedValue, T>) -> T {
+        wrappedValue[keyPath: keyPath]
     }
 }
 
-extension SKSelectionBox: Equatable where SelectableValue: Equatable {
-    public static func == (lhs: SKSelectionBox<SelectableValue>, rhs: SKSelectionBox<SelectableValue>) -> Bool {
-        return lhs.value == rhs.value && lhs.selection == rhs.selection
+extension SKSelectionWrapper: Equatable where WrappedValue: Equatable {
+    public static func == (lhs: SKSelectionWrapper<WrappedValue>, rhs: SKSelectionWrapper<WrappedValue>) -> Bool {
+        return lhs.wrappedValue == rhs.wrappedValue && lhs.selection == rhs.selection
     }
 }
 
-extension SKSelectionBox: Identifiable where SelectableValue: Identifiable {
-    public var id: SelectableValue.ID { value.id }
+extension SKSelectionWrapper: Identifiable where WrappedValue: Identifiable {
+    public var id: WrappedValue.ID { wrappedValue.id }
 }

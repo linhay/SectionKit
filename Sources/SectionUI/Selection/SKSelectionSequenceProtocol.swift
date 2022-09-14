@@ -12,7 +12,7 @@ public protocol SKSelectionSequenceProtocol {
     associatedtype Element: SKSelectionProtocol
     
     /// 可选元素序列
-    var selectables: [Element] { get }
+    var selectableElements: [Element] { get }
     
     /// 已选中某个元素
     /// - Parameters:
@@ -29,22 +29,22 @@ public extension SKSelectionSequenceProtocol {
 public extension SKSelectionSequenceProtocol {
     /// 序列中第一个选中的元素
     func firstSelectedElement() -> Element? {
-        return selectables.first(where: { $0.isSelected })
+        return selectableElements.first(where: { $0.isSelected })
     }
     
     /// 序列中第一个选中的元素的索引
     func firstSelectedIndex() -> Int? {
-        return selectables.firstIndex(where: { $0.isSelected })
+        return selectableElements.firstIndex(where: { $0.isSelected })
     }
     
     /// 已选中的元素
     var selectedElements: [Element] {
-        selectables.filter(\.isSelected)
+        selectableElements.filter(\.isSelected)
     }
     
     /// 已选中的元素序列
     var selectedIndexs: [Int] {
-        selectables.enumerated().filter { $0.element.isSelected }.map(\.offset)
+        selectableElements.enumerated().filter { $0.element.isSelected }.map(\.offset)
     }
     
     /// 选中元素
@@ -52,12 +52,12 @@ public extension SKSelectionSequenceProtocol {
     ///   - index: 选择序号
     ///   - isUnique: 是否保证选中在当前序列中是否唯一 | default: true
     ///   - needInvert: 是否需要支持反选操作 | default: false
-    func select(at index: Int, isUnique: Bool = true, needInvert: Bool = false) {
-        guard selectables.indices.contains(index) else {
+    func select(at index: Int, isUnique: Bool, needInvert: Bool) {
+        guard selectableElements.indices.contains(index) else {
             return
         }
         
-        let element = selectables[index]
+        let element = selectableElements[index]
         
         guard element.canSelect else {
             return
@@ -69,7 +69,7 @@ public extension SKSelectionSequenceProtocol {
             return
         }
         
-        for (offset, item) in selectables.enumerated() {
+        for (offset, item) in selectableElements.enumerated() {
             if offset == index {
                 item.selection.isSelected = needInvert ? !element.isSelected : true
             } else {
@@ -85,12 +85,12 @@ public extension SKSelectionSequenceProtocol where Element: Equatable {
     /// - Parameters:
     ///   - element: 指定元素
     ///   - needInvert: 是否需要支持反选操作 | default: false
-    func select(_ element: Element, needInvert: Bool = false) {
-        guard selectables.contains(element) else {
+    func select(_ element: Element, needInvert: Bool) {
+        guard selectableElements.contains(element) else {
             return
         }
         
-        for (offset, item) in selectables.enumerated() {
+        for (offset, item) in selectableElements.enumerated() {
             item.selection.isSelected = needInvert ? !item.isSelected : item == element
             if item == element {
                 self.element(selected: offset, element: element)

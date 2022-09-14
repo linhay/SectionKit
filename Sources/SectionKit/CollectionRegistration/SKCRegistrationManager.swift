@@ -92,6 +92,21 @@ public extension SKCRegistrationManager {
     }
     func remove(_ input: SKCRegistrationSectionProtocol) { remove([input]) }
     
+    @MainActor
+    private func pick(_ block: () -> Void) async {
+        await withUnsafeContinuation { continuation in
+            sectionView?.performBatchUpdates {
+                block()
+            } completion: { _ in
+                continuation.resume()
+            }
+        }
+    }
+    
+}
+
+public extension SKCRegistrationManager {
+    
     func reload(_ sections: [any SKCRegistrationSectionProtocol]) {
         difference(sections)
     }
@@ -104,15 +119,8 @@ public extension SKCRegistrationManager {
         reload([section])
     }
     
-    @MainActor
-    private func pick(_ block: () -> Void) async {
-        await withUnsafeContinuation { continuation in
-            sectionView?.performBatchUpdates {
-                block()
-            } completion: { _ in
-                continuation.resume()
-            }
-        }
+    func reload(@SKCRegistrationSectionBuilder builder: (() -> [SKCRegistrationSectionBuilderStore])) {
+        reload(SKCRegistrationSection(builder: builder))
     }
     
 }

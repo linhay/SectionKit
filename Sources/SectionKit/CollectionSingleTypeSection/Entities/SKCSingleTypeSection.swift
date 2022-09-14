@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol {
-
+    
     public typealias CellActionBlock = (CellActionResult) -> Void
     public typealias CellStyleBlock  = (CellStyleResult) -> Void
     public typealias CellStyleBox    = IDBox<UUID, CellStyleBlock>
@@ -26,13 +26,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         case willDisplay
         case didEndDisplay
     }
-    
-    
-    public enum PrefetchType: Int, Hashable {
-        case begin
-        case cancel
-    }
-    
+        
     public struct CellActionResult {
         public let section: SKCSingleTypeSection<Cell>
         public let type: CellActionType
@@ -67,25 +61,23 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         public let value: Value
     }
     
-    public struct PrefetchResult {
-        public let type: PrefetchType
-        public let rows: [Int]
-    }
-    
     public class Pulishers {
-        public private(set) lazy var prefetchPulisher = prefetchSubject.eraseToAnyPublisher()
         public private(set) lazy var cellActionPulisher = cellActionSubject.eraseToAnyPublisher()
         public private(set) lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
         
-        fileprivate lazy var prefetchSubject = PassthroughSubject<PrefetchResult, Never>()
         fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionResult, Never>()
         fileprivate lazy var supplementaryActionSubject = PassthroughSubject<SupplementaryActionResult, Never>()
     }
     
     open var sectionInjection: SKCSectionInjection?
     
-    public private(set) var models: [Model]
     public lazy var safeSizeProvider: SKSafeSizeProvider = defaultSafeSizeProvider
+   
+    public private(set) lazy var prefetch: SKCPrefetch = .init { [weak self] in
+        return self?.itemCount ?? 0
+    }
+    
+    public private(set) var models: [Model]
     
     open lazy var sectionInset: UIEdgeInsets = .zero
     open lazy var minimumLineSpacing: CGFloat = .zero
@@ -188,12 +180,16 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         sendSupplementaryAction(.didEndDisplay, kind: kind, row: row)
     }
     
+    /// 预测加载 rows
+    /// - Parameter rows: rows
     open func prefetch(at rows: [Int]) {
-        self.pulishers.prefetchSubject.send(PrefetchResult(type: .begin, rows: rows))
+        self.prefetch.prefetch.send(rows)
     }
     
+    /// 取消加载
+    /// - Parameter rows: rows
     open func cancelPrefetching(at rows: [Int]) {
-        self.pulishers.prefetchSubject.send(PrefetchResult(type: .cancel, rows: rows))
+        self.prefetch.cancelPrefetching.send(rows)
     }
     
 }
@@ -206,10 +202,6 @@ public extension SKCSingleTypeSection {
             .map(\.row)
     }
     
-    func cellForItem(at row: Int) -> Cell? {
-        sectionView.cellForItem(at: indexPath(from: row)) as? Cell
-    }
-    
     var visibleCells: [Cell] {
         indexsForVisibleItems
             .compactMap(cellForItem(at:))
@@ -219,6 +211,10 @@ public extension SKCSingleTypeSection {
         sectionView.indexPathsForVisibleItems.filter { $0.section == sectionIndex }.map(\.row)
     }
     
+    func cellForItem(at row: Int) -> Cell? {
+        sectionView.cellForItem(at: indexPath(from: row)) as? Cell
+    }
+
     func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
         sectionView.visibleSupplementaryViews(ofKind: kind.rawValue)
     }

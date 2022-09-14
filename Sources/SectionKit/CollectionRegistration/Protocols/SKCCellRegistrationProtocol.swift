@@ -41,7 +41,7 @@ public extension SKCCellRegistrationProtocol {
         }
         let view = sectionView.dequeueReusableCell(withReuseIdentifier: View.identifier, for: indexPath) as! View
         view.config(model)
-        viewStyle?(view)
+        viewStyle?(view, model)
         return view
     }
     

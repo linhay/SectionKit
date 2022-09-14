@@ -9,5 +9,5 @@ import Foundation
 import SectionUI
 
 struct SelectableCollection<Element: SKSelectionProtocol>: SKSelectionSequenceProtocol {
-    let selectables: [Element]
+    let selectableElements: [Element]
 }

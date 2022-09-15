@@ -90,17 +90,19 @@
     manager.reload([section1, section2])
     ```
 
-- SKCSingleTypeSection 配置
+- 样式配置
 
     ``` swift
     let section = FLSpacerCell
         .singleTypeWrapper([model])
+
         /// 配置当前 section 样式
         .setSectionStyle({ section in
             section.minimumLineSpacing = 10
             section.minimumInteritemSpacing = 10
             section.sectionInset = .init(top: 20, left: 20, bottom: 20,right: 20)
         })
+
         /// 加载指定 row 时可以通过 setCellStyle 额外配置 cell 样式
         .setCellStyle { context in
             context.model
@@ -108,6 +110,23 @@
             context.view
             context.section
         }
+
+        /// 配置 headerView & footerView
+        .set(supplementary: .header(type: SupplementaryView.self,model: ()))
+        .set(supplementary: .header(type: SupplementaryView.self,config: { view in
+            view.backgroundColor = .red
+        }, size: { limitSize in
+            return .init(width: 375, height: 44)
+        }))
+
+        /// 配置 headerView & footerView, 与上述函数等价
+        .set(supplementary: .init(kind: .header, type:SupplementaryView.self, model: ()))
+        .set(supplementary: .init(kind: .header, type:SupplementaryView.self, config: { view in
+            view.backgroundColor = .red
+        }, size: { limitSize in
+            return .init(width: 375, height: 44)
+        }))
+
         /// 响应 cell 选中事件
         .onCellAction(.selected) { context in
             context.model
@@ -118,18 +137,73 @@
         .onCellAction(.config) { _ in }
         .onCellAction(.willDisplay) { _ in }
         .onCellAction(.didEndDisplay) { _ in }
-        /// 配置 headerView & footerView
-        .set(supplementary: .header(type: SupplementaryView.self,model: ()))
-        .set(supplementary: .header(type: SupplementaryView.self,config: { view in
-            view.backgroundColor = .red
-        }, size: { limitSize in
-            return .init(width: 375, height: 44)
-        }))
-        /// 配置 headerView & footerView, 与上述函数等价
-        .set(supplementary: .init(kind: .header, type:SupplementaryView.self, model: ()))
-        .set(supplementary: .init(kind: .header, type:SupplementaryView.self, config: { view in
-            view.backgroundColor = .red
-        }, size: { limitSize in
-            return .init(width: 375, height: 44)
-        }))
+        
+        /// 响应 SupplementaryView 消失事件
+        .onSupplementaryAction(.didEndDisplay) { context in
+            context.row
+            context.type
+            context.kind
+            context.section
+        }
+        .onSupplementaryAction(.willDisplay, block: { _ in })
+    ```
+
+- 数据操作
+
+    > 修改数据后会刷新响应视图, 无需手动刷新
+
+    ``` swift
+    let section = FLSpacerCell.singleTypeWrapper([model])
+    /// 重置数据为 models
+    section.config(models: [Model])
+    /// 拼接数据至当前数据尾部
+    section.append([Model])
+    section.insert(at: 0, [Model])
+    section.swapAt(0, 1)
+    section.remove(0)
+    section.remove(supplementary: .header)
+    ```
+
+- 事件订阅
+
+    ``` swift
+    let section = FLSpacerCell.singleTypeWrapper([model])
+
+    section.pulishers.cellActionPulisher.sink { context in
+        switch context.type {
+        case .selected:
+            break
+        case .willDisplay:
+            break
+        case .didEndDisplay:
+            break
+        case .config:
+            break
+        }
+    }
+    
+    section.pulishers.supplementaryActionPulisher.sink { context in
+        switch context.type {
+        case .willDisplay:
+            break
+        case .didEndDisplay:
+            break
+        }
+    }
+
+    /// 以下事件依托于 UICollectionViewDataSourcePrefetching 能力
+    
+    /// 预测需要显示的 row 已经超过当前的 cell 数量
+    section.prefetch.loadMorePublisher.sink { _ in
+            
+    }
+        
+    /// 预测需要显示的 rows
+    section.prefetch.prefetchPublisher.sink { rows in
+            
+    }
+        
+    section.prefetch.cancelPrefetchingPublisher.sink { rows in
+            
+    }
     ```

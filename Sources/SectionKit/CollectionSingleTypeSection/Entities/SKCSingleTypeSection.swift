@@ -10,10 +10,12 @@ import Combine
 
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol {
     
+    public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
+    
     public typealias CellActionBlock = (_ context: CellActionResult) -> Void
     public typealias CellStyleBlock  = (_ context: CellStyleResult) -> Void
     public typealias CellStyleBox    = IDBox<UUID, CellStyleBlock>
-    public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
+    
     public typealias SupplementaryActionBlock = (_ context: SupplementaryActionResult) -> Void
     
     public enum CellActionType: Int, Hashable {
@@ -440,6 +442,19 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
+    /// 配置当前 section 样式
+    /// - Parameter item: 回调
+    /// - Returns: self
+    @discardableResult
+    func setSectionStyle(_ item: @escaping SectionStyleBlock) -> Self {
+        item(self)
+        return self
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
     /// 订阅事件类型
     /// - Parameters:
     ///   - kind: 事件类型
@@ -459,12 +474,6 @@ public extension SKCSingleTypeSection {
         cellStyles.append(item)
         return self
     }
-
-    @discardableResult
-    func setSectionStyle(_ item: @escaping SectionStyleBlock) -> Self {
-        item(self)
-        return self
-    }
     
     @discardableResult
     func setCellStyle(_ item: @escaping CellStyleBlock) -> Self {
@@ -477,6 +486,24 @@ public extension SKCSingleTypeSection {
         self.cellStyles = cellStyles.filter { !ids.contains($0.id) }
     }
     
+}
+
+public extension SKCSingleTypeSection {
+    
+    /// 订阅事件类型
+    /// - Parameters:
+    ///   - kind: 事件类型
+    ///   - block: 回调
+    /// - Returns: self
+    @discardableResult
+    func onSupplementaryAction(_ kind: SupplementaryActionType, block: @escaping SupplementaryActionBlock) -> Self {
+        if supplementaryActions[kind] == nil {
+            supplementaryActions[kind] = []
+        }
+        supplementaryActions[kind]?.append(block)
+        return self
+    }
+
 }
 
 public extension SKCSingleTypeSection {

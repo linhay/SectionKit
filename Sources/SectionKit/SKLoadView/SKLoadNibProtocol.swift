@@ -23,6 +23,7 @@
 #if canImport(UIKit)
 import UIKit
 
+/// 从 Xib 加载当前视图
 public protocol SKLoadNibProtocol: SKLoadViewProtocol {}
 
 public extension SKLoadNibProtocol {

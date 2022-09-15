@@ -25,7 +25,7 @@ public extension SKCRegistrationSectionProtocol {
     
 }
 
-public extension SKCSectionProtocol {
+public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SKCDelegateProtocol {
     
     func horizontalWrapper(height: CGFloat,
                            insets: UIEdgeInsets = .zero,

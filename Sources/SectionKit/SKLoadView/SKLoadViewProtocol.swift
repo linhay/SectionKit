@@ -23,6 +23,7 @@
 #if canImport(UIKit)
 import UIKit
 
+/// 从代码加载当前视图
 public protocol SKLoadViewProtocol: UIView {
     static var identifier: String { get }
     static var nib: UINib? { get }

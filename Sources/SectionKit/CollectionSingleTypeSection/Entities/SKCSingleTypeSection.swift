@@ -107,6 +107,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public init(_ models: [Model] = []) {
         self.models = models
     }
+    public init(_ models: Model...) {
+        self.models = models
+    }
     
     open func config(sectionView: UICollectionView) {
         register(Cell.self)

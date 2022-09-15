@@ -7,4 +7,4 @@
 
 import Foundation
  
-public protocol SKCSectionProtocol: SKCSectionActionProtocol, SKCDataSourceProtocol, SKCDelegateProtocol { }
+public typealias SKCSectionProtocol = SKCSectionActionProtocol & SKCDataSourceProtocol & SKCDelegateProtocol

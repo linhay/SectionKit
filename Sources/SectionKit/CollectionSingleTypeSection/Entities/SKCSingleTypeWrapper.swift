@@ -8,7 +8,7 @@
 import UIKit
 
 public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
-
+    
     static func singleTypeWrapper(@SectionArrayResultBuilder<Model> builder: () -> [Model]) -> SKCSingleTypeSection<Self> {
         .init(builder())
     }

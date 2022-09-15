@@ -7,11 +7,17 @@
  - Swift 5.7 (Xcode 14+)
  - iOS 13.0+
 
-# SKCSingleTypeSection & SKCRegistrationSection
-
 ## 创建通用型单元视图
 
-> 通用型单元视图需要遵守 2 个 Protocol <br/> 1. SKConfigurableView: <br/> - 用于绑定视图与输入数据类型 <br/> - 用于确定视图尺寸 <br/> 2. SKLoadViewProtocol or SKLoadNibProtocol: 用于指定当前视图是代码加载还是从 Xib 加载
+> 通用通用型单元视图可以使用 SectionKit 中已封装的 Section 结构:
+> <br/> - SKCRegistrationSection
+> <br/> - SKCSingleTypeSection
+
+> 通用型单元视图需要遵守 2 个 Protocol: 
+> <br/> 1. SKConfigurableView:
+> <br/> - 用于绑定视图与输入数据类型
+> <br/> - 用于确定视图尺寸 
+> <br/> 2. SKLoadViewProtocol or SKLoadNibProtocol: 用于指定当前视图是代码加载还是从 Xib 加载
 
 -  UICollectionViewCell:
 

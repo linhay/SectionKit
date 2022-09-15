@@ -16,14 +16,20 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias SupplementaryActionBlock = (SupplementaryActionResult) -> Void
     
     public enum CellActionType: Int, Hashable {
+        /// 选中
         case selected
+        /// 即将显示
         case willDisplay
+        /// 结束显示
         case didEndDisplay
+        /// 配置完成
         case config
     }
     
     public enum SupplementaryActionType: Int, Hashable {
+        /// 即将显示
         case willDisplay
+        /// 结束显示
         case didEndDisplay
     }
         
@@ -62,7 +68,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     public class Pulishers {
+        /// cell 事件订阅, 事件类型参照 `CellActionType`
         public private(set) lazy var cellActionPulisher = cellActionSubject.eraseToAnyPublisher()
+        /// supplementary 事件订阅, 事件类型参照 `SupplementaryActionType`
         public private(set) lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
         
         fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionResult, Never>()
@@ -71,12 +79,15 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     open var sectionInjection: SKCSectionInjection?
     
+    /// 配置 cell 与 supplementary 的 limit size
     public lazy var safeSizeProvider: SKSafeSizeProvider = defaultSafeSizeProvider
-   
+    
+    /// 预加载
     public private(set) lazy var prefetch: SKCPrefetch = .init { [weak self] in
         return self?.itemCount ?? 0
     }
     
+    /// cell 对应的数据集
     public private(set) var models: [Model]
     
     open lazy var sectionInset: UIEdgeInsets = .zero
@@ -111,6 +122,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
                 style.value(result)
             }
         }
+        sendAction(.config, row: row)
         return cell
     }
     
@@ -379,6 +391,11 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
+    /// 订阅事件类型
+    /// - Parameters:
+    ///   - kind: 事件类型
+    ///   - block: 回调
+    /// - Returns: self
     @discardableResult
     func onCellAction(_ kind: CellActionType, block: @escaping CellActionBlock) -> Self {
         if cellActions[kind] == nil {

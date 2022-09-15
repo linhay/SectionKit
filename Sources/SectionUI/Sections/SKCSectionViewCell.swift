@@ -8,24 +8,66 @@
 import UIKit
 import SectionKit
 
-public final class SKCHorizontalScrollCell<Section>: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
+public extension SKCRegistrationSectionProtocol {
+    
+    func horizontalWrapper(height: CGFloat,
+                           insets: UIEdgeInsets = .zero,
+                           style: ((SKCollectionView) -> Void)? = nil) -> SKCRegistrationSection {
+        SKCRegistrationSection {
+            SKCSectionViewCell
+                .registration(.init(section: .registration([self]),
+                                    height: height,
+                                    insets: insets,
+                                    scrollDirection: .horizontal,
+                                    style: style))
+        }
+    }
+    
+}
+
+public extension SKCSectionProtocol {
+    
+    func horizontalWrapper(height: CGFloat,
+                           insets: UIEdgeInsets = .zero,
+                           style: ((SKCollectionView) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
+        SKCSectionViewCell
+            .singleTypeWrapper([.init(section: .normal([self]),
+                                      height: height,
+                                      insets: insets,
+                                      scrollDirection: .horizontal,
+                                      style: style)])
+        
+    }
+    
+}
+
+public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
     
     public struct Model {
-        public let section: Section
+        
+        public enum SectionType {
+            case registration([any SKCRegistrationSectionProtocol])
+            case normal([any SKCSectionProtocol])
+        }
+        
+        public let section: SectionType
         public let height: CGFloat
         public let insets: UIEdgeInsets
         public let style: ((SKCollectionView) -> Void)?
+        public let scrollDirection: UICollectionView.ScrollDirection
         
-        public init(section: Section,
+        public init(section: SectionType,
                     height: CGFloat,
                     insets: UIEdgeInsets = .zero,
-                    style: ((SKCollectionView) -> Void)? = nil)
-        {
+                    scrollDirection: UICollectionView.ScrollDirection,
+                    style: ((SKCollectionView) -> Void)? = nil) {
             self.section = section
             self.height = height
             self.insets = insets
+            self.scrollDirection = scrollDirection
             self.style = style
         }
+        
     }
     
     public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
@@ -34,12 +76,16 @@ public final class SKCHorizontalScrollCell<Section>: UICollectionViewCell, SKCon
     }
     
     public func config(_ model: Model) {
+        sectionView.scrollDirection = model.scrollDirection
         model.style?(sectionView)
         edgeConstraint.apply(model.insets)
-//        sectionView.manager.reload(model.section)
+        switch model.section {
+        case .normal(let list):
+            sectionView.manager.reload(list)
+        case .registration(let list):
+            sectionView.registrationManager.reload(list)
+        }
     }
-    
-
     
     private struct EdgeConstraint {
         

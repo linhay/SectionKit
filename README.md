@@ -1,6 +1,11 @@
 # SectionKit
 
-A description of this package.
+> iOS 动态表单框架
+
+# 前提条件:
+
+ - Swift 5.7 (Xcode 14+)
+ - iOS 13.0+
 
 # SKCSingleTypeSection & SKCRegistrationSection
 
@@ -41,7 +46,7 @@ A description of this package.
     import UIKit
     import SectionKit
     
-    class SupplementaryView: UICollectionReusableView, SKConfigurableView,     SKLoadViewProtocol {
+    class SupplementaryView: UICollectionReusableView, SKConfigurableView, SKLoadViewProtocol {
         
         static func preferredSize(limit size: CGSize, model: Void?) -> CGSize {
             return CGSize(width: size.width, height: 44)
@@ -83,4 +88,48 @@ A description of this package.
 
     /// 加载 section1, section2
     manager.reload([section1, section2])
+    ```
+
+- SKCSingleTypeSection 配置
+
+    ``` swift
+    let section = FLSpacerCell
+        .singleTypeWrapper([model])
+        /// 配置当前 section 样式
+        .setSectionStyle({ section in
+            section.minimumLineSpacing = 10
+            section.minimumInteritemSpacing = 10
+            section.sectionInset = .init(top: 20, left: 20, bottom: 20,right: 20)
+        })
+        /// 加载指定 row 时可以通过 setCellStyle 额外配置 cell 样式
+        .setCellStyle { context in
+            context.model
+            context.row
+            context.view
+            context.section
+        }
+        /// 响应 cell 选中事件
+        .onCellAction(.selected) { context in
+            context.model
+            context.row
+            context.view()
+            context.section
+        }
+        .onCellAction(.config) { _ in }
+        .onCellAction(.willDisplay) { _ in }
+        .onCellAction(.didEndDisplay) { _ in }
+        /// 配置 headerView & footerView
+        .set(supplementary: .header(type: SupplementaryView.self,model: ()))
+        .set(supplementary: .header(type: SupplementaryView.self,config: { view in
+            view.backgroundColor = .red
+        }, size: { limitSize in
+            return .init(width: 375, height: 44)
+        }))
+        /// 配置 headerView & footerView, 与上述函数等价
+        .set(supplementary: .init(kind: .header, type:SupplementaryView.self, model: ()))
+        .set(supplementary: .init(kind: .header, type:SupplementaryView.self, config: { view in
+            view.backgroundColor = .red
+        }, size: { limitSize in
+            return .init(width: 375, height: 44)
+        }))
     ```

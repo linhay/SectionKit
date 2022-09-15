@@ -10,10 +10,11 @@ import Combine
 
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol {
     
-    public typealias CellActionBlock = (CellActionResult) -> Void
-    public typealias CellStyleBlock  = (CellStyleResult) -> Void
+    public typealias CellActionBlock = (_ context: CellActionResult) -> Void
+    public typealias CellStyleBlock  = (_ context: CellStyleResult) -> Void
     public typealias CellStyleBox    = IDBox<UUID, CellStyleBlock>
-    public typealias SupplementaryActionBlock = (SupplementaryActionResult) -> Void
+    public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
+    public typealias SupplementaryActionBlock = (_ context: SupplementaryActionResult) -> Void
     
     public enum CellActionType: Int, Hashable {
         /// 选中
@@ -32,24 +33,51 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         /// 结束显示
         case didEndDisplay
     }
-        
+    
     public struct CellActionResult {
+        
         public let section: SKCSingleTypeSection<Cell>
         public let type: CellActionType
         public let model: Cell.Model
         public let row: Int
+        fileprivate let _view: Cell?
+        
+        public func view() -> Cell {
+            guard let cell = _view ?? section.cellForItem(at: row) else {
+                assertionFailure()
+                return .init(frame: .zero)
+            }
+            return cell
+        }
+        
+        fileprivate init(section: SKCSingleTypeSection<Cell>,
+                         type: CellActionType,
+                         model: Cell.Model,
+                         row: Int,
+                         _view: Cell?) {
+            self.section = section
+            self.type = type
+            self.model = model
+            self.row = row
+            self._view = _view
+        }
     }
     
     public struct CellStyleResult {
         
-        public let row: Int
         public let model: Cell.Model
+        public let row: Int
+        public let view: Cell
         public let section: SKCSingleTypeSection<Cell>
         
-        init(row: Int, model: Cell.Model, section: SKCSingleTypeSection<Cell>) {
+        fileprivate init(row: Int,
+                         model: Cell.Model,
+                         section: SKCSingleTypeSection<Cell>,
+                         view: Cell) {
             self.row = row
             self.model = model
             self.section = section
+            self.view = view
         }
         
     }
@@ -62,9 +90,21 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     public struct IDBox<ID, Value> {
+        
         public typealias ID = ID
         public let id: ID
         public let value: Value
+        
+        public init(id: ID, value: Value) {
+            self.id = id
+            self.value = value
+        }
+        
+        public init(value: Value) where ID == UUID {
+            self.id = UUID()
+            self.value = value
+        }
+        
     }
     
     public class Pulishers {
@@ -120,12 +160,12 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         let model = models[row]
         cell.config(model)
         if !cellStyles.isEmpty {
-            let result = CellStyleResult(row: row, model: model, section: self)
+            let result = CellStyleResult(row: row, model: model, section: self, view: cell)
             cellStyles.forEach { style in
                 style.value(result)
             }
         }
-        sendAction(.config, row: row)
+        sendAction(.config, view: cell, row: row)
         return cell
     }
     
@@ -137,15 +177,15 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     open func item(selected row: Int) {
-        sendAction(.selected, row: row)
+        sendAction(.selected, view: nil, row: row)
     }
     
     open func item(willDisplay view: UICollectionViewCell, row: Int) {
-        sendAction(.willDisplay, row: row)
+        sendAction(.willDisplay, view: view as? Cell, row: row)
     }
     
     open func item(didEndDisplaying view: UICollectionViewCell, row: Int) {
-        sendDeleteAction(.didEndDisplay, row: row)
+        sendDeleteAction(.didEndDisplay, view: view as? Cell, row: row)
     }
     
     open var headerSize: CGSize {
@@ -211,25 +251,31 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
 
 public extension SKCSingleTypeSection {
     
+    /// 获取被选中的 cell 集合
     var indexForSelectedItems: [Int] {
         (sectionView.indexPathsForSelectedItems ?? [])
             .filter { $0.section == sectionIndex }
             .map(\.row)
     }
     
+    /// 获取可见的 cell 集合
     var visibleCells: [Cell] {
         indexsForVisibleItems
             .compactMap(cellForItem(at:))
     }
     
+    /// 获取可见的 cell 的 row 集合
     var indexsForVisibleItems: [Int] {
         sectionView.indexPathsForVisibleItems.filter { $0.section == sectionIndex }.map(\.row)
     }
     
+    /// 获取指定 row 的 Cell
+    /// - Parameter row: row
+    /// - Returns: cell
     func cellForItem(at row: Int) -> Cell? {
         sectionView.cellForItem(at: indexPath(from: row)) as? Cell
     }
-
+    
     func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
         sectionView.visibleSupplementaryViews(ofKind: kind.rawValue)
     }
@@ -413,6 +459,18 @@ public extension SKCSingleTypeSection {
         cellStyles.append(item)
         return self
     }
+
+    @discardableResult
+    func setSectionStyle(_ item: @escaping SectionStyleBlock) -> Self {
+        item(self)
+        return self
+    }
+    
+    @discardableResult
+    func setCellStyle(_ item: @escaping CellStyleBlock) -> Self {
+        cellStyles.append(.init(value: item))
+        return self
+    }
     
     func remove(cellStyle ids: [CellStyleBox.ID]) {
         let ids = Set(ids)
@@ -428,7 +486,7 @@ public extension SKCSingleTypeSection {
     }
     
     func deselectItem(at item: Model, animated: Bool = true) where Model: Equatable {
-            rows(with: item)
+        rows(with: item)
             .forEach { index in
                 self.deselectItem(at: index, animated: animated)
             }
@@ -436,9 +494,9 @@ public extension SKCSingleTypeSection {
     
     func deselectItem(at item: Model, animated: Bool = true) where Model: AnyObject {
         rows(with: item)
-        .forEach { index in
-            self.deselectItem(at: index, animated: animated)
-        }
+            .forEach { index in
+                self.deselectItem(at: index, animated: animated)
+            }
     }
     
     func selectItem(at row: Int, animated: Bool = true, scrollPosition: UICollectionView.ScrollPosition = .bottom) {
@@ -447,31 +505,34 @@ public extension SKCSingleTypeSection {
     
     func selectItem(at item: Model, animated: Bool = true, scrollPosition: UICollectionView.ScrollPosition = .bottom) where Model: Equatable {
         rows(with: item)
-        .forEach { index in
-            self.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
-        }
+            .forEach { index in
+                self.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
+            }
     }
-
+    
     func selectItem(at item: Model, animated: Bool = true, scrollPosition: UICollectionView.ScrollPosition = .bottom) where Model: AnyObject {
         rows(with: item)
-        .forEach { index in
-            self.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
-        }
+            .forEach { index in
+                self.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
+            }
     }
-
+    
 }
 
 
 private extension SKCSingleTypeSection {
     
-    func sendDeleteAction(_ type: CellActionType, row: Int) {
-        let result = CellActionResult(section: self, type: type, model: deletedModels[row] ?? models[row], row: row)
+    func sendDeleteAction(_ type: CellActionType, view: Cell?, row: Int) {
+        let result = CellActionResult(section: self,
+                                      type: type,
+                                      model: deletedModels[row] ?? models[row],
+                                      row: row, _view: view)
         deletedModels[row] = nil
         sendAction(result)
     }
     
-    func sendAction(_ type: CellActionType, row: Int) {
-        let result = CellActionResult(section: self, type: type, model: models[row], row: row)
+    func sendAction(_ type: CellActionType, view: Cell?, row: Int) {
+        let result = CellActionResult(section: self, type: type, model: models[row], row: row, _view: view)
         sendAction(result)
     }
     

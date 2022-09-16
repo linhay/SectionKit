@@ -35,6 +35,18 @@ public extension SKCRegistrationSectionProtocol {
     
 }
 
+
+public extension SKCRegistrationSectionProtocol {
+    
+    @discardableResult
+    func setSectionStyle(_ builder: (_ section: Self) -> Void) -> Self {
+        builder(self)
+        return self
+    }
+    
+}
+
+
 public extension SKCRegistrationSectionProtocol {
     
     func supplementary(_ kind: SKSupplementaryKind, function: StaticString = #function) -> (any SKCSupplementaryRegistrationProtocol)? {
@@ -219,7 +231,8 @@ public extension SKCRegistrationSectionProtocol {
 
 public extension SKCRegistrationSectionProtocol {
     
-    func apply(_ items: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol]) {
+    /// 重置所有 Supplementary 视图
+    func apply(supplementary items: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol]) {
         guard let injection = registrationSectionInjection else {
             self.supplementaries = items
             return
@@ -228,19 +241,25 @@ public extension SKCRegistrationSectionProtocol {
         injection.sectionView?.reloadSections(.init(integer: injection.index))
     }
     
-    func apply(_ items: [any SKCSupplementaryRegistrationProtocol]) {
+    /// 重置所有 Supplementary 视图
+    func apply(supplementary items: (any SKCSupplementaryRegistrationProtocol)...) {
+        apply(supplementary: items)
+    }
+    
+    /// 重置所有 Supplementary 视图
+    func apply(supplementary items: [any SKCSupplementaryRegistrationProtocol]) {
         var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] = [:]
         for item in items {
             supplementaries[item.kind] = item
         }
-        apply(supplementaries)
+        apply(supplementary: supplementaries)
     }
     
-    func delete(_ item: any SKCSupplementaryRegistrationProtocol) {
-        delete([item])
+    func delete(supplementary item: any SKCSupplementaryRegistrationProtocol) {
+        delete(supplementary: [item])
     }
     
-    func delete(_ items: [any SKCSupplementaryRegistrationProtocol]) {
+    func delete(supplementary items: [any SKCSupplementaryRegistrationProtocol]) {
         let set = Set(items.map(\.kind))
         supplementaries = supplementaries.filter({ item in
             if set.contains(item.value.kind) {
@@ -254,7 +273,11 @@ public extension SKCRegistrationSectionProtocol {
         injection.sectionView?.reloadSections(.init(integer: injection.index))
     }
     
-    func insert(_ items: [any SKCSupplementaryRegistrationProtocol]) {
+    func insert(supplementary items: (any SKCSupplementaryRegistrationProtocol)...) {
+        insert(supplementary: items)
+    }
+    
+    func insert(supplementary items: [any SKCSupplementaryRegistrationProtocol]) {
         items.forEach { item in
             supplementaries[item.kind] = item
         }
@@ -274,11 +297,13 @@ public extension SKCRegistrationSectionProtocol {
             }
     }
     
-    func apply(_ registrations: any SKCCellRegistrationProtocol) {
-        apply([registrations])
+    /// 重置所有 Cell 视图
+    func apply(cell registrations: any SKCCellRegistrationProtocol) {
+        apply(cell: [registrations])
     }
     
-    func apply(_ registrations: [any SKCCellRegistrationProtocol]) {
+    /// 重置所有 Cell 视图
+    func apply(cell registrations: [any SKCCellRegistrationProtocol]) {
         guard let injection = registrationSectionInjection else {
             self.registrations = registrations
             return
@@ -287,11 +312,11 @@ public extension SKCRegistrationSectionProtocol {
         injection.sectionView?.reloadSections(.init(integer: injection.index))
     }
     
-    func delete(_ item: any SKCCellRegistrationProtocol) {
-        delete([item])
+    func delete(cell item: any SKCCellRegistrationProtocol) {
+        delete(cell: [item])
     }
     
-    func delete(_ items: [any SKCCellRegistrationProtocol]) {
+    func delete(cell items: [any SKCCellRegistrationProtocol]) {
         let set = Set(items.compactMap(\.indexPath))
         let registrations = registrations
             .filter({ item in
@@ -312,6 +337,60 @@ public extension SKCRegistrationSectionProtocol {
         }
         self.registrations = prepare(injection: injection, registrations: registrations)
         injection.sectionView?.deleteItems(at: .init(set))
+    }
+    
+    func reload(cell items: (any SKCCellRegistrationProtocol)...) {
+        reload(cell: items)
+    }
+    
+    func reload(cell items: [any SKCCellRegistrationProtocol]) {
+        let set = Set(registrations.map(ObjectIdentifier.init))
+        let union = items.filter { item in
+            set.contains(.init(item))
+        }.compactMap(\.indexPath)
+        guard let sectionView = registrationSectionInjection?.sectionView else {
+         return
+        }
+        if sectionView.hasUncommittedUpdates {
+            sectionView.reloadData()
+        } else {
+            sectionView.reloadItems(at: union)
+        }
+    }
+    
+}
+
+public extension SKCRegistrationSectionProtocol {
+    
+    /// 重置所有视图
+    @discardableResult
+    func apply<T: AnyObject>(on object: T, @SKCRegistrationSectionBuilder _ builder: ((_ object: T, _ section: Self) -> [SKCRegistrationSectionBuilderStore])) -> Self {
+        return self.apply { [weak object, weak self] in
+            if let object = object, let self = self {
+                builder(object, self)
+            }
+        }
+    }
+    
+    /// 重置所有视图
+    @discardableResult
+    func apply(@SKCRegistrationSectionBuilder _ builder: (() -> [SKCRegistrationSectionBuilderStore])) -> Self {
+        let stores = builder()
+        var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] = [:]
+        var registrations: [any SKCCellRegistrationProtocol] = []
+        
+        for store in stores {
+            switch store {
+            case .supplementary(let item):
+                supplementaries[item.kind] = item
+            case .registration(let item):
+                registrations.append(item)
+            }
+        }
+        
+        self.apply(supplementary: supplementaries)
+        self.apply(cell: registrations)
+        return self
     }
     
 }

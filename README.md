@@ -161,7 +161,8 @@
     ``` swift
     let section = FLSpacerCell.singleTypeWrapper([model])
     /// 重置数据为 models
-    section.config(models: [Model])
+    _ = section.config(models: [Model])
+    section.apply(models: [Model])
     /// 拼接数据至当前数据尾部
     section.append([Model])
     section.insert(at: 0, [Model])
@@ -197,6 +198,132 @@
         }
     }
 
+    /// 以下事件依托于 UICollectionViewDataSourcePrefetching 能力
+    
+    /// 预测需要显示的 row 已经超过当前的 cell 数量
+    section.prefetch.loadMorePublisher.sink { _ in
+            
+    }
+        
+    /// 预测需要显示的 rows
+    section.prefetch.prefetchPublisher.sink { rows in
+            
+    }
+        
+    section.prefetch.cancelPrefetchingPublisher.sink { rows in
+            
+    }
+    ```
+
+# SKCRegistrationSection
+
+> 复数数据类型 Section, 生成后所有的操作都会通过 diff 来更新视图
+
+- 创建 Section
+
+    ``` swift
+    /// 以下方式完全等价
+
+    /// 由 @resultBuilder 提供语法支持
+    let section1 = SKCRegistrationSection {
+        SupplementaryView.registration((), for: .header)
+        SupplementaryView.registration((), for: .footer)
+        FLSpacerCell.registration(model)
+        FLCustomCell.registration(model)
+        FLSpacerCell.registration(model)
+    }
+    
+    let section2 = SKCRegistrationSection([.header: SupplementaryView.registration((), for: .header),
+                                           .footer: SupplementaryView.registration((), for: .footer)],
+                                          [FLSpacerCell.registration(model),
+                                           FLCustomCell.registration(model),
+                                           FLSpacerCell.registration(model)])
+    ```
+
+- 与 UICollectionView 关联
+
+    ``` swift
+    /// manager 与 UICollectionView 关联
+    let sectionView = UICollectionView(frame: .zerocollectionViewLayout: UICollectionViewFlowLayout())
+    let manager = SKCRegistrationManager(sectionView:sectionView)
+    /// 加载 section1, section2
+    manager.reload([section1, section2])
+    ```
+
+- 样式配置
+
+    ``` swift
+    let section = SKCRegistrationSection {
+        SupplementaryView
+            .registration((), for: .header)
+            /// 配置 supplementary 样式
+            .viewStyle({ view, model in })
+            .onWillDisplay { model in }
+            .onEndDisplaying { model in }
+            
+        FLSpacerCell
+            .registration(model)
+            /// 配置 cell 样式
+            .viewStyle({ view, model in })
+            /// 响应 cell 选中事件
+            .onSelected { model in }
+            .onHighlight { model in }
+            .onWillDisplay { model in }
+            .onEndDisplaying { model in }
+            // ...
+    }
+    /// 配置 section 样式
+    .setSectionStyle { section in
+        section.minimumInteritemSpacing = 10
+        section.minimumLineSpacing = 10
+        section.sectionInset = .init(top: 10, left: 10, bottom: 10,right: 10)
+    }
+    ```
+
+- 数据操作
+
+    ``` swift
+    let section = SKCRegistrationSection {
+        // ...
+    }
+
+    /// 重置所有视图
+    section.apply(on: self) { (self, section) in
+        SupplementaryView.registration((), for: .header)
+        FLSpacerCell.registration(model)
+        // ...
+    }
+    
+    section.apply {
+        SupplementaryView.registration((), for: .header)
+        FLSpacerCell.registration(model)
+        // ...
+    }
+    
+    /// 重置所有 Cell 视图
+    section.apply(cell: FLSpacerCell.registration(model))
+    section.apply(cell: [FLSpacerCell.registration(model)])
+
+    /// 重置所有 Supplementary 视图
+    section.apply(supplementary: SupplementaryView.registration((), for: .header))
+    section.apply(supplementary: [SupplementaryView.registration((), for: .header),
+                                  SupplementaryView.registration((), for: .footer)])
+    section.apply(supplementary: [.header: SupplementaryView.registration((), for: .header)])
+
+    // 局部操作
+    let cell = FLSpacerCell.registration(model)
+    section.delete(cell: cell)
+    section.reload(cell: cell)
+
+    // 局部操作
+    let view = SupplementaryView.registration((), for: .header)
+    section.insert(supplementary: view)
+    section.delete(supplementary: view)
+    ```
+
+- 事件订阅
+
+    ``` swift
     /// 以下事件依托于 UICollectionViewDataSourcePrefetching 能力
     
     /// 预测需要显示的 row 已经超过当前的 cell 数量

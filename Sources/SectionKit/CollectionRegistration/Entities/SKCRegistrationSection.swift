@@ -26,7 +26,7 @@ public final class SKCRegistrationSection: SKCRegistrationSectionProtocol {
     
     public convenience init(@SKCRegistrationSectionBuilder builder: (() -> [SKCRegistrationSectionBuilderStore])) {
         self.init()
-        self.builder(builder)
+        self.apply(builder)
     }
     
     public init(_ supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol],
@@ -37,44 +37,3 @@ public final class SKCRegistrationSection: SKCRegistrationSectionProtocol {
 
 }
 
-
-public extension SKCRegistrationSection {
-    
-    @discardableResult
-    func sectionStyle(_ builder: (_ section: SKCRegistrationSection) -> Void) -> SKCRegistrationSection {
-        builder(self)
-        return self
-    }
-    
-    @discardableResult
-    func builder<T: AnyObject>(on object: T,
-                               @SKCRegistrationSectionBuilder
-                               _ builder: ((_ object: T, _ section: SKCRegistrationSection) -> [SKCRegistrationSectionBuilderStore])) -> SKCRegistrationSection {
-        return self.builder { [weak object, weak self] in
-            if let object = object, let self = self {
-                builder(object, self)
-            }
-        }
-    }
-
-    @discardableResult
-    func builder(@SKCRegistrationSectionBuilder _ builder: (() -> [SKCRegistrationSectionBuilderStore])) -> SKCRegistrationSection {
-        let stores = builder()
-        var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] = [:]
-        var registrations: [any SKCCellRegistrationProtocol] = []
-        
-        for store in stores {
-            switch store {
-            case .supplementary(let item):
-                supplementaries[item.kind] = item
-            case .registration(let item):
-                registrations.append(item)
-            }
-        }
-        
-        self.apply(supplementaries)
-        self.apply(registrations)
-        return self
-    }
-    
-}

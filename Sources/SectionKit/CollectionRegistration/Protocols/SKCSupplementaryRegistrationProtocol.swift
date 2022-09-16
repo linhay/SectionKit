@@ -16,7 +16,7 @@ public protocol SKCSupplementaryRegistrationProtocol: AnyObject, SKViewRegistrat
     typealias VoidInputBlock = (_ model: View.Model) -> Void
     
     var kind: SKSupplementaryKind { get }
-    var tags: Set<String> { get set }
+    // var tags: Set<String> { get set }
     var injection: (any SKCRegistrationInjectionProtocol)? { get set }
 
     var viewStyle: ViewInputBlock? { get set }
@@ -56,10 +56,10 @@ public extension SKCSupplementaryRegistrationProtocol {
     /// 添加标识
     /// - Parameter tag: 标识
     /// - Returns: self
-    func tag(_ tags: String...) -> Self {
-        self.tags.formUnion(tags)
-        return self
-    }
+    //    func tag(_ tags: String...) -> Self {
+    //        self.tags.formUnion(tags)
+    //        return self
+    //    }
     
     /// 样式配置回调
     /// - Parameter block: 回调

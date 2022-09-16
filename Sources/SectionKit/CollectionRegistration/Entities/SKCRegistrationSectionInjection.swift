@@ -9,6 +9,7 @@ import Foundation
 
 public class SKCRegistrationSectionInjection: SKCSectionInjection {
     
+    /// 被删除的数据, 缓存为了在 enddisplay 时正确的被响应
     var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] = [:]
     var registrations: [Int: any SKCCellRegistrationProtocol] = [:]
     

@@ -153,6 +153,13 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         self.models = models
     }
     
+    open func apply(models: [Model]) {
+        models.enumerated().forEach { item in
+            deletedModels[item.offset] = item.element
+        }
+        reload(models)
+    }
+    
     open func config(sectionView: UICollectionView) {
         register(Cell.self)
     }
@@ -295,10 +302,7 @@ public extension SKCSingleTypeSection {
     
     @discardableResult
     func config(models: [Model]) -> Self {
-        models.enumerated().forEach { item in
-            deletedModels[item.offset] = item.element
-        }
-        reload(models)
+        apply(models: models)
         return self
     }
     
@@ -503,7 +507,7 @@ public extension SKCSingleTypeSection {
         supplementaryActions[kind]?.append(block)
         return self
     }
-
+    
 }
 
 public extension SKCSingleTypeSection {

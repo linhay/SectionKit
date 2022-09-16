@@ -2,6 +2,11 @@
 
 > iOS 动态表单框架
 
+![](./Documentation/icon.svg)
+
+- [x] 支持 UICollectionView
+- [ ] 支持 UITableView
+
 # 前提条件:
 
  - Swift 5.7 (Xcode 14+)
@@ -175,7 +180,7 @@
 
     ``` swift
     let section = FLSpacerCell.singleTypeWrapper([model])
-
+    
     section.pulishers.cellActionPulisher.sink { context in
         switch context.type {
         case .selected:
@@ -197,7 +202,7 @@
             break
         }
     }
-
+    
     /// 以下事件依托于 UICollectionViewDataSourcePrefetching 能力
     
     /// 预测需要显示的 row 已经超过当前的 cell 数量

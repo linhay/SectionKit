@@ -9,7 +9,7 @@ import UIKit
 
 public class SKCManager {
     
-    public lazy var sections: [SKCSectionProtocol] = []
+    public lazy var sections: [SKCBaseSectionProtocol] = []
     
     private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
         self?.sections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
@@ -44,11 +44,11 @@ public class SKCManager {
 
 public extension SKCManager {
 
-    func reload(_ section: SKCSectionProtocol) {
+    func reload(_ section: SKCBaseSectionProtocol) {
         reload([section])
     }
     
-    func reload(_ sections: [SKCSectionProtocol]) {
+    func reload(_ sections: [SKCBaseSectionProtocol]) {
         guard let sectionView = sectionView else {
             return
         }

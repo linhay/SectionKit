@@ -34,15 +34,9 @@ extension PrefetchViewController {
     }
     
     func bindUI() {
-        section.pulishers.prefetchPulisher
-            .filter({ $0.type == .begin })
-            .sink { [weak self] result in
-                guard let self = self else { return }
-                guard let max = result.rows.max(),
-                      max >= self.section.models.count - 1 else {
-                    return
-                }
-                self.next()
+        section.prefetch.loadMorePublisher
+            .sink { [weak self] _ in
+                self?.next()
             }.store(in: &cancellables)
     }
     

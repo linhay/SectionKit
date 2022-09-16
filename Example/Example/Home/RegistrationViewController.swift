@@ -141,7 +141,7 @@ extension RegistrationViewController {
             case .cell_remove:
                 if let section = manager.sections.randomElement(),
                    let cell = section.registrations.randomElement() {
-                    section.delete(cell)
+                    section.delete(cell: cell)
                 }
             case .cell_self_remove:
                 if let section = manager.sections.randomElement(),
@@ -161,7 +161,7 @@ extension RegistrationViewController {
             case .view_remove:
                 if let section = manager.sections.randomElement(),
                    let view = section.supplementaries.randomElement()?.value {
-                    section.delete(view)
+                    section.delete(supplementary: view)
                 }
                 break
             }

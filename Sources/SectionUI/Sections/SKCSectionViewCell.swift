@@ -47,7 +47,7 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
         
         public enum SectionType {
             case registration([any SKCRegistrationSectionProtocol])
-            case normal([any SKCSectionProtocol])
+            case normal([any SKCBaseSectionProtocol])
         }
         
         public let section: SectionType

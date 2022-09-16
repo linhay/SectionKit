@@ -10,7 +10,7 @@ import Foundation
 public class SKSelectionSequence<Element: SKSelectionProtocol>: SKSelectionSequenceProtocol {
     
     public var selectableElements: [Element]
-    /// 是否保证选中在当前序列中是否唯一 | default: true
+    /// 是否让选中的元素是整个序列中唯一的选中 | default: true
     public var isUnique: Bool = true
     /// 是否需要支持反选操作 | default: false
     public var needInvert: Bool = false
@@ -55,21 +55,26 @@ public extension SKSelectionSequence where Element: Equatable {
         selectableElements.contains(element)
     }
     
-    func selectFirst(_ element: Element) {
-        guard let index = selectableElements.firstIndex(where: { $0 == element }) else {
+    func selectFirst(_ element: Element?) {
+        guard let element = element,
+              let index = selectableElements.firstIndex(where: { $0 == element }) else {
             return
         }
         select(at: index)
     }
     
-    func selectLast(_ element: Element) {
-        guard let index = selectableElements.lastIndex(where: { $0 == element }) else {
+    func selectLast(_ element: Element?) {
+        guard let element = element,
+              let index = selectableElements.lastIndex(where: { $0 == element }) else {
             return
         }
         select(at: index)
     }
     
-    func selectAll(_ element: Element) {
+    func selectAll(_ element: Element?) {
+        guard let element = element else {
+            return
+        }
         select(element, needInvert: needInvert)
     }
     

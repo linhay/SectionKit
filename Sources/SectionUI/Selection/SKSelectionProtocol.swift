@@ -13,16 +13,25 @@ public protocol SKSelectionProtocol {
 }
 
 public extension SKSelectionProtocol {
+    
+    subscript<T>(dynamicMember keyPath: KeyPath<SKSelectionState, T>) -> T {
+        selection[keyPath: keyPath]
+    }
+    
     var isSelected: Bool {
         get { selection.isSelected }
         nonmutating set { selection.isSelected = newValue }
     }
+
     var canSelect: Bool {
         get { selection.canSelect }
         nonmutating set { selection.canSelect = newValue }
     }
+
+    /// 是否允许选中或取消选中操作
+    var isEnabled: Bool {
+        get { selection.isEnabled }
+        nonmutating set { selection.isEnabled = newValue }
+    }
     
-    var selectedPublisher: AnyPublisher<Bool, Never> { selection.selectedSubject.eraseToAnyPublisher() }
-    var canSelectPublisher: AnyPublisher<Bool, Never> { selection.canSelectSubject.eraseToAnyPublisher() }
-    var changedPublisher: AnyPublisher<SKSelectionState, Never> { selection.changedSubject.eraseToAnyPublisher() }
 }

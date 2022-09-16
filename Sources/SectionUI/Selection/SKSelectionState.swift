@@ -24,16 +24,35 @@ import Combine
 
 public class SKSelectionState: Equatable {
     
-    let selectedSubject: CurrentValueSubject<Bool, Never>
-    let canSelectSubject: CurrentValueSubject<Bool, Never>
-    let changedSubject = PassthroughSubject<SKSelectionState, Never>()
-
+    public var selectedPublisher:  AnyPublisher<Bool, Never> { selectedSubject.removeDuplicates().eraseToAnyPublisher() }
+    public var canSelectPublisher: AnyPublisher<Bool, Never> { canSelectSubject.removeDuplicates().eraseToAnyPublisher() }
+    public var isEnabledPublisher: AnyPublisher<Bool, Never> { isEnabledSubject.removeDuplicates().eraseToAnyPublisher() }
+    public var changedPublisher:   AnyPublisher<SKSelectionState, Never> {
+        Publishers
+            .CombineLatest3(selectedPublisher, canSelectPublisher, isEnabledPublisher)
+            .compactMap({ [weak self] _ in
+                guard let self = self else { return nil }
+                return self
+            })
+            .eraseToAnyPublisher()
+    }
+    
+    private let selectedSubject:  CurrentValueSubject<Bool, Never>
+    private let canSelectSubject: CurrentValueSubject<Bool, Never>
+    private let isEnabledSubject: CurrentValueSubject<Bool, Never>
+        
     public static func == (lhs: SKSelectionState, rhs: SKSelectionState) -> Bool {
-        return lhs.isSelected == rhs.isSelected && lhs.canSelect == rhs.canSelect
+        return lhs.isSelected == rhs.isSelected
+        && lhs.canSelect == rhs.canSelect
+        && lhs.isEnabled == rhs.isEnabled
     }
     
     public var isSelected: Bool {
-        set { selectedSubject.send(newValue) }
+        set {
+            if isEnabled {
+                selectedSubject.send(newValue)
+            }
+        }
         get { selectedSubject.value }
     }
     
@@ -42,20 +61,17 @@ public class SKSelectionState: Equatable {
         get { canSelectSubject.value }
     }
     
-    private var cancellables = Set<AnyCancellable>()
+    /// 是否允许选中或取消选中操作
+    public var isEnabled: Bool {
+        set { isEnabledSubject.send(newValue) }
+        get { isEnabledSubject.value }
+    }
     
-    public init(isSelected: Bool = false, canSelect: Bool = true) {
-        selectedSubject = CurrentValueSubject<Bool, Never>(isSelected)
+    public init(isSelected: Bool = false,
+                canSelect: Bool = true,
+                isEnabled: Bool = true) {
+        isEnabledSubject = CurrentValueSubject<Bool, Never>(isEnabled)
+        selectedSubject  = CurrentValueSubject<Bool, Never>(isSelected)
         canSelectSubject = CurrentValueSubject<Bool, Never>(canSelect)
-        
-        selectedSubject.sink { [weak self] value in
-            guard let self = self else { return }
-            self.changedSubject.send(self)
-        }.store(in: &cancellables)
-        
-        canSelectSubject.sink { [weak self] value in
-            guard let self = self else { return }
-            self.changedSubject.send(self)
-        }.store(in: &cancellables)
     }
 }

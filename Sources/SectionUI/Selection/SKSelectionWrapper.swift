@@ -52,7 +52,7 @@ public struct SKSelectionWrapper<WrappedValue>: SKSelectionProtocol {
 
 extension SKSelectionWrapper: Equatable where WrappedValue: Equatable {
     public static func == (lhs: SKSelectionWrapper<WrappedValue>, rhs: SKSelectionWrapper<WrappedValue>) -> Bool {
-        return lhs.wrappedValue == rhs.wrappedValue && lhs.selection == rhs.selection
+        return lhs.wrappedValue == rhs.wrappedValue
     }
 }
 

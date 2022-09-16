@@ -19,11 +19,13 @@ public protocol SKSelectionSequenceProtocol {
     ///   - index: 选中元素索引
     ///   - element: 选中元素
     func element(selected index: Int, element: Element)
+    func element(deselected index: Int, element: Element)
     
 }
 
 public extension SKSelectionSequenceProtocol {
-    func element(selected _: Int, element _: Element) {}
+    func element(selected: Int, element: Element) {}
+    func element(deselected: Int, element: Element) {}
 }
 
 public extension SKSelectionSequenceProtocol {
@@ -57,27 +59,70 @@ public extension SKSelectionSequenceProtocol {
             return
         }
         
-        let element = selectableElements[index]
-        
-        guard element.canSelect else {
-            return
-        }
-        
         guard isUnique else {
-            element.selection.isSelected = needInvert ? !element.isSelected : true
-            self.element(selected: index, element: element)
+            let element = selectableElements[index]
+            guard needInvert, element.isSelected else {
+                select(at: index)
+                return
+            }
+            deselect(at: index)
             return
         }
         
-        for (offset, item) in selectableElements.enumerated() {
-            if offset == index {
-                item.selection.isSelected = needInvert ? !element.isSelected : true
-            } else {
-                item.selection.isSelected = false
+        for offset in selectableElements.indices {
+            guard offset == index else {
+                deselect(at: offset)
+                continue
             }
+            let element = selectableElements[offset]
+            guard needInvert, element.isSelected else {
+                select(at: offset)
+                continue
+            }
+            deselect(at: offset)
         }
+    }
+    
+    /// 取消选中指定序号的元素
+    /// - Parameter index: 指定序号
+    func select(at index: Int) {
+        let element = selectableElements[index]
+        guard element.isEnabled,
+              element.canSelect,
+              !element.isSelected else {
+            return
+        }
+        
+        element.isSelected = true
         self.element(selected: index, element: element)
     }
+    
+    /// 取消选中指定序号的元素
+    /// - Parameter index: 指定序号
+    func deselect(at index: Int) {
+        let element = selectableElements[index]
+        guard element.isEnabled,
+              element.isSelected else {
+            return
+        }
+        element.isSelected = false
+        self.element(deselected: index, element: element)
+    }
+    
+    /// 选中所有的元素
+    func selectAll() {
+        selectedElements.indices.forEach { index in
+            select(at: index)
+        }
+    }
+    
+    /// 取消选中所有的元素
+    func deselectAll() {
+        selectedElements.indices.forEach { index in
+            deselect(at: index)
+        }
+    }
+    
 }
 
 public extension SKSelectionSequenceProtocol where Element: Equatable {

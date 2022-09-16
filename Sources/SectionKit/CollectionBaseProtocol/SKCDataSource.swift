@@ -12,13 +12,11 @@ class SKCDataSource: NSObject, UICollectionViewDataSource {
     private var _section: (_ indexPath: IndexPath) -> SKCDataSourceProtocol?
     private var _sections: () -> [SKCDataSourceProtocol]
     
-    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> SKCDataSourceProtocol? {
-        debugPrint("datasource - \(indexPath) - \(function)")
+    private func section(_ indexPath: IndexPath) -> SKCDataSourceProtocol? {
        return _section(indexPath)
     }
     
-    private func sections(function: StaticString = #function) -> [SKCDataSourceProtocol] {
-        debugPrint("datasource - sections - \(function)")
+    private func sections() -> [SKCDataSourceProtocol] {
        return _sections()
     }
     

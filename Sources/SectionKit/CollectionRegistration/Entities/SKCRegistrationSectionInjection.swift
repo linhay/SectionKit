@@ -13,13 +13,13 @@ public class SKCRegistrationSectionInjection: SKCSectionInjection {
     var supplementaries: [SKSupplementaryKind: any SKCSupplementaryRegistrationProtocol] = [:]
     var registrations: [Int: any SKCCellRegistrationProtocol] = [:]
     
-    func supplementary(_ kind: SKSupplementaryKind, function: StaticString = #function) -> (any SKCSupplementaryRegistrationProtocol)? {
+    func supplementary(_ kind: SKSupplementaryKind) -> (any SKCSupplementaryRegistrationProtocol)? {
         let item = supplementaries[kind]
         supplementaries[kind] = nil
         return item
     }
     
-    func registration(at row: Int, function: StaticString = #function) -> (any SKCCellRegistrationProtocol)? {
+    func registration(at row: Int) -> (any SKCCellRegistrationProtocol)? {
         let item = registrations[row]
         registrations[row] = nil
         return item

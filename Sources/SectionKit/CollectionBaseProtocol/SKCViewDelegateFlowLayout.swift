@@ -11,8 +11,7 @@ class SKCViewDelegateFlowLayout: SKCDelegate, UICollectionViewDelegateFlowLayout
     
     private let _section: (_ indexPath: IndexPath) -> SKCViewDelegateFlowLayoutProtocol?
     
-    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> SKCViewDelegateFlowLayoutProtocol? {
-        debugPrint("delegate - \(indexPath) - \(function)")
+    private func section(_ indexPath: IndexPath) -> SKCViewDelegateFlowLayoutProtocol? {
         return _section(indexPath)
     }
     

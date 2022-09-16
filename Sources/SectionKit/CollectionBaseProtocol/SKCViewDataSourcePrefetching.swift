@@ -11,8 +11,7 @@ class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourcePrefetch
     
     var _section: (_ index: Int) -> SKCViewDataSourcePrefetchingProtocol?
     
-    private func section(_ index: Int, function: StaticString = #function) -> SKCViewDataSourcePrefetchingProtocol? {
-        debugPrint("prefetch - \(index) - \(function)")
+    private func section(_ index: Int) -> SKCViewDataSourcePrefetchingProtocol? {
         return _section(index)
     }
     

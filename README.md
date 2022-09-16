@@ -345,3 +345,67 @@
             
     }
     ```
+
+# 自定义 Section 
+
+> 最基础的 protocol, SKCRegistrationSection, SKCSingleTypeSection 由此封装
+
+- 创建 Section
+
+    ``` swift
+    import UIKit
+    import SectionKit
+    
+    class CustomSection: SKCSectionProtocol {
+        
+        var sectionInjection: SKCSectionInjection?
+        
+        var minimumLineSpacing: CGFloat = 10
+        var minimumInteritemSpacing: CGFloat = 10
+        var sectionInset: UIEdgeInsets = .init(top: 20, left: 20, bottom: 20, right: 20)
+        
+        var itemCount: Int { 0 }
+        
+        func config(sectionView: UICollectionView) {
+            register(StringCell.self)
+        }
+        
+        func itemSize(at row: Int) -> CGSize {
+            return .init(width: 44, height: 44)
+        }
+        
+        func item(at row: Int) -> UICollectionViewCell {
+            let cell = dequeue(at: row) as StringCell
+            return cell
+        }
+        
+        func item(selected row: Int) {}
+        func item(willDisplay view: UICollectionViewCell, row: Int) {}
+        func item(didEndDisplaying view: UICollectionViewCell, row: Int) {}
+        func item(didBeginMultipleSelectionInteraction row: Int) {}
+        /// ...
+    }
+    ```
+
+- 与 UICollectionView 关联
+
+    ``` swift
+    /// 创建 Section
+    let section1 = CustomSection()
+    let section2 = CustomSection()
+
+    /// manager 与 UICollectionView 关联
+    let sectionView = UICollectionView(frame: .zero,collectionViewLayout: UICollectionViewFlowLayout())
+    let manager = SKCManager(sectionView: sectionView)
+
+    /// 加载 section1, section2
+    manager.reload([section1, section2])
+    ```
+
+- 数据操作
+    
+    - 无默认实现
+
+- 事件订阅
+
+    - 无默认实现

@@ -27,7 +27,6 @@ public extension SKCPrefetch {
     /// 加载更多
     var loadMorePublisher: AnyPublisher<Void, Never> {
         prefetch
-            .print()
             .compactMap({ $0.max() })
             .filter({ [weak self] row in
                 guard let self = self else { return false }

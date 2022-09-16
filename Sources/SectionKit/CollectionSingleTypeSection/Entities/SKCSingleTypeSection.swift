@@ -12,6 +12,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
     
+    public typealias LoadedBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
     public typealias CellActionBlock = (_ context: CellActionResult) -> Void
     public typealias CellStyleBlock  = (_ context: CellStyleResult) -> Void
     public typealias CellStyleBox    = IDBox<UUID, CellStyleBlock>
@@ -145,7 +146,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     private lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
     private lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
     private lazy var cellStyles: [CellStyleBox] = []
-    
+    private lazy var loadedTasks: [LoadedBlock] = []
+
     public init(_ models: [Model] = []) {
         self.models = models
     }
@@ -162,6 +164,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     open func config(sectionView: UICollectionView) {
         register(Cell.self)
+        loadedTasks.forEach { task in
+            task(self)
+        }
     }
     
     open func item(at row: Int) -> UICollectionViewCell {
@@ -334,7 +339,9 @@ public extension SKCSingleTypeSection {
     
     @discardableResult
     func set<T>(supplementary: SKCSupplementary<T>) -> Self {
-        register(supplementary.type, for: supplementary.kind)
+        taskIfLoaded { section in
+            section.register(supplementary.type, for: supplementary.kind)
+        }
         supplementaries[supplementary.kind] = supplementary
         reload()
         return self
@@ -606,6 +613,14 @@ private extension SKCSingleTypeSection {
             block(result)
         })
         pulishers.supplementaryActionSubject.send(result)
+    }
+    
+    func taskIfLoaded(_ task: @escaping LoadedBlock) {
+        if self.sectionInjection != nil {
+            task(self)
+        } else {
+            loadedTasks.append(task)
+        }
     }
     
 }

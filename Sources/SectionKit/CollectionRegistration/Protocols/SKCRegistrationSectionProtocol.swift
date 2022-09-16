@@ -49,16 +49,12 @@ public extension SKCRegistrationSectionProtocol {
 
 public extension SKCRegistrationSectionProtocol {
     
-    func supplementary(_ kind: SKSupplementaryKind, function: StaticString = #function) -> (any SKCSupplementaryRegistrationProtocol)? {
+    func supplementary(_ kind: SKSupplementaryKind) -> (any SKCSupplementaryRegistrationProtocol)? {
         return supplementaries[kind]
     }
     
-    func registration(at row: Int, function: StaticString = #function) -> (any SKCCellRegistrationProtocol)? {
+    func registration(at row: Int) -> (any SKCCellRegistrationProtocol)? {
         guard registrations.indices.contains(row) else {
-            debugPrint("registration => ", "\(ObjectIdentifier(self))")
-            debugPrint("registration => ", "\(function)")
-            debugPrint("registration => ", "\(sectionInjection!.index)-\(row)")
-            debugPrint("registration => ", self.registrations.map(\.indexPath))
             assertionFailure()
             return nil
         }

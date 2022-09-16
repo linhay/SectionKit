@@ -13,18 +13,15 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
     private var _endDisplaySection: (_ indexPath: IndexPath) -> SKCDelegateProtocol?
     private var _sections: () -> any Collection<SKCDelegateProtocol>
     
-    private func section(_ indexPath: IndexPath, function: StaticString = #function) -> SKCDelegateProtocol? {
-        debugPrint("delegate - \(indexPath) - \(function)")
+    private func section(_ indexPath: IndexPath) -> SKCDelegateProtocol? {
        return _section(indexPath)
     }
     
-    private func endDisplaySection(_ indexPath: IndexPath, function: StaticString = #function) -> SKCDelegateProtocol? {
-        debugPrint("delegate - endDisplay - \(indexPath) - \(function)")
+    private func endDisplaySection(_ indexPath: IndexPath) -> SKCDelegateProtocol? {
        return _endDisplaySection(indexPath)
     }
     
-    private func sections(function: StaticString = #function) -> any Collection<SKCDelegateProtocol> {
-        debugPrint("delegate - sections - \(function)")
+    private func sections() -> any Collection<SKCDelegateProtocol> {
        return _sections()
     }
     

@@ -24,6 +24,16 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
         self.needInvert = needInvert
     }
     
+    public convenience init(list: [Element],
+                            id: KeyPath<Element, ID>,
+                            isUnique: Bool = true,
+                            needInvert: Bool = false) {
+        self.init(store: [:], isUnique: isUnique, needInvert: needInvert)
+        list.forEach { element in
+            update(element, by: id)
+        }
+    }
+    
 }
 
 public extension SKSelectionIdentifiableSequence {
@@ -32,12 +42,20 @@ public extension SKSelectionIdentifiableSequence {
         store[id] = element
     }
     
+    func update(_ element: Element, by keyPath: KeyPath<Element, ID>) {
+       update(element, by: element[keyPath: keyPath])
+    }
+    
     func remove(id: ID) {
         store[id] = nil
     }
     
     func contains(id: ID) -> Bool {
         return store[id] != nil
+    }
+    
+    func deselect(id: ID) {
+        store[id]?.isSelected = false
     }
     
     func select(id: ID) {

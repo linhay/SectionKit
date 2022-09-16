@@ -19,6 +19,11 @@ public protocol SKSelectionSequenceProtocol {
     ///   - index: 选中元素索引
     ///   - element: 选中元素
     func element(selected index: Int, element: Element)
+    
+    /// 取消选中某个元素
+    /// - Parameters:
+    ///   - index: 选中元素索引
+    ///   - element: 选中元素
     func element(deselected index: Int, element: Element)
     
 }
@@ -123,23 +128,4 @@ public extension SKSelectionSequenceProtocol {
         }
     }
     
-}
-
-public extension SKSelectionSequenceProtocol where Element: Equatable {
-    /// 选中指定元素
-    /// - Parameters:
-    ///   - element: 指定元素
-    ///   - needInvert: 是否需要支持反选操作 | default: false
-    func select(_ element: Element, needInvert: Bool) {
-        guard selectableElements.contains(element) else {
-            return
-        }
-        
-        for (offset, item) in selectableElements.enumerated() {
-            item.selection.isSelected = needInvert ? !item.isSelected : item == element
-            if item == element {
-                self.element(selected: offset, element: element)
-            }
-        }
-    }
 }

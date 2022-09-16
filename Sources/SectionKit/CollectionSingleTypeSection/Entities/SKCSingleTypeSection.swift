@@ -147,7 +147,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     private lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
     private lazy var cellStyles: [CellStyleBox] = []
     private lazy var loadedTasks: [LoadedBlock] = []
-
+    
     public init(_ models: [Model] = []) {
         self.models = models
     }
@@ -584,7 +584,7 @@ public extension SKCSingleTypeSection {
 }
 
 
-private extension SKCSingleTypeSection {
+public extension SKCSingleTypeSection {
     
     func sendDeleteAction(_ type: CellActionType, view: Cell?, row: Int) {
         let result = CellActionResult(section: self,

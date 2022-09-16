@@ -244,6 +244,32 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         sendSupplementaryAction(.didEndDisplay, kind: kind, row: row)
     }
     
+    open func item(canFocus row: Int) -> Bool {
+        true
+    }
+    
+    @available(iOS 15.0, *)
+    open func item(selectionFollowsFocus row: Int) -> Bool {
+        true
+    }
+    
+    @available(iOS 14.0, *)
+    open func item(canEdit row: Int) -> Bool {
+        false
+    }
+    
+    open func item(shouldSpringLoad row: Int, with context: UISpringLoadedInteractionContext) -> Bool {
+        true
+    }
+    
+    open func item(shouldBeginMultipleSelectionInteraction row: Int) -> Bool {
+        false
+    }
+    
+    open func item(didBeginMultipleSelectionInteraction row: Int) {
+        
+    }
+    
     /// 预测加载 rows
     /// - Parameter rows: rows
     open func prefetch(at rows: [Int]) {

@@ -6,8 +6,8 @@ target 'Example' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  pod "SectionKit2", '2.0.0-beta.1' #, :path => '../'
-  pod "SectionUI",   '2.0.0-beta.1' #, :path => '../'
+#  pod "SectionKit2", '2.0.0-beta.1' #, :path => '../'
+#  pod "SectionUI",   '2.0.0-beta.1' #, :path => '../'
 
 end
 

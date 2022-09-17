@@ -48,12 +48,39 @@ public extension SKCSectionInjection.Action {
 
 public extension SKCSectionInjection {
     
-    func reset(_ events: [Action: (SKCSectionInjection) -> Void]) -> Self {
-        self.events = events
+    func insert(cell rows: Int...) {
+        delete(cell: rows)
+    }
+    
+    func insert(cell rows: [Int]) {
+        sectionView?.insertItems(at: rows.map({ IndexPath(row: $0, section: index) }))
+    }
+    
+    func delete(cell rows: Int...) {
+        delete(cell: rows)
+    }
+    
+    func delete(cell rows: [Int]) {
+        sectionView?.deleteItems(at: rows.map({ IndexPath(row: $0, section: index) }))
+    }
+    
+    func reload(cell rows: Int...) {
+        reload(cell: rows)
+    }
+    
+    func reload(cell rows: [Int]) {
+        sectionView?.reloadItems(at: rows.map({ IndexPath(row: $0, section: index) }))
+    }
+    
+    func add(action: Action, event: @escaping (SKCSectionInjection) -> Void) -> Self {
+        self.events[action] = event
         return self
     }
     
     func send(_ action: Action) {
+        guard sectionView != nil else {
+            return
+        }
         guard let event = events[action] else {
             assertionFailure()
             return

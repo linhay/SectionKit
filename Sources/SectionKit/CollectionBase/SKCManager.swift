@@ -59,16 +59,12 @@ public extension SKCManager {
         self.sections = sections.enumerated().map({ element in
             let section = element.element
             section.sectionInjection = .init(index: element.offset, sectionView: context)
-                .reset([
-                    .reload: { [weak self] injection in
-                        guard let self = self else { return }
-                        self.sectionView?.reloadSections(IndexSet(integer: injection.index))
-                    },
-                    .delete: { [weak self] injection in
-                        guard let self = self else { return }
-                        self.sectionView?.deleteSections(IndexSet(integer: injection.index))
-                    }
-                ])
+                .add(action: .reload, event: { injection in
+                    injection.sectionView?.reloadSections(IndexSet(integer: injection.index))
+                })
+                .add(action: .delete, event: { injection in
+                    injection.sectionView?.deleteSections(IndexSet(integer: injection.index))
+                })
             section.config(sectionView: sectionView)
             return section
         })

@@ -156,6 +156,12 @@ private extension SKCRegistrationManager {
             sections.enumerated().forEach { element in
                 let section = element.element
                 let injection = SKCRegistrationSectionInjection(index: element.offset, sectionView: context)
+                injection.add(action: .reload) { injection in
+                    injection.sectionView?.reloadData()
+                }
+                .add(action: .delete) { injection in
+                    injection.sectionView?.deleteSections(.init(integer: injection.index))
+                }
                 section.registrationSectionInjection = injection
                 section.prepare(injection: injection)
                 section.config(sectionView: sectionView)

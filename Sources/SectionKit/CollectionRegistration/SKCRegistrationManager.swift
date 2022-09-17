@@ -23,7 +23,7 @@ public class SKCRegistrationManager {
         return self.sections[indexPath.section]
     } endDisplaySection: { [weak self] indexPath in
         guard let self = self else { return nil }
-        return self.sectionsStore[indexPath.section] ?? self.sections[indexPath.section]
+        return self.sectionsStore[indexPath.section]
     } sections: { [weak self] in
         return self?.sections ?? []
     }

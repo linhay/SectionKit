@@ -14,10 +14,6 @@ public protocol SKSelectionProtocol {
 
 public extension SKSelectionProtocol {
     
-    subscript<T>(dynamicMember keyPath: KeyPath<SKSelectionState, T>) -> T {
-        selection[keyPath: keyPath]
-    }
-    
     var isSelected: Bool {
         get { selection.isSelected }
         nonmutating set { selection.isSelected = newValue }
@@ -33,5 +29,10 @@ public extension SKSelectionProtocol {
         get { selection.isEnabled }
         nonmutating set { selection.isEnabled = newValue }
     }
+    
+    var selectedPublisher:  AnyPublisher<Bool, Never> { selection.selectedPublisher }
+    var canSelectPublisher: AnyPublisher<Bool, Never> { selection.canSelectPublisher }
+    var isEnabledPublisher: AnyPublisher<Bool, Never> { selection.isEnabledPublisher }
+    var changedPublisher:   AnyPublisher<SKSelectionState, Never> { selection.changedPublisher }
     
 }

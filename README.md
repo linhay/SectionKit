@@ -12,6 +12,22 @@
  - Swift 5.7 (Xcode 14+)
  - iOS 13.0+
 
+# 安装
+
+- Cocoapods
+
+    ``` ruby
+    pod 'SectionKit2'
+    or
+    pod 'SectionUI'
+    ```
+
+-  Swift Packages URL
+
+    ``` swift
+    https://github.com/linhay/SectionKit
+    ```
+
 # 其他文档
 
  - 数据选中 [SKSelection](./Documentation/SKSelection.md)

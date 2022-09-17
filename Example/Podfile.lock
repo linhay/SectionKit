@@ -1,22 +1,16 @@
 PODS:
   - SectionKit2 (2.0.0-beta.1)
-  - SectionUI (2.0.0-beta.1):
-    - SectionKit2
 
 DEPENDENCIES:
-  - SectionKit2 (from `../`)
-  - SectionUI (from `../`)
+  - SectionKit2 (= 2.0.0-beta.1)
 
-EXTERNAL SOURCES:
-  SectionKit2:
-    :path: "../"
-  SectionUI:
-    :path: "../"
+SPEC REPOS:
+  trunk:
+    - SectionKit2
 
 SPEC CHECKSUMS:
-  SectionKit2: 24c28270d46ef3cc4d5ee3b79faed8917283c9d0
-  SectionUI: a937344d9127ef351a5efaa8a1b8a0c5a16c8fd8
+  SectionKit2: 89b2d9183f2746655fe210d5a86ebfb7e4549aa7
 
-PODFILE CHECKSUM: e054cd4df23bea58b6897fa22f0bf5ab36dde088
+PODFILE CHECKSUM: d28e9a2e66822a4f556924e645f10b3768ed9722
 
 COCOAPODS: 1.11.3

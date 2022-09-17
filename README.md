@@ -17,9 +17,9 @@
 - Cocoapods
 
     ``` ruby
-    pod 'SectionKit2'
+    pod 'SectionKit2', '2.0.0-beta.1'
     or
-    pod 'SectionUI'
+    pod 'SectionUI', '2.0.0-beta.1'
     ```
 
 -  Swift Packages URL

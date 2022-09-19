@@ -472,8 +472,9 @@ private extension SKCRegistrationSectionProtocol {
             viewInjection.add(.reload) { [weak injection] viewInjection in
                 injection?.reload(cell: viewInjection.index)
             }
-            viewInjection.add(.delete) { [weak injection] viewInjection in
-                injection?.delete(cell: viewInjection.index)
+            viewInjection.add(.delete) { [weak self, weak element] _ in
+                guard let self = self, let element = element else { return }
+                self.delete(cell: element)
             }
         }
     }

@@ -11,7 +11,7 @@ public protocol SKCSupplementaryRegistrationProtocol: AnyObject, SKViewRegistrat
     
     typealias BoolBlock = () -> Bool
     typealias VoidBlock = () -> Void
-    typealias ViewInputBlock = (_  view: View, _ model: View.Model) -> Void
+    typealias ViewInputBlock = (_  view: View, _ model: View.Model, _ registration: Self) -> Void
     typealias BoolInputBlock = (_ model: View.Model) -> Bool
     typealias VoidInputBlock = (_ model: View.Model) -> Void
     
@@ -37,7 +37,7 @@ public extension SKCSupplementaryRegistrationProtocol {
                                                                 withReuseIdentifier: View.identifier,
                                                                 for: indexPath) as! View
         view.config(model)
-        viewStyle?(view, model)
+        viewStyle?(view, model, self)
         return view
     }
     

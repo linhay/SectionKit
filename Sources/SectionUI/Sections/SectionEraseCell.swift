@@ -50,7 +50,6 @@ public class SKCEraseCell<View: SKConfigurableView & SKLoadViewProtocol>: UIColl
     }
     
     private func initialize(contentView: UIView) {
-        contentView.translatesAutoresizingMaskIntoConstraints = false
         eraseView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(eraseView)
         [eraseView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),

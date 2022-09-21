@@ -141,7 +141,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public private(set) lazy var pulishers = Pulishers()
     
     private lazy var deletedModels: [Int: Model] = [:]
-    
     private lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
     private lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
     private lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
@@ -377,7 +376,7 @@ public extension SKCSingleTypeSection {
     
     func reload(_ models: [Model]) {
         self.models = models
-        sectionView.reloadData()
+        sectionInjection?.reload()
     }
     
 }
@@ -428,6 +427,8 @@ public extension SKCSingleTypeSection {
                 deletedModels[row] = models.remove(at: row)
             }
             sectionView.deleteItems(at: rows.map(indexPath(from:)))
+        } completion: { flag in
+            self.sectionInjection?.reload(cell: (rows.min()!..<self.models.count))
         }
     }
     
@@ -445,6 +446,34 @@ public extension SKCSingleTypeSection {
     
     func remove(_ items: [Model]) where Model: AnyObject {
         remove(rows(with: items))
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    func delete(_ row: Int) {
+        remove(row)
+    }
+    
+    func delete(_ rows: [Int]) {
+        remove(rows)
+    }
+    
+    func delete(_ item: Model) where Model: Equatable {
+        remove(item)
+    }
+    
+    func delete(_ items: [Model]) where Model: Equatable {
+        remove(items)
+    }
+    
+    func delete(_ item: Model) where Model: AnyObject {
+        remove(item)
+    }
+    
+    func delete(_ items: [Model]) where Model: AnyObject {
+        remove(items)
     }
     
 }
@@ -507,14 +536,14 @@ public extension SKCSingleTypeSection {
     }
     
     @discardableResult
-    func setCellStyle(_ item: CellStyleBox) -> Self {
-        cellStyles.append(item)
+    func setCellStyle(_ item: @escaping CellStyleBlock) -> Self {
+        cellStyles.append(.init(value: item))
         return self
     }
     
     @discardableResult
-    func setCellStyle(_ item: @escaping CellStyleBlock) -> Self {
-        cellStyles.append(.init(value: item))
+    func setCellStyle(_ item: CellStyleBox) -> Self {
+        cellStyles.append(item)
         return self
     }
     
@@ -587,6 +616,10 @@ public extension SKCSingleTypeSection {
 public extension SKCSingleTypeSection {
     
     func sendDeleteAction(_ type: CellActionType, view: Cell?, row: Int) {
+        guard deletedModels[row] != nil || models.indices.contains(row) else {
+            assertionFailure()
+            return
+        }
         let result = CellActionResult(section: self,
                                       type: type,
                                       model: deletedModels[row] ?? models[row],

@@ -31,13 +31,12 @@ public class SKCEraseCell<View: SKConfigurableView & SKLoadViewProtocol>: UIColl
     
     public typealias Model = View.Model
     
-    
     public func config(_ model: View.Model) {
         eraseView.config(model)
     }
     
-    private lazy var eraseView = View()
-    
+    public private(set) lazy var eraseView = View()
+
     public override init(frame: CGRect) {
         super.init(frame: frame)
         initialize(contentView: contentView)
@@ -77,8 +76,8 @@ public class SKCEraseReusableView<View: SKConfigurableView & SKLoadViewProtocol>
         eraseView.config(model)
     }
     
-    private lazy var eraseView = View()
-    
+    public private(set) lazy var eraseView = View()
+
     public override init(frame: CGRect) {
         super.init(frame: frame)
         initialize(contentView: self)

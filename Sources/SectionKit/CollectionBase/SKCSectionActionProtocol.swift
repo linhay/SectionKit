@@ -32,7 +32,7 @@ public extension SKCSectionActionProtocol {
 public extension SKCSectionActionProtocol {
     
     func reload() {
-        sectionInjection?.send(.reload)
+        sectionInjection?.reload()
     }
     
 }

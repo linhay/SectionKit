@@ -48,6 +48,14 @@ public extension SKCSectionInjection.Action {
 
 public extension SKCSectionInjection {
     
+    func delete() {
+        events[.delete]?(self)
+    }
+    
+    func reload() {
+        events[.reload]?(self)
+    }
+    
     func insert(cell rows: Int...) {
         delete(cell: rows)
     }
@@ -62,6 +70,10 @@ public extension SKCSectionInjection {
     
     func delete(cell rows: [Int]) {
         sectionView?.deleteItems(at: rows.map({ IndexPath(row: $0, section: index) }))
+    }
+
+    func reload(cell rows: Range<Int>) {
+        reload(cell: Array(rows))
     }
     
     func reload(cell rows: Int...) {

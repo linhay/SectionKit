@@ -292,20 +292,27 @@ public extension SKCSingleTypeSection {
     
     /// 获取被选中的 cell 集合
     var indexForSelectedItems: [Int] {
-        (sectionView.indexPathsForSelectedItems ?? [])
+        (sectionInjection?.sectionView?.indexPathsForSelectedItems ?? [])
             .filter { $0.section == sectionIndex }
             .map(\.row)
     }
     
     /// 获取可见的 cell 集合
     var visibleCells: [Cell] {
-        indexsForVisibleItems
-            .compactMap(cellForItem(at:))
+        let indexs = indexsForVisibleItems
+        guard !indexs.isEmpty else {
+            return []
+        }
+        return indexs.compactMap(cellForItem(at:))
     }
     
     /// 获取可见的 cell 的 row 集合
     var indexsForVisibleItems: [Int] {
-        sectionView.indexPathsForVisibleItems.filter { $0.section == sectionIndex }.map(\.row)
+        sectionInjection?
+            .sectionView?
+            .indexPathsForVisibleItems
+            .filter { $0.section == sectionIndex }
+            .map(\.row) ?? []
     }
     
     /// 获取指定 row 的 Cell
@@ -316,14 +323,17 @@ public extension SKCSingleTypeSection {
     }
     
     func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
-        sectionView.visibleSupplementaryViews(ofKind: kind.rawValue)
+        sectionInjection?
+            .sectionView?
+            .visibleSupplementaryViews(ofKind: kind.rawValue) ?? []
     }
     
     func indexsForVisibleSupplementaryViews(of kind: SKSupplementaryKind) -> [Int] {
-        sectionView
+        sectionInjection?
+            .sectionView?
             .indexPathsForVisibleSupplementaryElements(ofKind: kind.rawValue)
             .filter { $0.section == sectionIndex }
-            .map(\.row)
+            .map(\.row) ?? []
     }
     
 }

@@ -13,3 +13,5 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = "13.0"
     s.source_files = ["Sources/SectionKit/**/*.{swift,h}"]
 end  
+
+# pod trunk push ./SectionKit2.podspec  --allow-warnings

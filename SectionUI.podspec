@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
     s.dependency 'SectionKit2', '>= 2.0.0-beta.1'
 
     s.source_files = ["Sources/SectionUI/**/*.{swift,h}"]
-    # lint
-    # pod lib lint ./SectionUI.podspec --include-podspecs='*.podspec'
 end  
+
+# pod lib lint ./SectionUI.podspec --include-podspecs='*.podspec'
+# pod trunk push ./SectionUI.podspec  --allow-warnings

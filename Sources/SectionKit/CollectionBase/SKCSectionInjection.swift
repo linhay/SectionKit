@@ -18,7 +18,8 @@ public class SKCSectionInjection {
     }
     
     class SectionViewProvider {
-        var sectionView: UICollectionView?
+        
+        weak var sectionView: UICollectionView?
         
         init(_ sectionView: UICollectionView?) {
             self.sectionView = sectionView

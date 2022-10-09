@@ -85,6 +85,7 @@ public extension SKCSectionInjection {
         sectionView?.reloadItems(at: rows.map({ IndexPath(row: $0, section: index) }))
     }
     
+    @discardableResult
     func add(action: Action, event: @escaping (SKCSectionInjection) -> Void) -> Self {
         self.events[action] = event
         return self

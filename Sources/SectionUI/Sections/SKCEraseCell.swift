@@ -62,7 +62,6 @@ public class SKCEraseCell<View: SKConfigurableView & SKLoadViewProtocol>: UIColl
     
 }
 
-
 public class SKCEraseReusableView<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionReusableView, SKConfigurableView, SKLoadViewProtocol {
     
     public static func preferredSize(limit size: CGSize, model: View.Model?) -> CGSize {

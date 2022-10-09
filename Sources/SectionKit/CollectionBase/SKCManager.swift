@@ -43,6 +43,49 @@ public class SKCManager {
 }
 
 public extension SKCManager {
+    
+    func insert(_ input: SKCBaseSectionProtocol, at: Int) {
+        insert([input], at: at)
+    }
+    func insert(_ input: [SKCBaseSectionProtocol], at: Int) {
+        var sections = sections
+        sections.insert(contentsOf: input, at: at)
+        reload(sections)
+    }
+    
+    func insert(_ input: SKCBaseSectionProtocol, before: SKCBaseSectionProtocol) {
+        insert([input], before: before)
+    }
+    func insert(_ input: [SKCBaseSectionProtocol], before: SKCBaseSectionProtocol) {
+        guard let index = sections.firstIndex(where: { $0 === before }) else {
+            return
+        }
+        insert(input, at: index)
+    }
+    
+    func insert(_ input: SKCBaseSectionProtocol, after: SKCBaseSectionProtocol) {
+        insert([input], after: after)
+    }
+    func insert(_ input: [SKCBaseSectionProtocol], after: SKCBaseSectionProtocol) {
+        guard let index = sections.firstIndex(where: { $0 === after }) else {
+            return
+        }
+        insert(input, at: index + 1)
+    }
+    
+    func append(_ input: SKCBaseSectionProtocol) { append([input]) }
+    func append(_ input: [SKCBaseSectionProtocol]) { reload(sections + input) }
+    
+    func remove(_ input: SKCBaseSectionProtocol) { remove([input]) }
+    func remove(_ input: [SKCBaseSectionProtocol]) {
+        let IDs = input.map({ ObjectIdentifier($0) })
+        let sections = sections.filter({ !IDs.contains(ObjectIdentifier($0)) })
+        reload(sections)
+    }
+    
+}
+
+public extension SKCManager {
 
     func reload(_ section: SKCBaseSectionProtocol) {
         reload([section])

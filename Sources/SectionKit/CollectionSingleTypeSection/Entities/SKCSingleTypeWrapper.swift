@@ -13,16 +13,16 @@ public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadVie
         .init(builder())
     }
     
+    static func singleTypeWrapper(_ model: Model) -> SKCSingleTypeSection<Self> {
+        singleTypeWrapper([model])
+    }
+    
     static func singleTypeWrapper(_ models: [Model]) -> SKCSingleTypeSection<Self> {
         .init(models)
     }
     
     static func singleTypeWrapper() -> SKCSingleTypeSection<Self> {
         singleTypeWrapper([] as [Model])
-    }
-    
-    static func singleTypeWrapper(_ models: Model...) -> SKCSingleTypeSection<Self> {
-        singleTypeWrapper(models)
     }
     
     static func singleTypeWrapper(_ tasks: [() -> Self.Model]) -> SKCSingleTypeSection<Self> {

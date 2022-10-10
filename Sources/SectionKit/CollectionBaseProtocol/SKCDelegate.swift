@@ -9,20 +9,27 @@ import UIKit
 
 class SKCDelegate: NSObject, UICollectionViewDelegate {
     
+    struct ContextMenuConfiguration {
+        var ID: ObjectIdentifier { ObjectIdentifier(configuration) }
+        let indexPath: IndexPath
+        let configuration: UIContextMenuConfiguration
+    }
+    
     private var _section: (_ indexPath: IndexPath) -> SKCDelegateProtocol?
     private var _endDisplaySection: (_ indexPath: IndexPath) -> SKCDelegateProtocol?
     private var _sections: () -> any Collection<SKCDelegateProtocol>
+    private lazy var contextMenuConfigurationStore = [ObjectIdentifier: ContextMenuConfiguration]()
     
     private func section(_ indexPath: IndexPath) -> SKCDelegateProtocol? {
-       return _section(indexPath)
+        return _section(indexPath)
     }
     
     private func endDisplaySection(_ indexPath: IndexPath) -> SKCDelegateProtocol? {
-       return _endDisplaySection(indexPath)
+        return _endDisplaySection(indexPath)
     }
     
     private func sections() -> any Collection<SKCDelegateProtocol> {
-       return _sections()
+        return _sections()
     }
     
     init(section: @escaping (_ indexPath: IndexPath) -> SKCDelegateProtocol?,
@@ -228,6 +235,79 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
     }
     
     /**
+     * @abstract Called when the interaction begins.
+     *
+     * @param collectionView  The @c UICollectionView.
+     * @param indexPath       IndexPath of the item for which a configuration is being requested.
+     * @param point           Touch location in the collection view's coordinate space
+     *
+     * @return A UIContextMenuConfiguration describing the menu to be presented. Return nil to prevent the interaction from beginning.
+     *         Returning an empty configuration causes the interaction to begin then fail with a cancellation effect. You might use this
+     *         to indicate to users that it's possible for a menu to be presented from this element, but that there are no actions to
+     *         present at this particular time. If the non-deprecated replacement for the configuration, highlight preview, or dismissal preview methods is implemented this method is not called.
+     *
+     * @abstract 当互动开始时被调用。
+     *
+     * @param collectionView @c UICollectionView。
+     * @param indexPath 正在请求配置的项目的索引路径。
+     * @param point 在集合视图的坐标空间中的触摸位置。
+     *
+     * @return 一个UIContextMenuConfiguration，描述要展示的菜单。返回nil以阻止交互的开始。
+     * 返回一个空的配置会导致交互开始，然后以取消的效果失败。你可以使用这个
+     * 来向用户表明，有可能从这个元素中呈现一个菜单，但是在这个特定的时间内没有任何动作可以
+     *在这个特定的时间里，没有任何动作可以呈现。如果实现了配置、高亮预览或取消预览方法的非降级替换，则不调用此方法。
+     */
+    @available(iOS, introduced: 13.0, deprecated: 16.0)
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        debugPrint("==>  ", #function)
+        guard let configuration = section(indexPath)?.contextMenu(row: indexPath.row, point: point) else {
+            return nil
+        }
+        contextMenuConfigurationStore[ObjectIdentifier(configuration)] = .init(indexPath: indexPath, configuration: configuration)
+        return configuration
+    }
+    
+    /**
+     * @abstract Called when the interaction begins. Return a UITargetedPreview describing the desired highlight preview.
+     *           If the non-deprecated replacement for the configuration, highlight preview, or dismissal preview methods is implemented this method is not called.
+     *
+     * @param collectionView  The @c UICollectionView.
+     * @param configuration   The configuration of the menu about to be displayed by this interaction.
+     *
+     * @abstract 当互动开始时被调用。返回一个UITargetedPreview，描述所需的高亮预览。
+     * 如果实现了配置、高亮预览或驳回预览方法的非弃用替换，则不调用此方法。
+     *
+     * @param collectionView @c UICollectionView。
+     * @param configuration 即将被这个交互显示的菜单的配置。
+     */
+    @available(iOS, introduced: 13.0, deprecated: 16.0)
+    func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        debugPrint("==>  ", #function)
+        guard let configuration = contextMenuConfigurationStore[ObjectIdentifier(configuration)] else {
+            return nil
+        }
+        return section(configuration.indexPath)?.contextMenu(highlightPreview: configuration.configuration, row: configuration.indexPath.row)
+    }
+    
+    /**
+     * @abstract Called when the interaction is about to dismiss. Return a UITargetedPreview describing the desired dismissal target.
+     *           The interaction will animate the presented menu to the target. Use this to customize the dismissal animation.
+     *           If the non-deprecated replacement for the configuration, highlight preview, or dismissal preview methods is implemented this method is not called.
+     *
+     * @param collectionView  The @c UICollectionView.
+     * @param configuration   The configuration of the menu displayed by this interaction.
+     */
+    @available(iOS, introduced: 13.0, deprecated: 16.0)
+    func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        debugPrint("==>  ", #function)
+        guard let configuration = contextMenuConfigurationStore[ObjectIdentifier(configuration)] else {
+            return nil
+        }
+        defer { contextMenuConfigurationStore[configuration.ID] = nil }
+        return section(configuration.indexPath)?.contextMenu(dismissalPreview: configuration.configuration, row: configuration.indexPath.row)
+    }
+    
+    /**
      * @abstract Called when a context menu is invoked from this collection view.
      *
      * @param collectionView  The @c UICollectionView.
@@ -243,7 +323,6 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      *              - An empty array indicates that the menu was invoked in the space between cells (or any location that does not map to an item index path).
      *              - An array with multiple index paths indicates that the menu was invoked on an item within a multiple selection.
      *
-     * @abstract 当从这个集合视图中调用上下文菜单时，会被调用。
      *
      * @param collectionView @c UICollectionView.
      * @param indexPaths 一个索引路径的数组，该菜单在其中起作用。
@@ -259,8 +338,15 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      * - 一个有多个索引路径的数组表示菜单是在一个多选中的一个项目上调用的。
      */
     
-    //    @available(iOS 16.0, *)
-    //    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {}
+    @available(iOS 16.0, *)
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        debugPrint("==>  ", #function)
+        if indexPaths.count == 1, let indexPath = indexPaths.first {
+            return section(indexPath)?.contextMenu(row: indexPath.row, point: point)
+        } else {
+            return nil
+        }
+    }
     
     /**
      * @abstract Called when a context menu presented from this collection view is dismissed. Return a @c UITargetedPreview corresponding to the item at the given indexPath.
@@ -276,8 +362,11 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      * @param configuration 如果互动继续进行，将呈现的菜单的配置。
      * @param indexPath 发生交互的项目的索引路径。
      */
-    //    @available(iOS 16.0, *)
-    //    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {}
+    @available(iOS 16.0, *)
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
+        debugPrint("==>  ", #function)
+        return section(indexPath)?.contextMenu(highlightPreview: configuration, row: indexPath.row)
+    }
     
     /**
      * @abstract Called when the interaction is about to "commit" in response to the user tapping the preview.
@@ -292,8 +381,11 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      * @param configuration 被取消的菜单的配置。
      * @param indexPath 菜单被取消的项目的索引路径。
      */
-    //    @available(iOS 16.0, *)
-    //    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, dismissalPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? { }
+    @available(iOS 16.0, *)
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, dismissalPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
+        debugPrint("==>  ", #function)
+        return section(indexPath)?.contextMenu(dismissalPreview: configuration, row: indexPath.row)
+    }
     
     /**
      * @abstract 当交互即将 "提交 "时调用，以响应用户点选预览。
@@ -302,9 +394,7 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      * @param configuration 当前显示的菜单的配置。
      * @param animator 提交动画器。向这个对象添加动画，以便在提交过渡的同时运行这些动画。
      */
-    //    func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
-    //
-    //    }
+    //    func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {}
     
     /**
      * @abstract Called when the collection view is about to display a menu.
@@ -335,8 +425,8 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      * @param configuration 结束配置。
      * @param animator 消失的动画器。添加动画，在消失过渡的同时运行它们。
      */
-    // @available(iOS 13.2, *)
-    // func collectionView(_ collectionView: UICollectionView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) { }
+    //    @available(iOS 13.2, *)
+    //    func collectionView(_ collectionView: UICollectionView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) { }
     
     /**
      * @abstract Return a valid @c UIWindowSceneActivationConfiguration to allow for the cell to be expanded into a new scene. Return nil to prevent the interaction from starting.

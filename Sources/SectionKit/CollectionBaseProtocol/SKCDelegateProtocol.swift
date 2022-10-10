@@ -94,6 +94,11 @@ public protocol SKCDelegateProtocol {
      * 一次选择多个项目；例如，更新按钮为 "完成"，而不是 "选择"/"编辑"，等等。
      */
     func item(didBeginMultipleSelectionInteraction row: Int)
+
+    func contextMenu(row: Int?, point: CGPoint) -> UIContextMenuConfiguration?
+    func contextMenu(highlightPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview?
+    func contextMenu(dismissalPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview?
+
     
     /* 在多选互动结束时调用。
      *
@@ -105,6 +110,10 @@ public protocol SKCDelegateProtocol {
 
 
 public extension SKCDelegateProtocol {
+
+    func contextMenu(row: Int?, point: CGPoint) -> UIContextMenuConfiguration? { nil }
+    func contextMenu(highlightPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview? { nil }
+    func contextMenu(dismissalPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview? { nil }
     
     // 用于通知选择/取消选择和高亮/非高亮事件的方法。
     // 导致用户触摸选择的调用顺序是。

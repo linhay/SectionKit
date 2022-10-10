@@ -10,14 +10,15 @@ import Combine
 
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol {
     
+    public typealias CellStyleBox = IDBox<UUID, CellStyleBlock>
+    
     public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
-    
     public typealias LoadedBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
-    public typealias CellActionBlock = (_ context: CellActionResult) -> Void
-    public typealias CellStyleBlock  = (_ context: CellStyleResult) -> Void
-    public typealias CellStyleBox    = IDBox<UUID, CellStyleBlock>
     
-    public typealias SupplementaryActionBlock = (_ context: SupplementaryActionResult) -> Void
+    public typealias SupplementaryActionBlock = (_ context: SupplementaryActionContext) -> Void
+    public typealias ContextMenuBlock = (_ context: ContextMenuContext) -> ContextMenuResult?
+    public typealias CellActionBlock  = (_ context: CellActionContext) -> Void
+    public typealias CellStyleBlock   = (_ context: CellStyleContext) -> Void
     
     public enum CellActionType: Int, Hashable {
         /// 选中
@@ -37,7 +38,36 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         case didEndDisplay
     }
     
-    public struct CellActionResult {
+    public struct ContextMenuContext {
+        
+        public let section: SKCSingleTypeSection<Cell>
+        public let model: Cell.Model?
+        public let row: Int?
+        
+        init(section: SKCSingleTypeSection<Cell>, model: Cell.Model?, row: Int?) {
+            self.section = section
+            self.model = model
+            self.row = row
+        }
+        
+    }
+    
+    public struct ContextMenuResult {
+        
+        let configuration: UIContextMenuConfiguration
+        let highlightPreview: UITargetedPreview?
+        let dismissalPreview: UITargetedPreview?
+        
+        public init(configuration: UIContextMenuConfiguration,
+                    highlightPreview: UITargetedPreview? = nil,
+                    dismissalPreview: UITargetedPreview? = nil) {
+            self.configuration = configuration
+            self.highlightPreview = highlightPreview
+            self.dismissalPreview = dismissalPreview
+        }
+    }
+    
+    public struct CellActionContext {
         
         public let section: SKCSingleTypeSection<Cell>
         public let type: CellActionType
@@ -53,11 +83,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             return cell
         }
         
-        fileprivate init(section: SKCSingleTypeSection<Cell>,
-                         type: CellActionType,
-                         model: Cell.Model,
-                         row: Int,
-                         _view: Cell?) {
+        fileprivate init(section: SKCSingleTypeSection<Cell>, type: CellActionType, model: Cell.Model, row: Int, _view: Cell?) {
             self.section = section
             self.type = type
             self.model = model
@@ -66,17 +92,14 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         }
     }
     
-    public struct CellStyleResult {
+    public struct CellStyleContext {
         
         public let model: Cell.Model
         public let row: Int
         public let view: Cell
         public let section: SKCSingleTypeSection<Cell>
         
-        fileprivate init(row: Int,
-                         model: Cell.Model,
-                         section: SKCSingleTypeSection<Cell>,
-                         view: Cell) {
+        fileprivate init(section: SKCSingleTypeSection<Cell>, model: Cell.Model, row: Int, view: Cell) {
             self.row = row
             self.model = model
             self.section = section
@@ -85,7 +108,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
     }
     
-    public struct SupplementaryActionResult {
+    public struct SupplementaryActionContext {
         public let section: SKCSingleTypeSection<Cell>
         public let type: SupplementaryActionType
         public let kind: SKSupplementaryKind
@@ -116,8 +139,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         /// supplementary 事件订阅, 事件类型参照 `SupplementaryActionType`
         public private(set) lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
         
-        fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionResult, Never>()
-        fileprivate lazy var supplementaryActionSubject = PassthroughSubject<SupplementaryActionResult, Never>()
+        fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionContext, Never>()
+        fileprivate lazy var supplementaryActionSubject = PassthroughSubject<SupplementaryActionContext, Never>()
     }
     
     open var sectionInjection: SKCSectionInjection?
@@ -145,6 +168,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     private lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
     private lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
     private lazy var cellStyles: [CellStyleBox] = []
+    private lazy var cellContextMenus: [ContextMenuBlock] = []
     private lazy var loadedTasks: [LoadedBlock] = []
     
     public init(_ models: [Model] = []) {
@@ -173,7 +197,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         let model = models[row]
         cell.config(model)
         if !cellStyles.isEmpty {
-            let result = CellStyleResult(row: row, model: model, section: self, view: cell)
+            let result = CellStyleContext(section: self, model: model, row: row, view: cell)
             cellStyles.forEach { style in
                 style.value(result)
             }
@@ -284,6 +308,18 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     /// - Parameter rows: rows
     open func cancelPrefetching(at rows: [Int]) {
         self.prefetch.cancelPrefetching.send(rows)
+    }
+    
+    public func contextMenu(row: Int?, point: CGPoint) -> UIContextMenuConfiguration? {
+        return contextMenu(row: row)?.configuration
+    }
+    
+    public func contextMenu(highlightPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview? {
+        return contextMenu(row: row)?.highlightPreview
+    }
+    
+    public func contextMenu(dismissalPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview? {
+        return contextMenu(row: row)?.dismissalPreview
     }
     
 }
@@ -545,6 +581,11 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+    func onContextMenu(_ block: @escaping ContextMenuBlock) -> Self {
+        cellContextMenus.append(block)
+        return self
+    }
+    
     @discardableResult
     func setCellStyle(_ item: @escaping CellStyleBlock) -> Self {
         cellStyles.append(.init(value: item))
@@ -625,25 +666,37 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
+    func contextMenu(row: Int?) -> ContextMenuResult? {
+        var model: Model?
+        if let row = row { model = models[row] }
+        let context = ContextMenuContext(section: self, model: model, row: row)
+        for cellContextMenu in cellContextMenus {
+            if let result = cellContextMenu(context) {
+                return result
+            }
+        }
+        return nil
+    }
+    
     func sendDeleteAction(_ type: CellActionType, view: Cell?, row: Int) {
         guard deletedModels[row] != nil || models.indices.contains(row) else {
             assertionFailure()
             return
         }
-        let result = CellActionResult(section: self,
-                                      type: type,
-                                      model: deletedModels[row] ?? models[row],
-                                      row: row, _view: view)
+        let result = CellActionContext(section: self,
+                                       type: type,
+                                       model: deletedModels[row] ?? models[row],
+                                       row: row, _view: view)
         deletedModels[row] = nil
         sendAction(result)
     }
     
     func sendAction(_ type: CellActionType, view: Cell?, row: Int) {
-        let result = CellActionResult(section: self, type: type, model: models[row], row: row, _view: view)
+        let result = CellActionContext(section: self, type: type, model: models[row], row: row, _view: view)
         sendAction(result)
     }
     
-    func sendAction(_ result: CellActionResult) {
+    func sendAction(_ result: CellActionContext) {
         cellActions[result.type]?.forEach({ block in
             block(result)
         })
@@ -651,7 +704,7 @@ public extension SKCSingleTypeSection {
     }
     
     func sendSupplementaryAction(_ type: SupplementaryActionType, kind: SKSupplementaryKind, row: Int) {
-        let result = SupplementaryActionResult(section: self, type: type, kind: kind, row: row)
+        let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row)
         supplementaryActions[type]?.forEach({ block in
             block(result)
         })

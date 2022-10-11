@@ -73,10 +73,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         public let type: CellActionType
         public let model: Cell.Model
         public let row: Int
-        fileprivate let _view: Cell?
+        fileprivate let _view: SKWeakBox<Cell>?
         
         public func view() -> Cell {
-            guard let cell = _view ?? section.cellForItem(at: row) else {
+            guard let cell = _view?.value ?? section.cellForItem(at: row) else {
                 assertionFailure()
                 return .init(frame: .zero)
             }
@@ -88,7 +88,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             self.type = type
             self.model = model
             self.row = row
-            self._view = _view
+            self._view = .init(_view)
         }
     }
     

@@ -322,6 +322,19 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         return contextMenu(row: row)?.dismissalPreview
     }
     
+    public func move(from source: IndexPath, to destination: IndexPath) {
+        switch (sectionIndex == source.section, sectionIndex == destination.section) {
+        case (true, true):
+            models.swapAt(source.item, destination.item)
+        case (true, false):
+            models.remove(at: source.item)
+        case (false, true):
+            assertionFailure()
+        case (false, false):
+            break
+        }
+    }
+    
 }
 
 public extension SKCSingleTypeSection {

@@ -38,3 +38,9 @@ public extension SKCDataSourceProtocol {
     func move(from source: IndexPath, to destination: IndexPath) {}
     
 }
+
+public extension SKCDataSourceProtocol where Self: SKCSectionActionProtocol {
+    
+    var sectionIndex: Int? { self.sectionInjection?.index }
+    
+}

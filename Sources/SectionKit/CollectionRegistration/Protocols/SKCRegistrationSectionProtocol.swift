@@ -38,6 +38,19 @@ public extension SKCRegistrationSectionProtocol {
 
 public extension SKCRegistrationSectionProtocol {
     
+    func move(from source: IndexPath, to destination: IndexPath) {
+        switch (sectionIndex == source.section, sectionIndex == destination.section) {
+        case (true, true):
+            registrations.swapAt(source.item, destination.item)
+        case (true, false):
+            registrations.remove(at: source.item)
+        case (false, true):
+            assertionFailure()
+        case (false, false):
+            break
+        }
+    }
+    
     @discardableResult
     func setSectionStyle(_ builder: (_ section: Self) -> Void) -> Self {
         builder(self)

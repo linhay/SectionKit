@@ -422,16 +422,25 @@ public extension SKCSingleTypeSection {
         }
         let x = min(i, j)
         let y = max(i, j)
-        sectionView.performBatchUpdates {
+        if let sectionView = sectionInjection?.sectionView {
+            sectionView.performBatchUpdates {
+                models.swapAt(x, y)
+                sectionView.moveItem(at: indexPath(from: x), to: indexPath(from: y))
+                sectionView.moveItem(at: indexPath(from: y), to: indexPath(from: x))
+            }
+        } else {
             models.swapAt(x, y)
-            sectionView.moveItem(at: indexPath(from: x), to: indexPath(from: y))
-            sectionView.moveItem(at: indexPath(from: y), to: indexPath(from: x))
         }
     }
     
 }
 
 public extension SKCSingleTypeSection {
+    
+    func reload(_ model: Model) {
+        self.models = [model]
+        sectionInjection?.reload()
+    }
     
     func reload(_ models: [Model]) {
         self.models = models
@@ -454,9 +463,13 @@ public extension SKCSingleTypeSection {
         guard !items.isEmpty else {
             return
         }
-        sectionView.performBatchUpdates {
+        if let sectionView = sectionInjection?.sectionView {
+            sectionView.performBatchUpdates {
+                models.insert(contentsOf: items, at: row)
+                sectionView.insertItems(at: (row..<(row + items.count)).map(indexPath(from:)))
+            }
+        } else {
             models.insert(contentsOf: items, at: row)
-            sectionView.insertItems(at: (row..<(row + items.count)).map(indexPath(from:)))
         }
     }
     
@@ -481,13 +494,20 @@ public extension SKCSingleTypeSection {
         guard !rows.isEmpty else {
             return
         }
-        sectionView.performBatchUpdates {
-            for row in rows {
-                deletedModels[row] = models.remove(at: row)
+        
+        if let sectionView = sectionInjection?.sectionView {
+            sectionView.performBatchUpdates {
+                for row in rows {
+                    deletedModels[row] = models.remove(at: row)
+                }
+                sectionView.deleteItems(at: rows.map(indexPath(from:)))
+            } completion: { flag in
+                self.sectionInjection?.reload(cell: (rows.min()!..<self.models.count))
             }
-            sectionView.deleteItems(at: rows.map(indexPath(from:)))
-        } completion: { flag in
-            self.sectionInjection?.reload(cell: (rows.min()!..<self.models.count))
+        } else {
+            rows.sorted(by: >).forEach { index in
+                models.remove(at: index)
+            }
         }
     }
     

@@ -35,7 +35,6 @@ public extension SKCRegistrationSectionProtocol {
     
 }
 
-
 public extension SKCRegistrationSectionProtocol {
     
     func move(from source: IndexPath, to destination: IndexPath) {

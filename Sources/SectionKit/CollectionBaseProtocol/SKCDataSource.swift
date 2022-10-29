@@ -60,8 +60,12 @@ class SKCDataSource: NSObject, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        section(sourceIndexPath)?.move(from: sourceIndexPath, to: destinationIndexPath)
-        section(destinationIndexPath)?.move(from: sourceIndexPath, to: destinationIndexPath)
+        if sourceIndexPath.section == destinationIndexPath.section {
+            section(sourceIndexPath)?.move(from: sourceIndexPath, to: destinationIndexPath)
+        } else {
+            section(sourceIndexPath)?.move(from: sourceIndexPath, to: destinationIndexPath)
+            section(destinationIndexPath)?.move(from: sourceIndexPath, to: destinationIndexPath)
+        }
     }
     
     

@@ -76,15 +76,5 @@ open class SKCollectionViewController: UIViewController {
         constraint.isActive = true
     }
     
-    override open func viewSafeAreaInsetsDidChange() {
-        super.viewSafeAreaInsetsDidChange()
-        guard sectionView.contentInset.bottom == 0 else {
-            return
-        }
-        sectionView.contentInset = .init(top: sectionView.contentInset.top,
-                                         left: sectionView.contentInset.left,
-                                         bottom: view.safeAreaInsets.bottom,
-                                         right: sectionView.contentInset.right)
-    }
 }
 #endif

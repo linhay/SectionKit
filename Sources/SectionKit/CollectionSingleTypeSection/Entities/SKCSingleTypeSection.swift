@@ -713,7 +713,6 @@ public extension SKCSingleTypeSection {
     
     func sendDeleteAction(_ type: CellActionType, view: Cell?, row: Int) {
         guard deletedModels[row] != nil || models.indices.contains(row) else {
-            assertionFailure()
             return
         }
         let result = CellActionContext(section: self,

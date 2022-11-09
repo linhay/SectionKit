@@ -7,7 +7,7 @@
 
 import UIKit
 
-open class SKEraseView<Content: UIView>: UIView, SKLoadViewProtocol, SKConfigurableView {
+open class SKWrapperView<Content: UIView>: UIView, SKLoadViewProtocol, SKConfigurableView {
 
     public struct Model {
         public let insets: UIEdgeInsets

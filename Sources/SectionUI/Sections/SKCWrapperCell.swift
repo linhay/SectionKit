@@ -9,21 +9,21 @@ import UIKit
 
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
-    static func eraseToCollectionCell() -> SKCEraseCell<Self>.Type {
-        return SKCEraseCell<Self>.self
+    static func wrapperToCollectionCell() -> SKCWrapperCell<Self>.Type {
+        return SKCWrapperCell<Self>.self
     }
     
 }
 
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
-    static func eraseToCollectionReusableView() -> SKCEraseReusableView<Self>.Type {
-        return SKCEraseReusableView<Self>.self
+    static func wrapperToCollectionReusableView() -> SKCWrapperReusableView<Self>.Type {
+        return SKCWrapperReusableView<Self>.self
     }
     
 }
 
-public class SKCEraseCell<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
+public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
     
     public static func preferredSize(limit size: CGSize, model: View.Model?) -> CGSize {
         View.preferredSize(limit: size, model: model)
@@ -32,10 +32,10 @@ public class SKCEraseCell<View: SKConfigurableView & SKLoadViewProtocol>: UIColl
     public typealias Model = View.Model
     
     public func config(_ model: View.Model) {
-        eraseView.config(model)
+        wrappedView.config(model)
     }
     
-    public private(set) lazy var eraseView = View()
+    public private(set) lazy var wrappedView = View()
 
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -49,12 +49,12 @@ public class SKCEraseCell<View: SKConfigurableView & SKLoadViewProtocol>: UIColl
     }
     
     private func initialize(contentView: UIView) {
-        eraseView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(eraseView)
-        [eraseView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),
-         eraseView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
-         eraseView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
-         eraseView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
+        wrappedView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(wrappedView)
+        [wrappedView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),
+         wrappedView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
+         wrappedView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
+         wrappedView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
             constraint.priority = .defaultHigh
             constraint.isActive = true
         }
@@ -62,7 +62,7 @@ public class SKCEraseCell<View: SKConfigurableView & SKLoadViewProtocol>: UIColl
     
 }
 
-public class SKCEraseReusableView<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionReusableView, SKConfigurableView, SKLoadViewProtocol {
+public class SKCWrapperReusableView<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionReusableView, SKConfigurableView, SKLoadViewProtocol {
     
     public static func preferredSize(limit size: CGSize, model: View.Model?) -> CGSize {
         View.preferredSize(limit: size, model: model)
@@ -72,10 +72,10 @@ public class SKCEraseReusableView<View: SKConfigurableView & SKLoadViewProtocol>
     
     
     public func config(_ model: View.Model) {
-        eraseView.config(model)
+        wrappedView.config(model)
     }
     
-    public private(set) lazy var eraseView = View()
+    public private(set) lazy var wrappedView = View()
 
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -89,12 +89,12 @@ public class SKCEraseReusableView<View: SKConfigurableView & SKLoadViewProtocol>
     
     private func initialize(contentView: UIView) {
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        eraseView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(eraseView)
-        [eraseView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),
-         eraseView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
-         eraseView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
-         eraseView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
+        wrappedView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(wrappedView)
+        [wrappedView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),
+         wrappedView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
+         wrappedView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
+         wrappedView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
             constraint.priority = .defaultHigh
             constraint.isActive = true
         }

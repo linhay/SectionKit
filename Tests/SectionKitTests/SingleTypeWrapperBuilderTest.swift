@@ -1,5 +1,5 @@
 //
-//  SingleTypeWrapperBuilderTest.swift
+//  wrapperToSingleTypeSectionBuilderTest.swift
 //  
 //
 //  Created by linhey on 2022/8/31.
@@ -8,7 +8,7 @@
 import XCTest
 import SectionKit
 
-final class SingleTypeWrapperBuilderTest: XCTestCase {
+final class wrapperToSingleTypeSectionBuilderTest: XCTestCase {
     
     func builder(@SectionArrayResultBuilder<Int> builder: () -> [Int]) -> [Int] {
         builder()

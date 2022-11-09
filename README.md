@@ -99,8 +99,8 @@
     ``` swift
     let model = FLSpacerCell.Model(size: .zero)
     /// 以下 API 完全等价
-    let section1 = FLSpacerCell.singleTypeWrapper([model])
-    let section2 = FLSpacerCell.singleTypeWrapper(model)
+    let section1 = FLSpacerCell.wrapperToSingleTypeSection([model])
+    let section2 = FLSpacerCell.wrapperToSingleTypeSection(model)
     let section3 = SKCSingleTypeSection<FLSpacerCell>([model])
     let section4 = SKCSingleTypeSection<FLSpacerCell>(model)
     ```
@@ -110,8 +110,8 @@
     ``` swift
     /// 创建 Section
     let model = FLSpacerCell.Model(size: .zero)
-    let section1 = FLSpacerCell.singleTypeWrapper([model])
-    let section2 = FLCustomCell.singleTypeWrapper(model)
+    let section1 = FLSpacerCell.wrapperToSingleTypeSection([model])
+    let section2 = FLCustomCell.wrapperToSingleTypeSection(model)
 
     /// manager 与 UICollectionView 关联
     let sectionView = UICollectionView(frame: .zero,collectionViewLayout: UICollectionViewFlowLayout())
@@ -125,7 +125,7 @@
 
     ``` swift
     let section = FLSpacerCell
-        .singleTypeWrapper([model])
+        .wrapperToSingleTypeSection([model])
 
         /// 配置当前 section 样式
         .setSectionStyle({ section in
@@ -184,7 +184,7 @@
     > 修改数据后会刷新响应视图, 无需手动刷新
 
     ``` swift
-    let section = FLSpacerCell.singleTypeWrapper([model])
+    let section = FLSpacerCell.wrapperToSingleTypeSection([model])
     /// 重置数据为 models
     _ = section.config(models: [Model])
     section.apply(models: [Model])
@@ -199,7 +199,7 @@
 - 事件订阅
 
     ``` swift
-    let section = FLSpacerCell.singleTypeWrapper([model])
+    let section = FLSpacerCell.wrapperToSingleTypeSection([model])
     
     section.pulishers.cellActionPulisher.sink { context in
         switch context.type {

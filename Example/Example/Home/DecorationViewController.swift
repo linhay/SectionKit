@@ -61,7 +61,7 @@ class DecorationViewController: SKCollectionViewController {
 extension DecorationViewController {
     class LeftViewController: SKCollectionViewController {
         
-        let section = StringRawCell<Action>.singleTypeWrapper(Action.allCases)
+        let section = StringRawCell<Action>.wrapperToSingleTypeSection(Action.allCases)
         lazy var skmanager = SKCManager(sectionView: sectionView)
         
         override func viewDidLoad() {
@@ -84,7 +84,7 @@ extension DecorationViewController {
         
         lazy var sections = (0 ... 10).map { sectionIndex in
             ColorBlockCell
-                .singleTypeWrapper((0 ... 10).map { index in
+                .wrapperToSingleTypeSection((0 ... 10).map { index in
                         .init(color: .red, text: "\(sectionIndex - index)", size: size)
                 })
                 .set(supplementary: .init(kind: .header, type: ReusableView.self, model: "header - \(sectionIndex)"))

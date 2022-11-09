@@ -65,7 +65,7 @@ extension SingleTypeViewController {
     class LeftViewController: SKCollectionViewController {
         
         let section = StringRawCell
-            .singleTypeWrapper(builder: {
+            .wrapperToSingleTypeSection(builder: {
                 Action.allCases
             })
         

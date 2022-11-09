@@ -31,11 +31,11 @@ public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SK
                            insets: UIEdgeInsets = .zero,
                            style: ((SKCollectionView) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
         SKCSectionViewCell
-            .singleTypeWrapper([.init(section: .normal([self]),
-                                      height: height,
-                                      insets: insets,
-                                      scrollDirection: .horizontal,
-                                      style: style)])
+            .wrapperToSingleTypeSection([.init(section: .normal([self]),
+                                               height: height,
+                                               insets: insets,
+                                               scrollDirection: .horizontal,
+                                               style: style)])
         
     }
     

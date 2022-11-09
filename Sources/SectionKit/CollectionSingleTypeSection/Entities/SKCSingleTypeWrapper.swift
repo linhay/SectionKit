@@ -9,36 +9,36 @@ import UIKit
 
 public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
     
-    static func singleTypeWrapper(@SectionArrayResultBuilder<Model> builder: () -> [Model]) -> SKCSingleTypeSection<Self> {
+    static func wrapperToSingleTypeSection(@SectionArrayResultBuilder<Model> builder: () -> [Model]) -> SKCSingleTypeSection<Self> {
         .init(builder())
     }
     
-    static func singleTypeWrapper(_ model: Model) -> SKCSingleTypeSection<Self> {
-        singleTypeWrapper([model])
+    static func wrapperToSingleTypeSection(_ model: Model) -> SKCSingleTypeSection<Self> {
+        wrapperToSingleTypeSection([model])
     }
     
-    static func singleTypeWrapper(_ models: [Model]) -> SKCSingleTypeSection<Self> {
+    static func wrapperToSingleTypeSection(_ models: [Model]) -> SKCSingleTypeSection<Self> {
         .init(models)
     }
     
-    static func singleTypeWrapper() -> SKCSingleTypeSection<Self> {
-        singleTypeWrapper([] as [Model])
+    static func wrapperToSingleTypeSection() -> SKCSingleTypeSection<Self> {
+        wrapperToSingleTypeSection([] as [Model])
     }
     
-    static func singleTypeWrapper(_ tasks: [() -> Self.Model]) -> SKCSingleTypeSection<Self> {
-        return singleTypeWrapper(tasks.map({ $0() }))
+    static func wrapperToSingleTypeSection(_ tasks: [() -> Self.Model]) -> SKCSingleTypeSection<Self> {
+        return wrapperToSingleTypeSection(tasks.map({ $0() }))
     }
     
-    static func singleTypeWrapper(_ tasks: [() async throws -> Model]) async throws -> SKCSingleTypeSection<Self> {
+    static func wrapperToSingleTypeSection(_ tasks: [() async throws -> Model]) async throws -> SKCSingleTypeSection<Self> {
         var models = [Model]()
         for task in tasks {
             models.append(try await task())
         }
-        return singleTypeWrapper(models)
+        return wrapperToSingleTypeSection(models)
     }
     
-    static func singleTypeWrapper(count: Int) -> SKCSingleTypeSection<Self> where Model == Void {
-        singleTypeWrapper(.init(repeating: (), count: count))
+    static func wrapperToSingleTypeSection(count: Int) -> SKCSingleTypeSection<Self> where Model == Void {
+        wrapperToSingleTypeSection(.init(repeating: (), count: count))
     }
     
 }

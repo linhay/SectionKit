@@ -9,15 +9,15 @@ import Combine
 import SectionUI
 import XCTest
 
-final class SingleTypeWrapperTests: XCTestCase {
+final class wrapperToSingleTypeSectionTests: XCTestCase {
     func testCount() throws {
         for count in 0 ... Int.random(in: 0 ... 1000) {
-            XCTAssert(SectionVoidCell.singleTypeWrapper(count: count).models.count == count)
+            XCTAssert(SectionVoidCell.wrapperToSingleTypeSection(count: count).models.count == count)
         }
     }
 
     func testEvents() throws {
-        let section = SectionVoidCell.singleTypeWrapper(count: 3)
+        let section = SectionVoidCell.wrapperToSingleTypeSection(count: 3)
         let view = SKCollectionView()
         view.frame.size = .init(width: 400, height: 400)
         view.manager.reload(section)

@@ -7,7 +7,9 @@
 
 #if canImport(CoreGraphics)
 import Foundation
-public protocol SKConfigurableView: SKConfigurableModelProtocol & SKConfigurableLayoutProtocol {}
+import UIKit
+
+public protocol SKConfigurableView: SKConfigurableModelProtocol & SKConfigurableLayoutProtocol & UIView {}
 
 public extension SKConfigurableView where Model == Void {
     

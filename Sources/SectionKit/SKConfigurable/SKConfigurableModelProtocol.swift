@@ -25,12 +25,6 @@ import Foundation
 public protocol SKConfigurableModelProtocol {
     associatedtype Model
     func config(_ model: Model)
-    /// 数据是否可用
-    static func validate(_ model: Model) -> Bool
-}
-
-public extension SKConfigurableModelProtocol {
-    static func validate(_: Model) -> Bool { true }
 }
 
 public extension SKConfigurableModelProtocol where Model == Void {

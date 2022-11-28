@@ -1,3 +1,22 @@
-PODFILE CHECKSUM: 10675419d7d631ec7c33649ae622b1b569c37188
+PODS:
+  - SectionKit2 (2.0.0-beta.3)
+  - SectionUI (2.0.0-beta.3):
+    - SectionKit2 (>= 2.0.0-beta.3)
+
+DEPENDENCIES:
+  - SectionKit2 (from `../SectionKit2.podspec`)
+  - SectionUI (from `../SectionUI.podspec`)
+
+EXTERNAL SOURCES:
+  SectionKit2:
+    :path: "../SectionKit2.podspec"
+  SectionUI:
+    :path: "../SectionUI.podspec"
+
+SPEC CHECKSUMS:
+  SectionKit2: d9613082822db4b6c942ae6b29393e95f87e1336
+  SectionUI: 8b433ada8de5f16e672bf285ab5c45c18841cbcf
+
+PODFILE CHECKSUM: def6316c40ed29d88472f05b5508c79c232c1fcd
 
 COCOAPODS: 1.11.3

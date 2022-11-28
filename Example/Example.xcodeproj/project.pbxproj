@@ -23,8 +23,6 @@
 		CD3ABCC028A7D5CE006BD03D /* RegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */; };
 		CD5A7AE9282394AA00337098 /* DecorationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AE8282394AA00337098 /* DecorationViewController.swift */; };
 		CD5A7AF02823BF1D00337098 /* ReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AEF2823BF1D00337098 /* ReusableView.swift */; };
-		CD786E3F28D5BD63009295F3 /* SectionKit in Frameworks */ = {isa = PBXBuildFile; productRef = CD786E3E28D5BD63009295F3 /* SectionKit */; };
-		CD786E4128D5BD68009295F3 /* SectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = CD786E4028D5BD68009295F3 /* SectionUI */; };
 		CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */; };
 		CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */ = {isa = PBXBuildFile; productRef = CDA10DED28B4A90C000698F2 /* Delegate */; };
 		CDC122F428D45AB8003790E3 /* CustomSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC122F328D45AB8003790E3 /* CustomSection.swift */; };
@@ -63,9 +61,7 @@
 			files = (
 				CD0621A328A7FBD200272233 /* StemColor in Frameworks */,
 				CD0621A128A7FBD200272233 /* Stem in Frameworks */,
-				CD786E3F28D5BD63009295F3 /* SectionKit in Frameworks */,
 				CD0621A528A7FBD200272233 /* StemFilePath in Frameworks */,
-				CD786E4128D5BD68009295F3 /* SectionUI in Frameworks */,
 				CD33B82627DCE6190032987B /* SnapKit in Frameworks */,
 				CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */,
 				94E7A927DF29070D1B13BAF8 /* Pods_Example.framework in Frameworks */,
@@ -89,7 +85,6 @@
 				3F561E92DD0E01D327B078F2 /* Pods-Example.debug.xcconfig */,
 				B03892433E03BCE14B3E6233 /* Pods-Example.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -170,6 +165,7 @@
 				CD33B80027DCE3A70032987B /* Sources */,
 				CD33B80127DCE3A70032987B /* Frameworks */,
 				CD33B80227DCE3A70032987B /* Resources */,
+				38123F9B233F1A22097FBB51 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -182,8 +178,6 @@
 				CD0621A228A7FBD200272233 /* StemColor */,
 				CD0621A428A7FBD200272233 /* StemFilePath */,
 				CDA10DED28B4A90C000698F2 /* Delegate */,
-				CD786E3E28D5BD63009295F3 /* SectionKit */,
-				CD786E4028D5BD68009295F3 /* SectionUI */,
 			);
 			productName = Example;
 			productReference = CD33B80427DCE3A70032987B /* Example.app */;
@@ -240,6 +234,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		38123F9B233F1A22097FBB51 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Example/Pods-Example-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Example/Pods-Example-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Example/Pods-Example-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		6B47FDFAF92B41148D061797 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -553,14 +564,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
-		};
-		CD786E3E28D5BD63009295F3 /* SectionKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SectionKit;
-		};
-		CD786E4028D5BD68009295F3 /* SectionUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SectionUI;
 		};
 		CDA10DED28B4A90C000698F2 /* Delegate */ = {
 			isa = XCSwiftPackageProductDependency;

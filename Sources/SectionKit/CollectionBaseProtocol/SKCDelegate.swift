@@ -259,7 +259,6 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        debugPrint("==>  ", #function)
         guard let configuration = section(indexPath)?.contextMenu(row: indexPath.row, point: point) else {
             return nil
         }
@@ -282,7 +281,6 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
     func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        debugPrint("==>  ", #function)
         guard let configuration = contextMenuConfigurationStore[ObjectIdentifier(configuration)] else {
             return nil
         }
@@ -299,7 +297,6 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
     func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        debugPrint("==>  ", #function)
         guard let configuration = contextMenuConfigurationStore[ObjectIdentifier(configuration)] else {
             return nil
         }
@@ -340,7 +337,6 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
     
     @available(iOS 16.0, *)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        debugPrint("==>  ", #function)
         if indexPaths.count == 1, let indexPath = indexPaths.first {
             return section(indexPath)?.contextMenu(row: indexPath.row, point: point)
         } else {
@@ -364,7 +360,6 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      */
     @available(iOS 16.0, *)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
-        debugPrint("==>  ", #function)
         return section(indexPath)?.contextMenu(highlightPreview: configuration, row: indexPath.row)
     }
     
@@ -383,7 +378,6 @@ class SKCDelegate: NSObject, UICollectionViewDelegate {
      */
     @available(iOS 16.0, *)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, dismissalPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
-        debugPrint("==>  ", #function)
         return section(indexPath)?.contextMenu(dismissalPreview: configuration, row: indexPath.row)
     }
     

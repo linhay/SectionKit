@@ -72,17 +72,20 @@ public extension SKCSectionInjection {
     func delete(cell rows: [Int]) {
         sectionView?.deleteItems(at: rows.map({ IndexPath(row: $0, section: index) }))
     }
-
-    func reload(cell rows: Range<Int>) {
-        reload(cell: Array(rows))
+    
+    func reload(cell rows: [Int]) {
+        guard !rows.isEmpty else {
+            return
+        }
+        sectionView?.reloadItems(at: rows.map({ IndexPath(row: $0, section: index) }))
     }
     
     func reload(cell rows: Int...) {
         reload(cell: rows)
     }
     
-    func reload(cell rows: [Int]) {
-        sectionView?.reloadItems(at: rows.map({ IndexPath(row: $0, section: index) }))
+    func reload(cell rows: Range<Int>) {
+        reload(cell: Array(rows))
     }
     
     @discardableResult

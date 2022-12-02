@@ -174,8 +174,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public init(_ models: [Model] = []) {
         self.models = models
     }
-    public init(_ models: Model...) {
-        self.models = models
+    
+    public convenience init(_ models: Model...) {
+        self.init(models)
     }
     
     open func apply(_ models: [Model]) {
@@ -439,7 +440,44 @@ public extension SKCSingleTypeSection {
     
 }
 
+/// 指定更新
 public extension SKCSingleTypeSection {
+    
+    func refresh(_ model: Model) where Model: Equatable {
+        self.refresh([model])
+    }
+    
+    func refresh(_ models: [Model]) where Model: Equatable {
+        let indexs = models
+            .enumerated()
+            .compactMap({ models.contains($0.element) ? $0.offset : nil })
+        sectionInjection?.reload(cell: indexs)
+    }
+    
+    func refresh(_ model: Model) where Model: AnyObject {
+        self.refresh([model])
+    }
+    
+    func refresh(_ models: [Model]) where Model: AnyObject {
+        let indexs = models
+            .enumerated()
+            .compactMap { item in
+                models.contains(where: { $0 === item.element }) ? item.offset : nil
+            }
+        sectionInjection?.reload(cell: indexs)
+    }
+    
+    func refresh(at row: Int) {
+        sectionInjection?.reload(cell: row)
+    }
+    
+    func refresh(at row: [Int]) {
+        sectionInjection?.reload(cell: row)
+    }
+    
+}
+
+private extension SKCSingleTypeSection {
     
     func reload(_ model: Model) {
         self.models = [model]

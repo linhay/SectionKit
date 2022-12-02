@@ -156,7 +156,22 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     /// cell 对应的数据集
     public private(set) var models: [Model]
     
-    open lazy var sectionInset: UIEdgeInsets = .zero
+    /// 无数据时隐藏 footerView
+    open lazy var hiddenFooterWhenNoItem = true
+    /// 无数据时隐藏 headerView
+    open lazy var hiddenHeaderWhenNoItem = true
+    
+    private lazy var _sectionInset: UIEdgeInsets = .zero
+    open var sectionInset: UIEdgeInsets {
+        set { _sectionInset = newValue }
+        get {
+            if hiddenHeaderWhenNoItem, hiddenFooterWhenNoItem, models.isEmpty {
+                return .zero
+            } else {
+                return _sectionInset
+            }
+        }
+    }
     open lazy var minimumLineSpacing: CGFloat = .zero
     open lazy var minimumInteritemSpacing: CGFloat = .zero
     open var itemCount: Int { models.count }
@@ -231,6 +246,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     open var headerSize: CGSize {
+        if hiddenHeaderWhenNoItem, models.isEmpty {
+            return .zero
+        }
         guard let supplementary = supplementaries[.header] else {
             return .zero
         }
@@ -245,6 +263,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     open var footerSize: CGSize {
+        if hiddenFooterWhenNoItem, models.isEmpty {
+            return .zero
+        }
         guard let supplementary = supplementaries[.footer] else {
             return .zero
         }

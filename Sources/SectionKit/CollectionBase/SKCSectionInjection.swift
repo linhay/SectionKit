@@ -10,6 +10,22 @@ import Combine
 
 public class SKCSectionInjection {
     
+    public struct Configuration {
+        /// 转换类型
+        /// 将 reloadSection 操作替换为 reloadData 操作:
+        //        SKCSectionInjection.configuration.mapAction = { action in
+        //            if action == .reload {
+        //                return .reload
+        //            }
+        //            return action
+        //        }
+        var mapAction: (_ action: Action) -> Action = { $0 }
+        
+        mutating func setMapAction(_ block: @escaping (_ action: Action) -> Action) {
+            self.mapAction = block
+        }
+    }
+    
     public struct Action: OptionSet, Hashable {
         public let rawValue: Int
         public init(rawValue: Int) {
@@ -26,11 +42,12 @@ public class SKCSectionInjection {
         }
     }
     
+    public static var configuration = Configuration()
+    public var configuration = SKCSectionInjection.configuration
     public let index: Int
     public var sectionView: UICollectionView? { sectionViewProvider.sectionView }
     
     var sectionViewProvider: SectionViewProvider
-    
     private var events: [Action: (SKCSectionInjection) -> Void] = [:]
     
     init(index: Int, sectionView: SectionViewProvider) {
@@ -42,19 +59,24 @@ public class SKCSectionInjection {
 
 public extension SKCSectionInjection.Action {
     
-    static let reload = Self(rawValue: 1 << 1)
-    static let delete = Self(rawValue: 1 << 2)
+    static let reload     = Self(rawValue: 1 << 1)
+    static let delete     = Self(rawValue: 1 << 2)
+    static let reloadData = Self(rawValue: 1 << 3)
     
 }
 
 public extension SKCSectionInjection {
     
     func delete() {
-        events[.delete]?(self)
+        events[configuration.mapAction(.delete)]?(self)
     }
     
     func reload() {
-        events[.reload]?(self)
+        events[configuration.mapAction(.reload)]?(self)
+    }
+    
+    func reloadData() {
+        events[configuration.mapAction(.reloadData)]?(self)
     }
     
     func insert(cell rows: Int...) {
@@ -89,7 +111,7 @@ public extension SKCSectionInjection {
     }
     
     @discardableResult
-    func add(action: Action, event: @escaping (SKCSectionInjection) -> Void) -> Self {
+    func add(action: Action, event: @escaping (_ injection: SKCSectionInjection) -> Void) -> Self {
         self.events[action] = event
         return self
     }

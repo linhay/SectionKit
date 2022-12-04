@@ -102,6 +102,9 @@ public extension SKCManager {
         self.sections = sections.enumerated().map({ element in
             let section = element.element
             section.sectionInjection = .init(index: element.offset, sectionView: context)
+                .add(action: .reloadData, event: { injection in
+                    injection.sectionView?.reloadData()
+                })
                 .add(action: .reload, event: { injection in
                     injection.sectionView?.reloadSections(IndexSet(integer: injection.index))
                 })

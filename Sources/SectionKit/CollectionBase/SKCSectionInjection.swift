@@ -19,9 +19,9 @@ public class SKCSectionInjection {
         //            }
         //            return action
         //        }
-        var mapAction: (_ action: Action) -> Action = { $0 }
+       public var mapAction: (_ action: Action) -> Action = { $0 }
         
-        mutating func setMapAction(_ block: @escaping (_ action: Action) -> Action) {
+       public mutating func setMapAction(_ block: @escaping (_ action: Action) -> Action) {
             self.mapAction = block
         }
     }

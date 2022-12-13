@@ -390,11 +390,30 @@ public extension SKCSingleTypeSection {
             .map(\.row) ?? []
     }
     
+    func scroll(to row: Int?, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+        guard let row = row, let sectionView = sectionInjection?.sectionView else {
+            return
+        }
+        sectionView.scrollToItem(at: indexPath(from: row), at: scrollPosition, animated: animated)
+    }
+    
+    func scroll(toFirst model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) where Model: Equatable {
+        scroll(to: models.firstIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
+    }
+    
+    func scroll(toLast model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) where Model: Equatable {
+        scroll(to: models.lastIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
+    }
+    
     /// 获取指定 row 的 Cell
     /// - Parameter row: row
     /// - Returns: cell
     func cellForItem(at row: Int) -> Cell? {
         sectionView.cellForItem(at: indexPath(from: row)) as? Cell
+    }
+    
+    func cellForItem(at models: Model) -> [Cell] where Model: Equatable {
+        rows(with: models).compactMap(cellForItem(at:))
     }
     
     func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
@@ -469,10 +488,7 @@ public extension SKCSingleTypeSection {
     }
     
     func refresh(_ models: [Model]) where Model: Equatable {
-        let indexs = models
-            .enumerated()
-            .compactMap({ models.contains($0.element) ? $0.offset : nil })
-        sectionInjection?.reload(cell: indexs)
+        sectionInjection?.reload(cell: rows(with: models))
     }
     
     func refresh(_ model: Model) where Model: AnyObject {

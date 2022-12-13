@@ -9,9 +9,11 @@ import UIKit
 
 public class SKCRegistrationManager {
     
-    public lazy var sections: [SKCRegistrationSectionProtocol] = []
-    public lazy var sectionsStore: [Int: SKCRegistrationSectionProtocol] = [:]
-    
+    public private(set) lazy var sections: [SKCRegistrationSectionProtocol] = []
+    public private(set) lazy var sectionsStore: [Int: SKCRegistrationSectionProtocol] = [:]
+    public private(set) var sectionView: UICollectionView?
+    public var scrollObserver: SKScrollViewDelegate { delegate }
+
     /// difference 计算时, 新的数据将放入 waitSections 中等待下一次 difference 计算
     private var differenceLock = false
     private var waitSections: [SKCRegistrationSectionProtocol]?
@@ -37,9 +39,7 @@ public class SKCRegistrationManager {
     private lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
         self?.sections[section] as? SKCViewDataSourcePrefetchingProtocol
     }
-    
-    public weak var sectionView: UICollectionView?
-    
+        
     private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView)
     
     public init(sectionView: UICollectionView) {

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SKCDelegate: NSObject, UICollectionViewDelegate {
+class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
     
     struct ContextMenuConfiguration {
         var ID: ObjectIdentifier { ObjectIdentifier(configuration) }

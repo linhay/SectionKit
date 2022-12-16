@@ -12,11 +12,13 @@ public class SKCManager {
     public private(set) lazy var sections: [SKCBaseSectionProtocol] = []
     public private(set) weak var sectionView: UICollectionView?
     public var scrollObserver: SKScrollViewDelegate { delegate }
+    private lazy var endDisplaySections: [Int: SKCBaseSectionProtocol] = [:]
 
     private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
         self?.sections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
     } endDisplaySection: { [weak self] indexPath in
-        self?.sections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
+        guard let self = self else { return nil }
+        return self.endDisplaySections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
     } sections: { [weak self] in
         return self?.sections.lazy.compactMap({ $0 as? SKCViewDelegateFlowLayoutProtocol }) ?? []
     }
@@ -98,6 +100,13 @@ public extension SKCManager {
         
         context.sectionView = nil
         context = .init(sectionView)
+        
+        self.endDisplaySections.removeAll()
+        self.sections
+            .enumerated()
+            .forEach({ item in
+                self.endDisplaySections[item.offset] = item.element
+            })
         
         self.sections = sections.enumerated().map({ element in
             let section = element.element

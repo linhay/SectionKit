@@ -10,16 +10,19 @@ import SectionKit
 
 public extension SKCRegistrationSectionProtocol {
     
-    func horizontalWrapper(height: CGFloat,
-                           insets: UIEdgeInsets = .zero,
-                           style: ((SKCollectionView) -> Void)? = nil) -> SKCRegistrationSection {
+    func wrapperToHorizontalSectionViewCell(height: CGFloat,
+                                            insets: UIEdgeInsets = .zero,
+                                            style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCRegistrationSection {
         SKCRegistrationSection {
             SKCSectionViewCell
                 .registration(.init(section: .registration([self]),
                                     height: height,
                                     insets: insets,
                                     scrollDirection: .horizontal,
-                                    style: style))
+                                    style: { [weak self] sectionView in
+                    guard let self = self else { return }
+                    style?(sectionView, self)
+                }))
         }
     }
     
@@ -27,15 +30,18 @@ public extension SKCRegistrationSectionProtocol {
 
 public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SKCDelegateProtocol {
     
-    func horizontalWrapper(height: CGFloat,
-                           insets: UIEdgeInsets = .zero,
-                           style: ((SKCollectionView) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
+    func wrapperToHorizontalSectionViewCell(height: CGFloat,
+                                            insets: UIEdgeInsets = .zero,
+                                            style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
         SKCSectionViewCell
             .wrapperToSingleTypeSection([.init(section: .normal([self]),
                                                height: height,
                                                insets: insets,
                                                scrollDirection: .horizontal,
-                                               style: style)])
+                                               style: { [weak self] sectionView in
+                guard let self = self else { return }
+                style?(sectionView, self)
+            })])
         
     }
     
@@ -53,14 +59,14 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
         public let section: SectionType
         public let height: CGFloat
         public let insets: UIEdgeInsets
-        public let style: ((SKCollectionView) -> Void)?
+        public let style: ((_ sectionView: SKCollectionView) -> Void)?
         public let scrollDirection: UICollectionView.ScrollDirection
         
         public init(section: SectionType,
                     height: CGFloat,
                     insets: UIEdgeInsets = .zero,
                     scrollDirection: UICollectionView.ScrollDirection,
-                    style: ((SKCollectionView) -> Void)? = nil) {
+                    style: ((_ sectionView: SKCollectionView) -> Void)? = nil) {
             self.section = section
             self.height = height
             self.insets = insets

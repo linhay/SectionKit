@@ -134,11 +134,15 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     public class Pulishers {
+        
+        /// models 变更订阅
+        public private(set) lazy var modelsPulisher = modelsSubject.eraseToAnyPublisher()
         /// cell 事件订阅, 事件类型参照 `CellActionType`
         public private(set) lazy var cellActionPulisher = cellActionSubject.eraseToAnyPublisher()
         /// supplementary 事件订阅, 事件类型参照 `SupplementaryActionType`
         public private(set) lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
         
+        fileprivate lazy var modelsSubject = CurrentValueSubject<[Model], Never>([])
         fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionContext, Never>()
         fileprivate lazy var supplementaryActionSubject = PassthroughSubject<SupplementaryActionContext, Never>()
     }
@@ -154,7 +158,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     /// cell 对应的数据集
-    public private(set) var models: [Model]
+    public private(set) var models: [Model] {
+        set { pulishers.modelsSubject.send(newValue) }
+        get { pulishers.modelsSubject.value }
+    }
     
     /// 无数据时隐藏 footerView
     open lazy var hiddenFooterWhenNoItem = true
@@ -546,8 +553,7 @@ public extension SKCSingleTypeSection {
 private extension SKCSingleTypeSection {
     
     func reload(_ model: Model) {
-        self.models = [model]
-        sectionInjection?.reload()
+        reload([model])
     }
     
     func reload(_ models: [Model]) {
@@ -729,8 +735,7 @@ public extension SKCSingleTypeSection {
     
     @discardableResult
     func setCellStyle(_ item: @escaping CellStyleBlock) -> Self {
-        cellStyles.append(.init(value: item))
-        return self
+        return setCellStyle(.init(value: item))
     }
     
     @discardableResult

@@ -6,29 +6,20 @@
 //
 
 import Foundation
+import Combine
 
 public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: Hashable> {
     
-    /// 是否需要支持反选操作 | default: false
-    public var needInvert: Bool
     /// 是否保证选中在当前序列中是否唯一 | default: true
     public var isUnique: Bool
     
-    private var store: [ID: Element]
+    private var store: [ID: Element] = [:]
+    private var selectedStore: [ID: AnyCancellable] = [:]
     
-    public init(store: [ID: Element] = [:],
-                isUnique: Bool = true,
-                needInvert: Bool = false) {
-        self.store = store
+    public init(list: [Element] = [],
+                id: KeyPath<Element, ID>,
+                isUnique: Bool = true) {
         self.isUnique = isUnique
-        self.needInvert = needInvert
-    }
-    
-    public convenience init(list: [Element],
-                            id: KeyPath<Element, ID>,
-                            isUnique: Bool = true,
-                            needInvert: Bool = false) {
-        self.init(store: [:], isUnique: isUnique, needInvert: needInvert)
         list.forEach { element in
             update(element, by: id)
         }
@@ -40,10 +31,19 @@ public extension SKSelectionIdentifiableSequence {
     
     func update(_ element: Element, by id: ID) {
         store[id] = element
+        if isUnique {
+            observe(element, by: id)
+        }
     }
     
     func update(_ element: Element, by keyPath: KeyPath<Element, ID>) {
-       update(element, by: element[keyPath: keyPath])
+        update(element, by: element[keyPath: keyPath])
+    }
+    
+    func update(_ elements: [Element], by keyPath: KeyPath<Element, ID>) {
+        for element in elements {
+            update(element, by: keyPath)
+        }
     }
     
     func remove(id: ID) {
@@ -59,18 +59,38 @@ public extension SKSelectionIdentifiableSequence {
     }
     
     func select(id: ID) {
-        
-        if isUnique {
-            store.map(\.value).forEach { element in
+        maintainUniqueIfNeed(exclude: id)
+        store[id]?.isSelected = true
+    }
+    
+}
+
+private extension SKSelectionIdentifiableSequence {
+    
+    func observe(_ element: Element?, by id: ID) {
+        selectedStore[id] = element?
+            .selectedPublisher
+            .filter({ $0 })
+            .sink(receiveValue: { [weak self] flag in
+                guard let self = self else { return }
+                self.maintainUniqueIfNeed(exclude: id)
+            })
+    }
+    
+    func maintainUniqueIfNeed(exclude id: ID) {
+        guard isUnique,
+              let exclude = store[id],
+              exclude.isSelected else {
+            return
+        }
+
+        store
+            .filter({ $0.key != id })
+            .map(\.value)
+            .filter(\.isSelected)
+            .forEach { element in
                 element.isSelected = false
             }
-        }
-        
-        if needInvert {
-            store[id]?.isSelected.toggle()
-        } else {
-            store[id]?.isSelected = true
-        }
     }
     
 }

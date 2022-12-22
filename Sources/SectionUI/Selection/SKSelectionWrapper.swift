@@ -25,8 +25,9 @@ import Foundation
 @frozen
 @propertyWrapper
 @dynamicMemberLookup
-public struct SKSelectionWrapper<WrappedValue>: SKSelectionProtocol {
+public struct SKSelectionWrapper<WrappedValue>: SKSelectionProtocol, Identifiable, Equatable, Hashable {
     
+    public var id: UUID = .init()
     public var selection: SKSelectionState
     public var wrappedValue: WrappedValue
     
@@ -48,14 +49,12 @@ public struct SKSelectionWrapper<WrappedValue>: SKSelectionProtocol {
     public subscript<T>(dynamicMember keyPath: KeyPath<WrappedValue, T>) -> T {
         wrappedValue[keyPath: keyPath]
     }
-}
-
-extension SKSelectionWrapper: Equatable where WrappedValue: Equatable {
+    
     public static func == (lhs: SKSelectionWrapper<WrappedValue>, rhs: SKSelectionWrapper<WrappedValue>) -> Bool {
-        return lhs.wrappedValue == rhs.wrappedValue
+        lhs.id == rhs.id
     }
-}
-
-extension SKSelectionWrapper: Identifiable where WrappedValue: Identifiable {
-    public var id: WrappedValue.ID { wrappedValue.id }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }

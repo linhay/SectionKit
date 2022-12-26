@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		94E7A927DF29070D1B13BAF8 /* Pods_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B5BFD08AB287F8F177FD048 /* Pods_Example.framework */; };
 		CD0621A128A7FBD200272233 /* Stem in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A028A7FBD200272233 /* Stem */; };
 		CD0621A328A7FBD200272233 /* StemColor in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A228A7FBD200272233 /* StemColor */; };
 		CD0621A528A7FBD200272233 /* StemFilePath in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A428A7FBD200272233 /* StemFilePath */; };
@@ -26,6 +25,8 @@
 		CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */; };
 		CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */ = {isa = PBXBuildFile; productRef = CDA10DED28B4A90C000698F2 /* Delegate */; };
 		CDC122F428D45AB8003790E3 /* CustomSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC122F328D45AB8003790E3 /* CustomSection.swift */; };
+		CDC42B822959ACE000AEF423 /* SectionKit in Frameworks */ = {isa = PBXBuildFile; productRef = CDC42B812959ACE000AEF423 /* SectionKit */; };
+		CDC42B842959ACE500AEF423 /* SectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = CDC42B832959ACE500AEF423 /* SectionUI */; };
 		CDDD973828AD1EA3001942B0 /* StringRawCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDD973728AD1EA3001942B0 /* StringRawCell.swift */; };
 		CDDD973A28AD1ED6001942B0 /* StringCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDD973928AD1ED6001942B0 /* StringCell.swift */; };
 /* End PBXBuildFile section */
@@ -50,6 +51,7 @@
 		CD5A7AEF2823BF1D00337098 /* ReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReusableView.swift; sourceTree = "<group>"; };
 		CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSectionViewController.swift; sourceTree = "<group>"; };
 		CDC122F328D45AB8003790E3 /* CustomSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSection.swift; sourceTree = "<group>"; };
+		CDC42B7D2959ACDC00AEF423 /* SectionUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SectionUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDDD973728AD1EA3001942B0 /* StringRawCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringRawCell.swift; sourceTree = "<group>"; };
 		CDDD973928AD1ED6001942B0 /* StringCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -59,12 +61,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CDC42B842959ACE500AEF423 /* SectionUI in Frameworks */,
 				CD0621A328A7FBD200272233 /* StemColor in Frameworks */,
 				CD0621A128A7FBD200272233 /* Stem in Frameworks */,
+				CDC42B822959ACE000AEF423 /* SectionKit in Frameworks */,
 				CD0621A528A7FBD200272233 /* StemFilePath in Frameworks */,
 				CD33B82627DCE6190032987B /* SnapKit in Frameworks */,
 				CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */,
-				94E7A927DF29070D1B13BAF8 /* Pods_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +77,7 @@
 		02182783C956AFB21FE7AAF3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CDC42B7D2959ACDC00AEF423 /* SectionUI.framework */,
 				5B5BFD08AB287F8F177FD048 /* Pods_Example.framework */,
 			);
 			name = Frameworks;
@@ -178,6 +182,8 @@
 				CD0621A228A7FBD200272233 /* StemColor */,
 				CD0621A428A7FBD200272233 /* StemFilePath */,
 				CDA10DED28B4A90C000698F2 /* Delegate */,
+				CDC42B812959ACE000AEF423 /* SectionKit */,
+				CDC42B832959ACE500AEF423 /* SectionUI */,
 			);
 			productName = Example;
 			productReference = CD33B80427DCE3A70032987B /* Example.app */;
@@ -209,7 +215,7 @@
 			mainGroup = CD33B7FB27DCE3A70032987B;
 			packageReferences = (
 				CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */,
-				CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */,
+				CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */,
 				CDA10DEC28B4A90C000698F2 /* XCRemoteSwiftPackageReference "Delegate" */,
 			);
 			productRefGroup = CD33B80527DCE3A70032987B /* Products */;
@@ -518,7 +524,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */ = {
+		CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/linhay/Stem.git";
 			requirement = {
@@ -547,17 +553,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		CD0621A028A7FBD200272233 /* Stem */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */;
+			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
 			productName = Stem;
 		};
 		CD0621A228A7FBD200272233 /* StemColor */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */;
+			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
 			productName = StemColor;
 		};
 		CD0621A428A7FBD200272233 /* StemFilePath */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */;
+			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
 			productName = StemFilePath;
 		};
 		CD33B82527DCE6190032987B /* SnapKit */ = {
@@ -569,6 +575,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CDA10DEC28B4A90C000698F2 /* XCRemoteSwiftPackageReference "Delegate" */;
 			productName = Delegate;
+		};
+		CDC42B812959ACE000AEF423 /* SectionKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SectionKit;
+		};
+		CDC42B832959ACE500AEF423 /* SectionUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SectionUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

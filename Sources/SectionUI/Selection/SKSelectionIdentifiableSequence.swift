@@ -15,7 +15,7 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
     public private(set) lazy var itemChangedPublisher = itemChangedSubject.eraseToAnyPublisher()
     
     private let itemChangedSubject = PassthroughSubject<[ID: Element], Never>()
-    private var store: [ID: Element] = [:]
+    public private(set) var store: [ID: Element] = [:]
     private var selectedStore: [ID: AnyCancellable] = [:]
     private var isObserving: Bool = true
     

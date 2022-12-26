@@ -168,17 +168,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     /// 无数据时隐藏 headerView
     open lazy var hiddenHeaderWhenNoItem = true
     
-    private lazy var _sectionInset: UIEdgeInsets = .zero
-    open var sectionInset: UIEdgeInsets {
-        set { _sectionInset = newValue }
-        get {
-            if hiddenHeaderWhenNoItem, hiddenFooterWhenNoItem, models.isEmpty {
-                return .zero
-            } else {
-                return _sectionInset
-            }
-        }
-    }
+    open lazy var sectionInset: UIEdgeInsets = .zero
     open lazy var minimumLineSpacing: CGFloat = .zero
     open lazy var minimumInteritemSpacing: CGFloat = .zero
     open var itemCount: Int { models.count }

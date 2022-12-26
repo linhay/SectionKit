@@ -31,7 +31,7 @@ final class SelectionTest: XCTestCase {
     
     func testIdentifiableSequence() throws {
         let elements = [1,1,2,2,3,3].map { SKSelectionWrapper($0) }
-        let sequence = SKSelectionIdentifiableSequence(list: elements, id: \.wrappedValue)
+        let sequence = SKSelectionIdentifiableSequence(items: elements, id: \.wrappedValue)
         sequence.select(id: 1)
         sequence.deselect(id: 1)
         sequence.update(.init(4), by: \.wrappedValue)

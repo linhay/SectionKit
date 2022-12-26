@@ -16,6 +16,7 @@ class SingleTypeViewController: SKCollectionViewController {
         case reload
         case reset
         case add
+        case add_section
         case delete
         case delete_model = "delete.model"
         case insert
@@ -27,6 +28,7 @@ class SingleTypeViewController: SKCollectionViewController {
         case removeFooter
     }
     
+    let sectionController = SectionViewController()
     let leftController = LeftViewController()
     let rightController = RightViewController()
     
@@ -38,23 +40,44 @@ class SingleTypeViewController: SKCollectionViewController {
     
     func bindUI() {
         leftController.section
-            .onCellAction(.selected) { [weak self] result in
+            .onCellAction(.selected) { [weak self] context in
                 guard let self = self else { return }
-                self.rightController.send(result.model)
+                self.rightController.send(context.model)
             }
+        
+        sectionController.section.onCellAction(.selected) { [weak self] context in
+            guard let self = self else { return }
+            context.view().backgroundColor = StemColor.random.convert()
+            switch context.model {
+            case .section_0:
+                self.rightController.section = self.rightController.section0
+            case .section_1:
+                self.rightController.section = self.rightController.section1
+            case .section_2:
+                self.rightController.section = self.rightController.section2
+            }
+        }
     }
     
     func setupUI() {
+        addChild(sectionController)
         addChild(leftController)
         addChild(rightController)
+        view.addSubview(sectionController.view)
         view.addSubview(leftController.view)
         view.addSubview(rightController.view)
+        sectionController.view.snp.makeConstraints { make in
+            make.top.left.right.equalTo(view.safeAreaLayoutGuide)
+            make.height.equalTo(50)
+        }
         leftController.view.snp.makeConstraints { make in
-            make.top.bottom.left.equalToSuperview()
+            make.top.equalTo(sectionController.view.snp.bottom)
+            make.bottom.left.equalToSuperview()
             make.width.equalTo(128)
         }
         rightController.view.snp.makeConstraints { make in
-            make.top.bottom.right.equalToSuperview()
+            make.top.equalTo(sectionController.view.snp.bottom)
+            make.bottom.right.equalToSuperview()
             make.left.equalTo(leftController.view.snp.right)
         }
     }
@@ -85,14 +108,45 @@ extension SingleTypeViewController {
 
 extension SingleTypeViewController {
     
+    class SectionViewController: SKCollectionViewController {
+        
+        enum Section: String, CaseIterable {
+            case section_0
+            case section_1
+            case section_2
+        }
+        
+        lazy var section = StringRawCell
+            .wrapperToSingleTypeSection(Section.allCases)
+            
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            setupUI()
+        }
+        
+        func setupUI() {
+            sectionView.scrollDirection = .horizontal
+            section.minimumInteritemSpacing = 8
+            manager.reload([section])
+        }
+        
+    }
+    
+}
+
+extension SingleTypeViewController {
+    
     class RightViewController: SKCollectionViewController {
         let size = CGSize(width: 60, height: 60)
         
-        lazy var defaultModels = (0 ... 10).map { offset in
+        lazy var defaultModels = (0 ... 5).map { offset in
             ColorBlockCell.Model(color: .white, text: offset.description, size: size)
         }
         
-        lazy var section = SKCSingleTypeSection<ColorBlockCell>(defaultModels)
+        lazy var section0 = SKCSingleTypeSection<ColorBlockCell>(defaultModels)
+        lazy var section1 = SKCSingleTypeSection<ColorBlockCell>(defaultModels)
+        lazy var section2 = SKCSingleTypeSection<ColorBlockCell>(defaultModels)
+        lazy var section = section0
         
         var isAnimating = false
         
@@ -112,16 +166,19 @@ extension SingleTypeViewController {
                 section.selectItem(at: (0..<section.itemCount).randomElement()!)
             case .reset:
                 section.config(models: defaultModels)
+            case .add_section:
+                manager.reload([section2, section])
             case .add:
                 section.append(.init(color: StemColor.random.alpha(with: 0.4).convert(),
                                      text: "\(section.models.count) New",
                                      size: size))
             case .insert:
-                let offset = (0..<section.itemCount).randomElement()!
-                section.insert(at: offset,
-                               .init(color: StemColor.random.alpha(with: 0.4).convert(),
-                                     text: "\(offset) New",
-                                     size: size))
+                if let offset = (0..<section.itemCount).randomElement() {
+                    section.insert(at: offset,
+                                   .init(color: StemColor.random.alpha(with: 0.4).convert(),
+                                         text: "\(offset) New",
+                                         size: size))
+                }
             case .delete_model:
                 guard let model = section.models.randomElement() else {
                     return
@@ -193,7 +250,7 @@ extension SingleTypeViewController {
         func setupUI() {
             section.sectionInset = .init(top: 20, left: 8, bottom: 0, right: 8)
             section.minimumLineSpacing = 2
-            manager.reload(section)
+            manager.reload([section0, section1, section2])
         }
     }
 }

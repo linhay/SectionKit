@@ -7,6 +7,7 @@
 
 import Foundation
 import SectionKit
+import UIKit
 
 public extension SKCollectionFlowLayout.BindingKey where Value == Int {
     
@@ -22,12 +23,12 @@ public extension SKCollectionFlowLayout.BindingKey where Value == Int {
 }
 
 public extension SKCollectionFlowLayout.Decoration {
- 
-    public init(_ section: SKCSectionActionProtocol,
-                viewType: SKCollectionFlowLayout.DecorationView.Type,
-                zIndex: Int = -1,
-                layout: [SKCollectionFlowLayout.DecorationLayout] = [.header, .cells, .footer],
-                insets: UIEdgeInsets = .zero) {
+    
+    init(_ section: SKCSectionActionProtocol,
+         viewType: SKCollectionFlowLayout.DecorationView.Type,
+         zIndex: Int = -1,
+         layout: [SKCollectionFlowLayout.DecorationLayout] = [.header, .cells, .footer],
+         insets: UIEdgeInsets = .zero) {
         self.init(sectionIndex: .init(section),
                   viewType: viewType,
                   zIndex: zIndex,

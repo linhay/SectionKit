@@ -20,6 +20,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias CellActionBlock  = (_ context: CellActionContext) -> Void
     public typealias CellStyleBlock   = (_ context: CellStyleContext) -> Void
     
+    public enum LifeCycleKind {
+        case loadedToSectionView(UICollectionView)
+    }
+    
     public enum CellActionType: Int, Hashable {
         /// 选中
         case selected
@@ -41,10 +45,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public struct ContextMenuContext {
         
         public let section: SKCSingleTypeSection<Cell>
-        public let model: Cell.Model?
+        public let model: Cell.Model
         public let row: Int?
         
-        init(section: SKCSingleTypeSection<Cell>, model: Cell.Model?, row: Int?) {
+        init(section: SKCSingleTypeSection<Cell>, model: Cell.Model, row: Int?) {
             self.section = section
             self.model = model
             self.row = row
@@ -54,9 +58,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public struct ContextMenuResult {
         
-        let configuration: UIContextMenuConfiguration
-        let highlightPreview: UITargetedPreview?
-        let dismissalPreview: UITargetedPreview?
+        public var configuration: UIContextMenuConfiguration
+        public var highlightPreview: UITargetedPreview?
+        public var dismissalPreview: UITargetedPreview?
         
         public init(configuration: UIContextMenuConfiguration,
                     highlightPreview: UITargetedPreview? = nil,
@@ -65,6 +69,13 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             self.highlightPreview = highlightPreview
             self.dismissalPreview = dismissalPreview
         }
+        
+        public init(actions: [UIAction]) {
+            self.init(configuration: .init(actionProvider: { suggest in
+                return UIMenu(children: actions)
+            }))
+        }
+        
     }
     
     public struct CellActionContext {
@@ -83,7 +94,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             return cell
         }
         
-        fileprivate init(section: SKCSingleTypeSection<Cell>, type: CellActionType, model: Cell.Model, row: Int, _view: Cell?) {
+        fileprivate init(section: SKCSingleTypeSection<Cell>,
+                         type: CellActionType,
+                         model: Cell.Model, row: Int,
+                         _view: Cell?) {
             self.section = section
             self.type = type
             self.model = model
@@ -141,8 +155,11 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         public private(set) lazy var cellActionPulisher = cellActionSubject.eraseToAnyPublisher()
         /// supplementary 事件订阅, 事件类型参照 `SupplementaryActionType`
         public private(set) lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
+        /// section 生命周期监听
+        public private(set) lazy var lifeCyclePulisher = lifeCycleSubject.eraseToAnyPublisher()
         
         fileprivate lazy var modelsSubject = CurrentValueSubject<[Model], Never>([])
+        fileprivate lazy var lifeCycleSubject = PassthroughSubject<LifeCycleKind, Never>()
         fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionContext, Never>()
         fileprivate lazy var supplementaryActionSubject = PassthroughSubject<SupplementaryActionContext, Never>()
     }
@@ -207,6 +224,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         loadedTasks.forEach { task in
             task(self)
         }
+        pulishers.lifeCycleSubject.send(.loadedToSectionView(sectionView))
     }
     
     open func item(at row: Int) -> UICollectionViewCell {
@@ -333,7 +351,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         self.prefetch.cancelPrefetching.send(rows)
     }
     
-    public func contextMenu(row: Int?, point: CGPoint) -> UIContextMenuConfiguration? {
+    public func contextMenu(row: Int, point: CGPoint) -> UIContextMenuConfiguration? {
         return contextMenu(row: row)?.configuration
     }
     
@@ -362,36 +380,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
 
 public extension SKCSingleTypeSection {
     
-    /// 获取被选中的 cell 集合
-    var indexForSelectedItems: [Int] {
-        (sectionInjection?.sectionView?.indexPathsForSelectedItems ?? [])
-            .filter { $0.section == sectionIndex }
-            .map(\.row)
-    }
-    
     /// 获取可见的 cell 集合
     var visibleCells: [Cell] {
-        let indexs = indexsForVisibleItems
-        guard !indexs.isEmpty else {
-            return []
-        }
-        return indexs.compactMap(cellForItem(at:))
-    }
-    
-    /// 获取可见的 cell 的 row 集合
-    var indexsForVisibleItems: [Int] {
-        sectionInjection?
-            .sectionView?
-            .indexPathsForVisibleItems
-            .filter { $0.section == sectionIndex }
-            .map(\.row) ?? []
-    }
-    
-    func scroll(to row: Int?, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
-        guard let row = row, let sectionView = sectionInjection?.sectionView else {
-            return
-        }
-        sectionView.scrollToItem(at: indexPath(from: row), at: scrollPosition, animated: animated)
+        return indexsForVisibleItems.compactMap(cellForItem(at:))
     }
     
     func scroll(toFirst model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) where Model: Equatable {
@@ -411,20 +402,6 @@ public extension SKCSingleTypeSection {
     
     func cellForItem(at models: Model) -> [Cell] where Model: Equatable {
         rows(with: models).compactMap(cellForItem(at:))
-    }
-    
-    func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
-        sectionInjection?
-            .sectionView?
-            .visibleSupplementaryViews(ofKind: kind.rawValue) ?? []
-    }
-    
-    func indexsForVisibleSupplementaryViews(of kind: SKSupplementaryKind) -> [Int] {
-        sectionInjection?
-            .sectionView?
-            .indexPathsForVisibleSupplementaryElements(ofKind: kind.rawValue)
-            .filter { $0.section == sectionIndex }
-            .map(\.row) ?? []
     }
     
 }
@@ -802,9 +779,8 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
-    func contextMenu(row: Int?) -> ContextMenuResult? {
-        var model: Model?
-        if let row = row { model = models[row] }
+    func contextMenu(row: Int) -> ContextMenuResult? {
+        let model = models[row]
         let context = ContextMenuContext(section: self, model: model, row: row)
         for cellContextMenu in cellContextMenus {
             if let result = cellContextMenu(context) {

@@ -95,7 +95,7 @@ public protocol SKCDelegateProtocol {
      */
     func item(didBeginMultipleSelectionInteraction row: Int)
 
-    func contextMenu(row: Int?, point: CGPoint) -> UIContextMenuConfiguration?
+    func contextMenu(row: Int, point: CGPoint) -> UIContextMenuConfiguration?
     func contextMenu(highlightPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview?
     func contextMenu(dismissalPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview?
 
@@ -111,7 +111,7 @@ public protocol SKCDelegateProtocol {
 
 public extension SKCDelegateProtocol {
 
-    func contextMenu(row: Int?, point: CGPoint) -> UIContextMenuConfiguration? { nil }
+    func contextMenu(row: Int, point: CGPoint) -> UIContextMenuConfiguration? { nil }
     func contextMenu(highlightPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview? { nil }
     func contextMenu(dismissalPreview configuration: UIContextMenuConfiguration, row: Int) -> UITargetedPreview? { nil }
     

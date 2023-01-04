@@ -35,6 +35,59 @@ public extension SKCSectionActionProtocol {
         sectionInjection?.reload()
     }
     
+    /// 获取被选中的 cell 集合
+    var indexForSelectedItems: [Int] {
+        (sectionInjection?.sectionView?.indexPathsForSelectedItems ?? [])
+            .filter { $0.section == sectionInjection?.index }
+            .map(\.row)
+    }
+    
+    /// 获取可见的 cell 的 row 集合
+    var indexsForVisibleItems: [Int] {
+        sectionInjection?
+            .sectionView?
+            .indexPathsForVisibleItems
+            .filter { $0.section == sectionInjection?.index }
+            .map(\.row) ?? []
+    }
+    
+    /// 获取可见的 cell 集合
+    var visibleCells: [UICollectionViewCell] {
+        let indexs = indexsForVisibleItems
+        guard !indexs.isEmpty else {
+            return []
+        }
+        return indexs.compactMap(cellForItem(at:))
+    }
+    
+    /// 获取指定 row 的 Cell
+    /// - Parameter row: row
+    /// - Returns: cell
+    func cellForItem(at row: Int) -> UICollectionViewCell? {
+        sectionView.cellForItem(at: indexPath(from: row))
+    }
+    
+    func scroll(to row: Int?, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+        guard let row = row, let sectionView = sectionInjection?.sectionView else {
+            return
+        }
+        sectionView.scrollToItem(at: indexPath(from: row), at: scrollPosition, animated: animated)
+    }
+    
+    func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
+        sectionInjection?
+            .sectionView?
+            .visibleSupplementaryViews(ofKind: kind.rawValue) ?? []
+    }
+    
+    func indexsForVisibleSupplementaryViews(of kind: SKSupplementaryKind) -> [Int] {
+        sectionInjection?
+            .sectionView?
+            .indexPathsForVisibleSupplementaryElements(ofKind: kind.rawValue)
+            .filter { $0.section == sectionInjection?.index }
+            .map(\.row) ?? []
+    }
+    
 }
 
 public extension SKCSectionActionProtocol {

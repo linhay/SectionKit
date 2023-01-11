@@ -6,25 +6,27 @@
 //
 
 import UIKit
+import Combine
 
-class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourcePrefetching {
+public class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourcePrefetching {
+
+    public private(set) lazy var prefetchPublisher = prefetch.eraseToAnyPublisher()
+    public private(set) lazy var cancelPrefetchingPublisher = cancelPrefetching.eraseToAnyPublisher()
     
-    var _section: (_ index: Int) -> SKCViewDataSourcePrefetchingProtocol?
-    
-    private func section(_ index: Int) -> SKCViewDataSourcePrefetchingProtocol? {
-        return _section(index)
-    }
-    
+    private var prefetch = PassthroughSubject<[IndexPath], Never>()
+    private var cancelPrefetching = PassthroughSubject<[IndexPath], Never>()
+    private var section: (_ index: Int) -> SKCViewDataSourcePrefetchingProtocol?
+
     init(section: @escaping (_ indexPath: Int) -> SKCViewDataSourcePrefetchingProtocol?) {
-        self._section = section
+        self.section = section
         super.init()
     }
     
-    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+    public func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         prefetch(at: indexPaths)
     }
     
-    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
+    public func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
         cancelPrefetch(at: indexPaths)
     }
     
@@ -33,33 +35,32 @@ class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourcePrefetch
 private extension SKCViewDataSourcePrefetching {
     
     func prefetch(at indexPaths: [IndexPath]) {
-        indexPaths.reduce([Int: [Int]]()) { result, indexPath in
-            var result = result
-            if let list = result[indexPath.section] {
-                result[indexPath.section] = list + [indexPath.row]
+        prefetch.send(indexPaths)
+        var store = [Int: [Int]]()
+        for indexPath in indexPaths {
+            if store[indexPath.section] == nil {
+                store[indexPath.section] = [indexPath.row]
             } else {
-                result[indexPath.section] = [indexPath.row]
+                store[indexPath.section]?.append(indexPath.row)
             }
-            
-            return result
-        }.forEach { result in
-            section(result.key)?.prefetch(at: result.value)
+        }
+        for (key, value) in store {
+            section(key)?.prefetch(at: value)
         }
     }
     
     func cancelPrefetch(at indexPaths: [IndexPath]) {
-        indexPaths.reduce([Int: [Int]]()) { result, indexPath in
-            var result = result
-            
-            if let list = result[indexPath.section] {
-                result[indexPath.section] = list + [indexPath.row]
+        cancelPrefetching.send(indexPaths)
+        var store = [Int: [Int]]()
+        for indexPath in indexPaths {
+            if store[indexPath.section] == nil {
+                store[indexPath.section] = [indexPath.row]
             } else {
-                result[indexPath.section] = [indexPath.row]
+                store[indexPath.section]?.append(indexPath.row)
             }
-            
-            return result
-        }.forEach { result in
-            section(result.key)?.cancelPrefetching(at: result.value)
+        }
+        for (key, value) in store {
+            section(key)?.cancelPrefetching(at: value)
         }
     }
     

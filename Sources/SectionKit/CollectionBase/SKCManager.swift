@@ -11,9 +11,13 @@ public class SKCManager {
     
     public private(set) lazy var sections: [SKCBaseSectionProtocol] = []
     public private(set) weak var sectionView: UICollectionView?
+    
     public var scrollObserver: SKScrollViewDelegate { delegate }
+    public private(set) lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
+        self?.sections[section] as? SKCViewDataSourcePrefetchingProtocol
+    }
+    
     private lazy var endDisplaySections: [Int: SKCBaseSectionProtocol] = [:]
-
     private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
         self?.sections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
     } endDisplaySection: { [weak self] indexPath in
@@ -27,10 +31,6 @@ public class SKCManager {
         self?.sections[indexPath.section]
     } sections: { [weak self] in
         self?.sections ?? []
-    }
-    
-    private lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
-        self?.sections[section] as? SKCViewDataSourcePrefetchingProtocol
     }
         
     private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView)

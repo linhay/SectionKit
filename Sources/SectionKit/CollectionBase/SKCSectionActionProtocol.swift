@@ -92,6 +92,22 @@ public extension SKCSectionActionProtocol {
 
 public extension SKCSectionActionProtocol {
     
+    func layoutAttributesForItem(at row: Int) -> UICollectionViewLayoutAttributes? {
+        sectionInjection?.sectionView?.collectionViewLayout.layoutAttributesForItem(at: indexPath(from: row))
+    }
+
+    func layoutAttributesForSupplementaryView(ofKind kind: SKSupplementaryKind, at row: Int) -> UICollectionViewLayoutAttributes? {
+        sectionInjection?.sectionView?.collectionViewLayout.layoutAttributesForSupplementaryView(ofKind: kind.rawValue, at: indexPath(from: row))
+    }
+
+    func layoutAttributesForDecorationView(ofKind kind: SKSupplementaryKind, at row: Int) -> UICollectionViewLayoutAttributes? {
+        sectionInjection?.sectionView?.collectionViewLayout.layoutAttributesForDecorationView(ofKind: kind.rawValue, at: indexPath(from: row))
+    }
+    
+}
+
+public extension SKCSectionActionProtocol {
+    
     func indexPath(from value: Int) -> IndexPath {
         guard let injection = sectionInjection else {
             assertionFailure()

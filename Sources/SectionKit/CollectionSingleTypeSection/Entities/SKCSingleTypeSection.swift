@@ -387,14 +387,6 @@ public extension SKCSingleTypeSection {
         return indexsForVisibleItems.compactMap(cellForItem(at:))
     }
     
-    func scroll(toFirst model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) where Model: Equatable {
-        scroll(to: models.firstIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
-    }
-    
-    func scroll(toLast model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) where Model: Equatable {
-        scroll(to: models.lastIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
-    }
-    
     /// 获取指定 row 的 Cell
     /// - Parameter row: row
     /// - Returns: cell
@@ -402,8 +394,52 @@ public extension SKCSingleTypeSection {
         sectionView.cellForItem(at: indexPath(from: row)) as? Cell
     }
     
-    func cellForItem(at models: Model) -> [Cell] where Model: Equatable {
+}
+
+public extension SKCSingleTypeSection where Model: Equatable {
+    
+    func scroll(toFirst model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+        scroll(to: models.firstIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
+    }
+    
+    func scroll(toLast model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+        scroll(to: models.lastIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
+    }
+    
+    func layoutAttributesForItem(of model: Model) -> [UICollectionViewLayoutAttributes] {
+        rows(with: model).compactMap(layoutAttributesForItem(at:))
+    }
+    
+    func firstLayoutAttributesForItem(of model: Model) -> UICollectionViewLayoutAttributes? {
+        guard let row = firstRow(of: model) else {
+            return nil
+        }
+        return layoutAttributesForItem(at: row)
+    }
+    
+    func lastLayoutAttributesForItem(of model: Model) -> UICollectionViewLayoutAttributes? {
+        guard let row = lastRow(of: model) else {
+            return nil
+        }
+        return layoutAttributesForItem(at: row)
+    }
+    
+    func cellForItem(of models: Model) -> [Cell] {
         rows(with: models).compactMap(cellForItem(at:))
+    }
+    
+    func firstCellForItem(of model: Model) -> Cell? {
+        guard let row = firstRow(of: model) else {
+            return nil
+        }
+        return cellForItem(at: row)
+    }
+    
+    func lastCellForItem(of model: Model) -> Cell? {
+        guard let row = lastRow(of: model) else {
+            return nil
+        }
+        return cellForItem(at: row)
     }
     
 }
@@ -643,8 +679,19 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
+    func firstRow(of item: Model) -> Int? where Model: Equatable {
+        self.models.firstIndex(of: item)
+    }
+    
+    func lastRow(of item: Model) -> Int? where Model: Equatable {
+        self.models.lastIndex(of: item)
+    }
+    
     func rows(with item: Model) -> [Int] where Model: Equatable {
-        rows(with: [item])
+        self.models
+            .enumerated()
+            .filter { $0.element == item }
+            .map(\.offset)
     }
     
     func rows(with items: [Model]) -> [Int] where Model: Equatable  {

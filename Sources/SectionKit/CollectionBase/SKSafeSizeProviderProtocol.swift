@@ -53,7 +53,11 @@ public extension SKCViewDelegateFlowLayoutProtocol where Self: SKCSectionActionP
             @unknown default:
                 size = sectionView.bounds.size
             }
-            assert(min(size.width, size.height) > 0, "无法取得正确的 size: \(size)")
+            
+            guard min(size.width, size.height) > 0 else {
+                return CGSize(width: max(size.width, 0), height: max(size.height, 0))
+            }
+            
             return size
         }
     }

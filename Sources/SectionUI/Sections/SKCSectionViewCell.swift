@@ -10,7 +10,7 @@ import SectionKit
 
 public extension SKCRegistrationSectionProtocol {
     
-    func wrapperToHorizontalSectionViewCell(height: CGFloat,
+    func wrapperToHorizontalSectionViewCell(height: CGFloat? = nil,
                                             insets: UIEdgeInsets = .zero,
                                             style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCRegistrationSection {
         SKCRegistrationSection {
@@ -30,7 +30,7 @@ public extension SKCRegistrationSectionProtocol {
 
 public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SKCDelegateProtocol {
     
-    func wrapperToHorizontalSectionViewCell(height: CGFloat,
+    func wrapperToHorizontalSectionViewCell(height: CGFloat? = nil,
                                             insets: UIEdgeInsets = .zero,
                                             style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
         SKCSectionViewCell
@@ -57,13 +57,13 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
         }
         
         public let section: SectionType
-        public let height: CGFloat
+        public let height: CGFloat?
         public let insets: UIEdgeInsets
         public let style: ((_ sectionView: SKCollectionView) -> Void)?
         public let scrollDirection: UICollectionView.ScrollDirection
         
         public init(section: SectionType,
-                    height: CGFloat,
+                    height: CGFloat? = nil,
                     insets: UIEdgeInsets = .zero,
                     scrollDirection: UICollectionView.ScrollDirection,
                     style: ((_ sectionView: SKCollectionView) -> Void)? = nil) {
@@ -78,7 +78,11 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
     
     public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model = model else { return .zero }
-        return CGSize(width: size.width, height: model.height + model.insets.top + model.insets.bottom)
+        if let height = model.height {
+            return CGSize(width: size.width, height: height + model.insets.top + model.insets.bottom)
+        } else {
+            return size
+        }
     }
     
     public func config(_ model: Model) {

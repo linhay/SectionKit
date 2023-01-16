@@ -28,12 +28,21 @@ class SKCViewDelegateFlowLayout: SKCDelegate, UICollectionViewDelegateFlowLayout
         guard let section = self.section(indexPath) else {
             return .zero
         }
-        let size = section.itemSize(at: indexPath.item)
-        if indexPath.section == 0, indexPath.row == 0, size == .zero {
-            return .init(width: 0.01, height: 0.01)
-        } else {
-            return size
+        
+        var size = section.itemSize(at: indexPath.item)
+        
+        if size.width < 0 || size.height < 0 {
+            assertionFailure("Negative sizes are not supported in the flow layout, \(section)")
+            size = .init(width: max(size.width, 0), height: max(size.height, 0))
         }
+        
+        if indexPath.section == 0,
+           indexPath.row == 0,
+           size == .zero {
+            size = .init(width: 0.01, height: 0.01)
+        }
+        
+        return size
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

@@ -14,21 +14,20 @@ public class SKCManager {
     
     public var scrollObserver: SKScrollViewDelegate { delegate }
     public private(set) lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
-        self?.sections[section] as? SKCViewDataSourcePrefetchingProtocol
+        self?.safe(section: section)
     }
     
     private lazy var endDisplaySections: [Int: SKCBaseSectionProtocol] = [:]
     private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
-        self?.sections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
+        self?.safe(section: indexPath.section)
     } endDisplaySection: { [weak self] indexPath in
-        guard let self = self else { return nil }
-        return self.endDisplaySections[indexPath.section] as? SKCViewDelegateFlowLayoutProtocol
+        self?.safe(section: indexPath.section)
     } sections: { [weak self] in
         return self?.sections.lazy.compactMap({ $0 as? SKCViewDelegateFlowLayoutProtocol }) ?? []
     }
     
     private lazy var dataSource = SKCDataSource { [weak self] indexPath in
-        self?.sections[indexPath.section]
+        self?.safe(section: indexPath.section)
     } sections: { [weak self] in
         self?.sections ?? []
     }
@@ -125,6 +124,18 @@ public extension SKCManager {
         })
         
         sectionView.reloadData()
+    }
+    
+}
+
+
+private extension SKCManager {
+    
+    func safe<T>(section: Int) -> T? {
+        guard sections.indices.contains(section) else {
+            return nil
+        }
+        return sections[section] as? T
     }
     
 }

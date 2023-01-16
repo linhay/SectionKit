@@ -14,7 +14,7 @@ public class SKCRegistrationManager {
     
     public var scrollObserver: SKScrollViewDelegate { delegate }
     public private(set) lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
-        self?.sections[section] as? SKCViewDataSourcePrefetchingProtocol
+        self?.safe(section: section)
     }
     
     public private(set) var sectionView: UICollectionView?
@@ -24,10 +24,7 @@ public class SKCRegistrationManager {
     private var waitSections: [SKCRegistrationSectionProtocol]?
     
     private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
-        guard let self = self, self.sections.indices.contains(indexPath.section) else {
-            return nil
-        }
-        return self.sections[indexPath.section]
+        return self?.safe(section: indexPath.section)
     } endDisplaySection: { [weak self] indexPath in
         guard let self = self else { return nil }
         return self.sectionsStore[indexPath.section]
@@ -36,7 +33,7 @@ public class SKCRegistrationManager {
     }
     
     private lazy var dataSource = SKCDataSource { [weak self] indexPath in
-        self?.sections[indexPath.section]
+        self?.safe(section: indexPath.section)
     } sections: { [weak self] in
         self?.sections ?? []
     }
@@ -217,6 +214,17 @@ private extension SKCRegistrationManager {
                 }
             }
         }
+    }
+    
+}
+
+private extension SKCRegistrationManager {
+    
+    func safe<T>(section: Int) -> T? {
+        guard sections.indices.contains(section) else {
+            return nil
+        }
+        return sections[section] as? T
     }
     
 }

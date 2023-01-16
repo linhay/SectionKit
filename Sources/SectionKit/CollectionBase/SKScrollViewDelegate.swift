@@ -30,7 +30,8 @@ public class SKScrollViewDelegate: NSObject, UIScrollViewDelegate {
 public extension SKScrollViewDelegate {
     // MARK: - ObserveScroll
     
-    func add(_ observer: AnyObject & UIScrollViewDelegate) {
+    func add(_ observer: (AnyObject & UIScrollViewDelegate)?) {
+        guard let observer = observer else { return }
         observeStore[.init(observer)] = SKWeakBox(observer)
     }
     

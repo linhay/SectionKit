@@ -17,4 +17,12 @@ public extension SKConfigurableView where Model == Void {
     
 }
 
+public extension SKConfigurableView {
+    
+    func config<T: RawRepresentable>(_ model: T) where Model == T.RawValue {
+        config(model.rawValue)
+    }
+    
+}
+
 #endif

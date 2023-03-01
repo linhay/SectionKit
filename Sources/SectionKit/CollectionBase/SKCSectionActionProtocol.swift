@@ -35,6 +35,40 @@ public extension SKCSectionActionProtocol {
         sectionInjection?.reload()
     }
     
+    /// 刷新指定行
+    /// - Parameter row: 指定行
+    func refresh(at row: Int) {
+        sectionInjection?.reload(cell: row)
+    }
+    
+    /// 刷新指定行
+    /// - Parameter row: 指定行
+    func refresh(at row: [Int]) {
+        sectionInjection?.reload(cell: row)
+    }
+    
+    /// 移除指定行
+    /// - Parameters:
+    ///   - row: 指定行
+    ///   - before: 移除数据
+    func remove(at row: Int, before: (() -> Void)?) {
+        before?()
+        sectionInjection?.delete(cell: row)
+    }
+    
+    /// 移除指定行
+    /// - Parameters:
+    ///   - row: 指定行
+    ///   - before: 移除数据
+    func remove(at row: [Int], before: (() -> Void)?) {
+        before?()
+        sectionInjection?.delete(cell: row)
+    }
+    
+}
+
+public extension SKCSectionActionProtocol {
+    
     /// 获取被选中的 cell 集合
     var indexForSelectedItems: [Int] {
         (sectionInjection?.sectionView?.indexPathsForSelectedItems ?? [])

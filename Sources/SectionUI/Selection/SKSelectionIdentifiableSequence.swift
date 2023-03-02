@@ -62,12 +62,21 @@ public extension SKSelectionIdentifiableSequence {
     }
     
     func deselect(id: ID) {
+        store[id]?.isSelected = false
+    }
+    
+    func select(id: ID) {
+        maintainUniqueIfNeed(exclude: id)
+        store[id]?.isSelected = true
+    }
+    
+    private func _deselect(id: ID) {
         isObserving = false
         store[id]?.isSelected = false
         isObserving = true
     }
     
-    func select(id: ID) {
+    private func _select(id: ID) {
         isObserving = false
         maintainUniqueIfNeed(exclude: id)
         store[id]?.isSelected = true
@@ -85,9 +94,9 @@ private extension SKSelectionIdentifiableSequence {
             .sink(receiveValue: { [weak self] flag in
                 guard let self = self, self.isObserving else { return }
                 if flag {
-                    self.select(id: id)
+                    self._select(id: id)
                 } else {
-                    self.deselect(id: id)
+                    self._deselect(id: id)
                 }
                 self.itemChangedSubject.send(self.store)
             })

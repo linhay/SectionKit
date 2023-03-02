@@ -94,9 +94,7 @@ private extension SKSelectionIdentifiableSequence {
     }
     
     func maintainUniqueIfNeed(exclude id: ID) {
-        guard isUnique,
-              let exclude = store[id],
-              exclude.isSelected else {
+        guard isUnique else {
             return
         }
 

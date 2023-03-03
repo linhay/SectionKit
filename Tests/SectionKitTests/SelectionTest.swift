@@ -12,7 +12,7 @@ final class SelectionTest: XCTestCase {
 
     func testExample() throws {
         let elements = [1,1,2,2,3,3].map { SKSelectionWrapper($0) }
-        let sequence = SKSelectionSequence(elements: elements)
+        let sequence = SKSelectionSequence(items: elements)
         
         sequence.selectAll(1)
         sequence.selectFirst(1)
@@ -24,7 +24,6 @@ final class SelectionTest: XCTestCase {
         sequence.selectLast(element)
         
         sequence.selectAll()
-        sequence.select(at: 0, isUnique: true, needInvert: true)
         sequence.select(at: 0)
         sequence.deselect(at: 0)
     }

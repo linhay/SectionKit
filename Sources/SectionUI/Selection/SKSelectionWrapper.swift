@@ -25,11 +25,16 @@ import Foundation
 @frozen
 @propertyWrapper
 @dynamicMemberLookup
-public struct SKSelectionWrapper<WrappedValue>: SKSelectionProtocol, Identifiable, Equatable, Hashable {
+public struct SKSelectionWrapper<WrappedValue>: SKSelectionProtocol, RawRepresentable, Identifiable, Equatable, Hashable {
     
     public var id: UUID = .init()
     public var selection: SKSelectionState
     public var wrappedValue: WrappedValue
+    public var rawValue: WrappedValue { wrappedValue }
+    
+    public init(rawValue: WrappedValue) {
+        self.init(rawValue)
+    }
     
     public init(_ value: WrappedValue,
                 _ selection: SKSelectionState = .init()) {

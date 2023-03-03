@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import SectionKit
+import SectionUI
 
 final class wrapperToSingleTypeSectionBuilderTest: XCTestCase {
     

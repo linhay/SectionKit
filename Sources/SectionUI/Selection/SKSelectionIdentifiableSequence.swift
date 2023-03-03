@@ -12,13 +12,30 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
     
     /// 是否保证选中在当前序列中是否唯一 | default: true
     public var isUnique: Bool
-    public private(set) lazy var itemChangedPublisher = itemChangedSubject.eraseToAnyPublisher()
     
-    private let itemChangedSubject = PassthroughSubject<[ID: Element], Never>()
+    public private(set) lazy var itemChangedPublisher: AnyPublisher<[ID : Element], Never> = {
+        Deferred { [weak self] in
+            let subject = PassthroughSubject<[ID: Element], Never>()
+            if let self = self {
+                self.itemChangedSubject = subject
+                for (id, item) in self.store {
+                    self.observe(item, by: id)
+                }
+            }
+            return subject
+        }.eraseToAnyPublisher()
+    }()
+    
+    private var itemChangedSubject: PassthroughSubject<[ID: Element], Never>?
+    
     public private(set) var store: [ID: Element] = [:]
     private var selectedStore: [ID: AnyCancellable] = [:]
-    private var isObserving: Bool = true
     
+    /// init
+    /// - Parameters:
+    ///   - items: 数据组
+    ///   - id: 标识数据的ID
+    ///   - isUnique: 是否保证选中在当前序列中是否唯一 | default: true
     public init(items: [Element] = [],
                 id: KeyPath<Element, ID>,
                 isUnique: Bool = true) {
@@ -66,21 +83,8 @@ public extension SKSelectionIdentifiableSequence {
     }
     
     func select(id: ID) {
-        maintainUniqueIfNeed(exclude: id)
         store[id]?.isSelected = true
-    }
-    
-    private func _deselect(id: ID) {
-        isObserving = false
-        store[id]?.isSelected = false
-        isObserving = true
-    }
-    
-    private func _select(id: ID) {
-        isObserving = false
         maintainUniqueIfNeed(exclude: id)
-        store[id]?.isSelected = true
-        isObserving = true
     }
     
 }
@@ -88,17 +92,20 @@ public extension SKSelectionIdentifiableSequence {
 private extension SKSelectionIdentifiableSequence {
     
     func observe(_ element: Element?, by id: ID) {
+        guard itemChangedSubject != nil else {
+            return
+        }
         selectedStore[id] = element?
             .selectedPublisher
             .dropFirst()
             .sink(receiveValue: { [weak self] flag in
-                guard let self = self, self.isObserving else { return }
+                guard let self = self else { return }
                 if flag {
-                    self._select(id: id)
+                    self.select(id: id)
                 } else {
-                    self._deselect(id: id)
+                    self.deselect(id: id)
                 }
-                self.itemChangedSubject.send(self.store)
+                self.itemChangedSubject?.send(self.store)
             })
     }
     

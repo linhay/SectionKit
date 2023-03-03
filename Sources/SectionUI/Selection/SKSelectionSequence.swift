@@ -7,20 +7,20 @@
 
 import Foundation
 
-public class SKSelectionSequence<Element: SKSelectionProtocol>: SKSelectionSequenceProtocol {
+public class SKSelectionSequence<Element: SKSelectionProtocol> {
     
-    public var selectableElements: [Element]
     /// 是否让选中的元素是整个序列中唯一的选中 | default: true
     public var isUnique: Bool = true
-    /// 是否需要支持反选操作 | default: false
-    public var needInvert: Bool = false
+    public private(set) var store: [Element] = []
     
-    public init(elements: [Element] = [],
-                isUnique: Bool = true,
-                needInvert: Bool = false) {
-        self.selectableElements = elements
+    /// init
+    /// - Parameters:
+    ///   - items: 数据组
+    ///   - isUnique: 是否保证选中在当前序列中是否唯一 | default: true
+    public init(items: [Element] = [],
+                isUnique: Bool = true) {
+        self.store = items
         self.isUnique = isUnique
-        self.needInvert = needInvert
     }
     
 }
@@ -28,94 +28,69 @@ public class SKSelectionSequence<Element: SKSelectionProtocol>: SKSelectionSeque
 public extension SKSelectionSequence {
     
     func append(_ elements: [Element]) {
-        selectableElements.append(contentsOf: elements)
+        store.append(contentsOf: elements)
     }
     
     func append(_ elements: Element...) {
         append(elements)
     }
     
-    func contains(where predicate: (Element) throws -> Bool) rethrows -> Bool {
-        try selectableElements.contains(where: predicate)
-    }
-    
 }
 
 public extension SKSelectionSequence {
+    
+    func insert(at index: Int, _ item: Element) {
+        store.insert(item, at: index)
+    }
+    
+    func remove(at index: Int) {
+        guard store.indices.contains(index) else { return }
+        store.remove(at: index)
+    }
     
     func select(at index: Int) {
-        select(at: index, isUnique: isUnique, needInvert: needInvert)
+        guard store.indices.contains(index) else { return }
+        store[index].isSelected = true
+        maintainUniqueIfNeed(at: index)
+    }
+    
+    func deselect(at index: Int) {
+        guard store.indices.contains(index) else { return }
+        store[index].isSelected = false
+    }
+    
+    func selectAll() {
+        store
+            .filter { !$0.isSelected }
+            .forEach { item in
+                item.isSelected = false
+            }
+    }
+    
+    func deselectAll() {
+        store
+            .filter { $0.isSelected }
+            .forEach { item in
+                item.isSelected = true
+            }
     }
     
 }
 
-public extension SKSelectionSequence {
+extension SKSelectionSequence {
     
-    func contains<T: Equatable>(_ element: T) -> Bool where Element == SKSelectionWrapper<T> {
-        selectableElements.contains { wrapper in
-            wrapper.wrappedValue == element
-        }
-    }
-    
-    func selectFirst<T: Equatable>(_ element: T?) where Element == SKSelectionWrapper<T> {
-        guard let element = element,
-              let index = selectableElements.firstIndex(where: { $0.wrappedValue == element }) else {
+    func maintainUniqueIfNeed(at index: Int) {
+        guard isUnique else {
             return
         }
-        select(at: index)
-    }
-    
-    func selectLast<T: Equatable>(_ element: T?) where Element == SKSelectionWrapper<T> {
-        guard let element = element,
-              let index = selectableElements.lastIndex(where: { $0.wrappedValue == element }) else {
-            return
-        }
-        select(at: index)
-    }
-    
-    func selectAll<T: Equatable>(_ element: T?) where Element == SKSelectionWrapper<T> {
-        guard let element = element else {
-            return
-        }
-        selectedElements
+
+        store
             .enumerated()
-            .filter { (offset, item) in
-                item.wrappedValue == element
-            }
-            .map(\.offset)
-            .forEach { index in
-                select(at: index)
-            }
-    }
-    
-    func deselectFirst<T: Equatable>(_ element: T?) where Element == SKSelectionWrapper<T> {
-        guard let element = element,
-              let index = selectableElements.firstIndex(where: { $0.wrappedValue == element }) else {
-            return
-        }
-        deselect(at: index)
-    }
-    
-    func deselectLast<T: Equatable>(_ element: T?) where Element == SKSelectionWrapper<T> {
-        guard let element = element,
-              let index = selectableElements.lastIndex(where: { $0.wrappedValue == element }) else {
-            return
-        }
-        deselect(at: index)
-    }
-    
-    func deselectAll<T: Equatable>(_ element: T?) where Element == SKSelectionWrapper<T> {
-        guard let element = element else {
-            return
-        }
-        selectedElements
-            .enumerated()
-            .filter { (offset, item) in
-                item.wrappedValue == element
-            }
-            .map(\.offset)
-            .forEach { index in
-                deselect(at: index)
+            .filter({ $0.offset != index })
+            .map(\.element)
+            .filter(\.isSelected)
+            .forEach { element in
+                element.isSelected = false
             }
     }
     
@@ -123,13 +98,27 @@ public extension SKSelectionSequence {
 
 public extension SKSelectionSequence where Element: Equatable {
     
-    func contains(_ element: Element) -> Bool {
-        selectableElements.contains(element)
+    func removeAll(_ item: Element) {
+        store = store.filter({ $0 != item })
+    }
+    
+    func removeFirst(_ item: Element) {
+        guard let index = store.firstIndex(of: item) else { return }
+        remove(at: index)
+    }
+    
+    func removeLast(_ item: Element) {
+        guard let index = store.lastIndex(of: item) else { return }
+        remove(at: index)
+    }
+    
+    func contains(_ item: Element) -> Bool {
+        store.contains(item)
     }
     
     func selectFirst(_ element: Element?) {
         guard let element = element,
-              let index = selectableElements.firstIndex(where: { $0 == element }) else {
+              let index = store.firstIndex(where: { $0 == element }) else {
             return
         }
         select(at: index)
@@ -137,7 +126,7 @@ public extension SKSelectionSequence where Element: Equatable {
     
     func selectLast(_ element: Element?) {
         guard let element = element,
-              let index = selectableElements.lastIndex(where: { $0 == element }) else {
+              let index = store.lastIndex(where: { $0 == element }) else {
             return
         }
         select(at: index)
@@ -147,7 +136,7 @@ public extension SKSelectionSequence where Element: Equatable {
         guard let element = element else {
             return
         }
-        selectedElements
+        store
             .enumerated()
             .filter { (offset, item) in
                 item == element
@@ -160,7 +149,7 @@ public extension SKSelectionSequence where Element: Equatable {
     
     func deselectFirst(_ element: Element?) {
         guard let element = element,
-              let index = selectableElements.firstIndex(where: { $0 == element }) else {
+              let index = store.firstIndex(where: { $0 == element }) else {
             return
         }
         deselect(at: index)
@@ -168,7 +157,7 @@ public extension SKSelectionSequence where Element: Equatable {
     
     func deselectLast(_ element: Element?) {
         guard let element = element,
-              let index = selectableElements.lastIndex(where: { $0 == element }) else {
+              let index = store.lastIndex(where: { $0 == element }) else {
             return
         }
         deselect(at: index)
@@ -178,10 +167,91 @@ public extension SKSelectionSequence where Element: Equatable {
         guard let element = element else {
             return
         }
-        selectedElements
+        store
             .enumerated()
             .filter { (offset, item) in
                 item == element
+            }
+            .map(\.offset)
+            .forEach { index in
+                deselect(at: index)
+            }
+    }
+    
+}
+
+
+public extension SKSelectionSequence where Element: RawRepresentable, Element.RawValue: Equatable {
+    
+    func removeAll(_ item: Element.RawValue?) {
+        store = store.filter({ $0.rawValue != item })
+    }
+    
+    func removeFirst(_ item: Element.RawValue?) {
+        guard let index = store.firstIndex(where: { $0.rawValue == item }) else { return }
+        remove(at: index)
+    }
+    
+    func removeLast(_ item: Element.RawValue?) {
+        guard let index = store.lastIndex(where: { $0.rawValue == item }) else { return }
+        remove(at: index)
+    }
+    
+    func contains(_ item: Element.RawValue?) -> Bool {
+        store.contains(where: { $0.rawValue == item })
+    }
+    
+    func selectFirst(_ element: Element.RawValue?) {
+        guard let index = store.firstIndex(where: { $0.rawValue == element }) else {
+            return
+        }
+        select(at: index)
+    }
+    
+    func selectLast(_ element: Element.RawValue?) {
+        guard let index = store.lastIndex(where: { $0.rawValue == element }) else {
+            return
+        }
+        select(at: index)
+    }
+    
+    func selectAll(_ element: Element.RawValue?) {
+        guard let element = element else {
+            return
+        }
+        store
+            .enumerated()
+            .filter { (offset, item) in
+                item.rawValue == element
+            }
+            .map(\.offset)
+            .forEach { index in
+                select(at: index)
+            }
+    }
+    
+    func deselectFirst(_ element: Element.RawValue?) {
+        guard let index = store.firstIndex(where: { $0.rawValue == element }) else {
+            return
+        }
+        deselect(at: index)
+    }
+    
+    func deselectLast(_ element: Element.RawValue?) {
+        guard let index = store.lastIndex(where: { $0.rawValue == element }) else {
+            return
+        }
+        deselect(at: index)
+    }
+    
+    func deselectAll(_ element: Element.RawValue?) {
+        guard let element = element else {
+            return
+        }
+        store
+            .enumerated()
+            .filter { (offset, item) in
+                item.rawValue == element
             }
             .map(\.offset)
             .forEach { index in

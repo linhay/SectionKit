@@ -24,10 +24,7 @@ import Combine
 
 public class SKSelectionState: Equatable {
     
-    public var selectedPublisher:  AnyPublisher<Bool, Never> { selectedSubject.removeDuplicates().eraseToAnyPublisher() }
-    public var canSelectPublisher: AnyPublisher<Bool, Never> { canSelectSubject.removeDuplicates().eraseToAnyPublisher() }
-    public var isEnabledPublisher: AnyPublisher<Bool, Never> { isEnabledSubject.removeDuplicates().eraseToAnyPublisher() }
-    public var changedPublisher:   AnyPublisher<SKSelectionState, Never> {
+    public var changedPublisher: AnyPublisher<SKSelectionState, Never> {
         Publishers
             .CombineLatest3(selectedPublisher, canSelectPublisher, isEnabledPublisher)
             .compactMap({ [weak self] _ in
@@ -37,10 +34,14 @@ public class SKSelectionState: Equatable {
             .eraseToAnyPublisher()
     }
     
-    private let selectedSubject:  CurrentValueSubject<Bool, Never>
-    private let canSelectSubject: CurrentValueSubject<Bool, Never>
-    private let isEnabledSubject: CurrentValueSubject<Bool, Never>
-        
+    public lazy var isEnabledPublisher: AnyPublisher<Bool, Never> = deferred(value: isEnabled, bind: \.isEnabledSubject)
+    public lazy var canSelectPublisher: AnyPublisher<Bool, Never> = deferred(value: canSelect, bind: \.canSelectSubject)
+    public lazy var selectedPublisher: AnyPublisher<Bool, Never>  = deferred(value: isSelected, bind: \.selectedSubject)
+    
+    private var selectedSubject:  CurrentValueSubject<Bool, Never>?
+    private var canSelectSubject: CurrentValueSubject<Bool, Never>?
+    private var isEnabledSubject: CurrentValueSubject<Bool, Never>?
+    
     public static func == (lhs: SKSelectionState, rhs: SKSelectionState) -> Bool {
         return lhs.isSelected == rhs.isSelected
         && lhs.canSelect == rhs.canSelect
@@ -48,30 +49,36 @@ public class SKSelectionState: Equatable {
     }
     
     public var isSelected: Bool {
-        set {
-            if isEnabled {
-                selectedSubject.send(newValue)
-            }
+        didSet {
+            selectedSubject?.send(isSelected)
         }
-        get { selectedSubject.value }
     }
-    
     public var canSelect: Bool {
-        set { canSelectSubject.send(newValue) }
-        get { canSelectSubject.value }
+        didSet {
+            canSelectSubject?.send(canSelect)
+        }
     }
-    
     /// 是否允许选中或取消选中操作
     public var isEnabled: Bool {
-        set { isEnabledSubject.send(newValue) }
-        get { isEnabledSubject.value }
+        didSet {
+            isEnabledSubject?.send(isEnabled)
+        }
     }
     
     public init(isSelected: Bool = false,
                 canSelect: Bool = true,
                 isEnabled: Bool = true) {
-        isEnabledSubject = CurrentValueSubject<Bool, Never>(isEnabled)
-        selectedSubject  = CurrentValueSubject<Bool, Never>(isSelected)
-        canSelectSubject = CurrentValueSubject<Bool, Never>(canSelect)
+        self.isSelected = isSelected
+        self.canSelect = canSelect
+        self.isEnabled = isEnabled
     }
+    
+    func deferred(value: Bool, bind: WritableKeyPath<SKSelectionState, CurrentValueSubject<Bool, Never>?>) -> AnyPublisher<Bool, Never> {
+        return Deferred { [weak self] in
+            let subject = CurrentValueSubject<Bool, Never>(value)
+            self?[keyPath: bind] = subject
+            return subject.removeDuplicates() 
+        }.eraseToAnyPublisher()
+    }
+    
 }

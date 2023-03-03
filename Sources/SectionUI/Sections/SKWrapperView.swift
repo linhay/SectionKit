@@ -25,6 +25,15 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
             self.size = size
             self.style = style
         }
+        
+        public init(insets: UIEdgeInsets,
+                    size: @escaping (_ limit: CGSize) -> CGSize,
+                    style: @escaping (Content) -> Void) where UserInfo == Void {
+            self.userInfo = ()
+            self.insets = insets
+            self.size = size
+            self.style = style
+        }
     }
     
     public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {

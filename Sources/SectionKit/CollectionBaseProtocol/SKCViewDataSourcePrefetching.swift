@@ -10,12 +10,21 @@ import Combine
 
 public class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourcePrefetching {
 
-    public private(set) lazy var prefetchPublisher = prefetch.eraseToAnyPublisher()
-    public private(set) lazy var cancelPrefetchingPublisher = cancelPrefetching.eraseToAnyPublisher()
+    public private(set) lazy var prefetchPublisher = deferred(bind: \.prefetch)
+    public private(set) lazy var cancelPrefetchingPublisher = deferred(bind: \.cancelPrefetching)
+    public var isEnable: Bool = false
     
-    private var prefetch = PassthroughSubject<[IndexPath], Never>()
-    private var cancelPrefetching = PassthroughSubject<[IndexPath], Never>()
+    private var prefetch: PassthroughSubject<[IndexPath], Never>?
+    private var cancelPrefetching: PassthroughSubject<[IndexPath], Never>?
     private var section: (_ index: Int) -> SKCViewDataSourcePrefetchingProtocol?
+    
+    private func deferred<Input>(bind: WritableKeyPath<SKCViewDataSourcePrefetching, PassthroughSubject<Input, Never>?>) -> AnyPublisher<Input, Never> {
+        return Deferred { [weak self] in
+            let subject = PassthroughSubject<Input, Never>()
+            self?[keyPath: bind] = subject
+            return subject
+        }.eraseToAnyPublisher()
+    }
 
     init(section: @escaping (_ indexPath: Int) -> SKCViewDataSourcePrefetchingProtocol?) {
         self.section = section
@@ -35,7 +44,8 @@ public class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourceP
 private extension SKCViewDataSourcePrefetching {
     
     func prefetch(at indexPaths: [IndexPath]) {
-        prefetch.send(indexPaths)
+        guard isEnable else { return }
+        prefetch?.send(indexPaths)
         var store = [Int: [Int]]()
         for indexPath in indexPaths {
             if store[indexPath.section] == nil {
@@ -50,7 +60,8 @@ private extension SKCViewDataSourcePrefetching {
     }
     
     func cancelPrefetch(at indexPaths: [IndexPath]) {
-        cancelPrefetching.send(indexPaths)
+        guard isEnable else { return }
+        cancelPrefetching?.send(indexPaths)
         var store = [Int: [Int]]()
         for indexPath in indexPaths {
             if store[indexPath.section] == nil {

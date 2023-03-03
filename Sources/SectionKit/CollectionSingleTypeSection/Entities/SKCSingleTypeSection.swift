@@ -148,22 +148,29 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     public class Pulishers {
-        
         /// models 变更订阅
         public private(set) lazy var modelsPulisher = modelsSubject.eraseToAnyPublisher()
         /// cell 事件订阅, 事件类型参照 `CellActionType`
-        public private(set) lazy var cellActionPulisher = cellActionSubject.eraseToAnyPublisher()
+        public private(set) lazy var cellActionPulisher = deferred(bind: \.cellActionSubject)
         /// supplementary 事件订阅, 事件类型参照 `SupplementaryActionType`
-        public private(set) lazy var supplementaryActionPulisher = supplementaryActionSubject.eraseToAnyPublisher()
+        public private(set) lazy var supplementaryActionPulisher = deferred(bind: \.supplementaryActionSubject)
         /// section 生命周期监听
-        public private(set) lazy var lifeCyclePulisher = lifeCycleSubject
+        public private(set) lazy var lifeCyclePulisher = deferred(bind: \.lifeCycleSubject)
             .delay(for: .seconds(0.3), scheduler: RunLoop.main)
             .eraseToAnyPublisher()
 
         fileprivate lazy var modelsSubject = CurrentValueSubject<[Model], Never>([])
-        fileprivate lazy var lifeCycleSubject = PassthroughSubject<LifeCycleKind, Never>()
-        fileprivate lazy var cellActionSubject = PassthroughSubject<CellActionContext, Never>()
-        fileprivate lazy var supplementaryActionSubject = PassthroughSubject<SupplementaryActionContext, Never>()
+        fileprivate var lifeCycleSubject: PassthroughSubject<LifeCycleKind, Never>?
+        fileprivate var cellActionSubject: PassthroughSubject<CellActionContext, Never>?
+        fileprivate var supplementaryActionSubject: PassthroughSubject<SupplementaryActionContext, Never>?
+        
+        private func deferred<Input>(bind: WritableKeyPath<Pulishers, PassthroughSubject<Input, Never>?>) -> AnyPublisher<Input, Never> {
+            return Deferred { [weak self] in
+                let subject = PassthroughSubject<Input, Never>()
+                self?[keyPath: bind] = subject
+                return subject
+            }.eraseToAnyPublisher()
+        }
     }
     
     open var sectionInjection: SKCSectionInjection?
@@ -226,7 +233,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         loadedTasks.forEach { task in
             task(self)
         }
-        pulishers.lifeCycleSubject.send(.loadedToSectionView(sectionView))
+        pulishers.lifeCycleSubject?.send(.loadedToSectionView(sectionView))
     }
     
     open func item(at row: Int) -> UICollectionViewCell {
@@ -860,7 +867,7 @@ public extension SKCSingleTypeSection {
         cellActions[result.type]?.forEach({ block in
             block(result)
         })
-        pulishers.cellActionSubject.send(result)
+        pulishers.cellActionSubject?.send(result)
     }
     
     func sendSupplementaryAction(_ type: SupplementaryActionType, kind: SKSupplementaryKind, row: Int) {
@@ -868,7 +875,7 @@ public extension SKCSingleTypeSection {
         supplementaryActions[type]?.forEach({ block in
             block(result)
         })
-        pulishers.supplementaryActionSubject.send(result)
+        pulishers.supplementaryActionSubject?.send(result)
     }
     
     func taskIfLoaded(_ task: @escaping LoadedBlock) {

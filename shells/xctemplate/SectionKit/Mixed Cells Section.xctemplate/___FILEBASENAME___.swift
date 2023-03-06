@@ -10,7 +10,7 @@ class ___FILEBASENAMEASIDENTIFIER___: SKCSectionProtocol, SKSafeSizeProviderProt
     }
     
     var sectionInjection: SKCSectionInjection?
-    lazy var safeSizeProvider: SKSafeSizeProvider = self.safeSizeProvider
+    lazy var safeSizeProvider: SKSafeSizeProvider = defaultSafeSizeProvider
     var cellTypes: [CellType] = []
     var itemCount: Int { cellTypes.count }
         

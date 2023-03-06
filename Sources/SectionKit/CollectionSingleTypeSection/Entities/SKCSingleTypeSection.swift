@@ -225,7 +225,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     open func apply(_ model: Model) {
-        append([model])
+        apply([model])
     }
     
     open func config(sectionView: UICollectionView) {

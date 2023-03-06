@@ -4,7 +4,7 @@
 
 ```shell
 cd shells/xctemplate
-sudo sh build.sh
+sh build.sh
 ```
 
-![示例](./shells-1.png)
+![示例](./Images/shells-1.png)

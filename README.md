@@ -2,7 +2,7 @@
 
 > iOS 动态表单框架
 
-![](./Documentation/icon.svg)
+![](./Documentation/Images/icon.svg)
 
 - [x] 支持 UICollectionView
 - [ ] 支持 UITableView
@@ -31,6 +31,7 @@
 # 其他文档
 
  - 数据选中 [SKSelection](./Documentation/SKSelection.md)
+ - 辅助工具 [Shell](./Documentation/Shells.md)
 
 # 创建通用型单元视图
 

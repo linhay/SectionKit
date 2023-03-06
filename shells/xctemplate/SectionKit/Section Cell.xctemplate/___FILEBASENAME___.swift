@@ -9,7 +9,7 @@ class ___FILEBASENAMEASIDENTIFIER___: UICollectionViewCell, SKLoadViewProtocol, 
     typealias Model = <#ModelType#>
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
-        guard let self = self else { return .zero }
+        guard let model = model else { return .zero }
         // return (width: size.width, height: 44)
     }
     

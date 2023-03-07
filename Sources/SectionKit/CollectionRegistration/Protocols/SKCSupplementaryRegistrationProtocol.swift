@@ -28,6 +28,18 @@ public protocol SKCSupplementaryRegistrationProtocol: AnyObject, SKViewRegistrat
 
 public extension SKCSupplementaryRegistrationProtocol {
     
+    func reload() {
+        injection?.reload()
+    }
+    
+    func delete() {
+        injection?.delete()
+    }
+    
+}
+
+public extension SKCSupplementaryRegistrationProtocol {
+    
     func dequeue(sectionView: UICollectionView, kind: SKSupplementaryKind) -> View {
         guard let indexPath = indexPath else {
             assertionFailure()

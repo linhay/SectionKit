@@ -467,6 +467,12 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+    @discardableResult
+    func apply<Root>(safeSize: KeyPath<Root, SKSafeSizeProvider>, on object: Root) -> Self {
+        safeSizeProvider = object[keyPath: safeSize]
+        return self
+    }
+    
 }
 
 public extension SKCSingleTypeSection {

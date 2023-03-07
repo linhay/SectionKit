@@ -158,19 +158,27 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         public private(set) lazy var lifeCyclePulisher = deferred(bind: \.lifeCycleSubject)
             .delay(for: .seconds(0.3), scheduler: RunLoop.main)
             .eraseToAnyPublisher()
-
+        
         fileprivate lazy var modelsSubject = CurrentValueSubject<[Model], Never>([])
         fileprivate var lifeCycleSubject: PassthroughSubject<LifeCycleKind, Never>?
         fileprivate var cellActionSubject: PassthroughSubject<CellActionContext, Never>?
         fileprivate var supplementaryActionSubject: PassthroughSubject<SupplementaryActionContext, Never>?
         
-        private func deferred<Input>(bind: WritableKeyPath<Pulishers, PassthroughSubject<Input, Never>?>) -> AnyPublisher<Input, Never> {
+        func deferred<Output, Failure: Error>(bind: WritableKeyPath<Pulishers, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
             return Deferred { [weak self] in
-                let subject = PassthroughSubject<Input, Never>()
-                self?[keyPath: bind] = subject
+                guard var self = self else {
+                    return PassthroughSubject<Output, Failure>()
+                }
+                if let subject = self[keyPath: bind] {
+                    return subject
+                }
+                let subject = PassthroughSubject<Output, Failure>()
+                self[keyPath: bind] = subject
                 return subject
-            }.eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
         }
+        
     }
     
     open var sectionInjection: SKCSectionInjection?
@@ -447,6 +455,16 @@ public extension SKCSingleTypeSection where Model: Equatable {
             return nil
         }
         return cellForItem(at: row)
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    @discardableResult
+    func apply(safeSize: KeyPath<SKCSingleTypeSection, SKSafeSizeProvider>) -> Self {
+        safeSizeProvider = self[keyPath: safeSize]
+        return self
     }
     
 }

@@ -6,12 +6,31 @@
 //
 
 import Foundation
+import Combine
 
-public class SKSelectionSequence<Element: SKSelectionProtocol> {
+public final class SKSelectionSequence<Element: SKSelectionProtocol> {
+    
+    public private(set) lazy var itemChangedPublisher: AnyPublisher<SKSelectionSequence, Never> = {
+        Deferred { [weak self] in
+            guard let self = self else {
+                return PassthroughSubject<SKSelectionSequence, Never>()
+            }
+            if let subject = self.itemChangedSubject {
+                return subject
+            }
+            let subject = PassthroughSubject<SKSelectionSequence, Never>()
+            self.itemChangedSubject = subject
+            self.observeAll()
+            return subject
+        }.eraseToAnyPublisher()
+    }()
+    
+    private var itemChangedSubject: PassthroughSubject<SKSelectionSequence, Never>?
     
     /// 是否让选中的元素是整个序列中唯一的选中 | default: true
     public var isUnique: Bool = true
     public private(set) var store: [Element] = []
+    private var cancellables = Set<AnyCancellable>()
     
     /// init
     /// - Parameters:
@@ -26,6 +45,25 @@ public class SKSelectionSequence<Element: SKSelectionProtocol> {
 }
 
 public extension SKSelectionSequence {
+    
+    var selectedItems: [Element] { store.filter(\.isSelected) }
+    var firstSelectedItem: Element? { store.first(where: \.isSelected) }
+    var lastSelectedItem: Element? { store.last(where: \.isSelected) }
+    
+    var selectedIndexs: [Int] { store.enumerated().filter(\.element.isSelected).map(\.offset) }
+    var firstSelectedIndex: Int? { store.firstIndex(where: \.isSelected) }
+    var lastSelectedIndex: Int? { store.lastIndex(where: \.isSelected) }
+
+}
+
+public extension SKSelectionSequence {
+    
+    func reload(_ elements: [Element]) {
+        cancellables.removeAll()
+        store.removeAll()
+        store = elements
+        self.observeAll()
+    }
     
     func append(_ elements: [Element]) {
         store.append(contentsOf: elements)
@@ -77,7 +115,32 @@ public extension SKSelectionSequence {
     
 }
 
-extension SKSelectionSequence {
+private extension SKSelectionSequence {
+    
+    func observeAll() {
+        guard itemChangedSubject != nil else {
+            return
+        }
+        for (offset, item) in self.store.enumerated() {
+            self.observe(item, offset: offset)
+        }
+    }
+    
+    func observe(_ element: Element, offset: Int) {
+        element
+            .selectedPublisher
+            .dropFirst()
+            .sink(receiveValue: { [weak self] flag in
+                guard let self = self else { return }
+                if flag {
+                    self.select(at: offset)
+                } else {
+                    self.deselect(at: offset)
+                }
+                self.itemChangedSubject?.send(self)
+            })
+            .store(in: &cancellables)
+    }
     
     func maintainUniqueIfNeed(at index: Int) {
         guard isUnique else {

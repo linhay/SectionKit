@@ -34,9 +34,9 @@ public class SKSelectionState: Equatable {
             .eraseToAnyPublisher()
     }
     
-    public lazy var isEnabledPublisher: AnyPublisher<Bool, Never> = deferred(value: isEnabled, bind: \.isEnabledSubject)
-    public lazy var canSelectPublisher: AnyPublisher<Bool, Never> = deferred(value: canSelect, bind: \.canSelectSubject)
-    public lazy var selectedPublisher: AnyPublisher<Bool, Never>  = deferred(value: isSelected, bind: \.selectedSubject)
+    public lazy var isEnabledPublisher = deferred(value: isEnabled, bind: \.isEnabledSubject).removeDuplicates().eraseToAnyPublisher()
+    public lazy var canSelectPublisher = deferred(value: canSelect, bind: \.canSelectSubject).removeDuplicates().eraseToAnyPublisher()
+    public lazy var selectedPublisher  = deferred(value: isSelected, bind: \.selectedSubject).removeDuplicates().eraseToAnyPublisher()
     
     private var selectedSubject:  CurrentValueSubject<Bool, Never>?
     private var canSelectSubject: CurrentValueSubject<Bool, Never>?
@@ -73,12 +73,19 @@ public class SKSelectionState: Equatable {
         self.isEnabled = isEnabled
     }
     
-    func deferred(value: Bool, bind: WritableKeyPath<SKSelectionState, CurrentValueSubject<Bool, Never>?>) -> AnyPublisher<Bool, Never> {
+    func deferred<Output, Failure: Error>(value: Output, bind: WritableKeyPath<SKSelectionState, CurrentValueSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
         return Deferred { [weak self] in
-            let subject = CurrentValueSubject<Bool, Never>(value)
-            self?[keyPath: bind] = subject
-            return subject.removeDuplicates() 
-        }.eraseToAnyPublisher()
+            guard var self = self else {
+                return PassthroughSubject<Output, Failure>().eraseToAnyPublisher()
+            }
+            if let subject = self[keyPath: bind] {
+                return subject.eraseToAnyPublisher()
+            }
+            let subject = CurrentValueSubject<Output, Failure>(value)
+            self[keyPath: bind] = subject
+            return subject.eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
     
 }

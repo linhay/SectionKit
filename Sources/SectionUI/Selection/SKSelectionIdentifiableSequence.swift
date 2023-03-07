@@ -15,13 +15,15 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
     
     public private(set) lazy var itemChangedPublisher: AnyPublisher<[ID : Element], Never> = {
         Deferred { [weak self] in
-            let subject = PassthroughSubject<[ID: Element], Never>()
-            if let self = self {
-                self.itemChangedSubject = subject
-                for (id, item) in self.store {
-                    self.observe(item, by: id)
-                }
+            guard let self = self else {
+                return PassthroughSubject<[ID: Element], Never>()
             }
+            if let subject = self.itemChangedSubject {
+                return subject
+            }
+            let subject = PassthroughSubject<[ID: Element], Never>()
+            self.itemChangedSubject = subject
+            self.observeAll()
             return subject
         }.eraseToAnyPublisher()
     }()
@@ -29,7 +31,7 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
     private var itemChangedSubject: PassthroughSubject<[ID: Element], Never>?
     
     public private(set) var store: [ID: Element] = [:]
-    private var selectedStore: [ID: AnyCancellable] = [:]
+    private var cancelables: [ID: AnyCancellable] = [:]
     
     /// init
     /// - Parameters:
@@ -63,15 +65,15 @@ public extension SKSelectionIdentifiableSequence {
             update(element, by: keyPath)
         }
     }
-
+    
     func removeAll() {
         store.removeAll()
-        selectedStore.removeAll()
+        cancelables.removeAll()
     }
     
     func remove(id: ID) {
         store[id] = nil
-        selectedStore[id] = nil
+        cancelables[id] = nil
     }
     
     func contains(id: ID) -> Bool {
@@ -91,11 +93,28 @@ public extension SKSelectionIdentifiableSequence {
 
 private extension SKSelectionIdentifiableSequence {
     
+    func observeAll() {
+        guard itemChangedSubject != nil else {
+            return
+        }
+        for (id, item) in self.store {
+            self.observe(item, by: id)
+        }
+    }
+    
     func observe(_ element: Element?, by id: ID) {
         guard itemChangedSubject != nil else {
             return
         }
-        selectedStore[id] = element?
+        guard let element = element else {
+            cancelables[id] = nil
+            return
+        }
+        observe(element, by: id)
+    }
+    
+    func observe(_ element: Element, by id: ID) {
+        cancelables[id] = element
             .selectedPublisher
             .dropFirst()
             .sink(receiveValue: { [weak self] flag in
@@ -113,7 +132,7 @@ private extension SKSelectionIdentifiableSequence {
         guard isUnique else {
             return
         }
-
+        
         store
             .filter({ $0.key != id })
             .map(\.value)

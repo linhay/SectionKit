@@ -18,12 +18,19 @@ public class SKCViewDataSourcePrefetching: NSObject, UICollectionViewDataSourceP
     private var cancelPrefetching: PassthroughSubject<[IndexPath], Never>?
     private var section: (_ index: Int) -> SKCViewDataSourcePrefetchingProtocol?
     
-    private func deferred<Input>(bind: WritableKeyPath<SKCViewDataSourcePrefetching, PassthroughSubject<Input, Never>?>) -> AnyPublisher<Input, Never> {
+    func deferred<Output, Failure: Error>(bind: WritableKeyPath<SKCViewDataSourcePrefetching, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
         return Deferred { [weak self] in
-            let subject = PassthroughSubject<Input, Never>()
-            self?[keyPath: bind] = subject
+            guard var self = self else {
+                return PassthroughSubject<Output, Failure>()
+            }
+            if let subject = self[keyPath: bind] {
+                return subject
+            }
+            let subject = PassthroughSubject<Output, Failure>()
+            self[keyPath: bind] = subject
             return subject
-        }.eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 
     init(section: @escaping (_ indexPath: Int) -> SKCViewDataSourcePrefetchingProtocol?) {

@@ -10,7 +10,7 @@ class ___FILEBASENAMEASIDENTIFIER___: UICollectionViewCell, SKLoadViewProtocol, 
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model = model else { return .zero }
-        // return (width: size.width, height: 44)
+        // return CGSize(width: size.width, height: 44)
     }
     
     func config(_ model: Model) {

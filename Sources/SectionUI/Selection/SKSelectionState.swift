@@ -24,6 +24,7 @@ import Combine
 
 public class SKSelectionState: Equatable {
     
+    // 返回一个 AnyPublisher，用于订阅选中状态、选择能力、可用性的变化
     public var changedPublisher: AnyPublisher<SKSelectionState, Never> {
         Publishers
             .CombineLatest3(selectedPublisher, canSelectPublisher, isEnabledPublisher)
@@ -34,37 +35,53 @@ public class SKSelectionState: Equatable {
             .eraseToAnyPublisher()
     }
     
+    // 返回一个延迟发布的 AnyPublisher，用于订阅 isEnabled 属性的变化
     public lazy var isEnabledPublisher = deferred(value: isEnabled, bind: \.isEnabledSubject).removeDuplicates().eraseToAnyPublisher()
+    
+    // 返回一个延迟发布的 AnyPublisher，用于订阅 canSelect 属性的变化
     public lazy var canSelectPublisher = deferred(value: canSelect, bind: \.canSelectSubject).removeDuplicates().eraseToAnyPublisher()
+    
+    // 返回一个延迟发布的 AnyPublisher，用于订阅 isSelected 属性的变化
     public lazy var selectedPublisher  = deferred(value: isSelected, bind: \.selectedSubject).removeDuplicates().eraseToAnyPublisher()
     
+    // 保存 isSelected 属性的值
     private var selectedSubject:  CurrentValueSubject<Bool, Never>?
+    
+    // 保存 canSelect 属性的值
     private var canSelectSubject: CurrentValueSubject<Bool, Never>?
+    
+    // 保存 isEnabled 属性的值
     private var isEnabledSubject: CurrentValueSubject<Bool, Never>?
     
+    // 判断两个 SKSelectionState 是否相等
     public static func == (lhs: SKSelectionState, rhs: SKSelectionState) -> Bool {
         return lhs.isSelected == rhs.isSelected
-        && lhs.canSelect == rhs.canSelect
-        && lhs.isEnabled == rhs.isEnabled
+            && lhs.canSelect == rhs.canSelect
+            && lhs.isEnabled == rhs.isEnabled
     }
     
+    // 是否被选中
     public var isSelected: Bool {
         didSet {
             selectedSubject?.send(isSelected)
         }
     }
+    
+    // 是否能够被选择
     public var canSelect: Bool {
         didSet {
             canSelectSubject?.send(canSelect)
         }
     }
-    /// 是否允许选中或取消选中操作
+    
+    // 是否允许选中或取消选中操作
     public var isEnabled: Bool {
         didSet {
             isEnabledSubject?.send(isEnabled)
         }
     }
     
+    // 初始化函数
     public init(isSelected: Bool = false,
                 canSelect: Bool = true,
                 isEnabled: Bool = true) {
@@ -73,7 +90,8 @@ public class SKSelectionState: Equatable {
         self.isEnabled = isEnabled
     }
     
-    func deferred<Output, Failure: Error>(value: Output, bind: WritableKeyPath<SKSelectionState, CurrentValueSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
+    // 返回一个延迟发布的 AnyPublisher
+    private func deferred<Output, Failure: Error>(value: Output, bind: WritableKeyPath<SKSelectionState, CurrentValueSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
         return Deferred { [weak self] in
             guard var self = self else {
                 return PassthroughSubject<Output, Failure>().eraseToAnyPublisher()

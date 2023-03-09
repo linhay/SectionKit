@@ -103,7 +103,7 @@ final class SelectionTest: XCTestCase {
 
     func testSelectionState() throws {
         let state = SKSelectionState(isSelected: false, canSelect: true, isEnabled: true)
-        let cancel = state.changedPublisher.sink(receiveValue: { state in
+        _ = state.changedPublisher.sink(receiveValue: { state in
             print(state.isSelected)
             print(state.isEnabled)
             print(state.canSelect)

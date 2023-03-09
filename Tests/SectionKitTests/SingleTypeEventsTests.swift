@@ -29,7 +29,6 @@ final class wrapperToSingleTypeSectionTests: XCTestCase {
         section.onCellAction(.willDisplay, block: { result in
             XCTAssert(returnFlag == result.row)
         })
-        
         section.onCellAction(.didEndDisplay, block: { result in
             XCTAssert(returnFlag == result.row)
         })

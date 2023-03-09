@@ -53,7 +53,7 @@ public extension SKSelectionSequence {
     var selectedIndexs: [Int] { store.enumerated().filter(\.element.isSelected).map(\.offset) }
     var firstSelectedIndex: Int? { store.firstIndex(where: \.isSelected) }
     var lastSelectedIndex: Int? { store.lastIndex(where: \.isSelected) }
-
+    
 }
 
 public extension SKSelectionSequence {
@@ -132,21 +132,26 @@ private extension SKSelectionSequence {
             .dropFirst()
             .sink(receiveValue: { [weak self] flag in
                 guard let self = self else { return }
+                guard self.store.indices.contains(offset) else { return }
                 if flag {
-                    self.select(at: offset)
+                    self.store[offset].isSelected = true
+                    if !self.maintainUniqueIfNeed(at: offset) {
+                        self.itemChangedSubject?.send(self)
+                    }
                 } else {
-                    self.deselect(at: offset)
+                    self.store[offset].isSelected = false
+                    self.itemChangedSubject?.send(self)
                 }
-                self.itemChangedSubject?.send(self)
             })
             .store(in: &cancellables)
     }
     
-    func maintainUniqueIfNeed(at index: Int) {
+    @discardableResult
+    func maintainUniqueIfNeed(at index: Int) -> Bool {
         guard isUnique else {
-            return
+            return false
         }
-
+        var result = false
         store
             .enumerated()
             .filter({ $0.offset != index })
@@ -154,7 +159,9 @@ private extension SKSelectionSequence {
             .filter(\.isSelected)
             .forEach { element in
                 element.isSelected = false
+                result = true
             }
+        return result
     }
     
 }

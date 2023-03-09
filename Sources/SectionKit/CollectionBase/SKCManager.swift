@@ -114,6 +114,15 @@ public extension SKCManager {
                     injection.sectionView?.reloadData()
                 })
                 .add(action: .reload, event: { injection in
+                    /**
+                     可以使用以下方式将 reloadSection 全局替换成 reloadData
+                     SKCSectionInjection.configuration.setMapAction { action in
+                         if action == .reload {
+                             return .reloadData
+                         }
+                         return action
+                     }
+                     */
                     injection.sectionView?.reloadSections(IndexSet(integer: injection.index))
                 })
                 .add(action: .delete, event: { injection in

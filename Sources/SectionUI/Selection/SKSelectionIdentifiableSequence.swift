@@ -13,22 +13,22 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
     /// 是否保证选中在当前序列中是否唯一 | default: true
     public var isUnique: Bool
     
-    public private(set) lazy var itemChangedPublisher: AnyPublisher<[ID : Element], Never> = {
+    public private(set) lazy var itemChangedPublisher: AnyPublisher<SKSelectionIdentifiableSequence, Never> = {
         Deferred { [weak self] in
             guard let self = self else {
-                return PassthroughSubject<[ID: Element], Never>()
+                return PassthroughSubject<SKSelectionIdentifiableSequence, Never>()
             }
             if let subject = self.itemChangedSubject {
                 return subject
             }
-            let subject = PassthroughSubject<[ID: Element], Never>()
+            let subject = PassthroughSubject<SKSelectionIdentifiableSequence, Never>()
             self.itemChangedSubject = subject
             self.observeAll()
             return subject
         }.eraseToAnyPublisher()
     }()
     
-    private var itemChangedSubject: PassthroughSubject<[ID: Element], Never>?
+    private var itemChangedSubject: PassthroughSubject<SKSelectionIdentifiableSequence, Never>?
     
     public private(set) var store: [ID: Element] = [:]
     private var cancelables: [ID: AnyCancellable] = [:]
@@ -122,15 +122,16 @@ private extension SKSelectionIdentifiableSequence {
                 if flag {
                     self.store[id]?.isSelected = true
                     if !self.maintainUniqueIfNeed(exclude: id) {
-                        self.itemChangedSubject?.send(self.store)
+                        self.itemChangedSubject?.send(self)
                     }
                 } else {
-                    self.store[id]?.isSelected = false
-                    self.itemChangedSubject?.send(self.store)
+                    self.deselect(id: id)
+                    self.itemChangedSubject?.send(self)
                 }
             })
     }
     
+    @discardableResult
     func maintainUniqueIfNeed(exclude id: ID) -> Bool {
         guard isUnique else {
             return false

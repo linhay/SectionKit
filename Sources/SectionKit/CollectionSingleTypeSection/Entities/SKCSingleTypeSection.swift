@@ -513,7 +513,7 @@ public extension SKCSingleTypeSection {
     func set<View>(supplementary kind: SKSupplementaryKind,
                    type: View.Type,
                    model: View.Model,
-                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView & SKConfigurableView {
+                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
         set(supplementary: .init(kind: kind, type: type) { view in
             view.config(model)
             config?(view)
@@ -525,7 +525,7 @@ public extension SKCSingleTypeSection {
     @discardableResult
     func set<View>(supplementary kind: SKSupplementaryKind,
                    type: View.Type,
-                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView & SKConfigurableView, View.Model == Void {
+                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView, View.Model == Void {
         set(supplementary: kind, type: type, model: (), config: config)
     }
     

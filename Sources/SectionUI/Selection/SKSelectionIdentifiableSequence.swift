@@ -120,26 +120,33 @@ private extension SKSelectionIdentifiableSequence {
             .sink(receiveValue: { [weak self] flag in
                 guard let self = self else { return }
                 if flag {
-                    self.select(id: id)
+                    self.store[id]?.isSelected = true
+                    if !self.maintainUniqueIfNeed(exclude: id) {
+                        self.itemChangedSubject?.send(self.store)
+                    }
                 } else {
-                    self.deselect(id: id)
+                    self.store[id]?.isSelected = false
+                    self.itemChangedSubject?.send(self.store)
                 }
-                self.itemChangedSubject?.send(self.store)
             })
     }
     
-    func maintainUniqueIfNeed(exclude id: ID) {
+    func maintainUniqueIfNeed(exclude id: ID) -> Bool {
         guard isUnique else {
-            return
+            return false
         }
         
+        var result = false
         store
             .filter({ $0.key != id })
             .map(\.value)
             .filter(\.isSelected)
             .forEach { element in
                 element.isSelected = false
+                result = true
             }
+        
+        return result
     }
     
 }

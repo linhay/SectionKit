@@ -883,6 +883,7 @@ public extension SKCSingleTypeSection {
     }
     
     func sendAction(_ type: CellActionType, view: Cell?, row: Int) {
+        guard models.indices.contains(row) else { return }
         let result = CellActionContext(section: self, type: type, model: models[row], row: row, _view: view)
         sendAction(result)
     }

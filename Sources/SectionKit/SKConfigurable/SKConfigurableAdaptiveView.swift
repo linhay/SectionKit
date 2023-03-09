@@ -58,12 +58,11 @@ public extension SKConfigurableAdaptiveView {
             verticalFittingPriority = .fittingSizeLevel
         }
         
+        adaptive.view.config(model)
         var size = adaptive.view.systemLayoutSizeFitting(size,
                                                           withHorizontalFittingPriority: horizontalFittingPriority,
                                                           verticalFittingPriority: verticalFittingPriority)
         adaptive.view.bounds.size = size
-        adaptive.view.config(model)
-        
         if let content = adaptive.content {
             adaptive.view.layoutIfNeeded()
             let view = adaptive.view[keyPath: content]

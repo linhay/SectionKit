@@ -9,7 +9,6 @@ import Foundation
 
 public final class SKCRegistrationInjection: SKCRegistrationInjectionProtocol {
     
-
     public struct Action: OptionSet, SKCRegistrationInjectionActionProtocol {
         
         public let rawValue: Int

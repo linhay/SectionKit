@@ -15,7 +15,7 @@ public struct SKBinding<Value> {
         get { _get() }
         nonmutating set { _set(newValue) }
     }
-    
+
     // 返回 SKBinding 的实例
     public var projectedValue: SKBinding<Value> { self }
     

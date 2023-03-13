@@ -7,7 +7,7 @@ final class ___FILEBASENAMEASIDENTIFIER___: UICollectionViewCell, SKLoadViewProt
    
     typealias Model = <#ModelType#>
 
-    static var adaptive: SKAdaptive<MKTextView> = .init(direction: .vertical)
+    static var adaptive: SKAdaptive<___FILEBASENAMEASIDENTIFIER___> = .init(direction: .vertical)
     // static var adaptive: SKAdaptive<MKTextView> = .init(direction: .vertical, content: \.#<SubView>#)
 
     func config(_ model: Model) {

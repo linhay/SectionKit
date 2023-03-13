@@ -1,7 +1,6 @@
 //___FILEHEADER___
 
 import UIKit
-import SnapKit
 import SectionUI
 
 final class ___FILEBASENAMEASIDENTIFIER___: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {

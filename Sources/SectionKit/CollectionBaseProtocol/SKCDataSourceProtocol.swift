@@ -34,7 +34,7 @@ public extension SKCDataSourceProtocol {
     
     func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView? { nil }
     
-    func item(canMove row: Int) -> Bool { true }
+    func item(canMove row: Int) -> Bool { false }
     func move(from source: IndexPath, to destination: IndexPath) {}
     
 }

@@ -32,7 +32,7 @@ public extension SKSelectionProtocol {
     
     var selectedPublisher:  AnyPublisher<Bool, Never> { selection.selectedPublisher }
     var canSelectPublisher: AnyPublisher<Bool, Never> { selection.canSelectPublisher }
-    var isEnabledPublisher: AnyPublisher<Bool, Never> { selection.isEnabledPublisher }
+    var enabledPublisher: AnyPublisher<Bool, Never> { selection.enabledPublisher }
     var changedPublisher:   AnyPublisher<SKSelectionState, Never> { selection.changedPublisher }
     
 }

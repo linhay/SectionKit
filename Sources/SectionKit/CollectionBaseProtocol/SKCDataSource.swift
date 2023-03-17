@@ -56,7 +56,7 @@ class SKCDataSource: NSObject, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(canMove: indexPath.row) ?? true
+        section(indexPath)?.item(canMove: indexPath.row) ?? false
     }
     
     func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {

@@ -27,7 +27,7 @@ public class SKSelectionState: Equatable {
     // 返回一个 AnyPublisher，用于订阅选中状态、选择能力、可用性的变化
     public var changedPublisher: AnyPublisher<SKSelectionState, Never> {
         Publishers
-            .CombineLatest3(selectedPublisher, canSelectPublisher, isEnabledPublisher)
+            .CombineLatest3(selectedPublisher, canSelectPublisher, enabledPublisher)
             .compactMap({ [weak self] _ in
                 guard let self = self else { return nil }
                 return self
@@ -36,7 +36,7 @@ public class SKSelectionState: Equatable {
     }
     
     // 返回一个延迟发布的 AnyPublisher，用于订阅 isEnabled 属性的变化
-    public lazy var isEnabledPublisher = deferred(value: isEnabled, bind: \.isEnabledSubject).removeDuplicates().eraseToAnyPublisher()
+    public lazy var enabledPublisher = deferred(value: isEnabled, bind: \.enabledSubject).removeDuplicates().eraseToAnyPublisher()
     
     // 返回一个延迟发布的 AnyPublisher，用于订阅 canSelect 属性的变化
     public lazy var canSelectPublisher = deferred(value: canSelect, bind: \.canSelectSubject).removeDuplicates().eraseToAnyPublisher()
@@ -51,7 +51,7 @@ public class SKSelectionState: Equatable {
     private var canSelectSubject: CurrentValueSubject<Bool, Never>?
     
     // 保存 isEnabled 属性的值
-    private var isEnabledSubject: CurrentValueSubject<Bool, Never>?
+    private var enabledSubject: CurrentValueSubject<Bool, Never>?
     
     // 判断两个 SKSelectionState 是否相等
     public static func == (lhs: SKSelectionState, rhs: SKSelectionState) -> Bool {
@@ -77,7 +77,7 @@ public class SKSelectionState: Equatable {
     // 是否允许选中或取消选中操作
     public var isEnabled: Bool {
         didSet {
-            isEnabledSubject?.send(isEnabled)
+            enabledSubject?.send(isEnabled)
         }
     }
     

@@ -17,6 +17,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public typealias SupplementaryActionBlock = (_ context: SupplementaryActionContext) -> Void
     public typealias ContextMenuBlock = (_ context: ContextMenuContext) -> ContextMenuResult?
+    public typealias CellShouldBlock  = (_ context: ContextMenuContext) -> Bool?
     public typealias CellActionBlock  = (_ context: CellActionContext) -> Void
     public typealias CellStyleBlock   = (_ context: CellStyleContext) -> Void
     
@@ -33,6 +34,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         case didEndDisplay
         /// 配置完成
         case config
+    }
+    
+    public enum CellShouldType: Int, Hashable {
+        case move
     }
     
     public enum SupplementaryActionType: Int, Hashable {
@@ -147,7 +152,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
     }
     
-    public class Pulishers {
+    public class Publishers {
         /// models 变更订阅
         public private(set) lazy var modelsPulisher = modelsSubject.eraseToAnyPublisher()
         /// cell 事件订阅, 事件类型参照 `CellActionType`
@@ -164,7 +169,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         fileprivate var cellActionSubject: PassthroughSubject<CellActionContext, Never>?
         fileprivate var supplementaryActionSubject: PassthroughSubject<SupplementaryActionContext, Never>?
         
-        func deferred<Output, Failure: Error>(bind: WritableKeyPath<Pulishers, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
+        func deferred<Output, Failure: Error>(bind: WritableKeyPath<Publishers, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
             return Deferred { [weak self] in
                 guard var self = self else {
                     return PassthroughSubject<Output, Failure>()
@@ -193,8 +198,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     /// cell 对应的数据集
     public private(set) var models: [Model] {
-        set { pulishers.modelsSubject.send(newValue) }
-        get { pulishers.modelsSubject.value }
+        set { publishers.modelsSubject.send(newValue) }
+        get { publishers.modelsSubject.value }
     }
     
     /// 无数据时隐藏 footerView
@@ -207,7 +212,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open lazy var minimumInteritemSpacing: CGFloat = .zero
     open var itemCount: Int { models.count }
     
-    public private(set) lazy var pulishers = Pulishers()
+    public private(set) lazy var publishers = Publishers()
     
     private lazy var deletedModels: [Int: Model] = [:]
     private lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
@@ -215,6 +220,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     private lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
     private lazy var cellStyles: [CellStyleBox] = []
     private lazy var cellContextMenus: [ContextMenuBlock] = []
+    private lazy var cellShoulds: [CellShouldType: [CellShouldBlock]] = [:]
+    
     private lazy var loadedTasks: [LoadedBlock] = []
     
     public init(_ models: [Model] = []) {
@@ -241,7 +248,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         loadedTasks.forEach { task in
             task(self)
         }
-        pulishers.lifeCycleSubject?.send(.loadedToSectionView(sectionView))
+        publishers.lifeCycleSubject?.send(.loadedToSectionView(sectionView))
     }
     
     open func item(at row: Int) -> UICollectionViewCell {
@@ -366,6 +373,18 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     /// - Parameter rows: rows
     open func cancelPrefetching(at rows: [Int]) {
         self.prefetch.cancelPrefetching.send(rows)
+    }
+    
+    open func item(canMove row: Int) -> Bool {
+        if let items = cellShoulds[.move] {
+            let context = ContextMenuContext(section: self, model: models[row], row: row)
+            for item in items {
+                if let result = item(context) {
+                    return result
+                }
+            }
+        }
+        return false
     }
     
     public func contextMenu(row: Int, point: CGPoint) -> UIContextMenuConfiguration? {
@@ -775,6 +794,14 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+    func onCellShould(_ kind: CellShouldType, block: @escaping CellShouldBlock) -> Self {
+        if cellShoulds[kind] == nil {
+            cellShoulds[kind] = []
+        }
+        cellShoulds[kind]?.append(block)
+        return self
+    }
+    
     func onContextMenu(_ block: @escaping ContextMenuBlock) -> Self {
         cellContextMenus.append(block)
         return self
@@ -860,6 +887,9 @@ public extension SKCSingleTypeSection {
 public extension SKCSingleTypeSection {
     
     func contextMenu(row: Int) -> ContextMenuResult? {
+        if cellContextMenus.isEmpty {
+            return nil
+        }
         let model = models[row]
         let context = ContextMenuContext(section: self, model: model, row: row)
         for cellContextMenu in cellContextMenus {
@@ -892,7 +922,7 @@ public extension SKCSingleTypeSection {
         cellActions[result.type]?.forEach({ block in
             block(result)
         })
-        pulishers.cellActionSubject?.send(result)
+        publishers.cellActionSubject?.send(result)
     }
     
     func sendSupplementaryAction(_ type: SupplementaryActionType, kind: SKSupplementaryKind, row: Int) {
@@ -900,7 +930,7 @@ public extension SKCSingleTypeSection {
         supplementaryActions[type]?.forEach({ block in
             block(result)
         })
-        pulishers.supplementaryActionSubject?.send(result)
+        publishers.supplementaryActionSubject?.send(result)
     }
     
     func taskIfLoaded(_ task: @escaping LoadedBlock) {

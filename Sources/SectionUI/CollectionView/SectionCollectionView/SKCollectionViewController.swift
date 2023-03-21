@@ -50,6 +50,9 @@ open class SKCollectionViewController: UIViewController {
     
     override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
+#if targetEnvironment(macCatalyst)
+        return
+#endif
         coordinator.animate { [weak self] _ in
             guard let self = self else { return }
             self.view.bounds.size.width = size.width

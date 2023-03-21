@@ -20,10 +20,10 @@ public protocol SKCRegistrationSectionProtocol: SKCDataSourceProtocol,
     var registrations: [any SKCCellRegistrationProtocol] { get set }
     /// manager 注入功能
     var registrationSectionInjection: SKCRegistrationSectionInjection? { get set }
+    var builder: () -> [SKCRegistrationSectionBuilderStore] { get }
     /// manager 设置 `registrationSectionInjection`
     /// - Parameter injection: injection
     func prepare(injection: SKCRegistrationSectionInjection?)
-    
 }
 
 public extension SKCRegistrationSectionProtocol {
@@ -309,6 +309,10 @@ public extension SKCRegistrationSectionProtocol {
         }
         self.registrations = resetIndex(injection: injection, registrations: registrations, offset: 0)
         injection.delete(cell: Array(set))
+    }
+    
+    func reload() {
+        self.apply(builder)
     }
     
     func reload(cell items: (any SKCCellRegistrationProtocol)...) {

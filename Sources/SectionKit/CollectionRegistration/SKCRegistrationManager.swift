@@ -117,7 +117,7 @@ public extension SKCRegistrationManager {
         reload([section])
     }
     
-    func reload(@SKCRegistrationSectionBuilder builder: (() -> [SKCRegistrationSectionBuilderStore])) {
+    func reload(@SKCRegistrationSectionBuilder builder: @escaping (() -> [SKCRegistrationSectionBuilderStore])) {
         reload(SKCRegistrationSection(builder: builder))
     }
     

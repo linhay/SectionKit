@@ -29,7 +29,7 @@ open class SKCollectionViewController: UIViewController {
     public private(set) lazy var sectionView = SKCollectionView()
     public var manager: SKCManager { sectionView.manager }
     public var registrationManager: SKCRegistrationManager { sectionView.registrationManager }
-
+    
     public convenience init() {
         self.init(nibName: nil, bundle: nil)
     }
@@ -51,6 +51,7 @@ open class SKCollectionViewController: UIViewController {
     override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 #if targetEnvironment(macCatalyst)
+        sectionView.collectionViewLayout.invalidateLayout()
         return
 #endif
         coordinator.animate { [weak self] _ in

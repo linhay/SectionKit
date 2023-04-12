@@ -17,6 +17,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public typealias SupplementaryActionBlock = (_ context: SupplementaryActionContext) -> Void
     public typealias ContextMenuBlock = (_ context: ContextMenuContext) -> ContextMenuResult?
+    public typealias ContextMenuWithActionsBlock = (_ context: ContextMenuContext) -> [UIAction]
     public typealias CellShouldBlock  = (_ context: ContextMenuContext) -> Bool?
     public typealias CellActionBlock  = (_ context: CellActionContext) -> Void
     public typealias CellStyleBlock   = (_ context: CellStyleContext) -> Void
@@ -53,7 +54,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         public let model: Cell.Model
         public let row: Int?
         
-        init(section: SKCSingleTypeSection<Cell>, model: Cell.Model, row: Int?) {
+        init(section: SKCSingleTypeSection<Cell>,
+             model: Cell.Model,
+             row: Int?) {
             self.section = section
             self.model = model
             self.row = row
@@ -805,6 +808,15 @@ public extension SKCSingleTypeSection {
     func onContextMenu(_ block: @escaping ContextMenuBlock) -> Self {
         cellContextMenus.append(block)
         return self
+    }
+    
+    func onContextMenuWithActions(_ block: @escaping ContextMenuWithActionsBlock) -> Self {
+        return onContextMenu { context in
+            let result = block(context)
+            return .init(configuration: .init(actionProvider: { _ in
+                return .init(children: result)
+            }))
+        }
     }
     
     @discardableResult

@@ -1,21 +1,22 @@
 PODS:
-  - SectionKit2 (2.0.8)
-  - SectionUI (2.0.8):
-    - SectionKit2 (>= 2.0.6)
+  - SectionKit2 (2.0.24)
+  - SectionUI (2.0.24):
+    - SectionKit2 (>= 2.0.24)
 
 DEPENDENCIES:
-  - SectionKit2 (= 2.0.8)
-  - SectionUI (= 2.0.8)
+  - SectionKit2 (from `../SectionKit2.podspec`)
+  - SectionUI (from `../SectionUI.podspec`)
 
-SPEC REPOS:
-  trunk:
-    - SectionKit2
-    - SectionUI
+EXTERNAL SOURCES:
+  SectionKit2:
+    :path: "../SectionKit2.podspec"
+  SectionUI:
+    :path: "../SectionUI.podspec"
 
 SPEC CHECKSUMS:
-  SectionKit2: 25d60562709c9785d0bfb74b07a6348f488a781b
-  SectionUI: f336a8375e0fd9a345dcf7a0778155e11d50c85f
+  SectionKit2: d3cbe71e3d5396c8c2de21f44f8bd46dabf22c7a
+  SectionUI: 5cc2957e4d2fea4e8b8c61431a05fb86d601a348
 
-PODFILE CHECKSUM: d852b915919231a7f987ff1cd14e26f70ac5d89c
+PODFILE CHECKSUM: def6316c40ed29d88472f05b5508c79c232c1fcd
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.0

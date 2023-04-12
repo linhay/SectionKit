@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A3B191F6FB7166A00EBA703D /* Pods_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B5BFD08AB287F8F177FD048 /* Pods_Example.framework */; };
 		CD0621A128A7FBD200272233 /* Stem in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A028A7FBD200272233 /* Stem */; };
 		CD0621A328A7FBD200272233 /* StemColor in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A228A7FBD200272233 /* StemColor */; };
 		CD0621A528A7FBD200272233 /* StemFilePath in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A428A7FBD200272233 /* StemFilePath */; };
@@ -68,6 +69,7 @@
 				CD0621A528A7FBD200272233 /* StemFilePath in Frameworks */,
 				CD33B82627DCE6190032987B /* SnapKit in Frameworks */,
 				CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */,
+				A3B191F6FB7166A00EBA703D /* Pods_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,7 +217,7 @@
 			mainGroup = CD33B7FB27DCE3A70032987B;
 			packageReferences = (
 				CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */,
-				CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */,
+				CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */,
 				CDA10DEC28B4A90C000698F2 /* XCRemoteSwiftPackageReference "Delegate" */,
 			);
 			productRefGroup = CD33B80527DCE3A70032987B /* Products */;
@@ -524,7 +526,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */ = {
+		CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/linhay/Stem.git";
 			requirement = {
@@ -553,17 +555,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		CD0621A028A7FBD200272233 /* Stem */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
+			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */;
 			productName = Stem;
 		};
 		CD0621A228A7FBD200272233 /* StemColor */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
+			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */;
 			productName = StemColor;
 		};
 		CD0621A428A7FBD200272233 /* StemFilePath */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
+			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem.git" */;
 			productName = StemFilePath;
 		};
 		CD33B82527DCE6190032987B /* SnapKit */ = {

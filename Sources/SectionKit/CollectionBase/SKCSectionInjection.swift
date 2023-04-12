@@ -67,6 +67,10 @@ public extension SKCSectionInjection.Action {
 
 public extension SKCSectionInjection {
     
+    func pick(_ updates: () -> Void, completion: ((_ flag: Bool) -> Void)? = nil) {
+        sectionView?.performBatchUpdates(updates, completion: completion)
+    }
+    
     func delete() {
         events[configuration.mapAction(.delete)]?(self)
     }

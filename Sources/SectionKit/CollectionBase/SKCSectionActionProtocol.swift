@@ -31,6 +31,10 @@ public extension SKCSectionActionProtocol {
 
 public extension SKCSectionActionProtocol {
     
+    func pick(_ updates: () -> Void, completion: ((_ flag: Bool) -> Void)? = nil) {
+        sectionInjection?.pick(updates, completion: completion)
+    }
+    
     func reload() {
         sectionInjection?.reload()
     }

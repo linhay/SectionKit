@@ -105,13 +105,6 @@ public extension SKCSectionActionProtocol {
         sectionView.cellForItem(at: indexPath(from: row))
     }
     
-    func scroll(to row: Int?, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
-        guard let row = row, let sectionView = sectionInjection?.sectionView else {
-            return
-        }
-        sectionView.scrollToItem(at: indexPath(from: row), at: scrollPosition, animated: animated)
-    }
-    
     func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
         sectionInjection?
             .sectionView?
@@ -179,6 +172,30 @@ public extension SKCSectionActionProtocol {
         } else {
             sectionView.register(T.self, forSupplementaryViewOfKind: kind.rawValue, withReuseIdentifier: T.identifier)
         }
+    }
+    
+}
+
+
+public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol {
+    
+    func scrollToTop(animated: Bool) {
+        scroll(to: 0, at: .top, animated: animated)
+    }
+    
+    func scrollToBottom(animated: Bool) {
+        scroll(to: self.itemCount - 1, at: .bottom, animated: animated)
+    }
+    
+    func scroll(to row: Int?, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+        guard let row = row, let sectionView = sectionInjection?.sectionView else {
+            return
+        }
+        guard row >= 0, row < itemCount else {
+            assertionFailure("row 的值应该在 (0..<\(itemCount) 之间")
+            return
+        }
+        sectionView.scrollToItem(at: indexPath(from: row), at: scrollPosition, animated: animated)
     }
     
 }

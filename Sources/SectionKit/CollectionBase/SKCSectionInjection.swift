@@ -44,7 +44,7 @@ public class SKCSectionInjection {
     
     public static var configuration = Configuration()
     public var configuration = SKCSectionInjection.configuration
-    public let index: Int
+    public internal(set) var index: Int
     public var sectionView: UICollectionView? { sectionViewProvider.sectionView }
     
     var sectionViewProvider: SectionViewProvider

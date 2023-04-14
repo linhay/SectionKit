@@ -8,7 +8,7 @@
 import UIKit
  
 public typealias SKCBaseSectionProtocol = SKCSectionActionProtocol & SKCDataSourceProtocol & SKCDelegateProtocol
-public typealias SKCSectionProtocol = SKCBaseSectionProtocol & SKCViewDelegateFlowLayoutProtocol & SKCSectionActionProtocol
+public typealias SKCSectionProtocol = SKCBaseSectionProtocol & SKCViewDelegateFlowLayoutProtocol
 
 public extension SKCDataSourceProtocol where Self: SKCViewDelegateFlowLayoutProtocol {
     

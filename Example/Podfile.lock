@@ -1,7 +1,7 @@
 PODS:
-  - SectionKit2 (2.0.24)
-  - SectionUI (2.0.24):
-    - SectionKit2 (>= 2.0.24)
+  - SectionKit2 (2.0.25)
+  - SectionUI (2.0.25):
+    - SectionKit2 (>= 2.0.25)
 
 DEPENDENCIES:
   - SectionKit2 (from `../SectionKit2.podspec`)
@@ -14,8 +14,8 @@ EXTERNAL SOURCES:
     :path: "../SectionUI.podspec"
 
 SPEC CHECKSUMS:
-  SectionKit2: d3cbe71e3d5396c8c2de21f44f8bd46dabf22c7a
-  SectionUI: 5cc2957e4d2fea4e8b8c61431a05fb86d601a348
+  SectionKit2: 7cb118a445b77ce76a1aeba2c30444a2a5195309
+  SectionUI: d1b5b6abd8346eca8665e13911556b04544c599d
 
 PODFILE CHECKSUM: def6316c40ed29d88472f05b5508c79c232c1fcd
 

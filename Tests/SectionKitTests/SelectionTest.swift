@@ -79,7 +79,7 @@ final class SelectionTest: XCTestCase {
 
         // 订阅 isEnabled 属性的变化
         var isEnabledValue = true
-        let isEnabledCancellable = selectionState.isEnabledPublisher.sink { value in
+        let isEnabledCancellable = selectionState.enabledPublisher.sink { value in
             isEnabledValue = value
         }
 

@@ -44,7 +44,7 @@ class SKSelectionStateTests: XCTestCase {
                 canSelectExpectation.fulfill()
             }
         
-        let isEnabledSubscriber = selectionState.isEnabledPublisher
+        let isEnabledSubscriber = selectionState.enabledPublisher
             .dropFirst()
             .sink { isEnabled in
                 isEnabledChangesCount += 1

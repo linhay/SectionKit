@@ -23,6 +23,7 @@
 import Foundation
 
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
 
 /// SupplementaryView regist type
@@ -54,4 +55,6 @@ public enum SKSupplementaryKind: Equatable, Hashable, RawRepresentable {
         }
     }
 }
+#endif
+
 #endif

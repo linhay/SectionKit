@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SectionKit",
-    platforms: [.iOS(.v13)],
+    platforms: [.iOS(.v13), .macOS(.v11)],
     products: [
         .library(name: "SectionKit", targets: ["SectionKit"]),
         .library(name: "SectionUI", targets: ["SectionUI"]),

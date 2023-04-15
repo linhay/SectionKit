@@ -5,6 +5,8 @@
 //  Created by linhey on 2022/12/5.
 //
 
+#if canImport(UIKit)
+import UIKit
 import XCTest
 @testable
 import SectionKit
@@ -72,3 +74,4 @@ final class TestSKCSectionInjection: XCTestCase {
 
 
 }
+#endif

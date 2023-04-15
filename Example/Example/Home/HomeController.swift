@@ -6,6 +6,7 @@
 //
 
 import SectionUI
+#if canImport(UIKit)
 import UIKit
 
 class HomeController: SKCollectionViewController {
@@ -65,3 +66,5 @@ extension HomeController {
         manager.reload(section)
     }
 }
+
+#endif

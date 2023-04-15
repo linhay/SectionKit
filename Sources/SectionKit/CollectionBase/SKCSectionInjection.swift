@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/13.
 //
 
+#if canImport(UIKit)
 import UIKit
 import Combine
 
@@ -132,3 +133,5 @@ public extension SKCSectionInjection {
     }
     
 }
+
+#endif

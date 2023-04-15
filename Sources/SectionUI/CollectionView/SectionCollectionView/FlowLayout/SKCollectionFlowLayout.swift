@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
 import SectionKit
 
@@ -610,5 +611,7 @@ extension SKCollectionFlowLayout.BindingKey: Hashable where Value: Hashable {
         hasher.combine(closure())
     }
 }
+
+#endif
 
 #endif

@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
 import SectionKit
 
@@ -81,4 +82,6 @@ open class SKCollectionViewController: UIViewController {
     }
     
 }
+#endif
+
 #endif

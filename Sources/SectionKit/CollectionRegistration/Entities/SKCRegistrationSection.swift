@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/13.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public final class SKCRegistrationSection: SKCRegistrationSectionProtocol {
@@ -28,3 +29,5 @@ public final class SKCRegistrationSection: SKCRegistrationSectionProtocol {
     
 }
 
+
+#endif

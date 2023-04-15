@@ -7,6 +7,7 @@
 
 import SectionKit
 import Stem
+#if canImport(UIKit)
 import UIKit
 import StemColor
 
@@ -46,3 +47,5 @@ class ReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigurable
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+#endif

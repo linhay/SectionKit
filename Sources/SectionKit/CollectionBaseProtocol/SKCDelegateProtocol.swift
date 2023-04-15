@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/11.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCDelegateProtocol {
@@ -209,3 +210,5 @@ public extension SKCDelegateProtocol {
     func section(didEndMultipleSelectionInteraction: Void) { }
     
 }
+
+#endif

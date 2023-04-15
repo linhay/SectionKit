@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/11.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCViewDataSourcePrefetchingProtocol {
@@ -15,3 +16,5 @@ public protocol SKCViewDataSourcePrefetchingProtocol {
     /// - Parameter rows: rows
     func cancelPrefetching(at rows: [Int])
 }
+
+#endif

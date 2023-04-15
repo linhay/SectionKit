@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/3/25.
 //
 
+#if canImport(UIKit)
 import UIKit
 import SectionKit
 
@@ -151,3 +152,5 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
         edgeConstraint.activate()
     }
 }
+
+#endif

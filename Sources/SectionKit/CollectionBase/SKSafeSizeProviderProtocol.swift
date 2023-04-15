@@ -6,6 +6,7 @@
 //
 
 import Foundation
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKSafeSizeProviderProtocol: AnyObject {
@@ -63,3 +64,5 @@ public extension SKCViewDelegateFlowLayoutProtocol where Self: SKCSectionActionP
     }
     
 }
+
+#endif

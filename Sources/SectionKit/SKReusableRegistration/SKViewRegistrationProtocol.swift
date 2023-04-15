@@ -5,7 +5,8 @@
 //  Created by linhey on 2022/8/17.
 //
 
-import Foundation
+#if canImport(UIKit)
+import UIKit
 
 public protocol SKViewRegistrationProtocol {
     associatedtype View: SKLoadViewProtocol & SKConfigurableView
@@ -21,3 +22,4 @@ extension SKViewRegistrationProtocol {
     }
     
 }
+#endif

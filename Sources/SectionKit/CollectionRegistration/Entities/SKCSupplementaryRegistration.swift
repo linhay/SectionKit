@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/15.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public extension SKConfigurableView where Self: UICollectionReusableView & SKLoadViewProtocol {
@@ -40,3 +41,5 @@ public class SKCSupplementaryRegistration<View: UICollectionReusableView & SKCon
     }
     
 }
+
+#endif

@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/9/2.
 //
 
+#if canImport(UIKit)
 import UIKit
 import CoreTransferable
 
@@ -41,3 +42,5 @@ public class SKCRegistrationSectionBuilder: SectionArrayResultBuilder<SKCRegistr
     }
     
 }
+
+#endif

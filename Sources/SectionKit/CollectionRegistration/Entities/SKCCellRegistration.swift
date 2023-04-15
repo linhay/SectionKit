@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/15.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
@@ -51,3 +52,5 @@ public class SKCCellRegistration<View: UICollectionViewCell & SKConfigurableView
     public var shouldSpringLoad: ((UISpringLoadedInteractionContext) -> Bool)?
     
 }
+
+#endif

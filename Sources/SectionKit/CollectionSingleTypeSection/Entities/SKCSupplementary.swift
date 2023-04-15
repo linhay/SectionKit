@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/19.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public struct SKCSupplementary<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>: SKCSupplementaryProtocol {
@@ -37,3 +38,5 @@ public struct SKCSupplementary<View: UICollectionReusableView & SKLoadViewProtoc
     }
     
 }
+
+#endif

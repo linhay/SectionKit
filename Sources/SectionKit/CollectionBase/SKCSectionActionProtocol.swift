@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/11.
 //
 
+#if canImport(UIKit)
 import UIKit
  
 public protocol SKCSectionActionProtocol: AnyObject {
@@ -199,3 +200,5 @@ public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol {
     }
     
 }
+
+#endif

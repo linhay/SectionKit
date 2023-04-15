@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/9/20.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
@@ -102,3 +103,5 @@ public class SKCWrapperReusableView<View: SKConfigurableView & SKLoadViewProtoco
     
 }
 
+
+#endif

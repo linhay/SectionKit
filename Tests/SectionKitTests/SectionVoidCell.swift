@@ -6,6 +6,7 @@
 //
 
 import SectionKit
+#if canImport(UIKit)
 import UIKit
 
 final class SectionVoidCell: UICollectionViewCell, SKLoadViewProtocol {
@@ -39,3 +40,5 @@ extension SectionVoidCell: SKConfigurableView {
 extension SectionVoidCell {
     private func setupView() {}
 }
+
+#endif

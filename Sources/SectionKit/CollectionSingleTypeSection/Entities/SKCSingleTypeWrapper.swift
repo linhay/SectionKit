@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/31.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
@@ -42,3 +43,5 @@ public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadVie
     }
     
 }
+
+#endif

@@ -5,6 +5,8 @@
 //  Created by linhey on 2022/4/27.
 //
 
+#if canImport(UIKit)
+import UIKit
 import Combine
 import SectionUI
 import XCTest
@@ -41,3 +43,4 @@ final class wrapperToSingleTypeSectionTests: XCTestCase {
         }
     }
 }
+#endif

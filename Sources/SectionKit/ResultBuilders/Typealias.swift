@@ -5,6 +5,8 @@
 //  Created by linhey on 2022/9/7.
 //
 
-import Foundation
+#if canImport(UIKit)
+import UIKit
 
 public typealias SKCRegistrationSectionsBuilder = SectionArrayResultBuilder<any SKCRegistrationSectionProtocol>
+#endif

@@ -8,6 +8,7 @@
 import Combine
 import SectionUI
 import Stem
+#if canImport(UIKit)
 import UIKit
 import StemColor
 
@@ -46,3 +47,5 @@ extension PrefetchViewController {
         manager.reload(section)
     }
 }
+
+#endif

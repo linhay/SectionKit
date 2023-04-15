@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/17.
 //
 
+#if canImport(UIKit)
 import UIKit
 import SectionKit
 import StemColor
@@ -67,3 +68,5 @@ extension StringCell {
         }
     }
 }
+
+#endif

@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/11.
 //
 
+#if canImport(UIKit)
 import UIKit
 import Combine
 
@@ -83,3 +84,5 @@ private extension SKCViewDataSourcePrefetching {
     }
     
 }
+
+#endif

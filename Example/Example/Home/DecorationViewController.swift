@@ -7,6 +7,7 @@
 
 import SectionUI
 import Stem
+#if canImport(UIKit)
 import UIKit
 
 class DecorationViewController: SKCollectionViewController {
@@ -170,3 +171,5 @@ extension DecorationViewController {
         }
     }
 }
+
+#endif

@@ -5,6 +5,7 @@
 //  Created by linhey on 2023/3/9.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 fileprivate extension UIView {
@@ -80,3 +81,5 @@ public extension SKConfigurableAdaptiveView {
     }
     
 }
+
+#endif

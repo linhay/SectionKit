@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
 import SectionKit
 
@@ -98,5 +99,7 @@ private extension SKCollectionView {
         showsHorizontalScrollIndicator = false
     }
 }
+
+#endif
 
 #endif

@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/10/5.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol, SKConfigurableView {
@@ -72,3 +73,5 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
     }
     
 }
+
+#endif

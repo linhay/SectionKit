@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/19.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCSupplementaryProtocol {
@@ -27,3 +28,5 @@ public extension SKCSupplementaryProtocol {
     }
     
 }
+
+#endif

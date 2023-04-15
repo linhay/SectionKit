@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/11.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public class SKCManager {
@@ -181,3 +182,5 @@ private extension SKCManager {
     }
 
 }
+
+#endif

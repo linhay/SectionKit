@@ -7,6 +7,7 @@
 
 import SectionUI
 import Stem
+#if canImport(UIKit)
 import UIKit
 import StemColor
 
@@ -254,3 +255,5 @@ extension SingleTypeViewController {
         }
     }
 }
+
+#endif

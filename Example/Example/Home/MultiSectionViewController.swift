@@ -7,7 +7,8 @@
 //
 //import SectionKit
 //import Stem
-//import UIKit
+//#if canImport(UIKit)
+import UIKit
 //
 //class MultiSectionViewController: SKCollectionViewController {
 //    enum Action: String, CaseIterable {
@@ -155,3 +156,5 @@
 //        }
 //    }
 //}
+
+#endif

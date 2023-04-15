@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/3/12.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 @main
@@ -28,3 +29,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 }
+
+#endif

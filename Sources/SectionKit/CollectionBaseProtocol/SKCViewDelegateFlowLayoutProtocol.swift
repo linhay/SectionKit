@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/12.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCViewDelegateFlowLayoutProtocol: SKCDelegateProtocol {
@@ -38,3 +39,5 @@ public extension SKCViewDelegateFlowLayoutProtocol {
     var sectionInset: UIEdgeInsets { .zero }
     
 }
+
+#endif

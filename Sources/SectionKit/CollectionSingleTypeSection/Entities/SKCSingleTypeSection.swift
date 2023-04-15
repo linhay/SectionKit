@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/18.
 //
 
+#if canImport(UIKit)
 import UIKit
 import Combine
 
@@ -954,3 +955,5 @@ public extension SKCSingleTypeSection {
     }
     
 }
+
+#endif

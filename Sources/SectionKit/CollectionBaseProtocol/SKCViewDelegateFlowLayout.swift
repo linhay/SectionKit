@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/12.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 class SKCViewDelegateFlowLayout: SKCDelegate, UICollectionViewDelegateFlowLayout {
@@ -81,3 +82,5 @@ class SKCViewDelegateFlowLayout: SKCDelegate, UICollectionViewDelegateFlowLayout
     }
     
 }
+
+#endif

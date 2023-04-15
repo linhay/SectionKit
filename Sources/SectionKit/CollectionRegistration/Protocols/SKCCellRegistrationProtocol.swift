@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/12.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCCellRegistrationProtocol: SKCSupplementaryRegistrationProtocol where View: UICollectionViewCell {
@@ -146,3 +147,5 @@ public extension SKCCellRegistrationProtocol {
     }
     
 }
+
+#endif

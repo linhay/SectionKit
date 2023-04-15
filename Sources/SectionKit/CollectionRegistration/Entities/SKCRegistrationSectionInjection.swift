@@ -5,7 +5,8 @@
 //  Created by linhey on 2022/8/16.
 //
 
-import Foundation
+#if canImport(UIKit)
+import UIKit
 
 public class SKCRegistrationSectionInjection: SKCSectionInjection {
     
@@ -26,3 +27,4 @@ public class SKCRegistrationSectionInjection: SKCSectionInjection {
     }
     
 }
+#endif

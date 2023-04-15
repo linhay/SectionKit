@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
 
 public class SKScrollViewDelegate: NSObject, UIScrollViewDelegate {
@@ -121,4 +122,6 @@ public extension SKScrollViewDelegate {
         observeStore.values.forEach { $0.value?.scrollViewDidChangeAdjustedContentInset?(scrollView) }
     }
 }
+#endif
+
 #endif

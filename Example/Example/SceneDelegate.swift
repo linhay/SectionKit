@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/3/12.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -45,3 +46,5 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 }
+
+#endif

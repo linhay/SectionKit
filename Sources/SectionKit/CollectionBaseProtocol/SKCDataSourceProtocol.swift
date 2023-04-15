@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/11.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCDataSourceProtocol {
@@ -44,3 +45,5 @@ public extension SKCDataSourceProtocol where Self: SKCSectionActionProtocol {
     var sectionIndex: Int? { self.sectionInjection?.index }
     
 }
+
+#endif

@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/9/16.
 //
 
+#if canImport(UIKit)
 import UIKit
 import SectionKit
 
@@ -37,3 +38,5 @@ class CustomSection: SKCSectionProtocol {
     func item(didBeginMultipleSelectionInteraction row: Int) {}
     /// ...
 }
+
+#endif

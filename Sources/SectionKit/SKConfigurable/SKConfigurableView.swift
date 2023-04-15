@@ -7,6 +7,7 @@
 
 #if canImport(CoreGraphics)
 import Foundation
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKConfigurableView: SKConfigurableModelProtocol & SKConfigurableLayoutProtocol & UIView {}
@@ -24,5 +25,7 @@ public extension SKConfigurableView {
     }
     
 }
+
+#endif
 
 #endif

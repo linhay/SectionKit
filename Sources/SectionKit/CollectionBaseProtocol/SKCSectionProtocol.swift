@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/12.
 //
 
+#if canImport(UIKit)
 import UIKit
  
 public typealias SKCBaseSectionProtocol = SKCSectionActionProtocol & SKCDataSourceProtocol & SKCDelegateProtocol
@@ -24,3 +25,5 @@ public extension SKCDataSourceProtocol where Self: SKCViewDelegateFlowLayoutProt
     }
     
 }
+
+#endif

@@ -7,6 +7,7 @@
 
 import Foundation
 import SectionKit
+#if canImport(UIKit)
 import UIKit
 
 public extension SKCollectionFlowLayout.BindingKey where Value == Int {
@@ -37,3 +38,5 @@ public extension SKCollectionFlowLayout.Decoration {
     }
     
 }
+
+#endif

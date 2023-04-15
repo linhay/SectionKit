@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/15.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public extension Array where Element: SKCCellRegistrationProtocol {
@@ -78,3 +79,5 @@ public extension Array where Element: SKCCellRegistrationProtocol {
     }
     
 }
+
+#endif

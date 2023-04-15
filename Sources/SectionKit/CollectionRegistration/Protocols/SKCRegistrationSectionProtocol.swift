@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/12.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCRegistrationSectionProtocol: SKCDataSourceProtocol,
@@ -496,3 +497,5 @@ private extension SKCRegistrationSectionProtocol {
     }
     
 }
+
+#endif

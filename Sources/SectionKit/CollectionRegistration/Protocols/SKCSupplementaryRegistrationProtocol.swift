@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/12.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCSupplementaryRegistrationProtocol: AnyObject, SKViewRegistrationProtocol where View: UICollectionReusableView {
@@ -116,3 +117,5 @@ extension SKCSupplementaryRegistrationProtocol {
     }
     
 }
+
+#endif

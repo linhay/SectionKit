@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/18.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public protocol SKCSingleTypeSectionProtocol: SKCDataSourceProtocol,
@@ -18,3 +19,5 @@ public protocol SKCSingleTypeSectionProtocol: SKCDataSourceProtocol,
     var models: [Model] { get }
 
 }
+
+#endif

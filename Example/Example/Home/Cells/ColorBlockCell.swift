@@ -5,8 +5,9 @@
 //  Created by linhey on 2022/3/12.
 //
 
-import SectionKit
+#if canImport(UIKit)
 import UIKit
+import SectionKit
 
 final class ColorBlockCell: UICollectionViewCell, SKLoadViewProtocol {
     private lazy var titleLabel: UILabel = {
@@ -100,3 +101,5 @@ extension ColorBlockCell {
         }
     }
 }
+
+#endif

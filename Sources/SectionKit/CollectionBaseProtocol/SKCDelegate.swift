@@ -5,6 +5,7 @@
 //  Created by linhey on 2022/8/10.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
@@ -438,3 +439,5 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
     // @available(iOS 15.0, *)
     // func collectionView(_ collectionView: UICollectionView, sceneActivationConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIWindowScene.ActivationConfiguration? { }
 }
+
+#endif

@@ -7,6 +7,7 @@
 
 import SectionKit
 import SnapKit
+#if canImport(UIKit)
 import UIKit
 
 final class StringRawCell<Model: RawRepresentable>: UICollectionViewCell, SKLoadViewProtocol where Model.RawValue == String {
@@ -57,3 +58,5 @@ extension StringRawCell {
         }
     }
 }
+
+#endif

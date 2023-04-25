@@ -7,15 +7,9 @@
 
 import Foundation
 
-public struct SKLayoutDirection: OptionSet {
+public enum SKLayoutDirection: Int, Codable, Hashable, Equatable {
     
-    public static let horizontal = SKLayoutDirection(rawValue: 1 << 0)
-    public static let vertical   = SKLayoutDirection(rawValue: 1 << 1)
-    
-    public let rawValue: Int
-
-    public init(rawValue: Int) {
-        self.rawValue = rawValue
-    }
+    case horizontal
+    case vertical
     
 }

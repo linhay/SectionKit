@@ -14,72 +14,105 @@ fileprivate extension UIView {
     
 }
 
-public struct SKAdaptive<Self: SKConfigurableView> {
+public struct SKAdaptiveFittingPriority {
     
-    let direction: SKLayoutDirection
-    let view: Self
-    let content: KeyPath<Self, UIView>?
-    let insets: UIEdgeInsets
+    public let horizontal: UILayoutPriority
+    public let vertical: UILayoutPriority
     
-    public init<T: UIView>(view: Self = .init(),
-                           direction: SKLayoutDirection,
-                           content: KeyPath<Self, T>?,
-                           insets: UIEdgeInsets = .zero) {
+    public init(horizontal: UILayoutPriority, vertical: UILayoutPriority) {
+        self.horizontal = horizontal
+        self.vertical = vertical
+    }
+}
+
+public struct SKAdaptive<AdaptiveView: UIView, Model> {
+    
+    public let direction: SKLayoutDirection
+    public let view: AdaptiveView
+    public let content: KeyPath<AdaptiveView, UIView>?
+    public let config: (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void
+    public let insets: UIEdgeInsets
+    public let fittingPriority: SKAdaptiveFittingPriority
+    
+    public init<T: UIView>(view: AdaptiveView = .init(),
+                           direction: SKLayoutDirection = .vertical,
+                           content: KeyPath<AdaptiveView, T>? = nil,
+                           insets: UIEdgeInsets = .zero,
+                           fittingPriority: SKAdaptiveFittingPriority? = nil,
+                           config: @escaping (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void) {
         self.view = view
         self.direction = direction
         self.content = content?.appending(path: \.eraseToAnyUIView)
         self.insets = insets
+        self.config = config
+        if let fittingPriority = fittingPriority {
+            self.fittingPriority = fittingPriority
+        } else {
+            switch direction {
+            case .horizontal:
+                self.fittingPriority = .init(horizontal: .fittingSizeLevel, vertical: .required)
+            case .vertical:
+                self.fittingPriority = .init(horizontal: .required, vertical: .fittingSizeLevel)
+            }
+        }
     }
-    
-    public init(view: Self = .init(), direction: SKLayoutDirection, insets: UIEdgeInsets = .zero) {
-        self.view = view
-        self.direction = direction
-        self.content = nil
-        self.insets = insets
+
+    public init<T: UIView>(view: AdaptiveView = .init(),
+                           direction: SKLayoutDirection = .vertical,
+                           content: KeyPath<AdaptiveView, T>? = nil,
+                           insets: UIEdgeInsets = .zero,
+                           fittingPriority: SKAdaptiveFittingPriority? = nil) where AdaptiveView: SKConfigurableView, AdaptiveView.Model == Model {
+        self.init(view: view, direction: direction, content: content, insets: insets) { view, size, model in
+            switch direction {
+            case .horizontal:
+                view.bounds.size = .init(width: 0, height: size.height)
+            case .vertical:
+                view.bounds.size = .init(width: size.width, height: 0)
+            }
+            view.config(model)
+        }
     }
     
 }
 
 public protocol SKConfigurableAdaptiveView: SKConfigurableView {
-    static var adaptive: SKAdaptive<Self> { get }
+    associatedtype AdaptiveView: UIView
+    static var adaptive: SKAdaptive<AdaptiveView, Model> { get }
 }
 
 public extension SKConfigurableAdaptiveView {
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model = model else { return .zero }
-        var horizontalFittingPriority: UILayoutPriority = .required
-        var verticalFittingPriority: UILayoutPriority = .required
+        var size = size
         
-        if adaptive.direction.contains(.horizontal) {
-            horizontalFittingPriority = .fittingSizeLevel
-        }
-        
-        if adaptive.direction.contains(.vertical) {
-            verticalFittingPriority = .fittingSizeLevel
-        }
-        
-        adaptive.view.config(model)
-        var size = adaptive.view.systemLayoutSizeFitting(size,
-                                                          withHorizontalFittingPriority: horizontalFittingPriority,
-                                                          verticalFittingPriority: verticalFittingPriority)
-        adaptive.view.bounds.size = size
+        adaptive.config(adaptive.view, size, model)
+        size = adaptive.view.systemLayoutSizeFitting(adaptive.view.bounds.size,
+                                                     withHorizontalFittingPriority: adaptive.fittingPriority.horizontal,
+                                                     verticalFittingPriority: adaptive.fittingPriority.vertical)
         if let content = adaptive.content {
             adaptive.view.layoutIfNeeded()
             let view = adaptive.view[keyPath: content]
             let contentSize = view.frame.size
-            if horizontalFittingPriority == .fittingSizeLevel {
+            if adaptive.fittingPriority.horizontal == .fittingSizeLevel {
                 size.width = contentSize.width
             }
-            if verticalFittingPriority == .fittingSizeLevel {
+            if adaptive.fittingPriority.vertical == .fittingSizeLevel {
                 size.height = contentSize.height
             }
         }
         
-        return .init(width: size.width + adaptive.insets.left + adaptive.insets.right,
-                     height: size.height + adaptive.insets.top + adaptive.insets.bottom)
+        let result = CGSize(width: size.width + adaptive.insets.left + adaptive.insets.right,
+                            height: size.height + adaptive.insets.top + adaptive.insets.bottom)
+        
+        if result.width == 0 || result.height == 0 {
+            return .zero
+        }
+        
+        return result
     }
     
 }
+
 
 #endif

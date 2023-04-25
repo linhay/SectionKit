@@ -9,9 +9,8 @@
 import ObjectiveC
 import Foundation
 import CoreFoundation
-import UIKit
 
-public class SKAdaptiveIDStore<ID: Hashable> {
+public class SKAdaptiveStore<ID: Hashable> {
     
     public struct CacheKey: Hashable {
         

@@ -31,10 +31,14 @@ public class SKHighPerformanceStore<ID: Hashable> {
         self.sizeCached = sizeCached
     }
     
+}
+
+public extension SKHighPerformanceStore {
+    
     @discardableResult
-    public func cache(by id: ID,
-                      limit: CGSize,
-                      calculate: (_ limit: CGSize) -> CGSize) -> CGSize {
+    func cache(by id: ID,
+               limit: CGSize,
+               calculate: (_ limit: CGSize) -> CGSize) -> CGSize {
         let key = CacheKey(id: id, size: limit)
         if let value = sizeCached.value(forKey: key) {
             return value
@@ -42,6 +46,13 @@ public class SKHighPerformanceStore<ID: Hashable> {
         let calculate = calculate(limit)
         sizeCached.update(calculate, forKey: key)
         return calculate
+    }
+    
+    @discardableResult
+    func cache<T: AnyObject>(by object: T,
+                             limit: CGSize,
+                             calculate: (_ limit: CGSize) -> CGSize) -> CGSize where ID == ObjectIdentifier {
+        return cache(by: ObjectIdentifier(object), limit: limit, calculate: calculate)
     }
     
 }

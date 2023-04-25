@@ -10,7 +10,7 @@ import ObjectiveC
 import Foundation
 import CoreFoundation
 
-public class SKAdaptiveStore<ID: Hashable> {
+public class SKHighPerformanceStore<ID: Hashable> {
     
     public struct CacheKey: Hashable {
         
@@ -25,10 +25,10 @@ public class SKAdaptiveStore<ID: Hashable> {
         
     }
     
-    public let cached: SKKVCache<CacheKey, CGSize>
+    public let sizeCached: SKKVCache<CacheKey, CGSize>
     
-    public init(cached: SKKVCache<CacheKey, CGSize> = .init()) {
-        self.cached = cached
+    public init(sizeCached: SKKVCache<CacheKey, CGSize> = .init()) {
+        self.sizeCached = sizeCached
     }
     
     @discardableResult
@@ -36,11 +36,11 @@ public class SKAdaptiveStore<ID: Hashable> {
                       limit: CGSize,
                       calculate: (_ limit: CGSize) -> CGSize) -> CGSize {
         let key = CacheKey(id: id, size: limit)
-        if let value = cached.value(forKey: key) {
+        if let value = sizeCached.value(forKey: key) {
             return value
         }
         let calculate = calculate(limit)
-        cached.update(calculate, forKey: key)
+        sizeCached.update(calculate, forKey: key)
         return calculate
     }
     

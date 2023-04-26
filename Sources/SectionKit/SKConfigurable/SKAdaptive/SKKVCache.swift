@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2023/4/25.
 //
@@ -12,20 +12,22 @@ import Foundation
 public final class SKKVCache<Key: Hashable, Value> {
     
     private let wrapped = NSCache<WrappedKey, Entry>()
-    private let dateProvider: () -> Date
+    private var dateProvider: (() -> Date)?
     private let keyTracker = KeyTracker()
     
-    public init(dateProvider: @escaping () -> Date = Date.init,
-                maximumEntryCount: Int = .max) {
-        self.dateProvider = dateProvider
-        wrapped.countLimit = maximumEntryCount
+    public var countLimit: Int {
+        set { wrapped.countLimit = newValue }
+        get { wrapped.countLimit }
+    }
+    
+    public init() {
         wrapped.delegate = keyTracker
     }
     
     public func insert(_ value: Value, forKey key: Key, lifeTime: TimeInterval? = nil) {
         let date: Date?
         if let lifeTime = lifeTime {
-            date = dateProvider().addingTimeInterval(lifeTime)
+            date = dateProvider?().addingTimeInterval(lifeTime)
         } else {
             date = nil
         }
@@ -47,6 +49,10 @@ public final class SKKVCache<Key: Hashable, Value> {
     
     public func removeValue(forKey key: Key) {
         wrapped.removeObject(forKey: WrappedKey(key))
+    }
+    
+    public func removeAll() {
+        wrapped.removeAllObjects()
     }
 }
 
@@ -133,9 +139,10 @@ private extension SKKVCache {
         guard let entry = wrapped.object(forKey: WrappedKey(key)) else {
             return nil
         }
-
+        
         if let expirationDate = entry.expirationDate,
-           dateProvider() >= expirationDate {
+           let now = dateProvider?(),
+           now >= expirationDate {
             removeValue(forKey: key)
             return nil
         }

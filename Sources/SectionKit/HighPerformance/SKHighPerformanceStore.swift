@@ -25,7 +25,7 @@ public class SKHighPerformanceStore<ID: Hashable> {
         
     }
     
-    public let sizeCached: SKKVCache<CacheKey, CGSize>
+    public var sizeCached: SKKVCache<CacheKey, CGSize>
     
     public init(sizeCached: SKKVCache<CacheKey, CGSize> = .init()) {
         self.sizeCached = sizeCached

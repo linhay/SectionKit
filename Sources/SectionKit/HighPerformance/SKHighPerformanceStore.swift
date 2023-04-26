@@ -40,11 +40,11 @@ public extension SKHighPerformanceStore {
                limit: CGSize,
                calculate: (_ limit: CGSize) -> CGSize) -> CGSize {
         let key = CacheKey(id: id, size: limit)
-        if let value = sizeCached.value(forKey: key) {
+        if let value = sizeCached[key] {
             return value
         }
         let calculate = calculate(limit)
-        sizeCached.update(calculate, forKey: key)
+        sizeCached[key] = calculate
         return calculate
     }
     
@@ -53,6 +53,14 @@ public extension SKHighPerformanceStore {
                              limit: CGSize,
                              calculate: (_ limit: CGSize) -> CGSize) -> CGSize where ID == ObjectIdentifier {
         return cache(by: ObjectIdentifier(object), limit: limit, calculate: calculate)
+    }
+    
+    func remove<T: AnyObject>(by object: T, limit: CGSize) where ID == ObjectIdentifier {
+        remove(by: ObjectIdentifier(object), limit: limit)
+    }
+    
+    func remove(by id: ID, limit: CGSize) {
+        sizeCached[.init(id: id, size: limit)] = nil
     }
     
 }

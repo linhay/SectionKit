@@ -11,17 +11,24 @@ import Foundation
 // MARK: - Cache
 public final class SKKVCache<Key: Hashable, Value> {
     
-    private let wrapped = NSCache<WrappedKey, Entry>()
-    private var dateProvider: (() -> Date)?
-    private let keyTracker = KeyTracker()
+    public let wrapped = NSCache<WrappedKey, Entry>()
+    public var dateProvider: (() -> Date)?
+    public let keyTracker = KeyTracker()
+    
+    public var count: Int { keyTracker.keys.count }
     
     public var countLimit: Int {
         set { wrapped.countLimit = newValue }
         get { wrapped.countLimit }
     }
     
-    public init() {
+    public init(countLimit: Int? = nil,
+                dateProvider: (() -> Date)? = nil) {
         wrapped.delegate = keyTracker
+        self.dateProvider = dateProvider
+        if let countLimit = countLimit {
+            self.countLimit = countLimit
+        }
     }
     
     public func insert(_ value: Value, forKey key: Key, lifeTime: TimeInterval? = nil) {
@@ -31,27 +38,15 @@ public final class SKKVCache<Key: Hashable, Value> {
         } else {
             date = nil
         }
-        let entry = Entry(key: key, value: value, expirationDate: date)
-        wrapped.setObject(entry, forKey: WrappedKey(key))
-        keyTracker.keys.insert(key)
+        self.insert(Entry(key: key, value: value, expirationDate: date))
     }
     
-    public func update(_ value: Value, forKey key: Key) {
-        if self.value(forKey: key) != nil {
-            removeValue(forKey: key)
-        }
-        insert(value, forKey: key)
-    }
-    
-    public func value(forKey key: Key) -> Value? {
-        return entry(forKey: key)?.value
-    }
-    
-    public func removeValue(forKey key: Key) {
-        wrapped.removeObject(forKey: WrappedKey(key))
+    public func remove(_ key: Key) {
+        self[key] = nil
     }
     
     public func removeAll() {
+        keyTracker.keys.removeAll()
         wrapped.removeAllObjects()
     }
 }
@@ -59,51 +54,51 @@ public final class SKKVCache<Key: Hashable, Value> {
 // MARK: - Cache Subscript
 
 public extension SKKVCache {
-    subscript(key: Key) -> Value? {
-        get { value(forKey: key) }
+    
+    subscript(_ key: WrappedKey) -> Entry? {
+        get { entry(of: key) }
         set {
-            guard let value = newValue else {
-                // If nil was assigned using our subscript,
-                // then we remove any value for that key:
-                removeValue(forKey: key)
-                return
-            }
-            
-            insert(value, forKey: key)
+            remove(key)
+            guard let newValue = newValue else { return }
+            insert(newValue)
         }
     }
+    
+    subscript(_ key: Key) -> Value? {
+        get { self[WrappedKey(key)]?.value }
+        set { self[WrappedKey(key)] = newValue.map({ .init(key: key, value: $0) }) }
+    }
+    
 }
 
 // MARK: Cache.WrappedKey
 
-private extension SKKVCache {
+public extension SKKVCache {
+    
     final class WrappedKey: NSObject {
-        let key: Key
-        
-        init(_ key: Key) { self.key = key }
-        
-        override var hash: Int { key.hashValue }
-        
-        override func isEqual(_ object: Any?) -> Bool {
+        public let key: Key
+        public init(_ key: Key) { self.key = key }
+        public override var hash: Int { key.hashValue }
+        public override func isEqual(_ object: Any?) -> Bool {
             guard let value = object as? WrappedKey else {
                 return false
             }
-            
             return value.key == key
         }
+        
     }
 }
 
 // MARK: Cache.Entry
 
-private extension SKKVCache {
+public extension SKKVCache {
     
     final class Entry {
-        let key: Key
-        let value: Value
-        let expirationDate: Date?
+        public let key: Key
+        public let value: Value
+        public let expirationDate: Date?
         
-        init(key: Key, value: Value, expirationDate: Date?) {
+        public init(key: Key, value: Value, expirationDate: Date? = nil) {
             self.key = key
             self.value = value
             self.expirationDate = expirationDate
@@ -114,12 +109,12 @@ private extension SKKVCache {
 
 // MARK: Cache.KeyTracker
 
-private extension SKKVCache {
+public extension SKKVCache {
     
     final class KeyTracker: NSObject, NSCacheDelegate {
-        var keys = Set<Key>()
+        public var keys = Set<Key>()
         
-        func cache(_: NSCache<AnyObject, AnyObject>, willEvictObject obj: Any) {
+        public func cache(_: NSCache<AnyObject, AnyObject>, willEvictObject obj: Any) {
             guard let entry = obj as? Entry else {
                 return
             }
@@ -135,24 +130,29 @@ extension SKKVCache.Entry: Codable where Key: Codable, Value: Codable {}
 
 private extension SKKVCache {
     
-    func entry(forKey key: Key) -> Entry? {
-        guard let entry = wrapped.object(forKey: WrappedKey(key)) else {
+    func entry(of key: WrappedKey) -> Entry? {
+        guard let entry = wrapped.object(forKey: key) else {
             return nil
         }
         
         if let expirationDate = entry.expirationDate,
            let now = dateProvider?(),
            now >= expirationDate {
-            removeValue(forKey: key)
+            remove(key)
             return nil
         }
         
         return entry
     }
     
+    func remove(_ key: WrappedKey) {
+        keyTracker.keys.remove(key.key)
+        wrapped.removeObject(forKey: key)
+    }
+    
     func insert(_ entry: Entry) {
-        wrapped.setObject(entry, forKey: WrappedKey(entry.key))
         keyTracker.keys.insert(entry.key)
+        wrapped.setObject(entry, forKey: WrappedKey(entry.key))
     }
 }
 
@@ -169,7 +169,7 @@ extension SKKVCache: Codable where Key: Codable, Value: Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(keyTracker.keys.compactMap(entry))
+        try container.encode(keyTracker.keys.compactMap({ self.entry(of: .init($0)) }))
     }
     
 }

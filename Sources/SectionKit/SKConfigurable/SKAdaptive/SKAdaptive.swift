@@ -61,7 +61,8 @@ public struct SKAdaptive<AdaptiveView: UIView, Model> {
                            direction: SKLayoutDirection = .vertical,
                            content: KeyPath<AdaptiveView, T>? = nil,
                            insets: UIEdgeInsets = .zero,
-                           fittingPriority: SKAdaptiveFittingPriority? = nil) where AdaptiveView: SKConfigurableView, AdaptiveView.Model == Model {
+                           fittingPriority: SKAdaptiveFittingPriority? = nil,
+                           afterConfig: ((_ view: AdaptiveView, _ model: Model) -> Void)? = nil) where AdaptiveView: SKConfigurableView, AdaptiveView.Model == Model {
         self.init(view: view, direction: direction, content: content, insets: insets) { view, size, model in
             switch direction {
             case .horizontal:
@@ -70,6 +71,7 @@ public struct SKAdaptive<AdaptiveView: UIView, Model> {
                 view.bounds.size = .init(width: size.width, height: 0)
             }
             view.config(model)
+            afterConfig?(view, model)
         }
     }
     

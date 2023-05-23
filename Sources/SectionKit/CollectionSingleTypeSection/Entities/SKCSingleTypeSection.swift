@@ -157,6 +157,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     public class Publishers {
+        
+        public var modelsCancellable: AnyCancellable?
+        
         /// models 变更订阅
         public private(set) lazy var modelsPulisher = modelsSubject.eraseToAnyPublisher()
         /// cell 事件订阅, 事件类型参照 `CellActionType`
@@ -218,6 +221,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public private(set) lazy var publishers = Publishers()
     
+    
     private lazy var deletedModels: [Int: Model] = [:]
     private lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
     private lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
@@ -245,6 +249,13 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     open func apply(_ model: Model) {
         apply([model])
+    }
+    
+    open func bind(_ publisher: any Publisher<[Model], Never>) -> Self {
+        publishers.modelsCancellable = publisher.sink { models in
+            self.apply(models)
+        }
+        return self
     }
     
     open func config(sectionView: UICollectionView) {

@@ -63,6 +63,10 @@ public extension SKHighPerformanceStore {
         sizeCached[.init(id: id, size: limit)] = nil
     }
     
+    func removeAll() {
+        sizeCached.removeAll()
+    }
+    
 }
 
 #endif

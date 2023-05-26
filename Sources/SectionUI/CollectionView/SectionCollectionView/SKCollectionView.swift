@@ -43,6 +43,14 @@ open class SKCollectionView: UICollectionView {
         collectionViewLayout = SKCollectionFlowLayout()
         initialize()
     }
+    
+    open override func reloadData() {
+        if SKSectionKit.shared.options.disableReloadWhenViewSizeIsZero,
+           frame.width <= 0 || frame.height <= 0 {
+            return
+        }
+        super.reloadData()
+    }
 }
 
 public extension SKCollectionView {

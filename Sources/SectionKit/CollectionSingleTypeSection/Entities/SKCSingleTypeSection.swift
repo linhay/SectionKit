@@ -252,9 +252,11 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     @discardableResult
-    open func bind(_ publisher: any Publisher<[Model], Never>) -> Self {
-        publishers.modelsCancellable = publisher.sink { models in
-            self.apply(models)
+    open func bind(_ publisher: some Publisher<[Model], Never>) -> Self {
+        publishers.modelsCancellable = publisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] models in
+            self?.apply(models)
         }
         return self
     }

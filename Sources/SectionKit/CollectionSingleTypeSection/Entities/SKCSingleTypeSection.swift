@@ -251,16 +251,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         apply([model])
     }
     
-    @discardableResult
-    open func bind(_ publisher: some Publisher<[Model], Never>) -> Self {
-        publishers.modelsCancellable = publisher
-            .receive(on: RunLoop.main)
-            .sink { [weak self] models in
-            self?.apply(models)
-        }
-        return self
-    }
-    
     open func config(sectionView: UICollectionView) {
         register(Cell.self)
         loadedTasks.forEach { task in
@@ -585,6 +575,49 @@ public extension SKCSingleTypeSection {
         } else {
             models.swapAt(x, y)
         }
+    }
+    
+}
+
+
+// Data source subscription
+public extension SKCSingleTypeSection {
+    
+    @discardableResult
+    func subscribe(models void: Never?)  -> Self {
+        publishers.modelsCancellable = nil
+        return self
+    }
+    
+    @discardableResult
+    func subscribe(models publisher: some Publisher<[Model], Never>) -> Self {
+        publishers.modelsCancellable = publisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] models in
+            self?.apply(models)
+        }
+        return self
+    }
+    
+    @discardableResult
+    func subscribe(models publisher: some Publisher<[Model]?, Never>) -> Self {
+        return subscribe(models: publisher.map({ $0 ?? [] }))
+    }
+    
+    @discardableResult
+    func subscribe(models publisher: some Publisher<Model, Never>) -> Self {
+        return subscribe(models: publisher.map({ [$0] }))
+    }
+    
+    @discardableResult
+    func subscribe(models publisher: some Publisher<Model?, Never>) -> Self {
+        return subscribe(models: publisher.map({ model in
+            if let model = model {
+                return [model]
+            } else {
+                return []
+            }
+        }))
     }
     
 }

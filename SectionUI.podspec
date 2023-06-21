@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'SectionUI'
-    s.version          = '2.0.33'
+    s.version          = '2.0.34'
     s.summary          = '动态表单框架'
     s.homepage         = "https://github.com/linhay/SectionKit"
     s.license          = { :type => 'Apache', :file => 'LICENSE' }

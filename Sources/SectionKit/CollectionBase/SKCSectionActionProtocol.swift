@@ -1,19 +1,19 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/8/11.
 //
 
 #if canImport(UIKit)
 import UIKit
- 
+
 public protocol SKCSectionActionProtocol: AnyObject {
     
     var sectionView: UICollectionView { get }
     var sectionInjection: SKCSectionInjection? { get set }
     func config(sectionView: UICollectionView)
-
+    
 }
 
 public extension SKCSectionActionProtocol {
@@ -27,7 +27,7 @@ public extension SKCSectionActionProtocol {
     }
     
     func config(sectionView: UICollectionView) {}
-            
+    
 }
 
 public extension SKCSectionActionProtocol {
@@ -127,11 +127,11 @@ public extension SKCSectionActionProtocol {
     func layoutAttributesForItem(at row: Int) -> UICollectionViewLayoutAttributes? {
         sectionInjection?.sectionView?.collectionViewLayout.layoutAttributesForItem(at: indexPath(from: row))
     }
-
+    
     func layoutAttributesForSupplementaryView(ofKind kind: SKSupplementaryKind, at row: Int) -> UICollectionViewLayoutAttributes? {
         sectionInjection?.sectionView?.collectionViewLayout.layoutAttributesForSupplementaryView(ofKind: kind.rawValue, at: indexPath(from: row))
     }
-
+    
     func layoutAttributesForDecorationView(ofKind kind: SKSupplementaryKind, at row: Int) -> UICollectionViewLayoutAttributes? {
         sectionInjection?.sectionView?.collectionViewLayout.layoutAttributesForDecorationView(ofKind: kind.rawValue, at: indexPath(from: row))
     }
@@ -140,6 +140,9 @@ public extension SKCSectionActionProtocol {
 
 public extension SKCSectionActionProtocol {
     
+    /**
+     该方法用于根据给定的value返回一个IndexPath对象。如果sectionInjection为nil，则会触发断言失败，并返回一个item为value，section为0的IndexPath对象。否则，返回一个item为value，section为sectionInjection的index的IndexPath对象。
+     */
     func indexPath(from value: Int) -> IndexPath {
         guard let injection = sectionInjection else {
             assertionFailure()
@@ -148,32 +151,35 @@ public extension SKCSectionActionProtocol {
         return .init(item: value, section: injection.index)
     }
     
-    func dequeue<T: UICollectionViewCell>(at row: Int, identifier: String = String(describing: T.self)) -> T {
-        return sectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath(from: row)) as! T
-    }
-
-    func dequeue<T: UICollectionReusableView>(kind: SKSupplementaryKind, identifier: String = String(describing: T.self)) -> T {
-        return sectionView.dequeueReusableSupplementaryView(ofKind: kind.rawValue, withReuseIdentifier: identifier, for: indexPath(from: 0)) as! T
-    }
-    
-    /// 注册 `LoadViewProtocol` 类型的 UICollectionViewCell
-    ///
-    /// - Parameter cell: UICollectionViewCell
-    func register<T: UICollectionViewCell>(_ cell: T.Type) where T: SKLoadViewProtocol {
+    func _register<T: UICollectionViewCell & SKLoadViewProtocol>(_ cell: T.Type) {
         if let nib = T.nib {
             sectionView.register(nib, forCellWithReuseIdentifier: T.identifier)
         } else {
             sectionView.register(T.self, forCellWithReuseIdentifier: T.identifier)
         }
     }
-
-    func register<T: UICollectionReusableView>(_ view: T.Type, for kind: SKSupplementaryKind) where T: SKLoadViewProtocol {
+    func _register<T: UICollectionReusableView & SKLoadViewProtocol>(_ view: T.Type, for kind: SKSupplementaryKind) {
         if let nib = T.nib {
             sectionView.register(nib, forSupplementaryViewOfKind: kind.rawValue, withReuseIdentifier: T.identifier)
         } else {
             sectionView.register(T.self, forSupplementaryViewOfKind: kind.rawValue, withReuseIdentifier: T.identifier)
         }
     }
+    func _dequeue<V: UICollectionViewCell & SKLoadViewProtocol>(at row: Int) -> V {
+        sectionView.dequeueReusableCell(withReuseIdentifier: V.identifier, for: indexPath(from: row)) as! V
+    }
+    func _dequeue<V: UICollectionReusableView & SKLoadViewProtocol>(kind: SKSupplementaryKind) -> V {
+        sectionView.dequeueReusableSupplementaryView(ofKind: kind.rawValue, withReuseIdentifier: V.identifier, for: indexPath(from: 0)) as! V
+    }
+    
+    func register<T: UICollectionViewCell & SKLoadViewProtocol>(_ cell: T.Type) { _register(cell) }
+    func register<T: UICollectionReusableView & SKLoadViewProtocol>(_ view: T.Type, for kind: SKSupplementaryKind) { _register(view, for: kind) }
+    
+    func dequeue<V: UICollectionViewCell & SKLoadViewProtocol>(at row: Int, for type: V.Type) -> V { _dequeue(at: row) as V }
+    func dequeue<V: UICollectionViewCell & SKLoadViewProtocol>(at row: Int) -> V { _dequeue(at: row) as V }
+    
+    func dequeue<V: UICollectionReusableView & SKLoadViewProtocol>(kind: SKSupplementaryKind, for type: V.Type) -> V { _dequeue(kind: kind) as V }
+    func dequeue<V: UICollectionReusableView & SKLoadViewProtocol>(kind: SKSupplementaryKind) -> V { _dequeue(kind: kind) as V }
     
 }
 

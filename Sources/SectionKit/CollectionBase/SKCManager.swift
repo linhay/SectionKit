@@ -7,12 +7,28 @@
 
 #if canImport(UIKit)
 import UIKit
+import Combine
 
 public class SKCManager {
     
-    public private(set) lazy var sections: [SKCBaseSectionProtocol] = []
+    public class SKPublishers {
+        fileprivate lazy var sectionsSubject = CurrentValueSubject<[SKCBaseSectionProtocol], Never>([])
+        public private(set) lazy var sectionsPublisher = sectionsSubject.eraseToAnyPublisher()
+    }
+    
+    public struct Configuration {
+        /// 将 insertSections 操作替换为 reloadData 操作
+        public var replaceInsertWithReload = true
+        /// 将 deleteSections 操作替换为 reloadData 操作
+        public var replaceDeleteWithReload = true
+    }
+
+    public static var configuration = Configuration()
+    public var configuration = SKCManager.configuration
+    public private(set) lazy var publishers = SKPublishers()
     public private(set) weak var sectionView: UICollectionView?
     
+    public var sections: [SKCBaseSectionProtocol] { publishers.sectionsSubject.value }
     public var scrollObserver: SKScrollViewDelegate { delegate }
     public private(set) lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
         self?.safe(section: section)
@@ -71,12 +87,30 @@ public extension SKCManager {
     }
     
     func append(_ input: SKCBaseSectionProtocol) { append([input]) }
+
+    func delete(_ input: SKCBaseSectionProtocol) { remove(input) }
+    func delete(_ input: [SKCBaseSectionProtocol]) { remove(input) }
     
     func remove(_ input: SKCBaseSectionProtocol) { remove([input]) }
     func remove(_ input: [SKCBaseSectionProtocol]) {
-        let IDs = input.map({ ObjectIdentifier($0) })
-        let sections = sections.filter({ !IDs.contains(ObjectIdentifier($0)) })
-        reload(sections)
+        var inputs   = Set(input.map(ObjectIdentifier.init))
+        var indexs   = IndexSet()
+        var sections = [SKCBaseSectionProtocol]()
+        
+        for item in self.sections.enumerated() {
+            let object = ObjectIdentifier(item.element)
+            if inputs.contains(object) {
+                inputs.remove(object)
+                indexs.update(with: item.offset)
+            } else {
+                sections.append(item.element)
+            }
+        }
+        if let sectionView = sectionView, !configuration.replaceDeleteWithReload {
+            sectionView.deleteSections(indexs)
+        } else {
+            reload(sections)
+        }
     }
     
 }
@@ -103,7 +137,7 @@ public extension SKCManager {
             .forEach({ item in
                 self.endDisplaySections[item.offset] = item.element
             })
-        self.sections = bind(sections: sections, start: 0)
+        self.publishers.sectionsSubject.send(bind(sections: sections, start: 0))
         security(check: sections)
         sectionView.reloadData()
     }
@@ -112,7 +146,12 @@ public extension SKCManager {
         var sections = sections
         sections.insert(contentsOf: bind(sections: input, start: at), at: at)
         security(check: sections)
-        sectionView?.insertSections(IndexSet(integersIn: at..<(at + input.count)))
+        if let sectionView = sectionView, !configuration.replaceInsertWithReload {
+            publishers.sectionsSubject.send(sections)
+            sectionView.insertSections(IndexSet(integersIn: at..<(at + input.count)))
+        } else {
+            reload(sections)
+        }
     }
     
     func append(_ input: [SKCBaseSectionProtocol]) {
@@ -120,7 +159,6 @@ public extension SKCManager {
     }
     
 }
-
 
 private extension SKCManager {
     

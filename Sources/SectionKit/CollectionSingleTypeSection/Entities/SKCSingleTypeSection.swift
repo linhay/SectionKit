@@ -156,7 +156,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
     }
     
-    public class Publishers {
+    public class SKPublishers {
         
         public var modelsCancellable: AnyCancellable?
         
@@ -176,7 +176,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         fileprivate var cellActionSubject: PassthroughSubject<CellActionContext, Never>?
         fileprivate var supplementaryActionSubject: PassthroughSubject<SupplementaryActionContext, Never>?
         
-        func deferred<Output, Failure: Error>(bind: WritableKeyPath<Publishers, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
+        func deferred<Output, Failure: Error>(bind: WritableKeyPath<SKPublishers, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
             return Deferred { [weak self] in
                 guard var self = self else {
                     return PassthroughSubject<Output, Failure>()
@@ -219,7 +219,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open lazy var minimumInteritemSpacing: CGFloat = .zero
     open var itemCount: Int { models.count }
     
-    public private(set) lazy var publishers = Publishers()
+    public private(set) lazy var publishers = SKPublishers()
     
     
     private lazy var deletedModels: [Int: Model] = [:]

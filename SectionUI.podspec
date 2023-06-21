@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
 
     s.platform = :ios
     s.ios.deployment_target = "13.0"
-    s.dependency 'SectionKit2', '>= 2.0.33'
+    s.dependency 'SectionKit2', '>= 2.0.34'
 
     s.source_files = ["Sources/SectionUI/**/*.{swift,h}"]
 end  

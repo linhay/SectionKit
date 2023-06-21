@@ -17,10 +17,12 @@ public class SKCManager {
     }
     
     public struct Configuration {
+        /// 将 reloadSections 操作替换为 reloadData 操作
+        public var replaceReloadWithReloadData = false
         /// 将 insertSections 操作替换为 reloadData 操作
-        public var replaceInsertWithReload = true
+        public var replaceInsertWithReloadData = true
         /// 将 deleteSections 操作替换为 reloadData 操作
-        public var replaceDeleteWithReload = true
+        public var replaceDeleteWithReloadData = false
     }
 
     public static var configuration = Configuration()
@@ -93,6 +95,8 @@ public extension SKCManager {
     
     func remove(_ input: SKCBaseSectionProtocol) { remove([input]) }
     func remove(_ input: [SKCBaseSectionProtocol]) {
+        guard !input.isEmpty else { return }
+
         var inputs   = Set(input.map(ObjectIdentifier.init))
         var indexs   = IndexSet()
         var sections = [SKCBaseSectionProtocol]()
@@ -106,7 +110,10 @@ public extension SKCManager {
                 sections.append(item.element)
             }
         }
-        if let sectionView = sectionView, !configuration.replaceDeleteWithReload {
+        if let sectionView = sectionView,
+           !configuration.replaceDeleteWithReloadData,
+           !sections.isEmpty {
+            publishers.sectionsSubject.send(offset(sections: sections, start: 0))
             sectionView.deleteSections(indexs)
         } else {
             reload(sections)
@@ -143,10 +150,12 @@ public extension SKCManager {
     }
     
     func insert(_ input: [SKCBaseSectionProtocol], at: Int) {
+        guard !input.isEmpty else { return }
         var sections = sections
         sections.insert(contentsOf: bind(sections: input, start: at), at: at)
         security(check: sections)
-        if let sectionView = sectionView, !configuration.replaceInsertWithReload {
+        if let sectionView = sectionView,
+           !configuration.replaceInsertWithReloadData {
             publishers.sectionsSubject.send(sections)
             sectionView.insertSections(IndexSet(integersIn: at..<(at + input.count)))
         } else {

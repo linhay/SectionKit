@@ -5,7 +5,7 @@
 //  Created by linhey on 2023/6/20.
 //
 
-import Foundation
+import UIKit
 import SectionKit
 
 /// SKCWrapper

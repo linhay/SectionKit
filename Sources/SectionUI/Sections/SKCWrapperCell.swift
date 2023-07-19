@@ -36,7 +36,13 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
         wrappedView.config(model)
     }
     
-    public private(set) lazy var wrappedView = View()
+    public private(set) lazy var wrappedView: View = {
+        if let nib = View.nib {
+            return nib.instantiate(withOwner: nil, options: nil).first as! View
+        } else {
+            return View()
+        }
+    }()
 
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -51,6 +57,16 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
     
     private func initialize(contentView: UIView) {
         wrappedView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        
+        [contentView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0),
+         contentView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0),
+         contentView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
+         contentView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)].forEach { constraint in
+            constraint.priority = .defaultHigh
+            constraint.isActive = true
+        }
+        
         contentView.addSubview(wrappedView)
         [wrappedView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),
          wrappedView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),

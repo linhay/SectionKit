@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
-#if canImport(UIKit)
 import UIKit
 
 /// 从 Xib 加载当前视图
@@ -36,6 +35,4 @@ public extension SKLoadNibProtocol {
         return nib!.instantiate(withOwner: nil, options: nil).first as! Self
     }
 }
-#endif
-
 #endif

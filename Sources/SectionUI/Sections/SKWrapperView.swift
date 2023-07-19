@@ -39,9 +39,7 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
     
     public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model else { return .zero }
-        let width = size.width - model.insets.left - model.insets.right
-        let height = size.height - model.insets.top - model.insets.bottom
-        return model.size(.init(width: width, height: height))
+        return model.size(size)
     }
         
     public func config(_ model: Model) {

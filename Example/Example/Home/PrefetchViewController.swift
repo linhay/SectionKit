@@ -13,7 +13,13 @@ import UIKit
 import StemColor
 
 class PrefetchViewController: SKCollectionViewController {
-    private let section = ColorBlockCell.wrapperToSingleTypeSection()
+    private let section = ColorBlockCell
+        .wrapperToSingleTypeSection()
+        // 首次曝光触发回调
+        .model(displayedAt: 1) { context in
+            context.model
+            context.row
+        }
     private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {

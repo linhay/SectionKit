@@ -9,7 +9,7 @@
 import UIKit
 import Combine
 
-open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol {
+open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol, SKDisplayedTimesProtocol {
     
     public typealias CellStyleBox = IDBox<UUID, CellStyleBlock>
     
@@ -197,7 +197,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     /// 配置 cell 与 supplementary 的 limit size
     public lazy var safeSizeProvider: SKSafeSizeProvider = defaultSafeSizeProvider
-    
+    /// 曝光数
+    public lazy var displayedTimes: SKCountedStore = .init()
     /// 预加载
     public private(set) lazy var prefetch: SKCPrefetch = .init { [weak self] in
         return self?.itemCount ?? 0
@@ -286,6 +287,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     open func item(willDisplay view: UICollectionViewCell, row: Int) {
         sendAction(.willDisplay, view: view as? Cell, row: row)
+        displayedTimes.update(by: row)
     }
     
     open func item(didEndDisplaying view: UICollectionViewCell, row: Int) {
@@ -664,6 +666,7 @@ private extension SKCSingleTypeSection {
     
     func reload(_ models: [Model]) {
         self.models = models
+        self.displayedTimes.resetAll()
         sectionInjection?.reload()
     }
     

@@ -58,24 +58,24 @@ public extension SKCountedStore {
     @discardableResult
     func update(by id: Int, count: Int = 1) -> Int {
        
-        var count = cached[id] ?? 0
+        var cachedCount = cached[id] ?? 0
         
-        if count < maxCount {
-            count += count
-            cached[id] = count
+        if cachedCount < maxCount {
+            cachedCount += count
+            cached[id] = cachedCount
         }
         
         if let triggers = triggers[id] {
-            for trigger in triggers where trigger.when(count) {
+            for trigger in triggers where trigger.when(cachedCount) {
                 trigger.callback()
             }
         }
         
         for trigger in globalTriggers {
-            trigger(id, count)
+            trigger(id, cachedCount)
         }
         
-        return count
+        return cachedCount
     }
     
     func reset(by id: Int) {

@@ -197,7 +197,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     /// 配置 cell 与 supplementary 的 limit size
     public lazy var safeSizeProvider: SKSafeSizeProvider = defaultSafeSizeProvider
-    /// 曝光数
+    /// 曝光数, 重置曝光数的时机需要手动控制
     public lazy var displayedTimes: SKCountedStore = .init()
     /// 预加载
     public private(set) lazy var prefetch: SKCPrefetch = .init { [weak self] in
@@ -221,7 +221,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open var itemCount: Int { models.count }
     
     public private(set) lazy var publishers = SKPublishers()
-    
     
     private lazy var deletedModels: [Int: Model] = [:]
     private lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
@@ -666,7 +665,6 @@ private extension SKCSingleTypeSection {
     
     func reload(_ models: [Model]) {
         self.models = models
-        self.displayedTimes.resetAll()
         sectionInjection?.reload()
     }
     

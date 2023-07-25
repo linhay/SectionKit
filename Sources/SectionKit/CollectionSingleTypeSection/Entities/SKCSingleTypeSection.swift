@@ -14,6 +14,12 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias CellStyleBox = IDBox<UUID, CellStyleBlock>
     
     public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
+    public typealias CellStyleBlock    = (_ context: CellStyleContext) -> Void
+
+    public typealias SectionStyleWeakBlock<T: AnyObject> = (_ self: T, _ section: SKCSingleTypeSection<Cell>) -> Void
+    public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: CellStyleContext) -> Void
+    public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: CellActionContext) -> Void
+
     public typealias LoadedBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
     
     public typealias SupplementaryActionBlock = (_ context: SupplementaryActionContext) -> Void
@@ -21,7 +27,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias ContextMenuWithActionsBlock = (_ context: ContextMenuContext) -> [UIAction]
     public typealias CellShouldBlock  = (_ context: ContextMenuContext) -> Bool?
     public typealias CellActionBlock  = (_ context: CellActionContext) -> Void
-    public typealias CellStyleBlock   = (_ context: CellStyleContext) -> Void
     
     public enum LifeCycleKind {
         case loadedToSectionView(UICollectionView)
@@ -222,13 +227,13 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public private(set) lazy var publishers = SKPublishers()
     
-    private lazy var deletedModels: [Int: Model] = [:]
-    private lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
-    private lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
-    private lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
-    private lazy var cellStyles: [CellStyleBox] = []
-    private lazy var cellContextMenus: [ContextMenuBlock] = []
-    private lazy var cellShoulds: [CellShouldType: [CellShouldBlock]] = [:]
+    lazy var deletedModels: [Int: Model] = [:]
+    lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
+    lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
+    lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
+    lazy var cellStyles: [CellStyleBox] = []
+    lazy var cellContextMenus: [ContextMenuBlock] = []
+    lazy var cellShoulds: [CellShouldType: [CellShouldBlock]] = [:]
     
     private lazy var loadedTasks: [LoadedBlock] = []
     
@@ -511,52 +516,6 @@ public extension SKCSingleTypeSection {
         return self
     }
     
-    
-    @discardableResult
-    func remove(supplementary kind: SKSupplementaryKind) -> Self {
-        supplementaries[kind] = nil
-        reload()
-        return self
-    }
-    
-    @discardableResult
-    func set<T>(supplementary: SKCSupplementary<T>) -> Self {
-        taskIfLoaded { section in
-            section.register(supplementary.type, for: supplementary.kind)
-        }
-        supplementaries[supplementary.kind] = supplementary
-        reload()
-        return self
-    }
-    
-    @discardableResult
-    func set<View>(supplementary kind: SKSupplementaryKind,
-                   type: View.Type,
-                   config: ((View) -> Void)? = nil,
-                   size: @escaping (_ limitSize: CGSize) -> CGSize) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
-        set(supplementary: .init(kind: kind, type: type, config: config, size: size))
-    }
-    
-    @discardableResult
-    func set<View>(supplementary kind: SKSupplementaryKind,
-                   type: View.Type,
-                   model: View.Model,
-                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
-        set(supplementary: .init(kind: kind, type: type) { view in
-            view.config(model)
-            config?(view)
-        } size: { limitSize in
-            View.preferredSize(limit: limitSize, model: model)
-        })
-    }
-    
-    @discardableResult
-    func set<View>(supplementary kind: SKSupplementaryKind,
-                   type: View.Type,
-                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView, View.Model == Void {
-        set(supplementary: kind, type: type, model: (), config: config)
-    }
-    
 }
 
 public extension SKCSingleTypeSection {
@@ -576,83 +535,6 @@ public extension SKCSingleTypeSection {
         } else {
             models.swapAt(x, y)
         }
-    }
-    
-}
-
-
-// Data source subscription
-public extension SKCSingleTypeSection {
-    
-    @discardableResult
-    func subscribe(models void: Never?)  -> Self {
-        publishers.modelsCancellable = nil
-        return self
-    }
-    
-    @discardableResult
-    func subscribe(models publisher: some Publisher<[Model], Never>) -> Self {
-        publishers.modelsCancellable = publisher
-            .receive(on: RunLoop.main)
-            .sink { [weak self] models in
-            self?.apply(models)
-        }
-        return self
-    }
-    
-    @discardableResult
-    func subscribe(models publisher: some Publisher<[Model]?, Never>) -> Self {
-        return subscribe(models: publisher.map({ $0 ?? [] }))
-    }
-    
-    @discardableResult
-    func subscribe(models publisher: some Publisher<Model, Never>) -> Self {
-        return subscribe(models: publisher.map({ [$0] }))
-    }
-    
-    @discardableResult
-    func subscribe(models publisher: some Publisher<Model?, Never>) -> Self {
-        return subscribe(models: publisher.map({ model in
-            if let model = model {
-                return [model]
-            } else {
-                return []
-            }
-        }))
-    }
-    
-}
-
-/// 指定更新
-public extension SKCSingleTypeSection {
-    
-    func refresh(_ model: Model) where Model: Equatable {
-        self.refresh([model])
-    }
-    
-    func refresh(_ models: [Model]) where Model: Equatable {
-        sectionInjection?.reload(cell: rows(with: models))
-    }
-    
-    func refresh(_ model: Model) where Model: AnyObject {
-        self.refresh([model])
-    }
-    
-    func refresh(_ models: [Model]) where Model: AnyObject {
-        let indexs = models
-            .enumerated()
-            .compactMap { item in
-                models.contains(where: { $0 === item.element }) ? item.offset : nil
-            }
-        sectionInjection?.reload(cell: indexs)
-    }
-    
-    func refresh(at row: Int) {
-        sectionInjection?.reload(cell: row)
-    }
-    
-    func refresh(at row: [Int]) {
-        sectionInjection?.reload(cell: row)
     }
     
 }
@@ -813,75 +695,6 @@ public extension SKCSingleTypeSection {
             .enumerated()
             .filter { items.contains(ObjectIdentifier($0.element)) }
             .map(\.offset)
-    }
-    
-}
-
-public extension SKCSingleTypeSection {
-    
-    /// 配置当前 section 样式
-    /// - Parameter item: 回调
-    /// - Returns: self
-    @discardableResult
-    func setSectionStyle(_ item: @escaping SectionStyleBlock) -> Self {
-        item(self)
-        return self
-    }
-    
-}
-
-public extension SKCSingleTypeSection {
-    
-    /// 订阅事件类型
-    /// - Parameters:
-    ///   - kind: 事件类型
-    ///   - block: 回调
-    /// - Returns: self
-    @discardableResult
-    func onCellAction(_ kind: CellActionType, block: @escaping CellActionBlock) -> Self {
-        if cellActions[kind] == nil {
-            cellActions[kind] = []
-        }
-        cellActions[kind]?.append(block)
-        return self
-    }
-    
-    func onCellShould(_ kind: CellShouldType, block: @escaping CellShouldBlock) -> Self {
-        if cellShoulds[kind] == nil {
-            cellShoulds[kind] = []
-        }
-        cellShoulds[kind]?.append(block)
-        return self
-    }
-    
-    func onContextMenu(_ block: @escaping ContextMenuBlock) -> Self {
-        cellContextMenus.append(block)
-        return self
-    }
-    
-    func onContextMenuWithActions(_ block: @escaping ContextMenuWithActionsBlock) -> Self {
-        return onContextMenu { context in
-            let result = block(context)
-            return .init(configuration: .init(actionProvider: { _ in
-                return .init(children: result)
-            }))
-        }
-    }
-    
-    @discardableResult
-    func setCellStyle(_ item: @escaping CellStyleBlock) -> Self {
-        return setCellStyle(.init(value: item))
-    }
-    
-    @discardableResult
-    func setCellStyle(_ item: CellStyleBox) -> Self {
-        cellStyles.append(item)
-        return self
-    }
-    
-    func remove(cellStyle ids: [CellStyleBox.ID]) {
-        let ids = Set(ids)
-        self.cellStyles = cellStyles.filter { !ids.contains($0.id) }
     }
     
 }

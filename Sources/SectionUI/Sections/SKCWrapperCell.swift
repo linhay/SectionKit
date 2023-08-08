@@ -43,7 +43,7 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
             return View()
         }
     }()
-
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         initialize(contentView: contentView)
@@ -63,7 +63,7 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
          contentView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0),
          contentView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
          contentView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)].forEach { constraint in
-            constraint.priority = .defaultHigh
+            constraint.priority = .required
             constraint.isActive = true
         }
         
@@ -92,8 +92,14 @@ public class SKCWrapperReusableView<View: SKConfigurableView & SKLoadViewProtoco
         wrappedView.config(model)
     }
     
-    public private(set) lazy var wrappedView = View()
-
+    public private(set) lazy var wrappedView: View = {
+        if let nib = View.nib {
+            return nib.instantiate(withOwner: nil, options: nil).first as! View
+        } else {
+            return View()
+        }
+    }()
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         initialize(contentView: self)
@@ -112,7 +118,7 @@ public class SKCWrapperReusableView<View: SKConfigurableView & SKLoadViewProtoco
          wrappedView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
          wrappedView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
          wrappedView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
-            constraint.priority = .defaultHigh
+            constraint.priority = .required
             constraint.isActive = true
         }
     }

@@ -23,8 +23,11 @@
 #if canImport(CoreGraphics)
 import CoreGraphics
 
+// 定义了可配置布局协议,要求提供计算首选大小的方法
 public protocol SKConfigurableLayoutProtocol {
+    // 关联类型,表示模型
     associatedtype Model
+    // 计算首选大小的方法
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize
 }
 #endif

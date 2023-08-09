@@ -27,12 +27,18 @@ public struct SKAdaptiveFittingPriority {
 
 public struct SKAdaptive<AdaptiveView: UIView, Model> {
     
+    // 适配方向
     public let direction: SKLayoutDirection
+    // 适配的视图
     public let view: AdaptiveView
+    // 适配视图内容视图的keyPath
     public let content: KeyPath<AdaptiveView, UIView>?
-    public let config: (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void
+    // 视图周围的inset
     public let insets: UIEdgeInsets
+    // 视图适配优先级
     public let fittingPriority: SKAdaptiveFittingPriority
+    // 配置视图的闭包
+    public let config: (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void
     
     public init<T: UIView>(view: AdaptiveView = .init(),
                            direction: SKLayoutDirection = .vertical,

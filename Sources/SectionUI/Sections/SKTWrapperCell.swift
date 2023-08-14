@@ -1,22 +1,21 @@
 //
-//  SectionUnitViewWrapper.swift
-//  DUI
+//  File.swift
+//  
 //
-//  Created by linhey on 2022/9/20.
+//  Created by linhey on 2023/8/14.
 //
 
-#if canImport(UIKit)
 import UIKit
 
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
-    static func wrapperToCollectionCell() -> SKCWrapperCell<Self>.Type {
-        return SKCWrapperCell<Self>.self
+    static func wrapperToTableCell() -> SKTWrapperCell<Self>.Type {
+        return SKTWrapperCell<Self>.self
     }
     
 }
 
-public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
+public class SKTWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UITableViewCell, SKConfigurableView, SKLoadViewProtocol {
     
     public static func preferredSize(limit size: CGSize, model: View.Model?) -> CGSize {
         View.preferredSize(limit: size, model: model)
@@ -36,8 +35,8 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
         }
     }()
 
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         initialize(contentView: contentView)
     }
     
@@ -70,5 +69,3 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
     }
     
 }
-
-#endif

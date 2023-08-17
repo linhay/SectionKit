@@ -35,6 +35,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public enum CellActionType: Int, Hashable {
         /// 选中
         case selected
+        case deselected
         /// 即将显示
         case willDisplay
         /// 结束显示
@@ -92,7 +93,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
     }
     
-    public struct CellActionContext {
+    public struct CellActionContext: SKCSingleTypeSectionRowContext {
         
         public let section: SKCSingleTypeSection<Cell>
         public let type: CellActionType
@@ -120,12 +121,12 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         }
     }
     
-    public struct CellStyleContext {
+    public struct CellStyleContext: SKCSingleTypeSectionRowContext {
         
+        public let section: SKCSingleTypeSection<Cell>
         public let model: Cell.Model
         public let row: Int
         public let view: Cell
-        public let section: SKCSingleTypeSection<Cell>
         
         fileprivate init(section: SKCSingleTypeSection<Cell>, model: Cell.Model, row: Int, view: Cell) {
             self.row = row
@@ -287,6 +288,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     open func item(selected row: Int) {
         sendAction(.selected, view: nil, row: row)
+    }
+    
+    public func item(deselected row: Int) {
+        sendAction(.deselected, view: nil, row: row)
     }
     
     open func item(willDisplay view: UICollectionViewCell, row: Int) {

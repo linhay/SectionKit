@@ -128,6 +128,10 @@ public extension SKCManager {
         sectionView?.performBatchUpdates(updates, completion: completion)
     }
     
+    func reload() {
+        sectionView?.reloadData()
+    }
+    
     func reload(_ section: SKCBaseSectionProtocol) {
         reload([section])
     }

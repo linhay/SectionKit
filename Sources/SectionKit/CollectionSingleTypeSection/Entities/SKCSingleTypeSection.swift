@@ -142,6 +142,27 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         public let type: SupplementaryActionType
         public let kind: SKSupplementaryKind
         public let row: Int
+        let _view: SKWeakBox<UICollectionReusableView>?
+        
+        public func view() -> UICollectionReusableView {
+            guard let cell = _view?.value ?? section.supplementary(kind: kind, at: row) else {
+                assertionFailure()
+                return .init(frame: .zero)
+            }
+            return cell
+        }
+        
+        init(section: SKCSingleTypeSection<Cell>,
+             type: SupplementaryActionType,
+             kind: SKSupplementaryKind,
+             row: Int,
+             view: UICollectionReusableView?) {
+            self.section = section
+            self.type = type
+            self.kind = kind
+            self.row = row
+            self._view = .init(view)
+        }
     }
     
     public struct IDBox<ID, Value> {
@@ -349,11 +370,11 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     open func supplementary(willDisplay view: UICollectionReusableView, kind: SKSupplementaryKind, at row: Int) {
-        sendSupplementaryAction(.willDisplay, kind: kind, row: row)
+        sendSupplementaryAction(.willDisplay, kind: kind, row: row, view: view)
     }
     
     open func supplementary(didEndDisplaying view: UICollectionReusableView, kind: SKSupplementaryKind, at row: Int) {
-        sendSupplementaryAction(.didEndDisplay, kind: kind, row: row)
+        sendSupplementaryAction(.didEndDisplay, kind: kind, row: row, view: view)
     }
     
     open func item(canFocus row: Int) -> Bool {
@@ -804,8 +825,8 @@ public extension SKCSingleTypeSection {
         publishers.cellActionSubject?.send(result)
     }
     
-    func sendSupplementaryAction(_ type: SupplementaryActionType, kind: SKSupplementaryKind, row: Int) {
-        let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row)
+    func sendSupplementaryAction(_ type: SupplementaryActionType, kind: SKSupplementaryKind, row: Int, view: UICollectionReusableView) {
+        let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row, view: view)
         supplementaryActions[type]?.forEach({ block in
             block(result)
         })

@@ -237,6 +237,18 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         get { publishers.modelsSubject.value }
     }
     
+    public private(set) var environmentObject: [ObjectIdentifier: Any] = [:]
+    
+    public func environment<T>(of type: T.Type) -> T? {
+        environmentObject[.init(type)] as? T
+    }
+    
+    @discardableResult
+    public func environment<T>(of object: T) -> Self {
+        environmentObject[.init(T.self)] = object
+        return self
+    }
+    
     /// 无数据时隐藏 footerView
     open lazy var hiddenFooterWhenNoItem = true
     /// 无数据时隐藏 headerView

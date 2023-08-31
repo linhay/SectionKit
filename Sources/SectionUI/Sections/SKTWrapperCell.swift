@@ -54,7 +54,6 @@ public class SKTWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UITa
          contentView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0),
          contentView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
          contentView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)].forEach { constraint in
-            constraint.priority = .defaultHigh
             constraint.isActive = true
         }
         
@@ -63,7 +62,6 @@ public class SKTWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UITa
          wrappedView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
          wrappedView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
          wrappedView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
-            constraint.priority = .defaultHigh
             constraint.isActive = true
         }
     }

@@ -35,11 +35,18 @@ public struct SKSelectionWrapper<WrappedValue>: SKSelectionProtocol, RawRepresen
     public init(rawValue: WrappedValue) {
         self.init(rawValue)
     }
+
+    public init(_ value: WrappedValue,
+                _ selection: SKSelectionState = .init()) where WrappedValue: Identifiable, WrappedValue.ID == UUID {
+        self.init(value, selection, id: value.id)
+    }
     
     public init(_ value: WrappedValue,
-                _ selection: SKSelectionState = .init()) {
+                _ selection: SKSelectionState = .init(),
+                id: UUID = .init()) {
         self.wrappedValue = value
         self.selection = selection
+        self.id = id
     }
     
     public init(_ selection: SKSelectionState = .init()) where WrappedValue == Void {

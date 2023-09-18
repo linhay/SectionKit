@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
-#if canImport(UIKit)
 import UIKit
 import SectionKit
 
@@ -146,7 +145,8 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
     private lazy var oldBounds = CGRect.zero
     private lazy var decorationViewCache = Set<IndexPath>()
     private lazy var sectionRects = [Int: CGRect]()
-    
+    private lazy var tempCells: [IndexPath: UICollectionViewLayoutAttributes] = [:]
+
     override public func prepare() {
         super.prepare()
         guard let collectionView = collectionView else {
@@ -178,40 +178,10 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
         }
         return context
     }
-    
-    override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        guard let attributes = super.layoutAttributesForSupplementaryView(ofKind: elementKind, at: indexPath) else {
-            return nil
-        }
-        guard let collectionView = collectionView else {
-            return nil
-        }
-        
-        for pluginMode in pluginModes {
-            switch pluginMode {
-            case let .sectionHeadersPinToVisibleBounds(elements):
-                guard attributes.representedElementKind == UICollectionView.elementKindSectionHeader,
-                      elements.compactMap(\.wrappedValue).contains(attributes.indexPath.section),
-                      let rect = sectionRects[indexPath.section]
-                else {
-                    break
-                }
-                attributes.zIndex += attributes.indexPath.section
-                if collectionView.contentOffset.y >= rect.minY, collectionView.contentOffset.y <= rect.maxY {
-                    if collectionView.contentOffset.y + attributes.frame.height >= rect.maxY {
-                        attributes.frame.origin.y = rect.maxY - attributes.frame.height
-                    } else {
-                        attributes.frame.origin.y = collectionView.contentOffset.y
-                    }
-                }
-            default:
-                break
-            }
-        }
-        return attributes
-    }
-    
+
     override open func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        defer { tempCells.removeAll() }
+        
         guard let collectionView = collectionView,
               var attributes = super.layoutAttributesForElements(in: rect)
         else {
@@ -223,6 +193,11 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
         }
         
         attributes = attributes.compactMap { $0.copy() as? UICollectionViewLayoutAttributes }
+        for attribute in attributes {
+            if attribute.representedElementCategory == .cell {
+                tempCells[attribute.indexPath] = attribute
+            }
+        }
         for mode in pluginModes {
             switch mode {
             case .sectionHeadersPinToVisibleBounds:
@@ -261,6 +236,47 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
         
         return attributes
     }
+    
+    open override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        if let cell = tempCells[indexPath] {
+            return cell
+        } else {
+            return super.layoutAttributesForItem(at: indexPath)
+        }
+    }
+        
+    override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        guard let attributes = super.layoutAttributesForSupplementaryView(ofKind: elementKind, at: indexPath) else {
+            return nil
+        }
+        guard let collectionView = collectionView else {
+            return nil
+        }
+        
+        for pluginMode in pluginModes {
+            switch pluginMode {
+            case let .sectionHeadersPinToVisibleBounds(elements):
+                guard attributes.representedElementKind == UICollectionView.elementKindSectionHeader,
+                      elements.compactMap(\.wrappedValue).contains(attributes.indexPath.section),
+                      let rect = sectionRects[indexPath.section]
+                else {
+                    break
+                }
+                attributes.zIndex += attributes.indexPath.section
+                if collectionView.contentOffset.y >= rect.minY, collectionView.contentOffset.y <= rect.maxY {
+                    if collectionView.contentOffset.y + attributes.frame.height >= rect.maxY {
+                        attributes.frame.origin.y = rect.maxY - attributes.frame.height
+                    } else {
+                        attributes.frame.origin.y = collectionView.contentOffset.y
+                    }
+                }
+            default:
+                break
+            }
+        }
+        return attributes
+    }
+    
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         return oldBounds.size != newBounds.size
@@ -611,7 +627,5 @@ extension SKCollectionFlowLayout.BindingKey: Hashable where Value: Hashable {
         hasher.combine(closure())
     }
 }
-
-#endif
 
 #endif

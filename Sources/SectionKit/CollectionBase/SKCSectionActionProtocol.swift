@@ -18,6 +18,8 @@ public protocol SKCSectionActionProtocol: AnyObject {
 
 public extension SKCSectionActionProtocol {
     
+    var isBindSectionView: Bool { sectionInjection?.sectionView != nil }
+    
     var sectionView: UICollectionView {
         guard let view = sectionInjection?.sectionView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")

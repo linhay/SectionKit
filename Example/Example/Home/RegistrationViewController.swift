@@ -96,13 +96,13 @@ extension RegistrationViewController {
         
         func newSection(_ text: String? = nil, count: Int) -> SKCRegistrationSection {
             SKCRegistrationSection {
-                ReusableView.registration(count.description + " header", for: .header)
-                ReusableView.registration(count.description + " footer", for: .footer)
+                ReusableView.registration(.init(stringLiteral: "\(count.description) header"), for: .header)
+                ReusableView.registration(.init(stringLiteral: "\(count.description) footer"), for: .footer)
                 ColorBlockCell
                     .registration((1...count)
                         .map({ idx in
                         .init(color: StemColor.random.convert(),
-                              text: text ?? "\(manager.sections.count)-\(idx.description)",
+                              text: text ?? "\(self.manager.sections.count)-\(idx.description)",
                               size: .init(width: 60, height: 60))
                 }))
                 

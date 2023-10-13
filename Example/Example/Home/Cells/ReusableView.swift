@@ -12,15 +12,36 @@ import UIKit
 import StemColor
 
 class ReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigurableView {
-    static func preferredSize(limit size: CGSize, model _: String?) -> CGSize {
-        return .init(width: size.width, height: 44)
+    
+    struct Model: ExpressibleByStringInterpolation, ExpressibleByStringLiteral {
+        let text: String
+        let size: CGSize?
+        
+        init(stringInterpolation: String) {
+            self.text = stringInterpolation
+            self.size = nil
+        }
+        
+        init(stringLiteral value: String) {
+            self.text = value
+            self.size = nil
+        }
+        
+        init(text: String, size: CGSize?) {
+            self.text = text
+            self.size = size
+        }
+    }
+    
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        return model?.size ?? .init(width: size.width, height: 44)
     }
 
-    func config(_ model: String) {
+    func config(_ model: Model) {
         backgroundColor = .clear
         layer.borderColor = UIColor.purple.cgColor
         layer.borderWidth = 1
-        titleLabel.text = model
+        titleLabel.text = model.text
     }
 
     private lazy var titleLabel: UILabel = {

@@ -84,13 +84,13 @@ public extension SKCollectionView {
 public extension SKCollectionView {
     /// 布局插件
     /// - Parameter pluginModes: 样式
-    func set(pluginModes: [SKCollectionFlowLayout.PluginMode]) {
-        (collectionViewLayout as? SKCollectionFlowLayout)?.pluginModes = pluginModes
+    func set(pluginModes: [SKCLayoutPlugins.Mode]) {
+        (collectionViewLayout as? SKCollectionFlowLayout)?.plugins = .init(modes: pluginModes)
     }
     
     /// 布局插件
     /// - Parameter pluginModes: 样式
-    func set(pluginModes: SKCollectionFlowLayout.PluginMode...) {
+    func set(pluginModes: SKCLayoutPlugins.Mode...) {
         set(pluginModes: pluginModes)
     }
 }

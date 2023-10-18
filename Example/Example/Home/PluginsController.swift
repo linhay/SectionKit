@@ -20,13 +20,13 @@ class PluginsController: SKCollectionViewController {
         view.addSubview(toolbar.view)
         toolbar.view.snp.makeConstraints { make in
             make.bottom.left.right.equalToSuperview()
-            make.height.equalTo(300)
+            make.height.equalTo(120)
         }
         sectionView.snp.makeConstraints { make in
             make.bottom.equalTo(toolbar.view.snp.top)
         }
-        sectionView.backgroundColor = .gray
-        toolbar.sectionView.backgroundColor = .darkGray
+        sectionView.backgroundColor = .white
+        toolbar.sectionView.backgroundColor = .lightGray
         toolbar.event.delegate(on: self) { (self, action) in
             self.sectionView.set(pluginModes: [])
             switch action {
@@ -77,66 +77,59 @@ class PluginsController: SKCollectionViewController {
                 self.manager.reload(section)
                 self.plugin(modes: .fixSupplementaryViewSize)
             case .decoration:
-                let header = ColorBlockCell
-                    .wrapperToSingleTypeSection((0...4).map({
-                        .init(color: .red,
-                              text: $0.description,
-                              size: .init(width: 77, height: 50))
-                    }))
-                    .setSectionStyle({ section in
-                        section.sectionInset = .init(top: 10, left: 0, bottom: 20, right: 0)
-                    })
-                    .set(supplementary: .header, type: ReusableView.self, model: "header")
-                    .set(supplementary: .footer, type: ReusableView.self, model: "footer")
-                    .onSupplementaryAction(.willDisplay) { context in
-                        if case .custom(_) = context.kind {
-                            context.view().backgroundColor = .blue
-                        }
-                    }
                 
-                let cells = ColorBlockCell
-                    .wrapperToSingleTypeSection((0...4).map({
-                        .init(color: .red,
-                              text: $0.description,
-                              size: .init(width: 77, height: 50))
-                    }))
-                    .setSectionStyle({ section in
-                        section.sectionInset = .init(top: 10, left: 0, bottom: 20, right: 0)
-                    })
-                    .set(supplementary: .header, type: ReusableView.self, model: "header")
-                    .set(supplementary: .footer, type: ReusableView.self, model: "footer")
-                    .onSupplementaryAction(.willDisplay) { context in
-                        if case .custom(_) = context.kind {
-                            context.view().backgroundColor = .blue
+                func section(_ title: String) -> SKCBaseSectionProtocol {
+                    ColorBlockCell
+                        .wrapperToSingleTypeSection((0...7).map({
+                            .init(color: .red,
+                                  text: $0.description,
+                                  size: .init(width: 77, height: 50))
+                        }))
+                        .setSectionStyle({ section in
+                            section.sectionInset = .init(top: 10, left: 0, bottom: 20, right: 0)
+                        })
+                        .set(supplementary: .header, type: ReusableView.self, model: "header: \(title)")
+                        .set(supplementary: .footer, type: ReusableView.self, model: "footer")
+                        .onSupplementaryAction(.willDisplay) { context in
+                            if case .custom(_) = context.kind {
+                                context.view().backgroundColor = .blue.withAlphaComponent(0.3)
+                            }
                         }
-                    }
+                }
                 
-                let footer = ColorBlockCell
-                    .wrapperToSingleTypeSection((0...4).map({
-                        .init(color: .red,
-                              text: $0.description,
-                              size: .init(width: 77, height: 50))
-                    }))
-                    .setSectionStyle({ section in
-                        section.sectionInset = .init(top: 10, left: 0, bottom: 20, right: 0)
-                    })
-                    .set(supplementary: .header, type: ReusableView.self, model: "header")
-                    .set(supplementary: .footer, type: ReusableView.self, model: "footer")
-                    .onSupplementaryAction(.willDisplay) { context in
-                        if case .custom(_) = context.kind {
-                            context.view().backgroundColor = .blue
-                        }
-                    }
-                
-                self.manager.reload([header, cells, footer])
+                let header = section("[.header]")
+                let cells  = section("[.cells]")
+                let footer = section("[.footer]")
+                let header_cells  = section("[.header, .cells]")
+                let header_footer = section("[.header, .footer]")
+                let cells_footer  = section("[.cells, .footer]")
+                let range_from = section("range_from")
+                let range_mid = section("range ...")
+                let range_to   = section("range_to")
+                self.manager.reload([header,
+                                     cells,
+                                     footer,
+                                     header_cells,
+                                     header_footer,
+                                     cells_footer,
+                                     range_from,
+                                     range_mid,
+                                     range_to])
                 self.plugin(modes: .decorations([
                     .init(header, viewType: ReusableView.self, layout: [.header]),
-                    .init(cells, viewType: ReusableView.self, layout: [.header, .cells]),
-                    .init(footer, viewType: ReusableView.self, layout: [.cells, .footer]),
+                    .init(cells,  viewType: ReusableView.self, layout: [.cells]),
+                    .init(footer, viewType: ReusableView.self, layout: [.footer]),
+                    .init(header_cells,  viewType: ReusableView.self, layout: [.header, .cells]),
+                    .init(header_footer, viewType: ReusableView.self, layout: [.header, .footer]),
+                    .init(cells_footer,  viewType: ReusableView.self, layout: [.cells, .footer]),
+                    .init(from: .init(index: .init(range_from)),
+                          to: .init(index: .init(range_to)),
+                          viewType: ReusableView.self,
+                          insets: .init(top: 20, left: 20, bottom: 20, right: 20))
                 ]))
             case .sectionHeadersPinToVisibleBounds:
                 let sections: [SKCBaseSectionProtocol] = (0...10).map { idx in
-                   return ColorBlockCell
+                    return ColorBlockCell
                         .wrapperToSingleTypeSection((0...4).map({ _ in
                             ColorBlockCell.Model(color: .red, text: idx.description, size: .init(width: 77, height: 50))
                         }))

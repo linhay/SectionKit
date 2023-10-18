@@ -9,36 +9,68 @@ import UIKit
 
 public extension SKCLayoutPlugins {
     
-    public typealias DecorationView = UICollectionReusableView & SKLoadViewProtocol
+    typealias DecorationView = UICollectionReusableView & SKLoadViewProtocol
     
-    public enum DecorationLayout {
+    enum DecorationLayout {
         case header
         case cells
         case footer
     }
     
-    public struct Decoration {
-        public var sectionIndex: BindingKey<Int>
-        public var viewType: DecorationView.Type
-        public var zIndex: Int
-        public var layout: [DecorationLayout]
-        public var insets: UIEdgeInsets
+    struct Decoration {
+       
+        public struct Item {
+            public let index: BindingKey<Int>
+            public let layout: [DecorationLayout]
+            
+            public init(index: BindingKey<Int>,
+                        layout: [DecorationLayout] = [.header, .cells, .footer]) {
+                self.index = index
+                self.layout = layout
+            }
+        }
+        
+        public let from: Item
+        public let to: Item?
+        
+        public let viewType: DecorationView.Type
+        public let insets: UIEdgeInsets
+        public let zIndex: Int
         
         public init(sectionIndex: BindingKey<Int>,
                     viewType: DecorationView.Type,
                     zIndex: Int = -1,
                     layout: [DecorationLayout] = [.header, .cells, .footer],
-                    insets: UIEdgeInsets = .zero)
-        {
-            self.sectionIndex = sectionIndex
+                    insets: UIEdgeInsets = .zero) {
+            self.to = nil
+            self.from = .init(index: sectionIndex,
+                              layout: layout)
+            self.viewType = viewType
+            self.insets = insets
+            self.zIndex = zIndex
+        }
+        
+        public init(from: Item, to: Item?,
+                    viewType: DecorationView.Type,
+                    zIndex: Int = -1,
+                    insets: UIEdgeInsets = .zero) {
+            self.from = from
+            self.to = to
             self.viewType = viewType
             self.zIndex = zIndex
-            self.layout = layout
             self.insets = insets
+        }
+                
+        func apply(to layout: UICollectionViewFlowLayout) {
+            if let nib = viewType.nib {
+                layout.register(nib, forDecorationViewOfKind: viewType.identifier)
+            } else {
+                layout.register(viewType.self, forDecorationViewOfKind: viewType.identifier)
+            }
         }
     }
     
-    public class BindingKey<Value> {
+    class BindingKey<Value> {
         private let closure: () -> Value?
         
         public var wrappedValue: Value? { closure() }
@@ -54,111 +86,113 @@ public extension SKCLayoutPlugins {
         let layout: UICollectionViewFlowLayout
         let decorations: [Decoration]
         let fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
-        let cache: SKBinding<Set<IndexPath>>
         
-        init(layout: UICollectionViewFlowLayout, 
+        init(layout: UICollectionViewFlowLayout,
              decorations: [Decoration],
-             fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?,
-             cache: SKBinding<Set<IndexPath>>) {
+             fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?) {
             self.layout = layout
             self.decorations = decorations
             self.fixSupplementaryViewInset = fixSupplementaryViewInset
-            self.cache = cache
-            
-            decorations.map(\.viewType).forEach { type in
-                if let nib = type.nib {
-                    layout.register(nib, forDecorationViewOfKind: type.identifier)
-                } else {
-                    layout.register(type.self, forDecorationViewOfKind: type.identifier)
-                }
+            decorations.forEach { decoration in
+                decoration.apply(to: layout)
             }
         }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
-            var dict = [Int: [Int: Decoration]](minimumCapacity: decorations.count)
+            var dict = [Int: [Int: [Decoration]]](minimumCapacity: decorations.count)
             decorations.forEach { item in
-                if let value = item.sectionIndex.wrappedValue {
+                if let value = item.from.index.wrappedValue {
                     if dict[value] == nil {
-                        dict[value] = [item.zIndex: item]
+                        dict[value] = [:]
+                    }
+                    
+                    if dict[value]?[item.zIndex] == nil {
+                        dict[value]?[item.zIndex] = [item]
                     } else {
-                        dict[value]?[item.zIndex] = item
+                        dict[value]?[item.zIndex]?.append(item)
                     }
                 }
             }
             
-            var all: [Int: Decoration]?
+            var all: [Int: [Decoration]]?
             if let wrappedValue = BindingKey<Int>.all.wrappedValue {
                 all = dict[wrappedValue]
             }
             
-            var sectionSet = Set<Int>()
+            var set = Set<Int>()
             let sections = attributes
                 .map(\.indexPath.section)
-                .filter { sectionSet.insert($0).inserted }
-                .map { sectionIndex -> [UICollectionViewLayoutAttributes] in
-                    if let decorations = dict[sectionIndex] ?? all {
-                        return decorations.values.enumerated().compactMap { task(section: sectionIndex, index: $0, decoration: $1) }
-                    } else {
+                .filter { set.insert($0).inserted }
+                .map { index -> [UICollectionViewLayoutAttributes] in
+                    guard let decorations = dict[index] ?? all else {
                         return [UICollectionViewLayoutAttributes]()
                     }
+                    return decorations
+                        .sorted(by: { $0.key < $1.key })
+                        .compactMap { (zIndex: Int, list: [SKCLayoutPlugins.Decoration]) in
+                            list.enumerated().compactMap { (offset, decoration) in
+                                task(section: index, index: offset, decoration: decoration)
+                            }
+                        }.flatMap({ $0 })
                 }.flatMap { $0 }
             
             return attributes + sections
             
         }
         
-        func task(section: Int, index: Int, decoration: Decoration) -> UICollectionViewLayoutAttributes? {
-            let sectionIndexPath = IndexPath(item: index, section: section)
-            if cache.wrappedValue.contains(sectionIndexPath) {
-                return nil
-            }
-            
+        func frame(for item: Decoration.Item, at section: IndexPath) -> CGRect? {
             var frames = [CGRect]()
             
-            if decoration.layout.contains(.header),
-               let attributes = layout.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: sectionIndexPath)
-            {
-                let frame: CGRect = attributes.frame
-                if frame.width > 0, frame.height > 0 {
-                    if let frame = fixSupplementaryViewInset?.run(with: [attributes])?.first?.frame {
-                        frames.append(frame)
-                    } else {
-                        frames.append(frame)
-                    }
-                }
+            if item.layout.contains(.header),
+               let attributes = layout.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: section),
+               attributes.frame.width > 0,
+               attributes.frame.height > 0 {
+                frames.append(attributes.frame)
             }
             
-            if decoration.layout.contains(.footer),
-               let attributes = layout.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: sectionIndexPath)
-            {
-                let frame: CGRect = attributes.frame
-                if frame.width > 0, frame.height > 0 {
-                    if let frame = fixSupplementaryViewInset?.run(with: [attributes])?.first?.frame {
-                        frames.append(frame)
-                    } else {
-                        frames.append(frame)
-                    }
-                }
+            if item.layout.contains(.footer),
+               let attributes = layout.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: section),
+                attributes.frame.width > 0,
+                attributes.frame.height > 0 {
+                frames.append(attributes.frame)
             }
             
-            if decoration.layout.contains(.cells) {
-                let cells = (0 ..< collectionView.numberOfItems(inSection: section)).compactMap { layout.layoutAttributesForItem(at: IndexPath(row: $0, section: section))?.frame }
+            if item.layout.contains(.cells) {
+                let cells = (0 ..< collectionView.numberOfItems(inSection: section.section)).compactMap {
+                    layout.layoutAttributesForItem(at: IndexPath(row: $0, section: section.section))?.frame
+                }
                 if let frame = CGRect.union(cells) {
                     frames.append(frame)
                 }
             }
             
-            guard let frame = CGRect.union(frames) else {
+            return CGRect.union(frames)
+        }
+        
+        func task(section: Int, index: Int, decoration: Decoration) -> UICollectionViewLayoutAttributes? {
+            let sectionIndexPath = IndexPath(item: index, section: section)
+            var frames = [CGRect]()
+            
+            if let frame = frame(for: decoration.from, at: sectionIndexPath) {
+                frames.append(frame)
+            }
+            
+            if let to = decoration.to,
+               let section = to.index.wrappedValue,
+               let frame = frame(for: to, at: IndexPath(item: index, section: section)) {
+                frames.append(frame)
+            }
+               
+            guard let frame = CGRect.union(frames)?.apply(insets: decoration.insets) else {
                 return nil
             }
             
             let attribute = UICollectionViewLayoutAttributes(forDecorationViewOfKind: decoration.viewType.identifier, with: sectionIndexPath)
             attribute.zIndex = decoration.zIndex
-            attribute.frame = frame.apply(insets: decoration.insets)
-            cache.wrappedValue.update(with: sectionIndexPath)
+            attribute.frame = frame
             return attribute
         }
-
+        
     }
     
 }

@@ -33,35 +33,42 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
     public typealias BindingKey = SKCLayoutPlugins.BindingKey
     public typealias PluginMode = SKCLayoutPlugins.Mode
 
-    class LayoutTempStore {
+    class LayoutStore {
+        
         lazy var cells: [IndexPath: UICollectionViewLayoutAttributes] = [:]
         lazy var decorations: [String: [IndexPath: UICollectionViewLayoutAttributes]] = [:]
         lazy var supplementaries: [String: [IndexPath: UICollectionViewLayoutAttributes]] = [:]
-        
+                
         init(attributes: [UICollectionViewLayoutAttributes]) {
             for attribute in attributes {
-                switch attribute.representedElementCategory {
-                case .cell:
-                    cells[attribute.indexPath] = attribute
-                case .supplementaryView:
-                    guard let representedElementKind = attribute.representedElementKind else { continue }
-                    if supplementaries[representedElementKind] == nil {
-                        supplementaries[representedElementKind] = [attribute.indexPath: attribute]
-                    } else {
-                        supplementaries[representedElementKind]?[attribute.indexPath] = attribute
-                    }
-                case .decorationView:
-                    guard let representedElementKind = attribute.representedElementKind else { continue }
-                    if decorations[representedElementKind] == nil {
-                        decorations[representedElementKind] = [attribute.indexPath: attribute]
-                    } else {
-                        decorations[representedElementKind]?[attribute.indexPath] = attribute
-                    }
-                @unknown default:
-                    continue
-                }
+                store(attribute: attribute)
             }
         }
+        
+        func store(attribute: UICollectionViewLayoutAttributes) {
+            switch attribute.representedElementCategory {
+            case .cell:
+                cells[attribute.indexPath] = attribute
+            case .supplementaryView:
+                guard let representedElementKind = attribute.representedElementKind else { return }
+                if supplementaries[representedElementKind] == nil {
+                    supplementaries[representedElementKind] = [attribute.indexPath: attribute]
+                } else {
+                    supplementaries[representedElementKind]?[attribute.indexPath] = attribute
+                }
+            case .decorationView:
+                guard let representedElementKind = attribute.representedElementKind else { return }
+                if decorations[representedElementKind] == nil {
+                    decorations[representedElementKind] = [attribute.indexPath: attribute]
+                } else {
+                    decorations[representedElementKind]?[attribute.indexPath] = attribute
+                }
+            @unknown default:
+                return
+            }
+
+        }
+
     }
     
     public var plugins: SKCLayoutPlugins? {
@@ -71,8 +78,8 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
     }
     
     private lazy var oldBounds = CGRect.zero
-    private lazy var decorationViewCache = Set<IndexPath>()
-    private var layoutTempStore: LayoutTempStore?
+    private var layoutTempStore: LayoutStore?
+    private var layoutStore: LayoutStore = .init(attributes: [])
     private var sectionHeadersPinToVisibleBoundsPlugin: SKCLayoutPlugins.SectionHeadersPinToVisibleBounds?
     
     override public func prepare() {
@@ -80,7 +87,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
         guard let collectionView = collectionView else {
             return
         }
-        decorationViewCache.removeAll()
+        layoutStore = .init(attributes: [])
         oldBounds = collectionView.bounds
     }
     
@@ -121,8 +128,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
             case let .decorations(decorations):
                 attributes = SKCLayoutPlugins.Decorations(layout: self,
                                                           decorations: decorations,
-                                                          fixSupplementaryViewInset: fixSupplementaryViewInset, 
-                                                          cache: .init(on: self, keyPath: \.decorationViewCache, default: .init()))
+                                                          fixSupplementaryViewInset: fixSupplementaryViewInset)
                 .run(with: attributes) ?? []
             }
         }
@@ -133,8 +139,13 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
     open override func layoutAttributesForDecorationView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         if let decoration = layoutTempStore?.decorations[elementKind]?[indexPath] {
             return decoration
+        } else if let decoration = layoutStore.decorations[elementKind]?[indexPath] {
+            return decoration
+        } else if let decoration = super.layoutAttributesForDecorationView(ofKind: elementKind, at: indexPath) {
+            layoutStore.store(attribute: decoration)
+            return decoration
         } else {
-            return super.layoutAttributesForDecorationView(ofKind: elementKind, at: indexPath)
+            return nil
         }
     }
     

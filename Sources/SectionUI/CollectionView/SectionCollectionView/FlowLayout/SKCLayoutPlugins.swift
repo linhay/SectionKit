@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2023/10/12.
 //
@@ -53,6 +53,10 @@ public struct SKCLayoutPlugins {
             /// mode 重排
             modes = newModes.sorted(by: { $0.priority < $1.priority })
         }
+    }
+    
+    public init(modes: [Mode]) {
+        self.modes = modes
     }
     
 }

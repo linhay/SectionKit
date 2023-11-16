@@ -19,6 +19,8 @@ public struct SKCLayoutPlugins {
         case fixSupplementaryViewInset(FixSupplementaryViewInset.Direction)
         /// fix: header & footer size与设定值不符
         case fixSupplementaryViewSize
+        /// fix: header & footer 调整尺寸, 调整前会重置为真实设定尺寸
+        case adjustSupplementaryViewSize(FixSupplementaryViewSize.Condition)
         /// 置顶section header view
         case sectionHeadersPinToVisibleBounds([BindingKey<Int>])
         /// section 装饰视图
@@ -28,8 +30,9 @@ public struct SKCLayoutPlugins {
             switch self {
             case .left:    return 100
             case .centerX: return 100
-            case .fixSupplementaryViewSize:  return 1
-            case .fixSupplementaryViewInset: return 2
+            case .fixSupplementaryViewSize:    return 1
+            case .fixSupplementaryViewInset:   return 2
+            case .adjustSupplementaryViewSize: return 3
             case .decorations: return 200
             case .sectionHeadersPinToVisibleBounds: return 300
             }

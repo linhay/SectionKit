@@ -117,7 +117,9 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
                 }
                 attributes = sectionHeadersPinToVisibleBoundsPlugin?.run(with: attributes) ?? []
             case .fixSupplementaryViewSize:
-                attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self).run(with: attributes) ?? []
+                attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: .excluding([])).run(with: attributes) ?? []
+            case .adjustSupplementaryViewSize(let condition):
+                attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: condition).run(with: attributes) ?? []
             case .centerX:
                 attributes = SKCLayoutPlugins.CenterX(layout: self).run(with: attributes) ?? []
             case .left:

@@ -80,3 +80,19 @@ extension SKCLayoutPlugin {
     }
     
 }
+
+extension CGRect {
+    static func union(_ list: [CGRect]) -> CGRect? {
+        guard let first = list.first else {
+            return nil
+        }
+        return list.dropFirst().reduce(first) { $0.union($1) }
+    }
+    
+    func apply(insets: UIEdgeInsets) -> CGRect {
+        .init(x: origin.x + insets.left,
+              y: origin.y + insets.top,
+              width: width - insets.left - insets.right,
+              height: height - insets.top - insets.bottom)
+    }
+}

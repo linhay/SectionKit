@@ -6,12 +6,46 @@
 //
 
 import UIKit
+import SectionKit
 
 extension SKCLayoutPlugins {
  
-    struct FixSupplementaryViewSize: SKCLayoutPlugin {
+   public struct FixSupplementaryViewSize: SKCLayoutPlugin {
+        
+       public enum Condition {
+            case excluding([Constraint])
+            case including([Constraint])
+        }
+        
+        public struct Constraint {
+            public let section: BindingKey<Int>
+            public let kind: SKSupplementaryKind
+            public let insets: UIEdgeInsets
+
+            public init(section: BindingKey<Int>, kind: SKSupplementaryKind, insets: UIEdgeInsets = .zero) {
+                self.section = section
+                self.kind = kind
+                self.insets = insets
+            }
+            
+            public init(section: SKCSectionProtocol, kind: SKSupplementaryKind, insets: UIEdgeInsets = .zero) {
+                self.section = .init(section)
+                self.kind = kind
+                self.insets = insets
+            }
+        }
         
         let layout: UICollectionViewFlowLayout
+        let condition: Condition
+       
+       func constraint(of index: Int, kind: SKSupplementaryKind) -> Constraint? {
+           switch condition {
+           case .excluding(let array):
+               return array.contains(where: { $0.section.wrappedValue == index && $0.kind == kind }) ? nil : .init(section: .init(get: { index }), kind: kind)
+           case .including(let array):
+               return array.first(where: { $0.section.wrappedValue == index && $0.kind == kind })
+           }
+       }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
             attributes
@@ -19,9 +53,15 @@ extension SKCLayoutPlugins {
                 .forEach { attribute in
                     switch kind(of: attribute) {
                     case .header:
-                        attribute.size = self.headerSize(at: attribute.indexPath.section)
+                        if let constraint = constraint(of: attribute.indexPath.section, kind: .header) {
+                            attribute.size = self.headerSize(at: attribute.indexPath.section)
+                            attribute.frame.apply(insets: constraint.insets)
+                        }
                     case .footer:
-                        attribute.size = self.footerSize(at: attribute.indexPath.section)
+                        if let constraint = constraint(of: attribute.indexPath.section, kind: .footer) {
+                            attribute.size = self.footerSize(at: attribute.indexPath.section)
+                            attribute.frame.apply(insets: constraint.insets)
+                        }
                     case .cell, .custom:
                         break
                     }

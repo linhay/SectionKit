@@ -27,12 +27,39 @@ import UIKit
 public protocol SKLoadNibProtocol: SKLoadViewProtocol {}
 
 public extension SKLoadNibProtocol {
+    
     static var nib: UINib? {
-        return UINib(nibName: identifier, bundle: .init(for: Self.self))
+        return UINib(nibName: String(describing: Self.self), bundle: bundle(of: Self.self))
     }
     
     static var loadFromNib: Self {
         return nib!.instantiate(withOwner: nil, options: nil).first as! Self
     }
+    
+    static func bundle(of anyClass: AnyClass) -> Bundle {
+#if SWIFT_PACKAGE
+        guard let moduleName = anyClass.description().components(separatedBy: ".").first else {
+            return Bundle(for: anyClass)
+        }
+        let bundleName = "\(moduleName)_\(moduleName)"
+        
+        let candidates = [
+            Bundle.main.resourceURL,
+            Bundle(for: anyClass).resourceURL,
+            Bundle.main.bundleURL,
+        ]
+        
+        for candidate in candidates {
+            let bundlePath = candidate?.appendingPathComponent(bundleName + ".bundle")
+            if let bundle = bundlePath.flatMap(Bundle.init(url:)) {
+                return bundle
+            }
+        }
+        return Bundle(for: anyClass)
+#else
+        return Bundle(for: anyClass)
+#endif
+    }
+    
 }
 #endif

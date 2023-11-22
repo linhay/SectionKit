@@ -4,15 +4,18 @@
 
 ![](./Documentation/Images/icon.svg)
 
+## 特点
 - [x] 支持 UICollectionView
 - [ ] 支持 UITableView
+- [x] 促进代码的模块化和重用
+- [x] 简化复杂表单的管理
 
-# 前提条件:
+## 前提条件:
 
  - Swift 5.7 (Xcode 14+)
  - iOS 13.0+
 
-# 安装
+## 安装
 
 - Cocoapods
 
@@ -28,22 +31,14 @@
     https://github.com/linhay/SectionKit
     ```
 
-# 其他文档
+## 其他文档
 
  - 数据选中 [SKSelection](./Documentation/SKSelection.md)
  - 辅助工具 [Shell](./Documentation/Shells.md)
 
-# 创建通用型单元视图
+## 快速开始
 
-> 通用通用型单元视图可以使用 SectionKit 中已封装的 Section 结构:
-> <br/> - SKCRegistrationSection
-> <br/> - SKCSingleTypeSection
-
-> 通用型单元视图需要遵守 2 个 Protocol: 
-> <br/> 1. SKConfigurableView:
-> <br/> - 用于绑定视图与输入数据类型
-> <br/> - 用于确定视图尺寸 
-> <br/> 2. SKLoadViewProtocol or SKLoadNibProtocol: 用于指定当前视图是代码加载还是从 Xib 加载
+> 一个简单的例子，展示如何使用 SectionKit 创建一个表单。
 
 -  UICollectionViewCell:
 
@@ -91,7 +86,7 @@
     }
     ```
 
-# SKCSingleTypeSection
+## SKCSingleTypeSection
 
 > 单一数据类型 Section
 
@@ -241,7 +236,7 @@
     }
     ```
 
-# SKCRegistrationSection
+## SKCRegistrationSection
 
 > 复数数据类型 Section, 生成后所有的操作都会通过 diff 来更新视图
 
@@ -367,7 +362,7 @@
     }
     ```
 
-# 自定义 Section 
+## 自定义 Section 
 
 > 最基础的 protocol, SKCRegistrationSection, SKCSingleTypeSection 由此封装
 
@@ -424,7 +419,7 @@
     ```
 
 - 数据操作
-    
+  
     - 无默认实现
 
 - 事件订阅

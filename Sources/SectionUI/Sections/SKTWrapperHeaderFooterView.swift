@@ -41,7 +41,6 @@ public class SKTWrapperHeaderFooterView<View: SKConfigurableView & SKLoadViewPro
     }
     
     private func initialize(contentView: UIView) {
-        contentView.translatesAutoresizingMaskIntoConstraints = false
         wrappedView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(wrappedView)
         [wrappedView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),

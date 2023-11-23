@@ -48,7 +48,6 @@ public class SKTWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UITa
     
     private func initialize(contentView: UIView) {
         wrappedView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.translatesAutoresizingMaskIntoConstraints = false
         
         [contentView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0),
          contentView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0),

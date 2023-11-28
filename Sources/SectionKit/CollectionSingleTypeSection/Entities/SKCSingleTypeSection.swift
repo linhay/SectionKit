@@ -295,6 +295,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         loadedTasks.forEach { task in
             task(self)
         }
+        loadedTasks.removeAll()
         publishers.lifeCycleSubject?.send(.loadedToSectionView(sectionView))
     }
     
@@ -846,7 +847,7 @@ public extension SKCSingleTypeSection {
     }
     
     func taskIfLoaded(_ task: @escaping LoadedBlock) {
-        if self.sectionInjection != nil {
+        if self.sectionInjection?.sectionView != nil {
             task(self)
         } else {
             loadedTasks.append(task)

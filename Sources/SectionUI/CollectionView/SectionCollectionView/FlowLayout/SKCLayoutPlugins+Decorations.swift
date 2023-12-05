@@ -32,8 +32,7 @@ public extension SKCLayoutPlugins {
             
             public init(_ section: SKCSectionProtocol,
                         layout: [DecorationLayout] = [.header, .cells, .footer]) {
-                self.index = .init(section)
-                self.layout = layout
+                self.init(index: .init(section), layout: layout)
             }
         }
         
@@ -43,6 +42,18 @@ public extension SKCLayoutPlugins {
         public let viewType: DecorationView.Type
         public let insets: UIEdgeInsets
         public let zIndex: Int
+
+        public init(section: SKCSectionProtocol,
+                    viewType: DecorationView.Type,
+                    zIndex: Int = -1,
+                    layout: [DecorationLayout] = [.header, .cells, .footer],
+                    insets: UIEdgeInsets = .zero) {
+            self.init(sectionIndex: .init(section),
+                      viewType: viewType,
+                      zIndex: zIndex,
+                      layout: layout,
+                      insets: insets)
+        }
         
         public init(sectionIndex: BindingKey<Int>,
                     viewType: DecorationView.Type,

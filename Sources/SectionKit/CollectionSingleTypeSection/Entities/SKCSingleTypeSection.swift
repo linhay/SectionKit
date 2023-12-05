@@ -545,17 +545,21 @@ public extension SKCSingleTypeSection where Model: Equatable {
 }
 
 public extension SKCSingleTypeSection {
-    
+
     @discardableResult
-    func apply(safeSize: KeyPath<SKCSingleTypeSection, SKSafeSizeProvider>) -> Self {
-        safeSizeProvider = self[keyPath: safeSize]
+    func apply(safeSize: SKSafeSizeProvider) -> Self {
+        safeSizeProvider = safeSize
         return self
     }
     
     @discardableResult
+    func apply(safeSize: KeyPath<SKCSingleTypeSection, SKSafeSizeProvider>) -> Self {
+        return apply(safeSize: self[keyPath: safeSize])
+    }
+    
+    @discardableResult
     func apply<Root>(safeSize: KeyPath<Root, SKSafeSizeProvider>, on object: Root) -> Self {
-        safeSizeProvider = object[keyPath: safeSize]
-        return self
+        return apply(safeSize: object[keyPath: safeSize])
     }
     
 }

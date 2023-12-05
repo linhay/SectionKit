@@ -137,7 +137,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
         
         return attributes
     }
-    
+        
     open override func layoutAttributesForDecorationView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         if let decoration = layoutTempStore?.decorations[elementKind]?[indexPath] {
             return decoration
@@ -158,7 +158,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
             return super.layoutAttributesForItem(at: indexPath)
         }
     }
-        
+            
     override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         let attributes: UICollectionViewLayoutAttributes?
         if let supplementary = layoutTempStore?.supplementaries[elementKind]?[indexPath] {

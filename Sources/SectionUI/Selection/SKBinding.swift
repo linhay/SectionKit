@@ -13,17 +13,19 @@ public struct SKBinding<Value> {
     // 包装的值
     public var wrappedValue: Value {
         get { _get() }
-        nonmutating set { _set(newValue) }
+        nonmutating set { _set?(newValue) }
     }
 
     // 返回 SKBinding 的实例
     public var projectedValue: SKBinding<Value> { self }
     
     private let _get: () -> Value
-    private let _set: (Value) -> Void
+    private let _set: ((Value) -> Void)?
+    
+    public var isSetable: Bool { _set != nil }
     
     // 初始化方法，接受一个 getter 和 setter
-    public init(get: @escaping () -> Value, set: @escaping (Value) -> Void) {
+    public init(get: @escaping () -> Value, set: ((Value) -> Void)? = nil) {
         self._get = get
         self._set = set
     }
@@ -47,7 +49,7 @@ public extension SKBinding {
     }
     
     // 从一个对象的 keyPath 创建一个绑定
-    init<Root>(on object: Root, keyPath: ReferenceWritableKeyPath<Root, Value>)  {
+    init<Root>(on object: Root, keyPath: ReferenceWritableKeyPath<Root, Value>) {
         self.init {
             object[keyPath: keyPath]
         } set: { value in

@@ -41,10 +41,12 @@ public extension SKHighPerformanceStore {
                calculate: (_ limit: CGSize) -> CGSize) -> CGSize {
         let key = CacheKey(id: id, size: limit)
         if let value = sizeCached[key] {
+            SKPrint.highPerformance("hit cache: id:\(key.id) size:\(value) limit:\(key.size)")
             return value
         }
         let calculate = calculate(limit)
         sizeCached[key] = calculate
+        SKPrint.highPerformance("cache: id:\(key.id) size:\(calculate) limit:\(key.size)")
         return calculate
     }
     

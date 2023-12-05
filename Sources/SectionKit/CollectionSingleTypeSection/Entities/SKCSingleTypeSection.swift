@@ -260,7 +260,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open var itemCount: Int { models.count }
     
     public private(set) lazy var publishers = SKPublishers()
-    
+    public var highPerformance: SKHighPerformanceStore<String>?
+    public var highPerformanceID: HighPerformanceIDBlock?
+
     lazy var deletedModels: [Int: Model] = [:]
     lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
     lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
@@ -317,7 +319,18 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         guard models.indices.contains(row) else {
             return .zero
         }
-        return Cell.preferredSize(limit: safeSizeProvider.size, model: models[row])
+        
+        let limitSize = safeSizeProvider.size
+        let model = models[row]
+
+        if let highPerformance = highPerformance,
+           let ID = highPerformanceID?(.init(model: model, row: row)) {
+            return highPerformance.cache(by: ID, limit: limitSize) { limit in
+                Cell.preferredSize(limit: limitSize, model: model)
+            }
+        } else {
+            return Cell.preferredSize(limit: limitSize, model: model)
+        }
     }
     
     open func item(selected row: Int) {

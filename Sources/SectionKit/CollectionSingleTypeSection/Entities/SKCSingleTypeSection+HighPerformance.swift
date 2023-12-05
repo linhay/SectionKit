@@ -9,7 +9,7 @@ import Foundation
 
 public extension SKCSingleTypeSection {
     
-    public typealias HighPerformanceIDBlock = (_ context: ModelDisplayedContext) -> String?
+    typealias HighPerformanceIDBlock = (_ context: ModelDisplayedContext) -> String?
     
     @discardableResult
     func setHighPerformance(_ value: SKHighPerformanceStore<String>?) -> Self {
@@ -20,7 +20,7 @@ public extension SKCSingleTypeSection {
     @discardableResult
     func highPerformanceID(by block: HighPerformanceIDBlock?) -> Self {
         highPerformanceID = block
-        if let block = block {
+        if block != nil {
             return setHighPerformance(highPerformance ?? .init())
         } else {
             return setHighPerformance(nil)

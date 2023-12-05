@@ -260,8 +260,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open var itemCount: Int { models.count }
     
     public private(set) lazy var publishers = SKPublishers()
-    public var highPerformance: SKHighPerformanceStore<String>?
-    public var highPerformanceID: HighPerformanceIDBlock?
+    var highPerformance: SKHighPerformanceStore<String>?
+    var highPerformanceID: HighPerformanceIDBlock?
 
     lazy var deletedModels: [Int: Model] = [:]
     lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]

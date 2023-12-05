@@ -55,12 +55,12 @@ extension SKCLayoutPlugins {
                     case .header:
                         if let constraint = constraint(of: attribute.indexPath.section, kind: .header) {
                             attribute.size = self.headerSize(at: attribute.indexPath.section)
-                            attribute.frame.apply(insets: constraint.insets)
+                            attribute.frame = attribute.frame.apply(insets: constraint.insets)
                         }
                     case .footer:
                         if let constraint = constraint(of: attribute.indexPath.section, kind: .footer) {
                             attribute.size = self.footerSize(at: attribute.indexPath.section)
-                            attribute.frame.apply(insets: constraint.insets)
+                            attribute.frame = attribute.frame.apply(insets: constraint.insets)
                         }
                     case .cell, .custom:
                         break

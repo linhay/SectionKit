@@ -101,7 +101,7 @@ public extension SKSelectionSequence {
         store
             .filter { !$0.isSelected }
             .forEach { item in
-                item.isSelected = false
+                item.isSelected = true
             }
     }
     
@@ -109,7 +109,7 @@ public extension SKSelectionSequence {
         store
             .filter { $0.isSelected }
             .forEach { item in
-                item.isSelected = true
+                item.isSelected = false
             }
     }
     

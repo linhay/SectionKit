@@ -22,15 +22,13 @@
 
 import Foundation
 
-public protocol SKRegistrationModelProtocol {
+public protocol SKExistModelProtocol {
     associatedtype Model
-}
-
-public protocol SKExistModelProtocol: SKRegistrationModelProtocol {
     var model: Model { get }
 }
 
-public protocol SKConfigurableModelProtocol: SKRegistrationModelProtocol {
+public protocol SKConfigurableModelProtocol {
+    associatedtype Model
     func config(_ model: Model)
 }
 

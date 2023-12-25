@@ -50,6 +50,21 @@ public extension SKCSingleTypeSection {
     @discardableResult
     func set<View>(supplementary kind: SKSupplementaryKind,
                    type: View.Type,
+                   model: @escaping () -> View.Model?,
+                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
+        set(supplementary: .init(kind: kind, type: type) { view in
+            guard let model = model() else { return }
+            view.config(model)
+            config?(view)
+        } size: { limitSize in
+            guard let model = model() else { return .zero }
+            return View.preferredSize(limit: limitSize, model: model)
+        })
+    }
+    
+    @discardableResult
+    func set<View>(supplementary kind: SKSupplementaryKind,
+                   type: View.Type,
                    config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView, View.Model == Void {
         set(supplementary: kind, type: type, model: (), config: config)
     }

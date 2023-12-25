@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 配置当前 section 样式
 public extension SKCSingleTypeSection {
     
     /// 配置当前 section 样式
@@ -18,6 +19,39 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+    @discardableResult
+    func setSectionStyle<Value>(_ path: ReferenceWritableKeyPath<SKCSingleTypeSection<Cell>, Value>, _ value: Value) -> Self {
+        self[keyPath: path] = value
+        return self
+    }
+    
+    @discardableResult
+    func setSectionStyle<Value>(_ path: ReferenceWritableKeyPath<SKCSingleTypeSection<Cell>, Value?>, _ value: Value?) -> Self {
+        self[keyPath: path] = value
+        return self
+    }
+    
+    @discardableResult
+    func setSectionStyle<Value>(_ paths: [ReferenceWritableKeyPath<SKCSingleTypeSection<Cell>, Value>], _ value: Value) -> Self {
+        for path in paths {
+            self[keyPath: path] = value
+        }
+        return self
+    }
+    
+    @discardableResult
+    func setSectionStyle<Value>(_ paths: [ReferenceWritableKeyPath<SKCSingleTypeSection<Cell>, Value?>], _ value: Value?) -> Self {
+        for path in paths {
+            self[keyPath: path] = value
+        }
+        return self
+    }
+    
+}
+
+/// 配置 Cell 样式
+public extension SKCSingleTypeSection {
+
     @discardableResult
     func setCellStyle(_ item: @escaping CellStyleBlock) -> Self {
         return setCellStyle(.init(value: item))

@@ -11,13 +11,13 @@ import Combine
 
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol, SKDisplayedTimesProtocol {
     
-    public typealias CellStyleBox = IDBox<UUID, CellStyleBlock>
+    public typealias CellStyleBox = SKIDBox<UUID, CellStyleBlock>
     
     public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
-    public typealias CellStyleBlock    = (_ context: CellStyleContext) -> Void
+    public typealias CellStyleBlock    = (_ context: SKCCellStyleContext<Cell>) -> Void
 
     public typealias SectionStyleWeakBlock<T: AnyObject> = (_ self: T, _ section: SKCSingleTypeSection<Cell>) -> Void
-    public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: CellStyleContext) -> Void
+    public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: SKCCellStyleContext<Cell>) -> Void
     public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: CellActionContext) -> Void
 
     public typealias LoadedBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
@@ -108,7 +108,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             }
             return cell
         }
-        
+                
         fileprivate init(section: SKCSingleTypeSection<Cell>,
                          type: CellActionType,
                          model: Cell.Model, row: Int,
@@ -119,22 +119,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             self.row = row
             self._view = .init(_view)
         }
-    }
-    
-    public struct CellStyleContext: SKCSingleTypeSectionRowContext {
-        
-        public let section: SKCSingleTypeSection<Cell>
-        public let model: Cell.Model
-        public let row: Int
-        public let view: Cell
-        
-        fileprivate init(section: SKCSingleTypeSection<Cell>, model: Cell.Model, row: Int, view: Cell) {
-            self.row = row
-            self.model = model
-            self.section = section
-            self.view = view
-        }
-        
     }
     
     public struct SupplementaryActionContext {
@@ -163,24 +147,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             self.row = row
             self._view = .init(view)
         }
-    }
-    
-    public struct IDBox<ID, Value> {
-        
-        public typealias ID = ID
-        public let id: ID
-        public let value: Value
-        
-        public init(id: ID, value: Value) {
-            self.id = id
-            self.value = value
-        }
-        
-        public init(value: Value) where ID == UUID {
-            self.id = UUID()
-            self.value = value
-        }
-        
     }
     
     public class SKPublishers {
@@ -306,7 +272,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         let model = models[row]
         cell.config(model)
         if !cellStyles.isEmpty {
-            let result = CellStyleContext(section: self, model: model, row: row, view: cell)
+            let result = SKCCellStyleContext(section: self, model: model, row: row, view: cell)
             cellStyles.forEach { style in
                 style.value(result)
             }

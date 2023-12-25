@@ -15,8 +15,7 @@ public protocol SKSelectionProtocol {
 public extension SKSelectionProtocol {
     
     var isSelected: Bool {
-        get { selection.isSelected }
-        nonmutating set { selection.isSelected = newValue }
+        selection.isSelected
     }
 
     var canSelect: Bool {
@@ -34,5 +33,25 @@ public extension SKSelectionProtocol {
     var canSelectPublisher: AnyPublisher<Bool, Never> { selection.canSelectPublisher }
     var enabledPublisher: AnyPublisher<Bool, Never> { selection.enabledPublisher }
     var changedPublisher:   AnyPublisher<SKSelectionState, Never> { selection.changedPublisher }
+    
+    func toggle() {
+        select(!isSelected)
+    }
+    
+    @discardableResult
+    func select(_ value: Bool) -> Bool {
+        guard isEnabled else {
+            return false
+        }
+        if value {
+            if canSelect {
+                self.selection.isSelected = canSelect
+            }
+            return canSelect
+        } else {
+            self.selection.isSelected = false
+            return true
+        }
+    }
     
 }

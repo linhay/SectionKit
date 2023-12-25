@@ -36,11 +36,11 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
 public extension SKSelectionIdentifiableSequence {
     
     func deselect(id: ID) {
-        store[id]?.isSelected = false
+        store[id]?.select(false)
     }
     
     func select(id: ID) {
-        store[id]?.isSelected = true
+        store[id]?.select(true)
     }
     
 }

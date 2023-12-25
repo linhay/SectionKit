@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/9/9.
 //
@@ -10,22 +10,27 @@ import Combine
 
 public final class SKSelectionSequence<Element: SKSelectionProtocol> {
     
-    public private(set) lazy var itemChangedPublisher: AnyPublisher<SKSelectionSequence, Never> = {
+    public struct ChangedContent {
+        public let offset: Int
+        public let element: Element
+    }
+    
+    public private(set) lazy var itemChangedPublisher: AnyPublisher<ChangedContent, Never> = {
         Deferred { [weak self] in
             guard let self = self else {
-                return PassthroughSubject<SKSelectionSequence, Never>()
+                return PassthroughSubject<ChangedContent, Never>()
             }
             if let subject = self.itemChangedSubject {
                 return subject
             }
-            let subject = PassthroughSubject<SKSelectionSequence, Never>()
+            let subject = PassthroughSubject<ChangedContent, Never>()
             self.itemChangedSubject = subject
             self.observeAll()
             return subject
         }.eraseToAnyPublisher()
     }()
     
-    private var itemChangedSubject: PassthroughSubject<SKSelectionSequence, Never>?
+    private var itemChangedSubject: PassthroughSubject<ChangedContent, Never>?
     
     /// 是否让选中的元素是整个序列中唯一的选中 | default: true
     public var isUnique: Bool = true
@@ -77,6 +82,18 @@ public extension SKSelectionSequence {
 
 public extension SKSelectionSequence {
     
+    subscript(_ index: Int) -> Element? {
+        return store.indices.contains(index) ? store[index] : nil
+    }
+    
+    func item(at index: Int) -> Element? {
+        return store.indices.contains(index) ? store[index] : nil
+    }
+    
+}
+
+public extension SKSelectionSequence {
+    
     func insert(at index: Int, _ item: Element) {
         store.insert(item, at: index)
     }
@@ -87,21 +104,21 @@ public extension SKSelectionSequence {
     }
     
     func select(at index: Int) {
-        guard store.indices.contains(index) else { return }
-        store[index].isSelected = true
+        guard store.indices.contains(index),
+              store[index].select(true) else { return }
         maintainUniqueIfNeed(at: index)
     }
     
     func deselect(at index: Int) {
-        guard store.indices.contains(index) else { return }
-        store[index].isSelected = false
+        guard store.indices.contains(index),
+              store[index].select(false) else { return }
     }
     
     func selectAll() {
         store
             .filter { !$0.isSelected }
             .forEach { item in
-                item.isSelected = true
+                item.select(true)
             }
     }
     
@@ -109,7 +126,7 @@ public extension SKSelectionSequence {
         store
             .filter { $0.isSelected }
             .forEach { item in
-                item.isSelected = false
+                item.select(false)
             }
     }
     
@@ -133,15 +150,10 @@ private extension SKSelectionSequence {
             .sink(receiveValue: { [weak self] flag in
                 guard let self = self else { return }
                 guard self.store.indices.contains(offset) else { return }
-                if flag {
-                    self.store[offset].isSelected = true
-                    if !self.maintainUniqueIfNeed(at: offset) {
-                        self.itemChangedSubject?.send(self)
-                    }
-                } else {
-                    self.store[offset].isSelected = false
-                    self.itemChangedSubject?.send(self)
+                if self.isUnique, flag {
+                    self.maintainUniqueIfNeed(at: offset)
                 }
+                self.itemChangedSubject?.send(.init(offset: offset, element: element))
             })
             .store(in: &cancellables)
     }
@@ -158,7 +170,7 @@ private extension SKSelectionSequence {
             .map(\.element)
             .filter(\.isSelected)
             .forEach { element in
-                element.isSelected = false
+                element.select(false)
                 result = true
             }
         return result

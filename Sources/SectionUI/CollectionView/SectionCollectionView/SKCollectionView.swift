@@ -96,6 +96,7 @@ public extension SKCollectionView {
 }
 
 private extension SKCollectionView {
+    
     func initialize() {
         translatesAutoresizingMaskIntoConstraints = false
         if backgroundColor == .black {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 @propertyWrapper
 public struct SKBinding<Value> {
@@ -13,19 +14,35 @@ public struct SKBinding<Value> {
     // 包装的值
     public var wrappedValue: Value {
         get { _get() }
-        nonmutating set { _set?(newValue) }
+        nonmutating set {
+            for item in _set {
+                item(newValue)
+            }
+            if !_set.isEmpty {
+                self.changedSubject.send(newValue)
+            }
+        }
     }
 
     // 返回 SKBinding 的实例
     public var projectedValue: SKBinding<Value> { self }
-    
+    public var changedPublisher: AnyPublisher<Value, Never> { changedSubject.eraseToAnyPublisher() }
+    public var isSetable: Bool { !_set.isEmpty }
+
     private let _get: () -> Value
-    private let _set: ((Value) -> Void)?
-    
-    public var isSetable: Bool { _set != nil }
-    
+    private let _set: [(Value) -> Void]
+    private let changedSubject = PassthroughSubject<Value, Never>()
+
     // 初始化方法，接受一个 getter 和 setter
     public init(get: @escaping () -> Value, set: ((Value) -> Void)? = nil) {
+        if let set = set {
+            self.init(get: get, set: [set])
+        } else {
+            self.init(get: get, set: [])
+        }
+    }
+    
+    private init(get: @escaping () -> Value, set: [(Value) -> Void]) {
         self._get = get
         self._set = set
     }

@@ -76,7 +76,6 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
             sectionHeadersPinToVisibleBoundsPlugin = nil
         }
     }
-    
     private lazy var oldBounds = CGRect.zero
     private var layoutTempStore: LayoutStore?
     private var layoutStore: LayoutStore = .init(attributes: [])

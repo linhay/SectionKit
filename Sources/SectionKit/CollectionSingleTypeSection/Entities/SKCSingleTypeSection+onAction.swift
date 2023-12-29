@@ -58,6 +58,20 @@ public extension SKCSingleTypeSection {
     }
     
     @discardableResult
+    func setCellStyle<T>(_ path: ReferenceWritableKeyPath<SKCCellStyleContext<Cell>, T>, _ value: T) -> Self {
+        return setCellStyle { context in
+            context[keyPath: path] = value
+        }
+    }
+    
+    @discardableResult
+    func setCellStyle<T>(_ path: ReferenceWritableKeyPath<SKCCellStyleContext<Cell>, T?>, _ value: T?) -> Self {
+        return setCellStyle { context in
+            context[keyPath: path] = value
+        }
+    }
+    
+    @discardableResult
     func setCellStyle(_ item: CellStyleBox) -> Self {
         cellStyles.append(item)
         return self

@@ -5,13 +5,11 @@
 //  Created by linhey on 2022/3/14.
 //
 
-#if canImport(CoreGraphics)
 import Foundation
-#if canImport(UIKit)
-import UIKit
 
 // 定义了可配置视图协议,组合可配置模型,布局和UIView协议
-public protocol SKConfigurableView: SKConfigurableModelProtocol & SKConfigurableLayoutProtocol & UIView {}
+public protocol SKExistModelView: SKExistModelProtocol & SKConfigurableLayoutProtocol { }
+public protocol SKConfigurableView: SKConfigurableModelProtocol & SKConfigurableLayoutProtocol {}
 
 public extension SKConfigurableView where Model == Void {
     
@@ -27,7 +25,3 @@ public extension SKConfigurableView {
     }
     
 }
-
-#endif
-
-#endif

@@ -24,7 +24,7 @@ import Foundation
 
 public protocol SKExistModelProtocol {
     associatedtype Model
-    var model: Model { get }
+    init(model: Model)
 }
 
 public protocol SKConfigurableModelProtocol {

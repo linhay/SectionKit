@@ -23,15 +23,30 @@
 import Foundation
 
 @dynamicMemberLookup
-final class SKWeakBox<Value: AnyObject> {
-    weak var value: Value?
+public final class SKWeakBox<Value: AnyObject>: Equatable, Hashable {
+   
+    public weak var value: Value?
     
-    init(_ value: Value?) {
+    public init(_ value: Value?) {
         self.value = value
     }
     
-    subscript<T>(dynamicMember keyPath: WritableKeyPath<Value, T?>) -> T? {
+    public subscript<T>(dynamicMember keyPath: WritableKeyPath<Value, T?>) -> T? {
         get { value?[keyPath: keyPath] }
         set { value?[keyPath: keyPath] = newValue }
     }
+    
+    public subscript<T>(dynamicMember keyPath: ReferenceWritableKeyPath<Value, T?>) -> T? {
+        get { value?[keyPath: keyPath] }
+        set { value?[keyPath: keyPath] = newValue }
+    }
+    
+    public static func == (lhs: SKWeakBox<Value>, rhs: SKWeakBox<Value>) -> Bool {
+        lhs === rhs
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
+    }
+    
 }

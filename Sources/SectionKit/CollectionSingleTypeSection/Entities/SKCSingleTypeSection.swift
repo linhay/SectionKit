@@ -11,23 +11,26 @@ import Combine
 
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol, SKDisplayedTimesProtocol {
     
+    public typealias SectionBlock<Return>               = (_ section: SKCSingleTypeSection<Cell>) -> Return
+    public typealias ContextBlock<Context, Return>      = (_ context: Context) -> Return
+    public typealias AsyncContextBlock<Context, Return> = @MainActor (_ context: Context) async throws -> Return
+    
     public typealias CellStyleBox = SKIDBox<UUID, CellStyleBlock>
     
-    public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
-    public typealias CellStyleBlock    = (_ context: SKCCellStyleContext<Cell>) -> Void
+    public typealias LoadedBlock       = SectionBlock<Void>
+    public typealias SectionStyleBlock = SectionBlock<Void>
+    public typealias CellStyleBlock    = ContextBlock<SKCCellStyleContext<Cell>, Void>
 
     public typealias SectionStyleWeakBlock<T: AnyObject> = (_ self: T, _ section: SKCSingleTypeSection<Cell>) -> Void
     public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: SKCCellStyleContext<Cell>) -> Void
     public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: CellActionContext) -> Void
 
-    public typealias LoadedBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
-    
-    public typealias SupplementaryActionBlock = (_ context: SupplementaryActionContext) -> Void
-    public typealias ContextMenuBlock = (_ context: ContextMenuContext) -> ContextMenuResult?
-    public typealias ContextMenuWithActionsBlock = (_ context: ContextMenuContext) -> [UIAction]
-    public typealias CellShouldBlock  = (_ context: ContextMenuContext) -> Bool?
-    public typealias CellActionBlock  = (_ context: CellActionContext) -> Void
-    
+    public typealias SupplementaryActionBlock      = AsyncContextBlock<SupplementaryActionContext, Void>
+    public typealias CellActionBlock               = AsyncContextBlock<CellActionContext, Void>
+    public typealias ContextMenuBlock              = ContextBlock<ContextMenuContext, ContextMenuResult?>
+    public typealias ContextMenuWithActionsBlock   = ContextBlock<ContextMenuContext, [UIAction]>
+    public typealias CellShouldBlock               = ContextBlock<ContextMenuContext, Bool?>
+
     public enum LifeCycleKind {
         case loadedToSectionView(UICollectionView)
     }
@@ -815,18 +818,26 @@ public extension SKCSingleTypeSection {
     }
     
     func sendAction(_ result: CellActionContext) {
-        cellActions[result.type]?.forEach({ block in
-            block(result)
-        })
-        publishers.cellActionSubject?.send(result)
+        Task { 
+            if let blocks = cellActions[result.type] {
+                for block in blocks {
+                   try await block(result)
+                }
+            }
+            publishers.cellActionSubject?.send(result)
+        }
     }
     
     func sendSupplementaryAction(_ type: SupplementaryActionType, kind: SKSupplementaryKind, row: Int, view: UICollectionReusableView) {
         let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row, view: view)
-        supplementaryActions[type]?.forEach({ block in
-            block(result)
-        })
-        publishers.supplementaryActionSubject?.send(result)
+        Task {
+            if let blocks = supplementaryActions[type] {
+                for block in blocks {
+                   try await block(result)
+                }
+            }
+            publishers.supplementaryActionSubject?.send(result)
+        }
     }
     
     func taskIfLoaded(_ task: @escaping LoadedBlock) {

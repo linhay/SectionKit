@@ -15,7 +15,8 @@ class DecorationViewController: SKCollectionViewController {
         case fix_insets
         case no_fix_insets
         case add
-        case all
+        case all_vis
+        case all_section
         case add_header
         case add_cells
         case add_footer
@@ -89,7 +90,7 @@ extension DecorationViewController {
                         .init(color: .red, text: "\(sectionIndex - index)", size: size)
                 })
                 .set(supplementary: .init(kind: .header, type: ReusableView.self, model: "header - \(sectionIndex)"))
-                .set(supplementary: .init(kind: .footer, type: ReusableView.self, model: "footer - \(sectionIndex)"))
+//                .set(supplementary: .init(kind: .footer, type: ReusableView.self, model: "footer - \(sectionIndex)"))
         }
         
         var isAnimating = false
@@ -124,8 +125,10 @@ extension DecorationViewController {
                 defaultPluginModes = []
                 sectionView.set(pluginModes: [])
                 sectionView.reloadData()
-            case .all:
-                update(.init(sectionIndex: .all, viewType: ReusableView.self))
+            case .all_vis:
+                update(.init(sectionIndex: .all, viewType: ReusableView.self, modes: [.visibleView, .sectionInsetPaddingWhen([.header, .footer])]))
+            case .all_section:
+                update(.init(sectionIndex: .all, viewType: ReusableView.self, modes: [.section, .sectionInsetPaddingWhen([.header, .footer])]))
             case .add:
                 update(.init(sectionIndex: .init(sections.first!), viewType: ReusableView.self))
             case .add_header:
@@ -145,12 +148,13 @@ extension DecorationViewController {
             case .inset_40:
                 update(.init(sectionIndex: .init(sections.first!),
                              viewType: ReusableView.self,
+                             modes: [.section],
                              insets: .init(top: 40, left: 40, bottom: 40, right: 40)))
             }
         }
         
         func update(_ decoration: SKCollectionFlowLayout.Decoration...) {
-            sectionView.set(pluginModes: defaultPluginModes + [.decorations(decoration)])
+            sectionView.set(pluginModes: [.decorations(decoration)] + defaultPluginModes)
             sectionView.reloadData()
         }
         

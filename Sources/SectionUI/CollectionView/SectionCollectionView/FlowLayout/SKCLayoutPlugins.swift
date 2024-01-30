@@ -10,7 +10,8 @@ import UIKit
 public struct SKCLayoutPlugins {
     
     /// 布局插件样式
-    public enum Mode {
+    public enum Mode: Equatable {
+        
         /// 左对齐
         case left
         /// 居中对齐
@@ -45,29 +46,41 @@ public struct SKCLayoutPlugins {
             case .sectionHeadersPinToVisibleBounds: return 300
             }
         }
+        
+        public static func == (lhs: SKCLayoutPlugins.Mode, rhs: SKCLayoutPlugins.Mode) -> Bool {
+            lhs.priority == rhs.priority
+        }
     }
     
     public var modes: [Mode] = [] {
         didSet {
-            var set = Set<Int>()
-            var newModes = [Mode]()
-            
-            /// 优先级冲突去重
-            for item in modes {
-                if set.insert(item.priority).inserted {
-                    newModes.append(item)
-                } else {
-                    assertionFailure("mode冲突: \(newModes.filter { $0.priority == item.priority })")
-                }
+            let modes = sort(modes: modes)
+            guard modes != self.modes else {
+                return
             }
-            
-            /// mode 重排
-            modes = newModes.sorted(by: { $0.priority < $1.priority })
+            self.modes = modes
         }
     }
     
     public init(modes: [Mode]) {
-        self.modes = modes
+        self.modes = sort(modes: modes)
+    }
+    
+    func sort(modes: [Mode]) -> [Mode] {
+        var set = Set<Int>()
+        var newModes = [Mode]()
+        
+        /// 优先级冲突去重
+        for item in modes {
+            if set.insert(item.priority).inserted {
+                newModes.append(item)
+            } else {
+                assertionFailure("mode冲突: \(newModes.filter { $0.priority == item.priority })")
+            }
+        }
+        
+        /// mode 重排
+        return newModes.sorted(by: { $0.priority < $1.priority })
     }
     
 }

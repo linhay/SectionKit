@@ -126,9 +126,9 @@ extension DecorationViewController {
                 sectionView.set(pluginModes: [])
                 sectionView.reloadData()
             case .all_vis:
-                update(.init(sectionIndex: .all, viewType: ReusableView.self, modes: [.visibleView, .sectionInsetPaddingWhen([.header, .footer])]))
+                update(.init(sectionIndex: .all, viewType: ReusableView.self, modes: [.visibleView, .useSectionInsetWhenNotExist([.header, .footer])]))
             case .all_section:
-                update(.init(sectionIndex: .all, viewType: ReusableView.self, modes: [.section, .sectionInsetPaddingWhen([.header, .footer])]))
+                update(.init(sectionIndex: .all, viewType: ReusableView.self, modes: [.useSectionInsetWhenNotExist([.header, .footer])]))
             case .add:
                 update(.init(sectionIndex: .init(sections.first!), viewType: ReusableView.self))
             case .add_header:

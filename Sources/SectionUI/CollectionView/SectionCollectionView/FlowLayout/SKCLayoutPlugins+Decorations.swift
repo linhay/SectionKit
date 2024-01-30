@@ -24,7 +24,8 @@ public extension SKCLayoutPlugins {
         /// 按照原始的 section 区域计算
         case section
         /// 没有头尾时用sectioninset填充
-        case sectionInsetPaddingWhen(_ layout: [DecorationLayout] = [.header, .footer])
+        case useSectionInsetWhenNotExist(_ layout: [DecorationLayout] = [.header, .footer])
+
     }
     
     struct Decoration {
@@ -182,7 +183,7 @@ public extension SKCLayoutPlugins {
                 switch mode {
                 case .section, .visibleView:
                     supplementaryMode = mode
-                case .sectionInsetPaddingWhen(let layout):
+                case .useSectionInsetWhenNotExist(let layout):
                     sectionInsetPaddingWhenLayout = layout
                 }
             }
@@ -195,7 +196,7 @@ public extension SKCLayoutPlugins {
                     return layout.attributes(of: key, at: section, useCache: false)
                 case .visibleView:
                     return layout.attributes(of: key, at: section, useCache: true)
-                case .sectionInsetPaddingWhen:
+                case .useSectionInsetWhenNotExist:
                     return nil
                 }
             }

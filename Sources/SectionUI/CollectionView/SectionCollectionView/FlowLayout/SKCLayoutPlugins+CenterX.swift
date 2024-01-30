@@ -11,7 +11,7 @@ extension SKCLayoutPlugins {
   
     struct CenterX: SKCLayoutPlugin {
         
-        let layout: UICollectionViewFlowLayout
+        let layout: SKCollectionFlowLayout
 
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
                 var lineStore = [UICollectionViewLayoutAttributes]()

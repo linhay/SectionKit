@@ -18,21 +18,33 @@ public extension SKCLayoutPlugins {
         case footer
     }
     
+    enum DecorationMode {
+        /// 按照可视视图区域计算
+        case visibleView
+        /// 按照原始的 section 区域计算
+        case section
+    }
+    
     struct Decoration {
-       
+        
         public struct Item {
+            
             public let index: BindingKey<Int>
             public let layout: [DecorationLayout]
+            public let mode: DecorationMode
             
             public init(index: BindingKey<Int>,
+                        mode: DecorationMode = .visibleView,
                         layout: [DecorationLayout] = [.header, .cells, .footer]) {
-                self.index = index
+                self.index  = index
+                self.mode   = mode
                 self.layout = layout
             }
             
             public init(_ section: SKCSectionProtocol,
+                        mode: DecorationMode = .visibleView,
                         layout: [DecorationLayout] = [.header, .cells, .footer]) {
-                self.init(index: .init(section), layout: layout)
+                self.init(index: .init(section), mode: mode, layout: layout)
             }
         }
         
@@ -42,9 +54,10 @@ public extension SKCLayoutPlugins {
         public let viewType: DecorationView.Type
         public let insets: UIEdgeInsets
         public let zIndex: Int
-
+        
         public init(section: SKCSectionProtocol,
                     viewType: DecorationView.Type,
+                    mode: DecorationMode = .visibleView,
                     zIndex: Int = -1,
                     layout: [DecorationLayout] = [.header, .cells, .footer],
                     insets: UIEdgeInsets = .zero) {
@@ -57,12 +70,12 @@ public extension SKCLayoutPlugins {
         
         public init(sectionIndex: BindingKey<Int>,
                     viewType: DecorationView.Type,
+                    mode: DecorationMode = .visibleView,
                     zIndex: Int = -1,
                     layout: [DecorationLayout] = [.header, .cells, .footer],
                     insets: UIEdgeInsets = .zero) {
             self.to = nil
-            self.from = .init(index: sectionIndex,
-                              layout: layout)
+            self.from = .init(index: sectionIndex, mode: mode, layout: layout)
             self.viewType = viewType
             self.insets = insets
             self.zIndex = zIndex
@@ -78,7 +91,7 @@ public extension SKCLayoutPlugins {
             self.zIndex = zIndex
             self.insets = insets
         }
-                
+        
         func apply(to layout: UICollectionViewFlowLayout) {
             if let nib = viewType.nib {
                 layout.register(nib, forDecorationViewOfKind: viewType.identifier)
@@ -89,23 +102,23 @@ public extension SKCLayoutPlugins {
     }
     
     class BindingKey<Value> {
-        private let closure: () -> Value?
         
+        private let closure: () -> Value?
         public var wrappedValue: Value? { closure() }
         
         public init(get closure: @escaping () -> Value?) {
             self.closure = closure
         }
+        
     }
-    
     
     struct Decorations: SKCLayoutPlugin {
         
-        let layout: UICollectionViewFlowLayout
+        let layout: SKCollectionFlowLayout
         let decorations: [Decoration]
         let fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
         
-        init(layout: UICollectionViewFlowLayout,
+        init(layout: SKCollectionFlowLayout,
              decorations: [Decoration],
              fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?) {
             self.layout = layout
@@ -159,19 +172,30 @@ public extension SKCLayoutPlugins {
         }
         
         func frame(for item: Decoration.Item, at section: IndexPath) -> CGRect? {
+            
+            func supplementary(of key: String) -> UICollectionViewLayoutAttributes? {
+                let attributes: UICollectionViewLayoutAttributes?
+                switch item.mode {
+                case .section:
+                    return layout.attributes(of: key, at: section, useCache: false)
+                case .visibleView:
+                    return layout.attributes(of: key, at: section, useCache: true)
+                }
+            }
+            
             var frames = [CGRect]()
             
             if item.layout.contains(.header),
-               let attributes = layout.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: section),
+               let attributes = supplementary(of: UICollectionView.elementKindSectionHeader),
                attributes.frame.width > 0,
                attributes.frame.height > 0 {
                 frames.append(attributes.frame)
             }
             
             if item.layout.contains(.footer),
-               let attributes = layout.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: section),
-                attributes.frame.width > 0,
-                attributes.frame.height > 0 {
+               let attributes = supplementary(of: UICollectionView.elementKindSectionFooter),
+               attributes.frame.width > 0,
+               attributes.frame.height > 0 {
                 frames.append(attributes.frame)
             }
             
@@ -200,7 +224,7 @@ public extension SKCLayoutPlugins {
                let frame = frame(for: to, at: IndexPath(item: index, section: section)) {
                 frames.append(frame)
             }
-               
+            
             guard let frame = CGRect.union(frames)?.apply(insets: decoration.insets) else {
                 return nil
             }
@@ -212,6 +236,7 @@ public extension SKCLayoutPlugins {
         }
         
     }
+    
 }
 
 public extension SKCLayoutPlugins.BindingKey {

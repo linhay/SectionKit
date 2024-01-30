@@ -35,7 +35,7 @@ extension SKCLayoutPlugins {
             }
         }
         
-        let layout: UICollectionViewFlowLayout
+        let layout: SKCollectionFlowLayout
         let condition: Condition
        
        func constraint(of index: Int, kind: SKSupplementaryKind) -> Constraint? {

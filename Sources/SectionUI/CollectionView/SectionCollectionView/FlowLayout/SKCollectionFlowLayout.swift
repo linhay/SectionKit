@@ -157,19 +157,22 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
             return super.layoutAttributesForItem(at: indexPath)
         }
     }
-            
-    override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+
+    func attributes(of supplementary: String, at indexPath: IndexPath, useCache: Bool) -> UICollectionViewLayoutAttributes? {
         let attributes: UICollectionViewLayoutAttributes?
-        if let supplementary = layoutTempStore?.supplementaries[elementKind]?[indexPath] {
+        if useCache, let supplementary = layoutTempStore?.supplementaries[supplementary]?[indexPath] {
             attributes = supplementary
         } else {
-            attributes = super.layoutAttributesForSupplementaryView(ofKind: elementKind, at: indexPath)
+            attributes = super.layoutAttributesForSupplementaryView(ofKind: supplementary, at: indexPath)
         }
         guard let attributes = attributes else { return attributes }
-        sectionHeadersPinToVisibleBoundsPlugin?.layoutAttributesForSupplementaryView(ofKind: elementKind, at: indexPath, with: attributes)
+        sectionHeadersPinToVisibleBoundsPlugin?.layoutAttributesForSupplementaryView(ofKind: supplementary, at: indexPath, with: attributes)
         return attributes
     }
     
+    override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        return attributes(of: elementKind, at: indexPath, useCache: true)
+    }
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         oldBounds.size != newBounds.size 

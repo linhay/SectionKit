@@ -17,7 +17,7 @@ public extension SKCLayoutPlugins {
             case all
         }
         
-        let layout: UICollectionViewFlowLayout
+        let layout: SKCollectionFlowLayout
         let direction: Direction
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {

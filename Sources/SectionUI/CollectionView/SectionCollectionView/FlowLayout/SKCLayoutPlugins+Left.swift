@@ -11,7 +11,7 @@ extension SKCLayoutPlugins {
     
     struct Left: SKCLayoutPlugin {
         
-        let layout: UICollectionViewFlowLayout
+        let layout: SKCollectionFlowLayout
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
            

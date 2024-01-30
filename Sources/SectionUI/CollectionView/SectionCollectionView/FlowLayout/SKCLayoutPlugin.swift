@@ -9,7 +9,7 @@ import UIKit
 import SectionKit
 
 protocol SKCLayoutPlugin {
-    var layout: UICollectionViewFlowLayout { get }
+    var layout: SKCollectionFlowLayout { get }
 }
 
 extension SKCLayoutPlugin {

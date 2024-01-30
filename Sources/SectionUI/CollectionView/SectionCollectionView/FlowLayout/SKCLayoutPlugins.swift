@@ -26,6 +26,14 @@ public struct SKCLayoutPlugins {
         /// section 装饰视图
         case decorations([Decoration])
         
+        public static func sectionHeadersPinToVisibleBounds(_ key: BindingKey<Int>) -> Mode {
+            return .sectionHeadersPinToVisibleBounds([key])
+        }
+        
+        public static func decorations(_ decoration: Decoration) -> Mode {
+            return .decorations([decoration])
+        }
+        
         var priority: Int {
             switch self {
             case .left:    return 100

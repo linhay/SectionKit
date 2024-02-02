@@ -18,21 +18,36 @@ public extension SKCLayoutPlugins {
         case footer
     }
     
+    enum DecorationMode {
+        /// 按照可视视图区域计算
+        case visibleView
+        /// 按照原始的 section 区域计算
+        case section
+        /// 没有头尾时用sectioninset填充
+        case useSectionInsetWhenNotExist(_ layout: [DecorationLayout] = [.header, .footer])
+
+    }
+    
     struct Decoration {
-       
+        
         public struct Item {
+            
             public let index: BindingKey<Int>
             public let layout: [DecorationLayout]
+            public let modes: [DecorationMode]
             
             public init(index: BindingKey<Int>,
+                        modes: [DecorationMode] = [.visibleView],
                         layout: [DecorationLayout] = [.header, .cells, .footer]) {
-                self.index = index
+                self.index  = index
+                self.modes  = modes
                 self.layout = layout
             }
             
             public init(_ section: SKCSectionProtocol,
+                        modes: [DecorationMode] = [.visibleView],
                         layout: [DecorationLayout] = [.header, .cells, .footer]) {
-                self.init(index: .init(section), layout: layout)
+                self.init(index: .init(section), modes: modes, layout: layout)
             }
         }
         
@@ -42,9 +57,10 @@ public extension SKCLayoutPlugins {
         public let viewType: DecorationView.Type
         public let insets: UIEdgeInsets
         public let zIndex: Int
-
+        
         public init(section: SKCSectionProtocol,
                     viewType: DecorationView.Type,
+                    mode: [DecorationMode] = [.visibleView],
                     zIndex: Int = -1,
                     layout: [DecorationLayout] = [.header, .cells, .footer],
                     insets: UIEdgeInsets = .zero) {
@@ -57,12 +73,12 @@ public extension SKCLayoutPlugins {
         
         public init(sectionIndex: BindingKey<Int>,
                     viewType: DecorationView.Type,
+                    modes: [DecorationMode] = [.visibleView],
                     zIndex: Int = -1,
                     layout: [DecorationLayout] = [.header, .cells, .footer],
                     insets: UIEdgeInsets = .zero) {
             self.to = nil
-            self.from = .init(index: sectionIndex,
-                              layout: layout)
+            self.from = .init(index: sectionIndex, modes: modes, layout: layout)
             self.viewType = viewType
             self.insets = insets
             self.zIndex = zIndex
@@ -78,7 +94,7 @@ public extension SKCLayoutPlugins {
             self.zIndex = zIndex
             self.insets = insets
         }
-                
+        
         func apply(to layout: UICollectionViewFlowLayout) {
             if let nib = viewType.nib {
                 layout.register(nib, forDecorationViewOfKind: viewType.identifier)
@@ -89,23 +105,23 @@ public extension SKCLayoutPlugins {
     }
     
     class BindingKey<Value> {
-        private let closure: () -> Value?
         
+        private let closure: () -> Value?
         public var wrappedValue: Value? { closure() }
         
         public init(get closure: @escaping () -> Value?) {
             self.closure = closure
         }
+        
     }
-    
     
     struct Decorations: SKCLayoutPlugin {
         
-        let layout: UICollectionViewFlowLayout
+        let layout: SKCollectionFlowLayout
         let decorations: [Decoration]
         let fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
         
-        init(layout: UICollectionViewFlowLayout,
+        init(layout: SKCollectionFlowLayout,
              decorations: [Decoration],
              fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?) {
             self.layout = layout
@@ -159,20 +175,62 @@ public extension SKCLayoutPlugins {
         }
         
         func frame(for item: Decoration.Item, at section: IndexPath) -> CGRect? {
-            var frames = [CGRect]()
             
+            var supplementaryMode: DecorationMode?
+            var sectionInsetPaddingWhenLayout: [DecorationLayout] = []
+        
+            for mode in item.modes {
+                switch mode {
+                case .section, .visibleView:
+                    supplementaryMode = mode
+                case .useSectionInsetWhenNotExist(let layout):
+                    sectionInsetPaddingWhenLayout = layout
+                }
+            }
+            
+            func supplementary(of key: String) -> UICollectionViewLayoutAttributes? {
+                guard let supplementaryMode = supplementaryMode else { return nil }
+                let attributes: UICollectionViewLayoutAttributes?
+                switch supplementaryMode {
+                case .section:
+                    return layout.attributes(of: key, at: section, useCache: false)
+                case .visibleView:
+                    return layout.attributes(of: key, at: section, useCache: true)
+                case .useSectionInsetWhenNotExist:
+                    return nil
+                }
+            }
+            
+            func inset(_ layout: DecorationLayout) -> CGFloat {
+                guard !sectionInsetPaddingWhenLayout.isEmpty else { return 0 }
+                let insets = insetForSection(at: section.section)
+                switch layout {
+                case .header:
+                    return insets.top
+                case .cells:
+                    return 0
+                case .footer:
+                    return insets.bottom
+                }
+            }
+                        
+            var frames = [CGRect]()
+            var unions = [DecorationLayout]()
+
             if item.layout.contains(.header),
-               let attributes = layout.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, at: section),
+               let attributes = supplementary(of: UICollectionView.elementKindSectionHeader),
                attributes.frame.width > 0,
                attributes.frame.height > 0 {
                 frames.append(attributes.frame)
+                unions.append(.header)
             }
             
             if item.layout.contains(.footer),
-               let attributes = layout.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, at: section),
-                attributes.frame.width > 0,
-                attributes.frame.height > 0 {
+               let attributes = supplementary(of: UICollectionView.elementKindSectionFooter),
+               attributes.frame.width > 0,
+               attributes.frame.height > 0 {
                 frames.append(attributes.frame)
+                unions.append(.footer)
             }
             
             if item.layout.contains(.cells) {
@@ -181,10 +239,26 @@ public extension SKCLayoutPlugins {
                 }
                 if let frame = CGRect.union(cells) {
                     frames.append(frame)
+                    unions.append(.cells)
                 }
             }
+                    
+            guard var frame = CGRect.union(frames) else {
+                return nil
+            }
             
-            return CGRect.union(frames)
+            if !unions.contains(.header), sectionInsetPaddingWhenLayout.contains(.header) {
+                let inset = inset(.header)
+                frame.origin.y -= inset
+                frame.size.height += inset
+            }
+            
+            if !unions.contains(.footer), sectionInsetPaddingWhenLayout.contains(.footer) {
+                let inset = inset(.footer)
+                frame.size.height += inset
+            }
+            
+            return frame
         }
         
         func task(section: Int, index: Int, decoration: Decoration) -> UICollectionViewLayoutAttributes? {
@@ -200,7 +274,7 @@ public extension SKCLayoutPlugins {
                let frame = frame(for: to, at: IndexPath(item: index, section: section)) {
                 frames.append(frame)
             }
-               
+            
             guard let frame = CGRect.union(frames)?.apply(insets: decoration.insets) else {
                 return nil
             }
@@ -212,6 +286,7 @@ public extension SKCLayoutPlugins {
         }
         
     }
+    
 }
 
 public extension SKCLayoutPlugins.BindingKey {

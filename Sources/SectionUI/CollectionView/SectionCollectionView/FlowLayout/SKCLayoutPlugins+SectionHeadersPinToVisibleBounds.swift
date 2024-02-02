@@ -11,7 +11,7 @@ import UIKit
 extension SKCLayoutPlugins {
     
     struct SectionHeadersPinToVisibleBounds: SKCLayoutPlugin {
-        let layout: UICollectionViewFlowLayout
+        let layout: SKCollectionFlowLayout
         var elements: [BindingKey<Int>]
         var sectionRects: [Int: CGRect] = [:]
         

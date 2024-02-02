@@ -18,6 +18,13 @@ public extension SKCSingleTypeSection {
     }
     
     @discardableResult
+    func subscribe<Output>(models publisher: some Publisher<[Output], Never>, convert: @escaping (Output) -> Model?) -> Self {
+        return subscribe(models: publisher.map({ list in
+            list.compactMap(convert)
+        }))
+    }
+    
+    @discardableResult
     func subscribe(models publisher: some Publisher<[Model], Never>) -> Self {
         publishers.modelsCancellable = publisher
             .receive(on: RunLoop.main)

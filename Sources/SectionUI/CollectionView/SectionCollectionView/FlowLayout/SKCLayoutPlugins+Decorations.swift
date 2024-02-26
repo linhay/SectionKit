@@ -25,7 +25,7 @@ public extension SKCLayoutPlugins {
         case section
         /// 没有头尾时用sectioninset填充
         case useSectionInsetWhenNotExist(_ layout: [DecorationLayout] = [.header, .footer])
-
+        
     }
     
     struct Decoration {
@@ -42,6 +42,23 @@ public extension SKCLayoutPlugins {
                 self.index  = index
                 self.modes  = modes
                 self.layout = layout
+                
+                #if DEBUG
+                var useSectionInsetWhenNotExist = false
+                var visibleViewOrSection = false
+                self.modes.forEach({ mode in
+                    switch mode {
+                    case .visibleView, .section:
+                        visibleViewOrSection = true
+                    case .useSectionInsetWhenNotExist:
+                        useSectionInsetWhenNotExist = true
+                    }
+                })
+                
+                if useSectionInsetWhenNotExist, visibleViewOrSection == false {
+                    assertionFailure("需要指定 .visibleView 或者 .section")
+                }
+                #endif
             }
             
             public init(_ section: SKCSectionProtocol,
@@ -190,7 +207,6 @@ public extension SKCLayoutPlugins {
             
             func supplementary(of key: String) -> UICollectionViewLayoutAttributes? {
                 guard let supplementaryMode = supplementaryMode else { return nil }
-                let attributes: UICollectionViewLayoutAttributes?
                 switch supplementaryMode {
                 case .section:
                     return layout.attributes(of: key, at: section, useCache: false)

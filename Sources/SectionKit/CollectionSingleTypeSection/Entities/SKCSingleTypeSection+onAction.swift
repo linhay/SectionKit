@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// 配置当前 section 样式
 public extension SKCSingleTypeSection {
@@ -100,6 +101,12 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+    func onCellShould(_ kind: CellShouldType, _ value: Bool) -> Self {
+        onCellShould(kind) { _ in
+            value
+        }
+    }
+    
     func onCellShould(_ kind: CellShouldType, block: @escaping CellShouldBlock) -> Self {
         if cellShoulds[kind] == nil {
             cellShoulds[kind] = []
@@ -108,17 +115,22 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+}
+
+public extension SKCSingleTypeSection {
+    
     func onContextMenu(_ block: @escaping ContextMenuBlock) -> Self {
         cellContextMenus.append(block)
         return self
     }
     
-    func onContextMenuWithActions(_ block: @escaping ContextMenuWithActionsBlock) -> Self {
+    func onContextMenu(where predicate: @escaping (_ context: ContextMenuContext) -> Bool,
+                       block: @escaping ContextMenuBlock) -> Self {
         return onContextMenu { context in
-            let result = block(context)
-            return .init(configuration: .init(actionProvider: { _ in
-                return .init(children: result)
-            }))
+            guard predicate(context) else {
+                return nil
+            }
+            return block(context)
         }
     }
     

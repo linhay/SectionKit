@@ -25,11 +25,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: SKCCellStyleContext<Cell>) -> Void
     public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: CellActionContext) -> Void
 
-    public typealias SupplementaryActionBlock      = AsyncContextBlock<SupplementaryActionContext, Void>
-    public typealias CellActionBlock               = AsyncContextBlock<CellActionContext, Void>
-    public typealias ContextMenuBlock              = ContextBlock<ContextMenuContext, ContextMenuResult?>
-    public typealias ContextMenuWithActionsBlock   = ContextBlock<ContextMenuContext, [UIAction]>
-    public typealias CellShouldBlock               = ContextBlock<ContextMenuContext, Bool?>
+    public typealias SupplementaryActionBlock = AsyncContextBlock<SupplementaryActionContext, Void>
+    public typealias CellActionBlock          = AsyncContextBlock<CellActionContext, Void>
+    public typealias ContextMenuBlock         = ContextBlock<ContextMenuContext, SKUIContextMenuResult?>
+    public typealias CellShouldBlock          = ContextBlock<ContextMenuContext, Bool?>
 
     public enum LifeCycleKind {
         case loadedToSectionView(UICollectionView)
@@ -62,36 +61,14 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
         public let section: SKCSingleTypeSection<Cell>
         public let model: Cell.Model
-        public let row: Int?
+        public let row: Int
         
         init(section: SKCSingleTypeSection<Cell>,
              model: Cell.Model,
-             row: Int?) {
+             row: Int) {
             self.section = section
             self.model = model
             self.row = row
-        }
-        
-    }
-    
-    public struct ContextMenuResult {
-        
-        public var configuration: UIContextMenuConfiguration
-        public var highlightPreview: UITargetedPreview?
-        public var dismissalPreview: UITargetedPreview?
-        
-        public init(configuration: UIContextMenuConfiguration,
-                    highlightPreview: UITargetedPreview? = nil,
-                    dismissalPreview: UITargetedPreview? = nil) {
-            self.configuration = configuration
-            self.highlightPreview = highlightPreview
-            self.dismissalPreview = dismissalPreview
-        }
-        
-        public init(actions: [UIAction]) {
-            self.init(configuration: .init(actionProvider: { suggest in
-                return UIMenu(children: actions)
-            }))
         }
         
     }
@@ -467,11 +444,13 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection where Model: Equatable {
     
-    func scroll(toFirst model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+    func scroll(toFirst model: Model?, at scrollPosition: UICollectionView.ScrollPosition = .top, animated: Bool = true) {
+        guard let model = model else { return }
         scroll(to: models.firstIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
     }
     
-    func scroll(toLast model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+    func scroll(toLast model: Model?, at scrollPosition: UICollectionView.ScrollPosition = .top, animated: Bool = true) {
+        guard let model = model else { return }
         scroll(to: models.lastIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
     }
     
@@ -785,7 +764,7 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
-    func contextMenu(row: Int) -> ContextMenuResult? {
+    func contextMenu(row: Int) -> SKUIContextMenuResult? {
         if cellContextMenus.isEmpty {
             return nil
         }

@@ -87,6 +87,12 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
+    @discardableResult
+    func clearCellAction(_ kind: CellActionType) -> Self {
+        cellActions[kind]?.removeAll()
+        return self
+    }
+    
     /// 订阅事件类型
     /// - Parameters:
     ///   - kind: 事件类型
@@ -98,6 +104,16 @@ public extension SKCSingleTypeSection {
             cellActions[kind] = []
         }
         cellActions[kind]?.append(block)
+        return self
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+
+    @discardableResult
+    func clearCellShouldActions(_ kind: CellShouldType) -> Self {
+        cellShoulds[kind]?.removeAll()
         return self
     }
     
@@ -118,6 +134,12 @@ public extension SKCSingleTypeSection {
 }
 
 public extension SKCSingleTypeSection {
+    
+    @discardableResult
+    func clearContextMenuActions() -> Self {
+        cellContextMenus.removeAll()
+        return self
+    }
     
     func onContextMenu(_ block: @escaping ContextMenuBlock) -> Self {
         cellContextMenus.append(block)

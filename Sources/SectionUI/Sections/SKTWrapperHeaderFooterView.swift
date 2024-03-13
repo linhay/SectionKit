@@ -7,6 +7,14 @@
 
 import UIKit
 
+public extension SKSectionWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
+    
+    static func wrapperToTableHeaderFooterView() -> SKTWrapperHeaderFooterView<Base>.Type {
+        return Base.wrapperToTableHeaderFooterView()
+    }
+    
+}
+
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
     static func wrapperToTableHeaderFooterView() -> SKTWrapperHeaderFooterView<Self>.Type {

@@ -7,6 +7,14 @@
 
 import UIKit
 
+public extension SKSectionWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
+    
+    static func wrapperToTableCell() -> SKTWrapperCell<Base>.Type {
+        return Base.wrapperToTableCell()
+    }
+    
+}
+
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
     static func wrapperToTableCell() -> SKTWrapperCell<Self>.Type {

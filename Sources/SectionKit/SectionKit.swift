@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 public class SKSectionKit {
     
@@ -19,3 +20,20 @@ public class SKSectionKit {
     }
     
 }
+
+public class SKSectionWrapper<Base: SKSectionCompatible> {
+    public let base: Base
+    public init(_ base: Base) {
+        self.base = base
+    }
+}
+
+public protocol SKSectionCompatible: AnyObject {}
+
+public extension SKSectionCompatible {
+    var sk: SKSectionWrapper<Self> { return SKSectionWrapper(self) }
+    static var sk: SKSectionWrapper<Self>.Type { return SKSectionWrapper<Self>.self }
+}
+
+
+extension UIView: SKSectionCompatible {}

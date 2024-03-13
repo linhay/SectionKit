@@ -8,6 +8,20 @@
 #if canImport(UIKit)
 import UIKit
 
+
+public extension SKSectionWrapper where Base: UIView {
+    
+    static func wrapperToConfigurableView() -> SKWrapperView<Base, Void>.Type {
+        return wrapperToConfigurableView(userInfo: Void.self)
+    }
+    
+    static func wrapperToConfigurableView<UserInfo>(userInfo: UserInfo.Type) -> SKWrapperView<Base, UserInfo>.Type {
+        return SKWrapperView<Base, UserInfo>.self
+    }
+    
+}
+
+
 open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol, SKConfigurableView {
 
     public struct Model {
@@ -30,10 +44,7 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
         public init(insets: UIEdgeInsets,
                     size: @escaping (_ limit: CGSize) -> CGSize,
                     style: @escaping (Content) -> Void) where UserInfo == Void {
-            self.userInfo = ()
-            self.insets = insets
-            self.size = size
-            self.style = style
+            self.init(userInfo: (), insets: insets, size: size, style: style)
         }
     }
     

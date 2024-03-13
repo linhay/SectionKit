@@ -28,7 +28,7 @@ open class SKCollectionView: UICollectionView {
     
     public private(set) lazy var manager = SKCManager(sectionView: self)
     public private(set) lazy var registrationManager = SKCRegistrationManager(sectionView: self)
-
+    
     public convenience init() {
         self.init(frame: .zero, collectionViewLayout: SKCollectionFlowLayout())
     }
@@ -54,6 +54,7 @@ open class SKCollectionView: UICollectionView {
 }
 
 public extension SKCollectionView {
+    
     /// 滚动方向
     var scrollDirection: UICollectionView.ScrollDirection {
         set {

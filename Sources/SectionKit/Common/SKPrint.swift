@@ -23,4 +23,10 @@ public struct SKPrint {
         #endif
     }
     
+    public static func function(_ items: Any, _ function: StaticString = #function) {
+        #if DEBUG
+        debugPrint("\(logo) -> [\(function)]", items)
+        #endif
+    }
+    
 }

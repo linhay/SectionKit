@@ -8,6 +8,40 @@
 #if canImport(UIKit)
 import UIKit
 
+public extension SKSectionWrapper where Base: UICollectionViewCell & SKLoadViewProtocol & SKConfigurableView {
+    static func wrapperToSingleTypeSection(@SectionArrayResultBuilder<Base.Model> builder: () -> [Base.Model]) -> SKCSingleTypeSection<Base> {
+        .init(builder())
+    }
+    
+    static func wrapperToSingleTypeSection(_ model: Base.Model) -> SKCSingleTypeSection<Base> {
+        wrapperToSingleTypeSection([model])
+    }
+    
+    static func wrapperToSingleTypeSection(_ models: [Base.Model]) -> SKCSingleTypeSection<Base> {
+        .init(models)
+    }
+    
+    static func wrapperToSingleTypeSection() -> SKCSingleTypeSection<Base> {
+        wrapperToSingleTypeSection([] as [Base.Model])
+    }
+    
+    static func wrapperToSingleTypeSection(_ tasks: [() -> Base.Model]) -> SKCSingleTypeSection<Base> {
+        return wrapperToSingleTypeSection(tasks.map({ $0() }))
+    }
+    
+    static func wrapperToSingleTypeSection(_ tasks: [() async throws -> Base.Model]) async throws -> SKCSingleTypeSection<Base> {
+        var models = [Base.Model]()
+        for task in tasks {
+            models.append(try await task())
+        }
+        return wrapperToSingleTypeSection(models)
+    }
+    
+    static func wrapperToSingleTypeSection(count: Int) -> SKCSingleTypeSection<Base> where Base.Model == Void {
+        wrapperToSingleTypeSection(.init(repeating: (), count: count))
+    }
+}
+
 public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
     
     static func wrapperToSingleTypeSection(@SectionArrayResultBuilder<Model> builder: () -> [Model]) -> SKCSingleTypeSection<Self> {

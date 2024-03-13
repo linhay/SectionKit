@@ -8,6 +8,14 @@
 #if canImport(UIKit)
 import UIKit
 
+public extension SKSectionWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
+    
+    static func wrapperToCollectionCell() -> SKCWrapperCell<Base>.Type {
+        return Base.wrapperToCollectionCell()
+    }
+    
+}
+
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
     static func wrapperToCollectionCell() -> SKCWrapperCell<Self>.Type {

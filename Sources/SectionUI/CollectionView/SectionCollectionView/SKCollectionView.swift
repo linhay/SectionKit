@@ -27,7 +27,6 @@ import SectionKit
 open class SKCollectionView: UICollectionView {
     
     public private(set) lazy var manager = SKCManager(sectionView: self)
-    public private(set) lazy var registrationManager = SKCRegistrationManager(sectionView: self)
 
     public convenience init() {
         let layout = SKCollectionFlowLayout()

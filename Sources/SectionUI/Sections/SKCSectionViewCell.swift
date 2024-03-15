@@ -9,26 +9,6 @@
 import UIKit
 import SectionKit
 
-public extension SKCRegistrationSectionProtocol {
-    
-    func wrapperToHorizontalSectionViewCell(height: CGFloat? = nil,
-                                            insets: UIEdgeInsets = .zero,
-                                            style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCRegistrationSection {
-        SKCRegistrationSection {
-            SKCSectionViewCell
-                .registration(.init(section: .registration([self]),
-                                    height: height,
-                                    insets: insets,
-                                    scrollDirection: .horizontal,
-                                    style: { [weak self] sectionView in
-                    guard let self = self else { return }
-                    style?(sectionView, self)
-                }))
-        }
-    }
-    
-}
-
 public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SKCDelegateProtocol {
     
     func wrapperToHorizontalSectionViewCell(height: CGFloat? = nil,
@@ -53,7 +33,6 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
     public struct Model {
         
         public enum SectionType {
-            case registration([any SKCRegistrationSectionProtocol])
             case normal([any SKCBaseSectionProtocol])
         }
         
@@ -93,8 +72,6 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
         switch model.section {
         case .normal(let list):
             sectionView.manager.reload(list)
-        case .registration(let list):
-            sectionView.registrationManager.reload(list)
         }
     }
     

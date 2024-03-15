@@ -19,12 +19,10 @@ public extension SKCDelegateFlowLayoutForward {
 
     func add(flowLayout item: SKCDelegateFlowLayoutObserverProtocol) {
         flowLayoutObservers.append(item)
-        SKPrint.function(item)
     }
     
     func add(flowLayout item: SKCDelegateFlowLayoutForwardProtocol) {
         flowLayoutForwards.append(item)
-        SKPrint.function(item)
     }
     
     func add(_ item: SKCDelegateFlowLayoutObserverProtocol) {

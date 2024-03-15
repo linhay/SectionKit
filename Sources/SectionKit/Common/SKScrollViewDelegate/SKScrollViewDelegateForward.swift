@@ -34,12 +34,10 @@ public extension SKScrollViewDelegateForward {
 
     func add(scroll item: SKScrollViewDelegateObserverProtocol) {
         scrollObservers.append(item)
-        SKPrint.function(item)
     }
     
     func add(scroll item: SKScrollViewDelegateForwardProtocol) {
         scrollForwards.append(item)
-        SKPrint.function(item)
     }
     
     /// 对 2.1.0 以下版本兼容处理

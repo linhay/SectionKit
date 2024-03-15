@@ -21,13 +21,11 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
-#if canImport(UIKit)
 import UIKit
 import SectionKit
 
 open class SKCollectionViewController: UIViewController {
     
-    public private(set) lazy var sectionView = SKCollectionView()
     public var manager: SKCManager { sectionView.manager }
     
     public convenience init() {
@@ -68,13 +66,18 @@ open class SKCollectionViewController: UIViewController {
         }
     }
     
-    private func layout(anchor1: NSLayoutYAxisAnchor, anchor2: NSLayoutYAxisAnchor) {
+    
+}
+
+private extension SKCollectionViewController {
+    
+    func layout(anchor1: NSLayoutYAxisAnchor, anchor2: NSLayoutYAxisAnchor) {
         let constraint = anchor1.constraint(equalTo: anchor2)
         constraint.priority = .defaultLow
         constraint.isActive = true
     }
     
-    private func layout(anchor1: NSLayoutXAxisAnchor, anchor2: NSLayoutXAxisAnchor) {
+    func layout(anchor1: NSLayoutXAxisAnchor, anchor2: NSLayoutXAxisAnchor) {
         let constraint = anchor1.constraint(equalTo: anchor2)
         constraint.priority = .defaultLow
         constraint.isActive = true

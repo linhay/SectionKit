@@ -11,23 +11,25 @@ import Combine
 
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol, SKDisplayedTimesProtocol {
     
+    public typealias SectionBlock<Return>               = (_ section: SKCSingleTypeSection<Cell>) -> Return
+    public typealias ContextBlock<Context, Return>      = (_ context: Context) -> Return
+    public typealias AsyncContextBlock<Context, Return> = @MainActor (_ context: Context) async throws -> Return
+    
     public typealias CellStyleBox = SKIDBox<UUID, CellStyleBlock>
     
-    public typealias SectionStyleBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
-    public typealias CellStyleBlock    = (_ context: SKCCellStyleContext<Cell>) -> Void
+    public typealias LoadedBlock       = SectionBlock<Void>
+    public typealias SectionStyleBlock = SectionBlock<Void>
+    public typealias CellStyleBlock    = ContextBlock<SKCCellStyleContext<Cell>, Void>
 
     public typealias SectionStyleWeakBlock<T: AnyObject> = (_ self: T, _ section: SKCSingleTypeSection<Cell>) -> Void
     public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: SKCCellStyleContext<Cell>) -> Void
     public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: CellActionContext) -> Void
 
-    public typealias LoadedBlock = (_ section: SKCSingleTypeSection<Cell>) -> Void
-    
-    public typealias SupplementaryActionBlock = (_ context: SupplementaryActionContext) -> Void
-    public typealias ContextMenuBlock = (_ context: ContextMenuContext) -> ContextMenuResult?
-    public typealias ContextMenuWithActionsBlock = (_ context: ContextMenuContext) -> [UIAction]
-    public typealias CellShouldBlock  = (_ context: ContextMenuContext) -> Bool?
-    public typealias CellActionBlock  = (_ context: CellActionContext) -> Void
-    
+    public typealias SupplementaryActionBlock = AsyncContextBlock<SupplementaryActionContext, Void>
+    public typealias CellActionBlock          = AsyncContextBlock<CellActionContext, Void>
+    public typealias ContextMenuBlock         = ContextBlock<ContextMenuContext, SKUIContextMenuResult?>
+    public typealias CellShouldBlock          = ContextBlock<ContextMenuContext, Bool?>
+
     public enum LifeCycleKind {
         case loadedToSectionView(UICollectionView)
     }
@@ -52,36 +54,14 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
         public let section: SKCSingleTypeSection<Cell>
         public let model: Cell.Model
-        public let row: Int?
+        public let row: Int
         
         init(section: SKCSingleTypeSection<Cell>,
              model: Cell.Model,
-             row: Int?) {
+             row: Int) {
             self.section = section
             self.model = model
             self.row = row
-        }
-        
-    }
-    
-    public struct ContextMenuResult {
-        
-        public var configuration: UIContextMenuConfiguration
-        public var highlightPreview: UITargetedPreview?
-        public var dismissalPreview: UITargetedPreview?
-        
-        public init(configuration: UIContextMenuConfiguration,
-                    highlightPreview: UITargetedPreview? = nil,
-                    dismissalPreview: UITargetedPreview? = nil) {
-            self.configuration = configuration
-            self.highlightPreview = highlightPreview
-            self.dismissalPreview = dismissalPreview
-        }
-        
-        public init(actions: [UIAction]) {
-            self.init(configuration: .init(actionProvider: { suggest in
-                return UIMenu(children: actions)
-            }))
         }
         
     }
@@ -457,11 +437,13 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection where Model: Equatable {
     
-    func scroll(toFirst model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+    func scroll(toFirst model: Model?, at scrollPosition: UICollectionView.ScrollPosition = .top, animated: Bool = true) {
+        guard let model = model else { return }
         scroll(to: models.firstIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
     }
     
-    func scroll(toLast model: Model, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool) {
+    func scroll(toLast model: Model?, at scrollPosition: UICollectionView.ScrollPosition = .top, animated: Bool = true) {
+        guard let model = model else { return }
         scroll(to: models.lastIndex(where: { $0 == model }), at: scrollPosition, animated: animated)
     }
     
@@ -757,7 +739,7 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
-    func contextMenu(row: Int) -> ContextMenuResult? {
+    func contextMenu(row: Int) -> SKUIContextMenuResult? {
         if cellContextMenus.isEmpty {
             return nil
         }
@@ -790,18 +772,26 @@ public extension SKCSingleTypeSection {
     }
     
     func sendAction(_ result: CellActionContext) {
-        cellActions[result.type]?.forEach({ block in
-            block(result)
-        })
-        publishers.cellActionSubject?.send(result)
+        Task { 
+            if let blocks = cellActions[result.type] {
+                for block in blocks {
+                   try await block(result)
+                }
+            }
+            publishers.cellActionSubject?.send(result)
+        }
     }
     
     func sendSupplementaryAction(_ type: SKCSupplementaryActionType, kind: SKSupplementaryKind, row: Int, view: UICollectionReusableView) {
         let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row, view: view)
-        supplementaryActions[type]?.forEach({ block in
-            block(result)
-        })
-        publishers.supplementaryActionSubject?.send(result)
+        Task {
+            if let blocks = supplementaryActions[type] {
+                for block in blocks {
+                   try await block(result)
+                }
+            }
+            publishers.supplementaryActionSubject?.send(result)
+        }
     }
     
     func taskIfLoaded(_ task: @escaping LoadedBlock) {

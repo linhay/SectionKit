@@ -57,6 +57,7 @@ open class SKCollectionView: UICollectionView {
 }
 
 public extension SKCollectionView {
+    
     /// 滚动方向
     var scrollDirection: UICollectionView.ScrollDirection {
         set {

@@ -35,7 +35,7 @@ final class StringRawCell<Model: RawRepresentable>: UICollectionViewCell, SKLoad
 
 extension StringRawCell: SKConfigurableView {
     static func preferredSize(limit size: CGSize, model _: Model?) -> CGSize {
-        return .init(width: size.width, height: 50)
+        return .init(width: size.width, height: 44)
     }
 
     func config(_ model: Model) {

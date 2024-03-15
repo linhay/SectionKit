@@ -6,12 +6,16 @@
 //
 
 import UIKit
+import SectionKit
 
 extension SKCLayoutPlugins {
   
     struct CenterX: SKCLayoutPlugin {
         
-        let layout: SKCollectionFlowLayout
+        var layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
+        init(layout: SKCollectionFlowLayout) {
+            self.layoutWeakBox = .init(layout)
+        }
 
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
                 var lineStore = [UICollectionViewLayoutAttributes]()

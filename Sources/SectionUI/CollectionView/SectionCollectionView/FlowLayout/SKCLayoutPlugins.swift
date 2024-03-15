@@ -25,14 +25,10 @@ public struct SKCLayoutPlugins {
         /// 置顶section header view
         case sectionHeadersPinToVisibleBounds([BindingKey<Int>])
         /// section 装饰视图
-        case decorations([Decoration])
+        case decorations([any SKCLayoutDecorationPlugin])
         
         public static func sectionHeadersPinToVisibleBounds(_ key: BindingKey<Int>) -> Mode {
             return .sectionHeadersPinToVisibleBounds([key])
-        }
-        
-        public static func decorations(_ decoration: Decoration) -> Mode {
-            return .decorations([decoration])
         }
         
         var priority: Int {
@@ -69,18 +65,64 @@ public struct SKCLayoutPlugins {
     func sort(modes: [Mode]) -> [Mode] {
         var set = Set<Int>()
         var newModes = [Mode]()
-        
+        var sectionHeadersPinToVisibleBounds = [BindingKey<Int>]()
+        var decorations = [any SKCLayoutDecorationPlugin]()
+
         /// 优先级冲突去重
-        for item in modes {
-            if set.insert(item.priority).inserted {
-                newModes.append(item)
-            } else {
-                assertionFailure("mode冲突: \(newModes.filter { $0.priority == item.priority })")
+        for mode in modes {
+            switch mode {
+            case .left,
+                    .centerX,
+                    .fixSupplementaryViewInset,
+                    .fixSupplementaryViewSize,
+                    .adjustSupplementaryViewSize:
+                if set.insert(mode.priority).inserted {
+                    newModes.append(mode)
+                } else {
+                    assertionFailure("mode冲突: \(newModes.filter { $0.priority == mode.priority })")
+                }
+            case .sectionHeadersPinToVisibleBounds(let array):
+                sectionHeadersPinToVisibleBounds.append(contentsOf: array)
+            case .decorations(let array):
+                decorations.append(contentsOf: array)
             }
+        }
+        
+        if !sectionHeadersPinToVisibleBounds.isEmpty {
+            newModes.append(.sectionHeadersPinToVisibleBounds(sectionHeadersPinToVisibleBounds))
+        }
+        
+        if !decorations.isEmpty {
+            newModes.append(.decorations(decorations))
         }
         
         /// mode 重排
         return newModes.sorted(by: { $0.priority < $1.priority })
+    }
+    
+}
+
+
+public extension SKCLayoutPlugins.Mode {
+    
+    static func decorations(_ decoration: [SKCLayoutPlugins.AnyDecoration]) -> SKCLayoutPlugins.Mode {
+        .decorations(decoration.map(\.wrapperValue))
+    }
+    
+    static func decorations(_ decoration: SKCLayoutPlugins.AnyDecoration) -> SKCLayoutPlugins.Mode {
+        .decorations([decoration])
+    }
+    
+    static func decorations<View: SKCLayoutPlugins.DecorationView>(_ decoration: [SKCLayoutPlugins.Decoration<View>]) -> SKCLayoutPlugins.Mode {
+        .decorations(decoration as [any SKCLayoutDecorationPlugin])
+    }
+    
+    static func decorations<View: SKCLayoutPlugins.DecorationView>(_ decoration: SKCLayoutPlugins.Decoration<View>) -> SKCLayoutPlugins.Mode {
+        .decorations([decoration])
+    }
+    
+    static func decorations(_ decoration: any SKCLayoutDecorationPlugin) -> SKCLayoutPlugins.Mode {
+        .decorations([decoration])
     }
     
 }

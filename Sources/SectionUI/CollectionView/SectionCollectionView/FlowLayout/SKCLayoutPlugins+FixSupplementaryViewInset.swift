@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SectionKit
 
 public extension SKCLayoutPlugins {
     
@@ -17,8 +18,13 @@ public extension SKCLayoutPlugins {
             case all
         }
         
-        let layout: SKCollectionFlowLayout
+        let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
         let direction: Direction
+        
+        init(layout: SKCollectionFlowLayout, direction: Direction) {
+            self.layoutWeakBox = .init(layout)
+            self.direction = direction
+        }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
             attributes

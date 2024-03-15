@@ -11,6 +11,7 @@ import Stem
 import UIKit
 
 class DecorationViewController: SKCollectionViewController {
+    
     enum Action: String, CaseIterable {
         case fix_insets
         case no_fix_insets
@@ -62,9 +63,8 @@ class DecorationViewController: SKCollectionViewController {
 
 extension DecorationViewController {
     class LeftViewController: SKCollectionViewController {
-        
         let section = StringRawCell<Action>.wrapperToSingleTypeSection(Action.allCases)
-        lazy var skmanager = SKCManager(sectionView: sectionView)
+        lazy var skmanager = manager
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -82,7 +82,7 @@ extension DecorationViewController {
 extension DecorationViewController {
     class RightViewController: SKCollectionViewController {
         let size = CGSize(width: 88, height: 44)
-        lazy var skmanager = SKCManager(sectionView: sectionView)
+        lazy var skmanager = manager
         
         lazy var sections = (0 ... 10).map { sectionIndex in
             ColorBlockCell
@@ -130,7 +130,12 @@ extension DecorationViewController {
             case .all_section:
                 update(.init(sectionIndex: .all, viewType: ReusableView.self, modes: [.useSectionInsetWhenNotExist([.header, .footer])]))
             case .add:
-                update(.init(sectionIndex: .init(sections.first!), viewType: ReusableView.self))
+                update(
+                    .init(sectionIndex: .init(sections.first!), viewType: ReusableView.self)
+                    .onAction(.willDisplay, block: { context in
+                        context.view.backgroundColor = .red
+                    })
+                )
             case .add_header:
                 update(.init(sectionIndex: .init(sections.first!), viewType: ReusableView.self, layout: [.header]))
             case .add_cells:
@@ -153,7 +158,7 @@ extension DecorationViewController {
             }
         }
         
-        func update(_ decoration: SKCollectionFlowLayout.Decoration...) {
+        func update<View: SKCLayoutPlugins.DecorationView>(_ decoration: SKCLayoutPlugins.Decoration<View>...) {
             sectionView.set(pluginModes: [.decorations(decoration)] + defaultPluginModes)
             sectionView.reloadData()
         }

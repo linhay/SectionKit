@@ -35,8 +35,13 @@ extension SKCLayoutPlugins {
             }
         }
         
-        let layout: SKCollectionFlowLayout
+        let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
         let condition: Condition
+       
+       init(layout: SKCollectionFlowLayout, condition: Condition) {
+           self.layoutWeakBox = .init(layout)
+           self.condition = condition
+       }
        
        func constraint(of index: Int, kind: SKSupplementaryKind) -> Constraint? {
            switch condition {

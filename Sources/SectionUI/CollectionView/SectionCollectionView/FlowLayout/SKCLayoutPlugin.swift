@@ -9,13 +9,15 @@ import UIKit
 import SectionKit
 
 protocol SKCLayoutPlugin {
-    var layout: SKCollectionFlowLayout { get }
+    var layoutWeakBox: SKWeakBox<SKCollectionFlowLayout> { get }
 }
 
 extension SKCLayoutPlugin {
     
+    var layout: SKCollectionFlowLayout? { layoutWeakBox.value }
     var collectionView: UICollectionView {
-        guard let view = layout.collectionView else {
+        guard let layout,
+              let view = layout.collectionView else {
             assertionFailure("can't find sectionView, before `SectionCollectionProtocol` into `Manager`")
             return UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         }
@@ -27,10 +29,12 @@ extension SKCLayoutPlugin {
     }
     
     var scrollDirection: UICollectionView.ScrollDirection {
-        layout.scrollDirection
+        guard let layout = layout else { return .vertical }
+        return layout.scrollDirection
     }
 
     func headerSize(at section: Int) -> CGSize {
+        guard let layout = layout else { return .zero }
         guard let size = delegateFlowLayout?.collectionView?(collectionView,
                                                             layout: layout,
                                                             referenceSizeForHeaderInSection: section) else {
@@ -40,7 +44,8 @@ extension SKCLayoutPlugin {
     }
     
     func footerSize(at section: Int) -> CGSize {
-        guard let size = delegateFlowLayout?.collectionView?(collectionView,
+        guard let layout,
+              let size = delegateFlowLayout?.collectionView?(collectionView,
                                                             layout: layout,
                                                             referenceSizeForFooterInSection: section) else {
             return .zero
@@ -49,6 +54,7 @@ extension SKCLayoutPlugin {
     }
     
     func insetForSection(at section: Int) -> UIEdgeInsets {
+        guard let layout = layout else { return .zero }
         guard let inset = delegateFlowLayout?.collectionView?(collectionView,
                                                               layout: layout,
                                                               insetForSectionAt: section) else {
@@ -58,6 +64,7 @@ extension SKCLayoutPlugin {
     }
     
     func minimumInteritemSpacing(at section: Int) -> CGFloat {
+        guard let layout = layout else { return .zero }
         guard let minimumInteritemSpacing = delegateFlowLayout?.collectionView?(collectionView,
                                                               layout: layout,
                                                               minimumInteritemSpacingForSectionAt: section) else {
@@ -67,6 +74,7 @@ extension SKCLayoutPlugin {
     }
     
     func minimumLineSpacing(at section: Int) -> CGFloat {
+        guard let layout = layout else { return .zero }
         guard let minimumLineSpacing = delegateFlowLayout?.collectionView?(collectionView,
                                                               layout: layout,
                                                               minimumLineSpacingForSectionAt: section) else {

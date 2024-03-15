@@ -24,12 +24,12 @@
 import UIKit
 import SectionKit
 
-open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
-    
+open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserverProtocol {
+
     public typealias DecorationView = UICollectionReusableView & SKLoadViewProtocol
     public typealias FixSupplementaryViewInset = SKCLayoutPlugins.FixSupplementaryViewInset.Direction
     public typealias DecorationLayout = SKCLayoutPlugins.DecorationLayout
-    public typealias Decoration = SKCLayoutPlugins.Decoration
+    public typealias Decoration = SKCLayoutPlugins.AnyDecoration
     public typealias BindingKey = SKCLayoutPlugins.BindingKey
     public typealias PluginMode = SKCLayoutPlugins.Mode
 
@@ -71,15 +71,32 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
 
     }
     
+    struct PluginsStore {
+        var decorations: SKCLayoutPlugins.Decorations?
+        init(decorations: SKCLayoutPlugins.Decorations? = nil) {
+            self.decorations = decorations
+        }
+    }
+    
     public var plugins: SKCLayoutPlugins? {
         didSet {
             sectionHeadersPinToVisibleBoundsPlugin = nil
         }
     }
+    
     private lazy var oldBounds = CGRect.zero
     private var layoutTempStore: LayoutStore?
     private var layoutStore: LayoutStore = .init(attributes: [])
+    private var pluginsStore: PluginsStore = .init()
     private var sectionHeadersPinToVisibleBoundsPlugin: SKCLayoutPlugins.SectionHeadersPinToVisibleBounds?
+    
+    public func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath, value: Void) {
+        pluginsStore.decorations?.observe(kind: .willDisplay, identifier: elementKind, at: indexPath, view: view)
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath, value: Void) {
+        pluginsStore.decorations?.observe(kind: .didEndDisplay, identifier: elementKind, at: indexPath, view: view)
+    }
     
     override public func prepare() {
         super.prepare()
@@ -127,10 +144,11 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout {
                 fixSupplementaryViewInset = SKCLayoutPlugins.FixSupplementaryViewInset(layout: self, direction: direction)
                 attributes = fixSupplementaryViewInset?.run(with: attributes) ?? []
             case let .decorations(decorations):
-                attributes = SKCLayoutPlugins.Decorations(layout: self,
+                let plugin = SKCLayoutPlugins.Decorations(layout: self,
                                                           decorations: decorations,
                                                           fixSupplementaryViewInset: fixSupplementaryViewInset)
-                .run(with: attributes) ?? []
+                pluginsStore.decorations = plugin
+                attributes = plugin.run(with: attributes) ?? []
             }
         }
         

@@ -6,12 +6,17 @@
 //
 
 import UIKit
+import SectionKit
 
 extension SKCLayoutPlugins {
     
     struct Left: SKCLayoutPlugin {
         
-        let layout: SKCollectionFlowLayout
+        let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
+        
+        init(layout: SKCollectionFlowLayout) {
+            self.layoutWeakBox = .init(layout)
+        }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
            

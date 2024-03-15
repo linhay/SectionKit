@@ -30,7 +30,9 @@ open class SKCollectionView: UICollectionView {
     public private(set) lazy var registrationManager = SKCRegistrationManager(sectionView: self)
 
     public convenience init() {
-        self.init(frame: .zero, collectionViewLayout: SKCollectionFlowLayout())
+        let layout = SKCollectionFlowLayout()
+        self.init(frame: .zero, collectionViewLayout: layout)
+        self.manager.flowLayoutForward.add(ui: layout)
     }
     
     override public init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
@@ -40,7 +42,9 @@ open class SKCollectionView: UICollectionView {
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        collectionViewLayout = SKCollectionFlowLayout()
+        let layout = SKCollectionFlowLayout()
+        self.manager.flowLayoutForward.add(ui: layout)
+        collectionViewLayout = layout
         initialize()
     }
     
@@ -102,7 +106,6 @@ private extension SKCollectionView {
         if backgroundColor == .black {
             backgroundColor = .white
         }
-        
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
     }

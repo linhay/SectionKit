@@ -5,15 +5,23 @@
 //  Created by linhey on 2023/10/13.
 //
 
-import Foundation
+import SectionKit
 import UIKit
 
 extension SKCLayoutPlugins {
     
     struct SectionHeadersPinToVisibleBounds: SKCLayoutPlugin {
-        let layout: SKCollectionFlowLayout
+        let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
         var elements: [BindingKey<Int>]
-        var sectionRects: [Int: CGRect] = [:]
+        var sectionRects: [Int: CGRect]
+        
+        init(layout: SKCollectionFlowLayout, 
+             elements: [BindingKey<Int>],
+             sectionRects: [Int : CGRect] = [:]) {
+            self.layoutWeakBox = .init(layout)
+            self.elements = elements
+            self.sectionRects = sectionRects
+        }
         
         mutating func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
             attributes
@@ -40,6 +48,7 @@ extension SKCLayoutPlugins {
         }
         
         func invalidationContext(context: UICollectionViewLayoutInvalidationContext, forBoundsChange newBounds: CGRect) {
+            guard let layout else { return }
             if layout.sectionHeadersPinToVisibleBounds {
                 assertionFailure("sectionHeadersPinToVisibleBounds == true 与 pluginMode.sectionHeadersPinToVisibleBounds 冲突")
             }

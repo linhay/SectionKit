@@ -74,10 +74,6 @@ public class SKCDataSourceForward: NSObject, UICollectionViewDataSource {
         self.observerItems = observerItems
     }
     
-    public convenience init(_ items: SKCDataSourceForwardableProtocol) {
-        self.init([items])
-    }
-    
     public func add(_ item: SKCDataSourceObserverProtocol) {
         observerItems.append(item)
     }

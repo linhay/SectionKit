@@ -8,25 +8,25 @@
 #if canImport(UIKit)
 import UIKit
 
-class SKCDataSource: SKCDataSourceForwardableProtocol {
+public struct SKCDataSource: SKCDataSourceForwardableProtocol {
     
-    private var _section: (_ indexPath: IndexPath) -> SKCDataSourceProtocol?
-    private var _sections: () -> [SKCDataSourceProtocol]
+    let dataSource: SKCManagerPublishers
     
-    private func section(_ indexPath: IndexPath) -> SKCDataSourceProtocol? {
-       return _section(indexPath)
+}
+
+public extension SKCDataSource {
+    
+    func section(_ indexPath: IndexPath) -> SKCDataSourceProtocol? {
+        return dataSource.safe(section: indexPath.section)
     }
     
-    private func sections() -> [SKCDataSourceProtocol] {
-       return _sections()
+    func sections() -> any Collection<SKCDataSourceProtocol> {
+        return dataSource.collection()
     }
     
-    init(section: @escaping (_ indexPath: IndexPath) -> SKCDataSourceProtocol?,
-         sections: @escaping () -> [SKCDataSourceProtocol]) {
-        self._section = section
-        self._sections = sections
-    }
-    
+}
+
+public extension SKCDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> SKHandleResult<Int> {
         return .handle(sections().count)
@@ -80,5 +80,4 @@ class SKCDataSource: SKCDataSourceForwardableProtocol {
     }
     
 }
-
 #endif

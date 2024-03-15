@@ -8,13 +8,16 @@
 #if canImport(UIKit)
 import UIKit
 
-class SKCDelegateFlowLayout: SKCDelegateFlowLayoutForwardProtocol {
+public struct SKCDelegateFlowLayout: SKCDelegateFlowLayoutForwardProtocol {
     
-    private let section: (_ indexPath: IndexPath) -> SKCViewDelegateFlowLayoutProtocol?
+    let dataSource: SKCManagerPublishers
     
-    init(section: @escaping (_ indexPath: IndexPath) -> SKCViewDelegateFlowLayoutProtocol?) {
-        self.section = section
+    private func section(_ indexPath: IndexPath) -> SKCViewDelegateFlowLayoutProtocol? {
+        return dataSource.safe(section: indexPath.section)
     }
+}
+
+public extension SKCDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> SKHandleResult<CGSize> {
         guard let section = self.section(indexPath) else {

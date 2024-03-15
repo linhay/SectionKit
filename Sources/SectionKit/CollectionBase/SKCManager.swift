@@ -9,12 +9,25 @@
 import UIKit
 import Combine
 
-public class SKCManager {
+public class SKCManagerPublishers {
     
-    public class SKPublishers {
-        fileprivate lazy var sectionsSubject = CurrentValueSubject<[SKCBaseSectionProtocol], Never>([])
-        public private(set) lazy var sectionsPublisher = sectionsSubject.eraseToAnyPublisher()
+    fileprivate lazy var sectionsSubject = CurrentValueSubject<[SKCBaseSectionProtocol], Never>([])
+    public private(set) lazy var sectionsPublisher = sectionsSubject.eraseToAnyPublisher()
+    public var sections: [SKCBaseSectionProtocol] { sectionsSubject.value }
+    
+    func safe<T>(section: Int) -> T? {
+        guard sections.indices.contains(section) else {
+            return nil
+        }
+        return sections[section] as? T
     }
+    
+    func collection<T>(_ type: T.Type = T.self) -> any Collection<T> {
+        sections.lazy.compactMap({ $0 as? T })
+    }
+}
+
+public class SKCManager {
     
     public struct Configuration {
         /// 将 reloadSections 操作替换为 reloadData 操作
@@ -27,36 +40,22 @@ public class SKCManager {
 
     public static var configuration = Configuration()
     public var configuration = SKCManager.configuration
-    public private(set) lazy var publishers = SKPublishers()
+    public private(set) lazy var publishers = SKCManagerPublishers()
     public private(set) weak var sectionView: UICollectionView?
-    
-    public var sections: [SKCBaseSectionProtocol] { publishers.sectionsSubject.value }
+    public var sections: [SKCBaseSectionProtocol] { publishers.sections }
     
     public private(set) lazy var dataSourceForward = SKCDataSourceForward()
     public private(set) lazy var flowLayoutForward = SKCDelegateFlowLayoutForward()
+    public private(set) lazy var prefetchForward   = SKCDataSourcePrefetchingForward()
     public var scrollObserver: SKScrollViewDelegateForward { flowLayoutForward }
     
-    public private(set) lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
-        self?.safe(section: section)
-    }
     
     private lazy var endDisplaySections: [Int: SKCBaseSectionProtocol] = [:]
-    private lazy var flowlayoutDelegate = SKCDelegateFlowLayout { [weak self] indexPath in
-        self?.safe(section: indexPath.section)
-    }
-    private lazy var delegate = SKCDelegate { [weak self] indexPath in
-        self?.safe(section: indexPath.section)
-    } endDisplaySection: { [weak self] indexPath in
-        self?.safe(section: indexPath.section)
-    } sections: { [weak self] in
-        return self?.sections.lazy.compactMap({ $0 as? SKCViewDelegateFlowLayoutProtocol }) ?? []
-    }
     
-    private lazy var dataSource = SKCDataSource { [weak self] indexPath in
-        self?.safe(section: indexPath.section)
-    } sections: { [weak self] in
-        self?.sections ?? []
-    }
+    public private(set) lazy var flowlayoutDelegate = SKCDelegateFlowLayout(dataSource: publishers)
+    public private(set) lazy var delegate = SKCDelegate(dataSource: publishers)
+    public private(set) lazy var dataSource = SKCDataSource(dataSource: publishers)
+    public private(set) lazy var prefetching = SKCDataSourcePrefetching(dataSource: publishers)
     
     private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView)
     
@@ -64,10 +63,11 @@ public class SKCManager {
         self.sectionView = sectionView
         sectionView.delegate = flowLayoutForward
         sectionView.dataSource = dataSourceForward
-        sectionView.prefetchDataSource = prefetching
+        sectionView.prefetchDataSource = prefetchForward
         flowLayoutForward.add(delegate)
         flowLayoutForward.add(flowlayoutDelegate)
         dataSourceForward.add(dataSource)
+        prefetchForward.add(prefetching)
     }
     
 }
@@ -184,13 +184,6 @@ public extension SKCManager {
 }
 
 private extension SKCManager {
-    
-    func safe<T>(section: Int) -> T? {
-        guard sections.indices.contains(section) else {
-            return nil
-        }
-        return sections[section] as? T
-    }
     
     /// 安全自检
     func security(check sections: @autoclosure () -> [SKCBaseSectionProtocol]) {

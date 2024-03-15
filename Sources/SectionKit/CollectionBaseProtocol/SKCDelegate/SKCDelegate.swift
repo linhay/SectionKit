@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-class SKCDelegate: SKCDelegateForwardProtocol {
+public struct SKCDelegate: SKCDelegateForwardProtocol {
     
     struct ContextMenuConfiguration {
         var ID: ObjectIdentifier { ObjectIdentifier(configuration) }
@@ -16,30 +16,31 @@ class SKCDelegate: SKCDelegateForwardProtocol {
         let configuration: UIContextMenuConfiguration
     }
     
-    private var _section: (_ indexPath: IndexPath) -> SKCDelegateProtocol?
-    private var _endDisplaySection: (_ indexPath: IndexPath) -> SKCDelegateProtocol?
-    private var _sections: () -> any Collection<SKCDelegateProtocol>
-    private lazy var contextMenuConfigurationStore = [ObjectIdentifier: ContextMenuConfiguration]()
+    class Store {
+        lazy var contextMenuConfiguration = [ObjectIdentifier: ContextMenuConfiguration]()
+    }
+    
+    let dataSource: SKCManagerPublishers
+    let store = Store()
+}
+
+public extension SKCDelegate {
     
     private func section(_ indexPath: IndexPath) -> SKCDelegateProtocol? {
-        return _section(indexPath)
+        return dataSource.safe(section: indexPath.section)
     }
     
     private func endDisplaySection(_ indexPath: IndexPath) -> SKCDelegateProtocol? {
-        return _endDisplaySection(indexPath)
+        return dataSource.safe(section: indexPath.section)
     }
     
     private func sections() -> any Collection<SKCDelegateProtocol> {
-        return _sections()
+        return dataSource.collection()
     }
     
-    init(section: @escaping (_ indexPath: IndexPath) -> SKCDelegateProtocol?,
-         endDisplaySection: @escaping (_ indexPath: IndexPath) -> SKCDelegateProtocol?,
-         sections: @escaping () -> any Collection<SKCDelegateProtocol>) {
-        self._section = section
-        self._sections = sections
-        self._endDisplaySection = endDisplaySection
-    }
+}
+
+public extension SKCDelegate {
     
     // 用于通知选择/取消选择和高亮/非高亮事件的方法。
     // 导致用户触摸选择的调用顺序是。
@@ -264,7 +265,7 @@ class SKCDelegate: SKCDelegateForwardProtocol {
         guard let configuration = section(indexPath)?.contextMenu(row: indexPath.row, point: point) else {
             return .next
         }
-        contextMenuConfigurationStore[ObjectIdentifier(configuration)] = .init(indexPath: indexPath, configuration: configuration)
+        store.contextMenuConfiguration[ObjectIdentifier(configuration)] = .init(indexPath: indexPath, configuration: configuration)
         return .handle(configuration)
     }
     
@@ -283,7 +284,7 @@ class SKCDelegate: SKCDelegateForwardProtocol {
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
     func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> SKHandleResult<UITargetedPreview?> {
-        guard let configuration = contextMenuConfigurationStore[ObjectIdentifier(configuration)] else {
+        guard let configuration = store.contextMenuConfiguration[ObjectIdentifier(configuration)] else {
             return .next
         }
         return .handleable(section(configuration.indexPath)?.contextMenu(highlightPreview: configuration.configuration, row: configuration.indexPath.row))
@@ -299,10 +300,10 @@ class SKCDelegate: SKCDelegateForwardProtocol {
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
     func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> SKHandleResult<UITargetedPreview?> {
-        guard let configuration = contextMenuConfigurationStore[ObjectIdentifier(configuration)] else {
+        guard let configuration = store.contextMenuConfiguration[ObjectIdentifier(configuration)] else {
             return .next
         }
-        defer { contextMenuConfigurationStore[configuration.ID] = nil }
+        defer { store.contextMenuConfiguration[configuration.ID] = nil }
         return .handleable(section(configuration.indexPath)?.contextMenu(dismissalPreview: configuration.configuration, row: configuration.indexPath.row))
     }
     

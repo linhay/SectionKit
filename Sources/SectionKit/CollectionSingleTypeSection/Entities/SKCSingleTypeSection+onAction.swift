@@ -8,6 +8,10 @@
 import Foundation
 import UIKit
 
+public extension SKCSingleTypeSection {
+    typealias AsyncCellActionBlock = AsyncContextBlock<CellActionContext, Void>
+}
+
 /// 配置当前 section 样式
 public extension SKCSingleTypeSection {
     
@@ -78,11 +82,6 @@ public extension SKCSingleTypeSection {
         return self
     }
     
-    func remove(cellStyle ids: [CellStyleBox.ID]) {
-        let ids = Set(ids)
-        self.cellStyles = cellStyles.filter { !ids.contains($0.id) }
-    }
-    
 }
 
 public extension SKCSingleTypeSection {
@@ -105,6 +104,15 @@ public extension SKCSingleTypeSection {
         }
         cellActions[kind]?.append(block)
         return self
+    }
+    
+    @discardableResult
+    func onAsyncCellAction(_ kind: CellActionType, block: @escaping AsyncCellActionBlock) -> Self {
+        return onCellAction(kind) { context in
+            Task {
+                try await block(context)
+            }
+        }
     }
     
 }

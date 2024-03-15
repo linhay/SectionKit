@@ -8,6 +8,10 @@
 import UIKit
 
 public extension SKCSingleTypeSection {
+    typealias AsyncSupplementaryActionBlock = AsyncContextBlock<SupplementaryActionContext, Void>
+}
+
+public extension SKCSingleTypeSection {
     
     @discardableResult
     func set<View>(supplementary kind: SKSupplementaryKind,
@@ -68,10 +72,15 @@ public extension SKCSingleTypeSection {
     }
     
     @discardableResult
-    func set<View>(supplementary kind: SKSupplementaryKind,
-                   type: View.Type,
-                   config: ((View) -> Void)? = nil,
-                   size: @escaping (_ limitSize: CGSize) -> CGSize) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
+    func remove<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(supplementary type: View.Type) -> Self {
+        return remove(supplementary: .init(rawValue: View.identifier))
+    }
+    
+    @discardableResult
+    func set<View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView>(supplementary kind: SKSupplementaryKind,
+                                                                                       type: View.Type,
+                                                                                       config: ((View) -> Void)? = nil,
+                                                                                       size: @escaping (_ limitSize: CGSize) -> CGSize) -> Self {
         set(supplementary: .init(kind: kind, type: type, config: config, size: size))
     }
     
@@ -101,6 +110,20 @@ public extension SKCSingleTypeSection {
         }
         supplementaryActions[kind]?.append(block)
         return self
+    }
+    
+    /// 订阅事件类型
+    /// - Parameters:
+    ///   - kind: 事件类型
+    ///   - block: 回调
+    /// - Returns: self
+    @discardableResult
+    func onAsyncSupplementaryAction(_ kind: SKCSupplementaryActionType, block: @escaping AsyncSupplementaryActionBlock) -> Self {
+        return onSupplementaryAction(kind) { context in
+            Task {
+               try await block(context)
+            }
+        }
     }
     
 }

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/8/18.
 //
@@ -14,22 +14,22 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias SectionBlock<Return>               = (_ section: SKCSingleTypeSection<Cell>) -> Return
     public typealias ContextBlock<Context, Return>      = (_ context: Context) -> Return
     public typealias AsyncContextBlock<Context, Return> = @MainActor (_ context: Context) async throws -> Return
-    
+
     public typealias CellStyleBox = SKIDBox<UUID, CellStyleBlock>
     
     public typealias LoadedBlock       = SectionBlock<Void>
     public typealias SectionStyleBlock = SectionBlock<Void>
     public typealias CellStyleBlock    = ContextBlock<SKCCellStyleContext<Cell>, Void>
-
+    
     public typealias SectionStyleWeakBlock<T: AnyObject> = (_ self: T, _ section: SKCSingleTypeSection<Cell>) -> Void
     public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: SKCCellStyleContext<Cell>) -> Void
     public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: CellActionContext) -> Void
-
-    public typealias SupplementaryActionBlock = AsyncContextBlock<SupplementaryActionContext, Void>
-    public typealias CellActionBlock          = AsyncContextBlock<CellActionContext, Void>
+    
+    public typealias SupplementaryActionBlock = ContextBlock<SupplementaryActionContext, Void>
+    public typealias CellActionBlock          = ContextBlock<CellActionContext, Void>
     public typealias ContextMenuBlock         = ContextBlock<ContextMenuContext, SKUIContextMenuResult?>
     public typealias CellShouldBlock          = ContextBlock<ContextMenuContext, Bool?>
-
+    
     public enum LifeCycleKind {
         case loadedToSectionView(UICollectionView)
     }
@@ -81,7 +81,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             }
             return cell
         }
-                
+        
         fileprivate init(section: SKCSingleTypeSection<Cell>,
                          type: CellActionType,
                          model: Cell.Model, row: Int,
@@ -201,7 +201,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public private(set) lazy var publishers = SKPublishers()
     var highPerformance: SKHighPerformanceStore<String>?
     var highPerformanceID: HighPerformanceIDBlock?
-
+    
     lazy var deletedModels: [Int: Model] = [:]
     lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
     lazy var supplementaryActions: [SKCSupplementaryActionType: [SupplementaryActionBlock]] = [:]
@@ -261,7 +261,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
         let limitSize = safeSizeProvider.size
         let model = models[row]
-
+        
         if let highPerformance = highPerformance,
            let ID = highPerformanceID?(.init(model: model, row: row)) {
             return highPerformance.cache(by: ID, limit: limitSize) { limit in
@@ -486,7 +486,7 @@ public extension SKCSingleTypeSection where Model: Equatable {
 }
 
 public extension SKCSingleTypeSection {
-
+    
     @discardableResult
     func apply(safeSize: SKSafeSizeProvider) -> Self {
         safeSizeProvider = safeSize
@@ -772,26 +772,22 @@ public extension SKCSingleTypeSection {
     }
     
     func sendAction(_ result: CellActionContext) {
-        Task { 
-            if let blocks = cellActions[result.type] {
-                for block in blocks {
-                   try await block(result)
-                }
+        if let blocks = cellActions[result.type] {
+            for block in blocks {
+                block(result)
             }
-            publishers.cellActionSubject?.send(result)
         }
+        publishers.cellActionSubject?.send(result)
     }
     
     func sendSupplementaryAction(_ type: SKCSupplementaryActionType, kind: SKSupplementaryKind, row: Int, view: UICollectionReusableView) {
         let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row, view: view)
-        Task {
-            if let blocks = supplementaryActions[type] {
-                for block in blocks {
-                   try await block(result)
-                }
+        if let blocks = supplementaryActions[type] {
+            for block in blocks {
+                block(result)
             }
-            publishers.supplementaryActionSubject?.send(result)
         }
+        publishers.supplementaryActionSubject?.send(result)
     }
     
     func taskIfLoaded(_ task: @escaping LoadedBlock) {

@@ -47,7 +47,7 @@ open class SKUIAction: UIAction {
                   identifier: identifier,
                   discoverabilityTitle: discoverabilityTitle,
                   attributes: attributes,
-                  state: state) { action in
+                  state: state) { _ in
             Task { @MainActor in
                 try await handler()
             }
@@ -66,17 +66,17 @@ open class SKUIAction: UIAction {
                             state: UIMenuElement.State = .off,
                             handler: @escaping SKUIActionHandler) {
         self.init(title: title,
-                  subtitle: subtitle,
-                  image: image,
-                  selectedImage: selectedImage,
-                  identifier: identifier,
-                  discoverabilityTitle: discoverabilityTitle,
-                  attributes: attributes,
-                  state: state) {
+                   subtitle: subtitle,
+                   image: image,
+                   selectedImage: selectedImage,
+                   identifier: identifier,
+                   discoverabilityTitle: discoverabilityTitle,
+                   attributes: attributes,
+                   state: state) { _ in
             Task { @MainActor in
                 try await handler()
             }
         }
     }
-    
+
 }

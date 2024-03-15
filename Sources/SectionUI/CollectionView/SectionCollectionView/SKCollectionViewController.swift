@@ -26,6 +26,7 @@ import SectionKit
 
 open class SKCollectionViewController: UIViewController {
     
+    public private(set) lazy var sectionView = SKCollectionView()
     public var manager: SKCManager { sectionView.manager }
     
     public convenience init() {
@@ -84,6 +85,4 @@ private extension SKCollectionViewController {
     }
     
 }
-#endif
-
 #endif

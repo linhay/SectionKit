@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public protocol SKCDelegateFlowLayoutObserverProtocol: SKCDelegateObserverProtocol {
+public protocol SKCDelegateFlowLayoutObserverProtocol {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath, value: CGSize)
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int, value: UIEdgeInsets)
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int, value: CGFloat)

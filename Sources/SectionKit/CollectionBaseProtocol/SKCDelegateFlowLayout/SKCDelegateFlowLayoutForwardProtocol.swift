@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public protocol SKCDelegateFlowLayoutForwardProtocol: SKCDelegateForwardProtocol {
+public protocol SKCDelegateFlowLayoutForwardProtocol {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> SKHandleResult<CGSize>
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> SKHandleResult<UIEdgeInsets>
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> SKHandleResult<CGFloat>

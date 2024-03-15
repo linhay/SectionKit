@@ -7,7 +7,7 @@
 
 import UIKit
 
-public protocol SKCDelegateObserverProtocol: SKScrollViewDelegateObserverProtocol {
+public protocol SKCDelegateObserverProtocol {
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath, value: Bool)
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath, value: Void)
     func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath, value: Void)

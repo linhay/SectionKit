@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-class SKCViewDelegateFlowLayout: SKCDelegateFlowLayoutForwardProtocol {
+class SKCDelegateFlowLayout: SKCDelegateFlowLayoutForwardProtocol {
     
     private let section: (_ indexPath: IndexPath) -> SKCViewDelegateFlowLayoutProtocol?
     

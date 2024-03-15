@@ -31,16 +31,17 @@ public class SKCManager {
     public private(set) weak var sectionView: UICollectionView?
     
     public var sections: [SKCBaseSectionProtocol] { publishers.sectionsSubject.value }
+    
     public private(set) lazy var dataSourceForward = SKCDataSourceForward()
     public private(set) lazy var flowLayoutForward = SKCDelegateFlowLayoutForward()
-    
     public var scrollObserver: SKScrollViewDelegateForward { flowLayoutForward }
+    
     public private(set) lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
         self?.safe(section: section)
     }
     
     private lazy var endDisplaySections: [Int: SKCBaseSectionProtocol] = [:]
-    private lazy var flowlayoutDelegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
+    private lazy var flowlayoutDelegate = SKCDelegateFlowLayout { [weak self] indexPath in
         self?.safe(section: indexPath.section)
     }
     private lazy var delegate = SKCDelegate { [weak self] indexPath in

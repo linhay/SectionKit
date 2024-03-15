@@ -13,7 +13,10 @@ public class SKCRegistrationManager {
     public private(set) lazy var sections: [SKCRegistrationSectionProtocol] = []
     public private(set) lazy var sectionsStore: [Int: SKCRegistrationSectionProtocol] = [:]
     
-    public var scrollObserver: SKScrollViewDelegate { delegate }
+    public private(set) lazy var dataSourceForward = SKCDataSourceForward()
+    public private(set) lazy var flowLayoutForward = SKCDelegateFlowLayoutForward()
+
+    public var scrollObserver: SKScrollViewDelegateForward { flowLayoutForward }
     public private(set) lazy var prefetching = SKCViewDataSourcePrefetching { [weak self] section in
         self?.safe(section: section)
     }
@@ -23,14 +26,16 @@ public class SKCRegistrationManager {
     /// difference 计算时, 新的数据将放入 waitSections 中等待下一次 difference 计算
     private var differenceLock = false
     private var waitSections: [SKCRegistrationSectionProtocol]?
-    
-    private lazy var delegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
-        return self?.safe(section: indexPath.section)
+    private lazy var flowlayoutDelegate = SKCViewDelegateFlowLayout { [weak self] indexPath in
+        self?.safe(section: indexPath.section)
+    }
+    private lazy var delegate = SKCDelegate { [weak self] indexPath in
+        self?.safe(section: indexPath.section)
     } endDisplaySection: { [weak self] indexPath in
         guard let self = self else { return nil }
         return self.sectionsStore[indexPath.section]
     } sections: { [weak self] in
-        return self?.sections ?? []
+        return (self?.sections ?? []).map({ $0 as SKCDelegateProtocol })
     }
     
     private lazy var dataSource = SKCDataSource { [weak self] indexPath in
@@ -43,9 +48,12 @@ public class SKCRegistrationManager {
     
     public init(sectionView: UICollectionView) {
         self.sectionView = sectionView
-        sectionView.delegate = delegate
-        sectionView.dataSource = dataSource
+        sectionView.delegate = flowLayoutForward
+        sectionView.dataSource = dataSourceForward
         sectionView.prefetchDataSource = prefetching
+        flowLayoutForward.add(delegate)
+        flowLayoutForward.add(flowlayoutDelegate)
+        dataSourceForward.add(dataSource)
     }
     
 }

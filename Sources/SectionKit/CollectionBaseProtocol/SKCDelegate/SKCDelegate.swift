@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
+class SKCDelegate: SKCDelegateForwardProtocol {
     
     struct ContextMenuConfiguration {
         var ID: ObjectIdentifier { ObjectIdentifier(configuration) }
@@ -39,7 +39,6 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
         self._section = section
         self._sections = sections
         self._endDisplaySection = endDisplaySection
-        super.init()
     }
     
     // 用于通知选择/取消选择和高亮/非高亮事件的方法。
@@ -53,33 +52,34 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
     // 3. -collectionView:shouldSelectItemAtIndexPath: 或 -collectionView:shouldDeselectItemAtIndexPath:
     // 4. -collectionView:didSelectItemAtIndexPath: or -collectionView:didDeselectItemAtIndexPath:
     // 5. -collectionView:didUnhighlightItemAtIndexPath:
-    func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(shouldHighlight: indexPath.item) ?? true
+    func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(shouldHighlight: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-        section(indexPath)?.item(didHighlight: indexPath.item)
+    
+    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(section(indexPath)?.item(didHighlight: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-        section(indexPath)?.item(didUnhighlight: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(section(indexPath)?.item(didUnhighlight: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(shouldSelect: indexPath.item) ?? true
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(shouldSelect: indexPath.item))
     }
     
     //当用户在多选模式下点击一个已经选择的项目时被调用
-    func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(shouldDeselect: indexPath.item) ?? true
+    func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(shouldDeselect: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        section(indexPath)?.item(selected: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(section(indexPath)?.item(selected: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        section(indexPath)?.item(deselected: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(section(indexPath)?.item(deselected: indexPath.item))
     }
     
     /**
@@ -93,8 +93,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      *和编辑时的`NO'。
      */
     @available(iOS 16.0, *)
-    func collectionView(_ collectionView: UICollectionView, canPerformPrimaryActionForItemAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(canPerformPrimaryAction: indexPath.item) ?? true
+    func collectionView(_ collectionView: UICollectionView, canPerformPrimaryActionForItemAt indexPath: IndexPath) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(canPerformPrimaryAction: indexPath.item))
     }
     
     /**
@@ -112,24 +112,24 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      * @param indexPath 要执行动作的项目的NSIndexPath
      */
     @available(iOS 16.0, *)
-    func collectionView(_ collectionView: UICollectionView, performPrimaryActionForItemAt indexPath: IndexPath) {
-        section(indexPath)?.item(performPrimaryAction: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, performPrimaryActionForItemAt indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(section(indexPath)?.item(performPrimaryAction: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        section(indexPath)?.item(willDisplay: cell, row: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(section(indexPath)?.item(willDisplay: cell, row: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        section(indexPath)?.supplementary(willDisplay: view, kind: .init(rawValue: elementKind), at: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(section(indexPath)?.supplementary(willDisplay: view, kind: .init(rawValue: elementKind), at: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        endDisplaySection(indexPath)?.item(didEndDisplaying: cell, row: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(endDisplaySection(indexPath)?.item(didEndDisplaying: cell, row: indexPath.item))
     }
     
-    func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        endDisplaySection(indexPath)?.supplementary(didEndDisplaying: view, kind: .init(rawValue: elementKind), at: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(endDisplaySection(indexPath)?.supplementary(didEndDisplaying: view, kind: .init(rawValue: elementKind), at: indexPath.item))
     }
     
     
@@ -139,8 +139,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
     //    }
     
     // Focus
-    func collectionView(_ collectionView: UICollectionView, canFocusItemAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(canFocus: indexPath.item) ?? true
+    func collectionView(_ collectionView: UICollectionView, canFocusItemAt indexPath: IndexPath) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(canFocus: indexPath.item))
     }
     
     //    func collectionView(_ collectionView: UICollectionView, shouldUpdateFocusIn context: UICollectionViewFocusUpdateContext) -> Bool {
@@ -158,8 +158,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
     /// 确定当焦点移动到指定的索引路径上时，该项目是否也应该被选中。
     /// 如果集合视图的全局selectionFollowsFocus被启用，这个方法将允许你在每个索引路径上覆盖该行为。如果selectionFollowsFocus被禁用，则不调用此方法。
     @available(iOS 15.0, *)
-    func collectionView(_ collectionView: UICollectionView, selectionFollowsFocusForItemAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(selectionFollowsFocus: indexPath.item) ?? true
+    func collectionView(_ collectionView: UICollectionView, selectionFollowsFocusForItemAt indexPath: IndexPath) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(selectionFollowsFocus: indexPath.item))
     }
     
     //    @available(iOS 15.0, *)
@@ -180,8 +180,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      * @return `YES`如果该项目是可编辑的；否则，`NO`。默认为 "YES"。
      */
     @available(iOS 14.0, *)
-    func collectionView(_ collectionView: UICollectionView, canEditItemAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(canEdit: indexPath.item) ?? true
+    func collectionView(_ collectionView: UICollectionView, canEditItemAt indexPath: IndexPath) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(canEdit: indexPath.item))
     }
     
     // 弹簧加载
@@ -193,8 +193,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      *
      * 如果这个方法没有实现，默认是YES。
      */
-    func collectionView(_ collectionView: UICollectionView, shouldSpringLoadItemAt indexPath: IndexPath, with context: UISpringLoadedInteractionContext) -> Bool {
-        section(indexPath)?.item(shouldSpringLoad: indexPath.item, with: context) ?? true
+    func collectionView(_ collectionView: UICollectionView, shouldSpringLoadItemAt indexPath: IndexPath, with context: any UISpringLoadedInteractionContext) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(shouldSpringLoad: indexPath.item, with: context))
     }
     
     // 多重选择
@@ -210,8 +210,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      *
      * 如果这个方法没有实现，默认是NO。
      */
-    func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
-        section(indexPath)?.item(shouldBeginMultipleSelectionInteraction: indexPath.item) ?? false
+    func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> SKHandleResult<Bool> {
+        .handleable(section(indexPath)?.item(shouldBeginMultipleSelectionInteraction: indexPath.item))
     }
     
     /* 如果-collectionView:shouldBeginMultipleSelectionInteractionAtIndexPath被设置为YES，则在allowMultipleSelection之后立即调用。
@@ -220,8 +220,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      * 在你的应用程序中，这将是一个很好的机会来更新你的用户界面的状态，以反映用户现在正在选择
      * 一次选择多个项目；例如，更新按钮为 "完成"，而不是 "选择"/"编辑"，等等。
      */
-    func collectionView(_ collectionView: UICollectionView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) {
-        section(indexPath)?.item(didBeginMultipleSelectionInteraction: indexPath.item)
+    func collectionView(_ collectionView: UICollectionView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> SKHandleResult<Void> {
+        .handleable(section(indexPath)?.item(didBeginMultipleSelectionInteraction: indexPath.item))
     }
     
     /* 在多选互动结束时调用。
@@ -229,10 +229,11 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      * 此时，集合视图将保持在多选模式下，但这个委托方法被调用以表明
      * 多重选择手势或硬件键盘交互已经结束。
      */
-    func collectionViewDidEndMultipleSelectionInteraction(_ collectionView: UICollectionView) {
+    func collectionViewDidEndMultipleSelectionInteraction(_ collectionView: UICollectionView) -> SKHandleResult<Void> {
         sections().forEach({ section in
             section.section(didEndMultipleSelectionInteraction: ())
         })
+        return .handle
     }
     
     /**
@@ -259,12 +260,12 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      *在这个特定的时间里，没有任何动作可以呈现。如果实现了配置、高亮预览或取消预览方法的非降级替换，则不调用此方法。
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> SKHandleResult<UIContextMenuConfiguration?> {
         guard let configuration = section(indexPath)?.contextMenu(row: indexPath.row, point: point) else {
-            return nil
+            return .next
         }
         contextMenuConfigurationStore[ObjectIdentifier(configuration)] = .init(indexPath: indexPath, configuration: configuration)
-        return configuration
+        return .handle(configuration)
     }
     
     /**
@@ -281,11 +282,11 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      * @param configuration 即将被这个交互显示的菜单的配置。
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
-    func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+    func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> SKHandleResult<UITargetedPreview?> {
         guard let configuration = contextMenuConfigurationStore[ObjectIdentifier(configuration)] else {
-            return nil
+            return .next
         }
-        return section(configuration.indexPath)?.contextMenu(highlightPreview: configuration.configuration, row: configuration.indexPath.row)
+        return .handleable(section(configuration.indexPath)?.contextMenu(highlightPreview: configuration.configuration, row: configuration.indexPath.row))
     }
     
     /**
@@ -297,12 +298,12 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      * @param configuration   The configuration of the menu displayed by this interaction.
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
-    func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+    func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> SKHandleResult<UITargetedPreview?> {
         guard let configuration = contextMenuConfigurationStore[ObjectIdentifier(configuration)] else {
-            return nil
+            return .next
         }
         defer { contextMenuConfigurationStore[configuration.ID] = nil }
-        return section(configuration.indexPath)?.contextMenu(dismissalPreview: configuration.configuration, row: configuration.indexPath.row)
+        return .handleable(section(configuration.indexPath)?.contextMenu(dismissalPreview: configuration.configuration, row: configuration.indexPath.row))
     }
     
     /**
@@ -337,11 +338,11 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      */
     
     @available(iOS 16.0, *)
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> SKHandleResult<UIContextMenuConfiguration?> {
         if indexPaths.count == 1, let indexPath = indexPaths.first {
-            return section(indexPath)?.contextMenu(row: indexPath.row, point: point)
+            return .handleable(section(indexPath)?.contextMenu(row: indexPath.row, point: point))
         } else {
-            return nil
+            return .next
         }
     }
     
@@ -360,8 +361,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      * @param indexPath 发生交互的项目的索引路径。
      */
     @available(iOS 16.0, *)
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
-        return section(indexPath)?.contextMenu(highlightPreview: configuration, row: indexPath.row)
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> SKHandleResult<UITargetedPreview?> {
+        .handleable(section(indexPath)?.contextMenu(highlightPreview: configuration, row: indexPath.row))
     }
     
     /**
@@ -378,8 +379,8 @@ class SKCDelegate: SKScrollViewDelegate, UICollectionViewDelegate {
      * @param indexPath 菜单被取消的项目的索引路径。
      */
     @available(iOS 16.0, *)
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, dismissalPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
-        return section(indexPath)?.contextMenu(dismissalPreview: configuration, row: indexPath.row)
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, dismissalPreviewForItemAt indexPath: IndexPath) -> SKHandleResult<UITargetedPreview?> {
+        .handleable(section(indexPath)?.contextMenu(dismissalPreview: configuration, row: indexPath.row))
     }
     
     /**

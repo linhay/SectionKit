@@ -16,10 +16,16 @@ public struct SKPrint {
     public static var kinds = Set<Kind>([])
     static let logo = "[SectionKit]"
     
-    static func highPerformance(_ items: Any...) {
+    public static func highPerformance(_ items: Any...) {
         #if DEBUG
         guard kinds.contains(.highPerformance) else { return }
         debugPrint("\(logo) -> [HighPerformance]", items)
+        #endif
+    }
+    
+    public static func function(_ items: Any, _ function: StaticString = #function) {
+        #if DEBUG
+        debugPrint("\(logo) -> [\(function)]", items)
         #endif
     }
     

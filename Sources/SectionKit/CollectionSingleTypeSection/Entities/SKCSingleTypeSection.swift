@@ -48,13 +48,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         case move
     }
     
-    public enum SupplementaryActionType: Int, Hashable {
-        /// 即将显示
-        case willDisplay
-        /// 结束显示
-        case didEndDisplay
-    }
-    
     public struct ContextMenuContext {
         
         public let section: SKCSingleTypeSection<Cell>
@@ -123,7 +116,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public struct SupplementaryActionContext {
         public let section: SKCSingleTypeSection<Cell>
-        public let type: SupplementaryActionType
+        public let type: SKCSupplementaryActionType
         public let kind: SKSupplementaryKind
         public let row: Int
         let _view: SKWeakBox<UICollectionReusableView>?
@@ -137,7 +130,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         }
         
         init(section: SKCSingleTypeSection<Cell>,
-             type: SupplementaryActionType,
+             type: SKCSupplementaryActionType,
              kind: SKSupplementaryKind,
              row: Int,
              view: UICollectionReusableView?) {
@@ -231,7 +224,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
 
     lazy var deletedModels: [Int: Model] = [:]
     lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
-    lazy var supplementaryActions: [SupplementaryActionType: [SupplementaryActionBlock]] = [:]
+    lazy var supplementaryActions: [SKCSupplementaryActionType: [SupplementaryActionBlock]] = [:]
     lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
     lazy var cellStyles: [CellStyleBox] = []
     lazy var cellContextMenus: [ContextMenuBlock] = []
@@ -723,24 +716,6 @@ public extension SKCSingleTypeSection {
 
 public extension SKCSingleTypeSection {
     
-    /// 订阅事件类型
-    /// - Parameters:
-    ///   - kind: 事件类型
-    ///   - block: 回调
-    /// - Returns: self
-    @discardableResult
-    func onSupplementaryAction(_ kind: SupplementaryActionType, block: @escaping SupplementaryActionBlock) -> Self {
-        if supplementaryActions[kind] == nil {
-            supplementaryActions[kind] = []
-        }
-        supplementaryActions[kind]?.append(block)
-        return self
-    }
-    
-}
-
-public extension SKCSingleTypeSection {
-    
     func deselectItem(at row: Int, animated: Bool = true) {
         sectionView.deselectItem(at: indexPath(from: row), animated: animated)
     }
@@ -821,7 +796,7 @@ public extension SKCSingleTypeSection {
         publishers.cellActionSubject?.send(result)
     }
     
-    func sendSupplementaryAction(_ type: SupplementaryActionType, kind: SKSupplementaryKind, row: Int, view: UICollectionReusableView) {
+    func sendSupplementaryAction(_ type: SKCSupplementaryActionType, kind: SKSupplementaryKind, row: Int, view: UICollectionReusableView) {
         let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row, view: view)
         supplementaryActions[type]?.forEach({ block in
             block(result)

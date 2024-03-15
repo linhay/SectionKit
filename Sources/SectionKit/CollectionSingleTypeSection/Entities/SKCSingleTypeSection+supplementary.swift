@@ -86,3 +86,21 @@ public extension SKCSingleTypeSection {
     }
     
 }
+
+public extension SKCSingleTypeSection {
+    
+    /// 订阅事件类型
+    /// - Parameters:
+    ///   - kind: 事件类型
+    ///   - block: 回调
+    /// - Returns: self
+    @discardableResult
+    func onSupplementaryAction(_ kind: SKCSupplementaryActionType, block: @escaping SupplementaryActionBlock) -> Self {
+        if supplementaryActions[kind] == nil {
+            supplementaryActions[kind] = []
+        }
+        supplementaryActions[kind]?.append(block)
+        return self
+    }
+    
+}

@@ -109,7 +109,6 @@ public protocol SKCDelegateProtocol {
     func section(didEndMultipleSelectionInteraction: Void)
 }
 
-
 public extension SKCDelegateProtocol {
 
     func contextMenu(row: Int, point: CGPoint) -> UIContextMenuConfiguration? { nil }

@@ -18,11 +18,11 @@ extension SKCLayoutPlugins {
         }
         
         public struct Constraint {
-            public let section: BindingKey<Int>
+            public let section: SKBindingKey<Int>
             public let kind: SKSupplementaryKind
             public let insets: UIEdgeInsets
 
-            public init(section: BindingKey<Int>, kind: SKSupplementaryKind, insets: UIEdgeInsets = .zero) {
+            public init(section: SKBindingKey<Int>, kind: SKSupplementaryKind, insets: UIEdgeInsets = .zero) {
                 self.section = section
                 self.kind = kind
                 self.insets = insets

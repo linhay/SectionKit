@@ -158,7 +158,7 @@ extension DecorationViewController {
             }
         }
         
-        func update<View: SKCLayoutPlugins.DecorationView>(_ decoration: SKCLayoutPlugins.Decoration<View>...) {
+        func update<View: SKCDecorationView>(_ decoration: SKCLayoutPlugins.Decoration<View>...) {
             sectionView.set(pluginModes: [.decorations(decoration)] + defaultPluginModes)
             sectionView.reloadData()
         }

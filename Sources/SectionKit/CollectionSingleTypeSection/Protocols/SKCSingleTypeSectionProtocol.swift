@@ -8,10 +8,8 @@
 #if canImport(UIKit)
 import UIKit
 
-public protocol SKCSingleTypeSectionProtocol: SKCDataSourceProtocol,
-                                              SKCSectionActionProtocol,
+public protocol SKCSingleTypeSectionProtocol: SKCSectionProtocol,
                                               SKCViewDataSourcePrefetchingProtocol,
-                                              SKCViewDelegateFlowLayoutProtocol,
                                               SKSafeSizeProviderProtocol {
     
     associatedtype Cell: UICollectionViewCell & SKConfigurableView

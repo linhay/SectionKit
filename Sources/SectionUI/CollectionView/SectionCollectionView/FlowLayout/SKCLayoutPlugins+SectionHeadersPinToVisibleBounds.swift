@@ -12,11 +12,11 @@ extension SKCLayoutPlugins {
     
     struct SectionHeadersPinToVisibleBounds: SKCLayoutPlugin {
         let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
-        var elements: [BindingKey<Int>]
+        var elements: [SKBindingKey<Int>]
         var sectionRects: [Int: CGRect]
         
         init(layout: SKCollectionFlowLayout, 
-             elements: [BindingKey<Int>],
+             elements: [SKBindingKey<Int>],
              sectionRects: [Int : CGRect] = [:]) {
             self.layoutWeakBox = .init(layout)
             self.elements = elements

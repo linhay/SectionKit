@@ -45,7 +45,7 @@ public extension SKCSectionActionProtocol {
     /// 刷新指定行
     /// - Parameter row: 指定行
     func refresh(at row: Int) {
-        sectionInjection?.reload(cell: row)
+        refresh(at: [row])
     }
     
     /// 刷新指定行
@@ -59,8 +59,7 @@ public extension SKCSectionActionProtocol {
     ///   - row: 指定行
     ///   - before: 移除数据
     func remove(at row: Int, before: (() -> Void)?) {
-        before?()
-        sectionInjection?.delete(cell: row)
+        remove(at: [row], before: before)
     }
     
     /// 移除指定行
@@ -150,7 +149,7 @@ public extension SKCSectionActionProtocol {
             assertionFailure()
             return .init(item: value, section: 0)
         }
-        return .init(item: value, section: injection.index)
+        return injection.indexPath(from: value)
     }
     
     func _register<T: UICollectionViewCell & SKLoadViewProtocol>(_ cell: T.Type) {

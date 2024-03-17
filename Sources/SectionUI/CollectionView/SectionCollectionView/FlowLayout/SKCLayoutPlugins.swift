@@ -23,11 +23,11 @@ public struct SKCLayoutPlugins {
         /// fix: header & footer 调整尺寸, 调整前会重置为真实设定尺寸
         case adjustSupplementaryViewSize(FixSupplementaryViewSize.Condition)
         /// 置顶section header view
-        case sectionHeadersPinToVisibleBounds([BindingKey<Int>])
+        case sectionHeadersPinToVisibleBounds([SKBindingKey<Int>])
         /// section 装饰视图
         case decorations([any SKCLayoutDecorationPlugin])
         
-        public static func sectionHeadersPinToVisibleBounds(_ key: BindingKey<Int>) -> Mode {
+        public static func sectionHeadersPinToVisibleBounds(_ key: SKBindingKey<Int>) -> Mode {
             return .sectionHeadersPinToVisibleBounds([key])
         }
         
@@ -65,7 +65,7 @@ public struct SKCLayoutPlugins {
     func sort(modes: [Mode]) -> [Mode] {
         var set = Set<Int>()
         var newModes = [Mode]()
-        var sectionHeadersPinToVisibleBounds = [BindingKey<Int>]()
+        var sectionHeadersPinToVisibleBounds = [SKBindingKey<Int>]()
         var decorations = [any SKCLayoutDecorationPlugin]()
 
         /// 优先级冲突去重
@@ -105,19 +105,19 @@ public struct SKCLayoutPlugins {
 
 public extension SKCLayoutPlugins.Mode {
     
-    static func decorations(_ decoration: [SKCLayoutPlugins.AnyDecoration]) -> SKCLayoutPlugins.Mode {
+    static func decorations(_ decoration: [SKCLayoutAnyDecoration]) -> SKCLayoutPlugins.Mode {
         .decorations(decoration.map(\.wrapperValue))
     }
     
-    static func decorations(_ decoration: SKCLayoutPlugins.AnyDecoration) -> SKCLayoutPlugins.Mode {
+    static func decorations(_ decoration: SKCLayoutAnyDecoration) -> SKCLayoutPlugins.Mode {
         .decorations([decoration])
     }
     
-    static func decorations<View: SKCLayoutPlugins.DecorationView>(_ decoration: [SKCLayoutPlugins.Decoration<View>]) -> SKCLayoutPlugins.Mode {
+    static func decorations<View: SKCDecorationView>(_ decoration: [SKCLayoutDecoration.Entity<View>]) -> SKCLayoutPlugins.Mode {
         .decorations(decoration as [any SKCLayoutDecorationPlugin])
     }
     
-    static func decorations<View: SKCLayoutPlugins.DecorationView>(_ decoration: SKCLayoutPlugins.Decoration<View>) -> SKCLayoutPlugins.Mode {
+    static func decorations<View: SKCDecorationView>(_ decoration: SKCLayoutDecoration.Entity<View>) -> SKCLayoutPlugins.Mode {
         .decorations([decoration])
     }
     

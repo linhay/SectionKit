@@ -27,11 +27,12 @@ import SectionKit
 open class SKCollectionView: UICollectionView {
     
     public private(set) lazy var manager = SKCManager(sectionView: self)
-
+    private var pluginsModes: [SKCLayoutPlugins.Mode] = []
+    
     public convenience init() {
         let layout = SKCollectionFlowLayout()
         self.init(frame: .zero, collectionViewLayout: layout)
-        self.manager.flowLayoutForward.add(ui: layout)
+        self.initialize(layout: layout)
     }
     
     override public init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
@@ -42,9 +43,9 @@ open class SKCollectionView: UICollectionView {
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         let layout = SKCollectionFlowLayout()
-        self.manager.flowLayoutForward.add(ui: layout)
         collectionViewLayout = layout
         initialize()
+        initialize(layout: layout)
     }
     
     open override func reloadData() {
@@ -86,10 +87,18 @@ public extension SKCollectionView {
 
 // MARK: - PluginModes
 public extension SKCollectionView {
+    
+    func collectSectionLayoutPlugins() -> [SKCLayoutPlugins.Mode] {
+        manager.sections
+            .compactMap({ $0 as? SKCSectionLayoutPluginProtocol })
+            .map(\.plugins)
+            .flatMap({ $0 })
+            .map(\.convert)
+    }
     /// 布局插件
     /// - Parameter pluginModes: 样式
     func set(pluginModes: [SKCLayoutPlugins.Mode]) {
-        (collectionViewLayout as? SKCollectionFlowLayout)?.plugins = .init(modes: pluginModes)
+        self.pluginsModes = pluginModes
     }
     
     /// 布局插件
@@ -100,6 +109,14 @@ public extension SKCollectionView {
 }
 
 private extension SKCollectionView {
+    
+    func initialize(layout: SKCollectionFlowLayout) {
+        self.manager.flowLayoutForward.add(ui: layout)
+        layout.fetchPlugins = { [weak self] in
+            guard let self = self else { return .init(modes: []) }
+            return .init(modes: pluginsModes + self.collectSectionLayoutPlugins())
+        }
+    }
     
     func initialize() {
         translatesAutoresizingMaskIntoConstraints = false

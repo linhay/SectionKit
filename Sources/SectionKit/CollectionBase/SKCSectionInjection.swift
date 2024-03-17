@@ -10,7 +10,9 @@ import UIKit
 import Combine
 
 public class SKCSectionInjection {
-    
+    public typealias ActionTask    = (_ injection: SKCSectionInjection,  _ action: Action) -> Void
+    public typealias ActionConvert = (_ action: Action) -> Action
+
     public struct Configuration {
         /// 转换类型
         /// 将 reloadSection 操作替换为 reloadData 操作:
@@ -20,17 +22,45 @@ public class SKCSectionInjection {
         //            }
         //            return action
         //        }
-       public var mapAction: (_ action: Action) -> Action = { $0 }
+       public var converts: [ActionConvert] = []
         
-       public mutating func setMapAction(_ block: @escaping (_ action: Action) -> Action) {
-            self.mapAction = block
+       public mutating func setMapAction(_ block: @escaping ActionConvert) {
+            self.converts = [block]
         }
     }
+
+    public enum ActionKind: Hashable {
+        case reload
+        case delete
+        case reloadData
+        case insertItems
+        case deleteItems
+        case reloadItems
+    }
     
-    public struct Action: OptionSet, Hashable {
-        public let rawValue: Int
-        public init(rawValue: Int) {
-            self.rawValue = rawValue
+    public enum Action: Hashable {
+        case reload
+        case delete
+        case reloadData
+        case insertItems([Int])
+        case deleteItems([Int])
+        case reloadItems([Int])
+        
+        var kind: ActionKind {
+            switch self {
+            case .reload:
+                return .reload
+            case .delete:
+                return .delete
+            case .reloadData:
+                return .reloadData
+            case .insertItems:
+                return .insertItems
+            case .deleteItems:
+                return .deleteItems
+            case .reloadItems:
+                return .reloadItems
+            }
         }
     }
     
@@ -47,22 +77,51 @@ public class SKCSectionInjection {
     public var configuration = SKCSectionInjection.configuration
     public internal(set) var index: Int
     public var sectionView: UICollectionView? { sectionViewProvider.sectionView }
-    
+        
     var sectionViewProvider: SectionViewProvider
-    private var events: [Action: (SKCSectionInjection) -> Void] = [:]
+    private var events: [ActionKind: ActionTask] = [:]
     
     init(index: Int, sectionView: SectionViewProvider) {
         self.sectionViewProvider = sectionView
         self.index = index
+        setupActions()
     }
     
-}
-
-public extension SKCSectionInjection.Action {
-    
-    static let reload     = Self(rawValue: 1 << 1)
-    static let delete     = Self(rawValue: 1 << 2)
-    static let reloadData = Self(rawValue: 1 << 3)
+    func setupActions() {
+        add(kind: .reloadData, event: { (injection, action) in
+            injection.sectionView?.reloadData()
+        })
+        add(kind: .reload, event: { (injection, action) in
+            injection.sectionView?.reloadSections(IndexSet(integer: injection.index))
+        })
+        add(kind: .delete, event: { (injection, action) in
+            injection.sectionView?.deleteSections(IndexSet(integer: injection.index))
+        })
+        add(kind: .reloadItems, event: { injection, action in
+            switch action {
+            case .reloadItems(let idx):
+                injection.sectionView?.reloadItems(at: injection.indexPath(from: idx))
+            default:
+                break
+            }
+        })
+        add(kind: .deleteItems) { injection, action in
+            switch action {
+            case .deleteItems(let idx):
+                injection.sectionView?.deleteItems(at: injection.indexPath(from: idx))
+            default:
+                break
+            }
+        }
+        add(kind: .insertItems) { injection, action in
+            switch action {
+            case .insertItems(let idx):
+                injection.sectionView?.insertItems(at: injection.indexPath(from: idx))
+            default:
+                break
+            }
+        }
+    }
     
 }
 
@@ -72,64 +131,55 @@ public extension SKCSectionInjection {
         sectionView?.performBatchUpdates(updates, completion: completion)
     }
     
+    func task(_ action: Action) {
+        let convert = configuration.converts.reduce(into: action) { result, convert in
+            result = convert(result)
+        }
+        events[convert.kind]?(self, convert)
+    }
+    
     func delete() {
-        events[configuration.mapAction(.delete)]?(self)
+        task(.delete)
     }
     
     func reload() {
-        events[configuration.mapAction(.reload)]?(self)
+        task(.reload)
     }
     
     func reloadData() {
-        events[configuration.mapAction(.reloadData)]?(self)
-    }
-    
-    func insert(cell rows: Int...) {
-        delete(cell: rows)
+        task(.reloadData)
     }
     
     func insert(cell rows: [Int]) {
-        sectionView?.insertItems(at: rows.map({ IndexPath(row: $0, section: index) }))
+        task(.insertItems(rows))
     }
-    
-    func delete(cell rows: Int...) {
-        delete(cell: rows)
-    }
-    
+
     func delete(cell rows: [Int]) {
-        sectionView?.deleteItems(at: rows.map({ IndexPath(row: $0, section: index) }))
+        task(.deleteItems(rows))
     }
     
     func reload(cell rows: [Int]) {
         guard !rows.isEmpty else {
             return
         }
-        sectionView?.reloadItems(at: rows.map({ IndexPath(row: $0, section: index) }))
-    }
-    
-    func reload(cell rows: Int...) {
-        reload(cell: rows)
-    }
-    
-    func reload(cell rows: Range<Int>) {
-        reload(cell: Array(rows))
+        task(.reloadItems(rows))
     }
     
     @discardableResult
-    func add(action: Action, event: @escaping (_ injection: SKCSectionInjection) -> Void) -> Self {
-        self.events[action] = event
+    func add(kind: ActionKind, event: @escaping ActionTask) -> Self {
+        self.events[kind] = event
         return self
     }
     
-    func send(_ action: Action) {
-        guard sectionView != nil else {
-            return
-        }
-        guard let event = events[action] else {
-            assertionFailure()
-            return
-        }
-        event(self)
+    /**
+     该方法用于根据给定的value返回一个IndexPath对象。如果sectionInjection为nil，则会触发断言失败，并返回一个item为value，section为0的IndexPath对象。否则，返回一个item为value，section为sectionInjection的index的IndexPath对象。
+     */
+    func indexPath(from value: Int) -> IndexPath {
+        return .init(item: value, section: index)
+    }
+    
+    func indexPath(from value: [Int]) -> [IndexPath] {
+        return value.map(indexPath(from:))
     }
     
 }

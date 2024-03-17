@@ -33,7 +33,7 @@ public extension SKCSingleTypeSection {
     }
     
     func refresh(at row: Int) {
-        sectionInjection?.reload(cell: row)
+        refresh(at: [row])
     }
     
     func refresh(at row: [Int]) {

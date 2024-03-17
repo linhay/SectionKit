@@ -8,208 +8,8 @@
 import UIKit
 import SectionKit
 
-public protocol SKCLayoutDecorationPlugin: AnyObject {
-    associatedtype View: SKCLayoutPlugins.DecorationView
-    typealias ActionBlock = (_ context: SKCLayoutPlugins.DecorationActionContext<View>) -> Void
-    var from: SKCLayoutPlugins.DecorationItem { get }
-    var to: SKCLayoutPlugins.DecorationItem?  { get }
-    var viewType: View.Type { get }
-    var insets: UIEdgeInsets { get }
-    var zIndex: Int { get }
-    var actions: [SKCSupplementaryActionType: [ActionBlock]] { get set }
-}
-
-public extension SKCLayoutDecorationPlugin {
-    
-    func apply(to layout: UICollectionViewFlowLayout) {
-        if let nib = viewType.nib {
-            layout.register(nib, forDecorationViewOfKind: viewType.identifier)
-        } else {
-            layout.register(viewType.self, forDecorationViewOfKind: viewType.identifier)
-        }
-    }
-    
-    @discardableResult
-    func onAction(_ kind: SKCSupplementaryActionType, block: @escaping ActionBlock) -> Self {
-        if actions[kind] == nil {
-            actions[kind] = []
-        }
-        actions[kind]?.append(block)
-        return self
-    }
-    
-    func apply(kind: SKCSupplementaryActionType,
-               identifier: String,
-               at indexPath: IndexPath,
-               view: UICollectionReusableView) {
-        guard from.index.wrappedValue == indexPath.section,
-              viewType.identifier == identifier,
-              let actions = actions[kind],
-              !actions.isEmpty,
-              let view = view as? View else {
-            return
-        }
-        let context = SKCLayoutPlugins.DecorationActionContext(type: kind,
-                                                               kind: .init(rawValue: identifier),
-                                                               indexPath: indexPath,
-                                                               view: view)
-        
-        for action in actions {
-            action(context)
-        }
-    }
-    
-}
-
 public extension SKCLayoutPlugins {
-    
-    typealias DecorationView = UICollectionReusableView & SKLoadViewProtocol
-    
-    struct DecorationActionContext<View: DecorationView> {
-        public let type: SKCSupplementaryActionType
-        public let kind: SKSupplementaryKind
-        public let indexPath: IndexPath
-        public let view: View
-    }
-    
-    enum DecorationLayout {
-        case header
-        case cells
-        case footer
-    }
-    
-    enum DecorationMode {
-        /// 按照可视视图区域计算
-        case visibleView
-        /// 按照原始的 section 区域计算
-        case section
-        /// 没有头尾时用sectioninset填充
-        case useSectionInsetWhenNotExist(_ layout: [DecorationLayout] = [.header, .footer])
-        
-    }
-    
-    struct DecorationItem {
-        
-        public let index: BindingKey<Int>
-        public let layout: [DecorationLayout]
-        public let modes: [DecorationMode]
-        
-        public init(index: BindingKey<Int>,
-                    modes: [DecorationMode] = [.visibleView],
-                    layout: [DecorationLayout] = [.header, .cells, .footer]) {
-            self.index  = index
-            self.modes  = modes
-            self.layout = layout
-            
-#if DEBUG
-            var useSectionInsetWhenNotExist = false
-            var visibleViewOrSection = false
-            self.modes.forEach({ mode in
-                switch mode {
-                case .visibleView, .section:
-                    visibleViewOrSection = true
-                case .useSectionInsetWhenNotExist:
-                    useSectionInsetWhenNotExist = true
-                }
-            })
-            
-            if useSectionInsetWhenNotExist, visibleViewOrSection == false {
-                assertionFailure("需要指定 .visibleView 或者 .section")
-            }
-#endif
-        }
-        
-        public init(_ section: SKCSectionProtocol,
-                    modes: [DecorationMode] = [.visibleView],
-                    layout: [DecorationLayout] = [.header, .cells, .footer]) {
-            self.init(index: .init(section), modes: modes, layout: layout)
-        }
-    }
-    
-    struct AnyDecoration {
-        
-        let wrapperValue: any SKCLayoutDecorationPlugin
-        
-        public init<View: DecorationView>(_ section: SKCSectionActionProtocol,
-                                          viewType: View.Type,
-                                          zIndex: Int = -1,
-                                          layout: [SKCollectionFlowLayout.DecorationLayout] = [.header, .cells, .footer],
-                                          insets: UIEdgeInsets = .zero) {
-            self.init(sectionIndex: .init(section),
-                      viewType: viewType,
-                      zIndex: zIndex,
-                      layout: layout,
-                      insets: insets)
-        }
-        
-        public init<View: DecorationView>(section: SKCSectionProtocol,
-                                          viewType: View.Type,
-                                          mode: [DecorationMode] = [.visibleView],
-                                          zIndex: Int = -1,
-                                          layout: [DecorationLayout] = [.header, .cells, .footer],
-                                          insets: UIEdgeInsets = .zero) {
-            wrapperValue = Decoration<View>(from: .init(index: .init(section), modes: mode, layout: layout),
-                                            to: nil,
-                                            insets: insets,
-                                            zIndex: zIndex)
-        }
-        
-        public init<View: DecorationView>(sectionIndex: BindingKey<Int>,
-                                          viewType: View.Type,
-                                          modes: [DecorationMode] = [.visibleView],
-                                          zIndex: Int = -1,
-                                          layout: [DecorationLayout] = [.header, .cells, .footer],
-                                          insets: UIEdgeInsets = .zero) {
-            wrapperValue = Decoration<View>(from: .init(index: sectionIndex, modes: modes, layout: layout),
-                                            to: nil,
-                                            insets: insets,
-                                            zIndex: zIndex)
-        }
-        
-        public init<View: DecorationView>(from: DecorationItem, to: DecorationItem?,
-                                          viewType: View.Type,
-                                          zIndex: Int = -1,
-                                          insets: UIEdgeInsets = .zero) {
-            wrapperValue = Decoration<View>(from: from,
-                                            to: to,
-                                            insets: insets,
-                                            zIndex: zIndex)
-        }
-    }
-    
-    class Decoration<View: DecorationView>: SKCLayoutDecorationPlugin {
-        
-        public let from: DecorationItem
-        public let to: DecorationItem?
-        public let viewType: View.Type
-        public let insets: UIEdgeInsets
-        public let zIndex: Int
-        public var actions: [SKCSupplementaryActionType : [ActionBlock]] = [:]
-        
-        public init(from: DecorationItem, to: DecorationItem?,
-                    insets: UIEdgeInsets,
-                    zIndex: Int,
-                    actions: [SKCSupplementaryActionType : [ActionBlock]] = [:]) {
-            self.from = from
-            self.to = to
-            self.viewType = View.self
-            self.insets = insets
-            self.zIndex = zIndex
-            self.actions = actions
-        }
-    }
-    
-    class BindingKey<Value> {
-        
-        private let closure: () -> Value?
-        public var wrappedValue: Value? { closure() }
-        
-        public init(get closure: @escaping () -> Value?) {
-            self.closure = closure
-        }
-        
-    }
-    
+                
     struct Decorations: SKCLayoutPlugin {
         
         let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
@@ -253,7 +53,7 @@ public extension SKCLayoutPlugins {
             }
             
             var all: [Int: [any SKCLayoutDecorationPlugin]]?
-            if let wrappedValue = BindingKey<Int>.all.wrappedValue {
+            if let wrappedValue = SKBindingKey<Int>.all.wrappedValue {
                 all = dict[wrappedValue]
             }
             
@@ -278,11 +78,11 @@ public extension SKCLayoutPlugins {
             
         }
         
-        func frame(for item: DecorationItem, at section: IndexPath) -> CGRect? {
+        func frame(for item: SKCLayoutDecoration.Item, at section: IndexPath) -> CGRect? {
             guard let layout else { return nil }
             
-            var supplementaryMode: DecorationMode?
-            var sectionInsetPaddingWhenLayout: [DecorationLayout] = []
+            var supplementaryMode: SKCLayoutDecoration.Mode?
+            var sectionInsetPaddingWhenLayout: [SKCLayoutDecoration.Layout] = []
             
             for mode in item.modes {
                 switch mode {
@@ -305,7 +105,7 @@ public extension SKCLayoutPlugins {
                 }
             }
             
-            func inset(_ layout: DecorationLayout) -> CGFloat {
+            func inset(_ layout: SKCLayoutDecoration.Layout) -> CGFloat {
                 guard !sectionInsetPaddingWhenLayout.isEmpty else { return 0 }
                 let insets = insetForSection(at: section.section)
                 switch layout {
@@ -319,7 +119,7 @@ public extension SKCLayoutPlugins {
             }
             
             var frames = [CGRect]()
-            var unions = [DecorationLayout]()
+            var unions = [SKCLayoutDecoration.Layout]()
             
             if item.layout.contains(.header),
                let attributes = supplementary(of: UICollectionView.elementKindSectionHeader),
@@ -391,26 +191,4 @@ public extension SKCLayoutPlugins {
         
     }
     
-}
-
-public extension SKCLayoutPlugins.BindingKey {
-    static func constant(_ value: Value) -> SKCollectionFlowLayout.BindingKey<Value> {
-        .init(get: { value })
-    }
-}
-
-public extension SKCLayoutPlugins.BindingKey where Value == Int {
-    static let all = SKCollectionFlowLayout.BindingKey.constant(-1)
-}
-
-extension SKCLayoutPlugins.BindingKey: Equatable where Value: Equatable {
-    public static func == (lhs: SKCollectionFlowLayout.BindingKey<Value>, rhs: SKCollectionFlowLayout.BindingKey<Value>) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
-    }
-}
-
-extension SKCLayoutPlugins.BindingKey: Hashable where Value: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(closure())
-    }
 }

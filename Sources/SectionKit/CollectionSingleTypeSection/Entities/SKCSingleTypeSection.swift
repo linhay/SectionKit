@@ -14,7 +14,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias SectionBlock<Return>               = (_ section: SKCSingleTypeSection<Cell>) -> Return
     public typealias ContextBlock<Context, Return>      = (_ context: Context) -> Return
     public typealias AsyncContextBlock<Context, Return> = @MainActor (_ context: Context) async throws -> Return
-
+    
     public typealias CellStyleBox = SKIDBox<UUID, CellStyleBlock>
     
     public typealias LoadedBlock       = SectionBlock<Void>
@@ -122,7 +122,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         }
     }
     
-    public class SKCManagerPublishers {
+    public final class SKCSingleTypePublishers {
         
         public var modelsCancellable: AnyCancellable?
         
@@ -142,7 +142,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         fileprivate var cellActionSubject: PassthroughSubject<CellActionContext, Never>?
         fileprivate var supplementaryActionSubject: PassthroughSubject<SupplementaryActionContext, Never>?
         
-        func deferred<Output, Failure: Error>(bind: WritableKeyPath<SKCManagerPublishers, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
+        func deferred<Output, Failure: Error>(bind: WritableKeyPath<SKCSingleTypePublishers, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
             return Deferred { [weak self] in
                 guard var self = self else {
                     return PassthroughSubject<Output, Failure>()
@@ -198,7 +198,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open lazy var minimumInteritemSpacing: CGFloat = .zero
     open var itemCount: Int { models.count }
     
-    public private(set) lazy var publishers = SKCManagerPublishers()
+    public private(set) lazy var publishers = SKCSingleTypePublishers()
     var highPerformance: SKHighPerformanceStore<String>?
     var highPerformanceID: HighPerformanceIDBlock?
     
@@ -602,7 +602,7 @@ public extension SKCSingleTypeSection {
                 }
                 sectionView.deleteItems(at: rows.map(indexPath(from:)))
             } completion: { flag in
-                self.sectionInjection?.reload(cell: (rows.min()!..<self.models.count))
+                self.sectionInjection?.reload(cell: Array((rows.min()!..<self.models.count)))
             }
         } else {
             rows.sorted(by: >).forEach { index in

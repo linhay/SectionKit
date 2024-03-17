@@ -29,6 +29,11 @@ public class SKCManagerPublishers {
 
 public class SKCManager {
     
+    public struct Converts {
+        public typealias Convert<T> = (_ manager: SKCManager, _ item: T) -> T
+        public var sectionInjection = [Convert<SKCSectionInjection>]()
+    }
+    
     public struct Configuration {
         /// 将 reloadSections 操作替换为 reloadData 操作
         public var replaceReloadWithReloadData = false
@@ -37,9 +42,10 @@ public class SKCManager {
         /// 将 deleteSections 操作替换为 reloadData 操作
         public var replaceDeleteWithReloadData = false
     }
-
+    
     public static var configuration = Configuration()
     public var configuration = SKCManager.configuration
+    public var converts = Converts()
     public private(set) lazy var publishers = SKCManagerPublishers()
     public private(set) weak var sectionView: UICollectionView?
     public var sections: [SKCBaseSectionProtocol] { publishers.sections }
@@ -99,14 +105,14 @@ public extension SKCManager {
     }
     
     func append(_ input: SKCBaseSectionProtocol) { append([input]) }
-
+    
     func delete(_ input: SKCBaseSectionProtocol) { remove(input) }
     func delete(_ input: [SKCBaseSectionProtocol]) { remove(input) }
     
     func remove(_ input: SKCBaseSectionProtocol) { remove([input]) }
     func remove(_ input: [SKCBaseSectionProtocol]) {
         guard !input.isEmpty else { return }
-
+        
         var inputs   = Set(input.map(ObjectIdentifier.init))
         var indexs   = IndexSet()
         var sections = [SKCBaseSectionProtocol]()
@@ -187,11 +193,11 @@ private extension SKCManager {
     
     /// 安全自检
     func security(check sections: @autoclosure () -> [SKCBaseSectionProtocol]) {
-        #if DEBUG
+#if DEBUG
         for section in sections() {
             assert(section.sectionInjection != nil)
         }
-        #endif
+#endif
     }
     
     func offset(sections: [SKCBaseSectionProtocol], start: Int) -> [SKCBaseSectionProtocol] {
@@ -207,26 +213,12 @@ private extension SKCManager {
         return sections.enumerated().map({ element in
             let section = element.element
             let offset = element.offset
-
-            section.sectionInjection = .init(index: start + offset, sectionView: context)
-                .add(action: .reloadData, event: { injection in
-                    injection.sectionView?.reloadData()
-                })
-                .add(action: .reload, event: { injection in
-                    /**
-                     可以使用以下方式将 reloadSection 全局替换成 reloadData
-                     SKCSectionInjection.configuration.setMapAction { action in
-                     if action == .reload {
-                     return .reloadData
-                     }
-                     return action
-                     }
-                     */
-                    injection.sectionView?.reloadSections(IndexSet(integer: injection.index))
-                })
-                .add(action: .delete, event: { injection in
-                    injection.sectionView?.deleteSections(IndexSet(integer: injection.index))
-                })
+            
+            section.sectionInjection = converts
+                .sectionInjection
+                .reduce(into: .init(index: start + offset, sectionView: context)) { result, convert in
+                    result = convert(self, result)
+                }
             
             if let sectionView = context.sectionView {
                 section.config(sectionView: sectionView)
@@ -234,7 +226,7 @@ private extension SKCManager {
             return section
         })
     }
-
+    
 }
 
 #endif

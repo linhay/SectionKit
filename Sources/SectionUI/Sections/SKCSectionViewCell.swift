@@ -11,9 +11,9 @@ import SectionKit
 
 public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SKCDelegateProtocol {
     
-    func wrapperToHorizontalSectionViewCell(height: CGFloat? = nil,
-                                            insets: UIEdgeInsets = .zero,
-                                            style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
+    func wrapperToHorizontalSection(height: CGFloat,
+                                    insets: UIEdgeInsets = .zero,
+                                    style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
         SKCSectionViewCell
             .wrapperToSingleTypeSection([.init(section: .normal([self]),
                                                height: height,
@@ -24,6 +24,13 @@ public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SK
                 style?(sectionView, self)
             })])
         
+    }
+    
+    @available(*, deprecated, renamed: "wrapperToHorizontalSection", message: "调整命名")
+    func wrapperToHorizontalSectionViewCell(height: CGFloat? = nil,
+                                            insets: UIEdgeInsets = .zero,
+                                            style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
+        self.wrapperToHorizontalSection(height: height ?? .zero, insets: insets, style: style)
     }
     
 }

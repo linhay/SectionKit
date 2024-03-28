@@ -47,6 +47,11 @@ open class SKCollectionViewController: UIViewController {
         layout(anchor1: sectionView.leftAnchor, anchor2: safeArea.leftAnchor)
     }
     
+    open override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        sectionView.collectionViewLayout.invalidateLayout()
+    }
+    
     override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 #if targetEnvironment(macCatalyst)

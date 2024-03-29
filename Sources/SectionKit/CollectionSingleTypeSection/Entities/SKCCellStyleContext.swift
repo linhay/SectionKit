@@ -12,13 +12,21 @@ public struct SKCCellStyleContext<Cell: UICollectionViewCell & SKConfigurableVie
     public let section: SKCSingleTypeSection<Cell>
     public let model: Cell.Model
     public let row: Int
-    public let view: Cell
+    let _view: SKWeakBox<Cell>
+    
+    public var view: Cell {
+        guard let view = _view.value else {
+            assertionFailure()
+            return .init(frame: .zero)
+        }
+        return view
+    }
     
     init(section: SKCSingleTypeSection<Cell>, model: Cell.Model, row: Int, view: Cell) {
         self.row = row
         self.model = model
         self.section = section
-        self.view = view
+        self._view = .init(view)
     }
     
 }

@@ -73,7 +73,6 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
     
     struct PluginsStore {
         var decorations: SKCLayoutPlugins.Decorations?
-        var sectionHeadersPinToVisibleBounds: SKCLayoutPlugins.SectionHeadersPinToVisibleBounds?
     }
     
     private lazy var oldBounds = CGRect.zero
@@ -98,12 +97,6 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         layoutStore = .init(attributes: [])
         oldBounds = collectionView.bounds
     }
-    
-    override open func invalidationContext(forBoundsChange newBounds: CGRect) -> UICollectionViewLayoutInvalidationContext {
-        let context = super.invalidationContext(forBoundsChange: newBounds)
-        pluginsStore.sectionHeadersPinToVisibleBounds?.invalidationContext(context: context, forBoundsChange: newBounds)
-        return context
-    }
 
     override open func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         defer { layoutTempStore = nil }
@@ -120,19 +113,16 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         var fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
         for mode in modes {
             switch mode {
-            case .sectionHeadersPinToVisibleBounds(let elements):
-                if pluginsStore.sectionHeadersPinToVisibleBounds == nil {
-                    pluginsStore.sectionHeadersPinToVisibleBounds = .init(layout: self, elements: elements)
-                }
-                attributes = pluginsStore.sectionHeadersPinToVisibleBounds?.run(with: attributes) ?? []
             case .fixSupplementaryViewSize:
                 attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: .excluding([])).run(with: attributes) ?? []
             case .adjustSupplementaryViewSize(let condition):
                 attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: condition).run(with: attributes) ?? []
-            case .centerX:
-                attributes = SKCLayoutPlugins.CenterX(layout: self).run(with: attributes) ?? []
-            case .left:
-                attributes = SKCLayoutPlugins.Left(layout: self).run(with: attributes) ?? []
+            case .centerX(let elements):
+                attributes = SKCLayoutPlugins.CenterX(layout: self,
+                                                      sections: elements).run(with: attributes) ?? []
+            case .left(let elements):
+                attributes = SKCLayoutPlugins.Left(layout: self, sections: elements)
+                    .run(with: attributes) ?? []
             case let .fixSupplementaryViewInset(direction):
                 fixSupplementaryViewInset = SKCLayoutPlugins.FixSupplementaryViewInset(layout: self, direction: direction)
                 attributes = fixSupplementaryViewInset?.run(with: attributes) ?? []
@@ -176,8 +166,6 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         } else {
             attributes = super.layoutAttributesForSupplementaryView(ofKind: supplementary, at: indexPath)
         }
-        guard let attributes = attributes else { return attributes }
-        pluginsStore.sectionHeadersPinToVisibleBounds?.layoutAttributesForSupplementaryView(ofKind: supplementary, at: indexPath, with: attributes)
         return attributes
     }
     
@@ -189,7 +177,6 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         oldBounds.size != newBounds.size 
         || sectionHeadersPinToVisibleBounds
         || sectionFootersPinToVisibleBounds
-        || pluginsStore.sectionHeadersPinToVisibleBounds != nil
     }
 }
 #endif

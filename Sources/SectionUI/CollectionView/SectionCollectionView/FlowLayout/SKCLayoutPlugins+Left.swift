@@ -13,9 +13,11 @@ extension SKCLayoutPlugins {
     struct Left: SKCLayoutPlugin {
         
         let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
+        let sections: [SKBindingKey<Int>]
         
-        init(layout: SKCollectionFlowLayout) {
+        init(layout: SKCollectionFlowLayout, sections: [SKBindingKey<Int>]) {
             self.layoutWeakBox = .init(layout)
+            self.sections = sections
         }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
@@ -29,8 +31,14 @@ extension SKCLayoutPlugins {
                 return attributes
             }
             
-            var list = [UICollectionViewLayoutAttributes]()
-            var section = [UICollectionViewLayoutAttributes]()
+            var list     = [UICollectionViewLayoutAttributes]()
+            var section  = [UICollectionViewLayoutAttributes]()
+            
+            var attributes = attributes
+            let sections = Set(self.sections.compactMap(\.wrappedValue))
+            if !sections.isEmpty {
+                attributes = attributes.filter({ sections.contains($0.indexPath.section) })
+            }
             
             for item in attributes {
                 guard item.representedElementCategory == .cell else {

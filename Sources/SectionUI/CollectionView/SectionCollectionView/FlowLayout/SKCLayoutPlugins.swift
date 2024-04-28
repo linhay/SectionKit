@@ -11,25 +11,18 @@ public struct SKCLayoutPlugins {
     
     /// 布局插件样式
     public enum Mode: Equatable {
-        
         /// 左对齐
-        case left
+        case left([SKBindingKey<Int>])
         /// 居中对齐
-        case centerX
+        case centerX([SKBindingKey<Int>])
         /// fix: header & footer 贴合 cell
         case fixSupplementaryViewInset(FixSupplementaryViewInset.Direction)
-        /// fix: header & footer size与设定值不符
+        /// fix: header & footer size 与设定值不符
         case fixSupplementaryViewSize
         /// fix: header & footer 调整尺寸, 调整前会重置为真实设定尺寸
         case adjustSupplementaryViewSize(FixSupplementaryViewSize.Condition)
-        /// 置顶section header view
-        case sectionHeadersPinToVisibleBounds([SKBindingKey<Int>])
         /// section 装饰视图
         case decorations([any SKCLayoutDecorationPlugin])
-        
-        public static func sectionHeadersPinToVisibleBounds(_ key: SKBindingKey<Int>) -> Mode {
-            return .sectionHeadersPinToVisibleBounds([key])
-        }
         
         var priority: Int {
             switch self {
@@ -39,7 +32,6 @@ public struct SKCLayoutPlugins {
             case .fixSupplementaryViewInset:   return 2
             case .adjustSupplementaryViewSize: return 3
             case .decorations: return 200
-            case .sectionHeadersPinToVisibleBounds: return 300
             }
         }
         
@@ -65,14 +57,15 @@ public struct SKCLayoutPlugins {
     func sort(modes: [Mode]) -> [Mode] {
         var set = Set<Int>()
         var newModes = [Mode]()
-        var sectionHeadersPinToVisibleBounds = [SKBindingKey<Int>]()
+        
+        var lefts = [SKBindingKey<Int>]()
+        var centerXs = [SKBindingKey<Int>]()
         var decorations = [any SKCLayoutDecorationPlugin]()
 
         /// 优先级冲突去重
         for mode in modes {
             switch mode {
-            case .left,
-                    .centerX,
+            case .centerX,
                     .fixSupplementaryViewInset,
                     .fixSupplementaryViewSize,
                     .adjustSupplementaryViewSize:
@@ -81,15 +74,21 @@ public struct SKCLayoutPlugins {
                 } else {
                     assertionFailure("mode冲突: \(newModes.filter { $0.priority == mode.priority })")
                 }
-            case .sectionHeadersPinToVisibleBounds(let array):
-                sectionHeadersPinToVisibleBounds.append(contentsOf: array)
+            case .centerX(let array):
+                centerXs.append(contentsOf: array)
+            case .left(let array):
+                lefts.append(contentsOf: array)
             case .decorations(let array):
                 decorations.append(contentsOf: array)
             }
         }
+
+        if !lefts.isEmpty {
+            newModes.append(.left(lefts))
+        }
         
-        if !sectionHeadersPinToVisibleBounds.isEmpty {
-            newModes.append(.sectionHeadersPinToVisibleBounds(sectionHeadersPinToVisibleBounds))
+        if !centerXs.isEmpty {
+            newModes.append(.centerX(centerXs))
         }
         
         if !decorations.isEmpty {
@@ -105,6 +104,9 @@ public struct SKCLayoutPlugins {
 
 public extension SKCLayoutPlugins.Mode {
     
+    static var left: SKCLayoutPlugins.Mode { .left([]) }
+    static var centerX: SKCLayoutPlugins.Mode { .centerX([]) }
+
     static func decorations(_ decoration: [SKCLayoutAnyDecoration]) -> SKCLayoutPlugins.Mode {
         .decorations(decoration.map(\.wrapperValue))
     }

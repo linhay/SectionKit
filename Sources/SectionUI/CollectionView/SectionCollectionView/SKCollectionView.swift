@@ -90,10 +90,13 @@ public extension SKCollectionView {
     
     func collectSectionLayoutPlugins() -> [SKCLayoutPlugins.Mode] {
         manager.sections
-            .compactMap({ $0 as? SKCSectionLayoutPluginProtocol })
-            .map(\.plugins)
+            .compactMap({ $0 as? (SKCSectionLayoutPluginProtocol & SKCSectionActionProtocol) })
+            .map({ section in
+                section.plugins.map { plugin in
+                    plugin.convert(section)
+                }
+            })
             .flatMap({ $0 })
-            .map(\.convert)
     }
     /// 布局插件
     /// - Parameter pluginModes: 样式

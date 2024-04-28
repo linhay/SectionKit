@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2023/10/13.
 //
@@ -9,39 +9,48 @@ import UIKit
 import SectionKit
 
 extension SKCLayoutPlugins {
-  
+    
     struct CenterX: SKCLayoutPlugin {
         
         var layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
-        init(layout: SKCollectionFlowLayout) {
+        let sections: [SKBindingKey<Int>]
+        
+        init(layout: SKCollectionFlowLayout, sections: [SKBindingKey<Int>]) {
             self.layoutWeakBox = .init(layout)
+            self.sections = sections
         }
-
+        
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
-                var lineStore = [UICollectionViewLayoutAttributes]()
-                var list = [UICollectionViewLayoutAttributes]()
-                
-                for item in attributes {
-                    guard item.representedElementCategory == .cell else {
-                        list.append(item)
-                        continue
-                    }
-                    
-                    if lineStore.isEmpty {
-                        lineStore.append(item)
-                    } else if let lastItem = lineStore.last,
-                              lastItem.indexPath.section == item.indexPath.section,
-                              lastItem.frame.minY == item.frame.minY
-                    {
-                        lineStore.append(item)
-                    } else {
-                        list.append(contentsOf: appendLine(lineStore))
-                        lineStore = [item]
-                    }
+            var lineStore = [UICollectionViewLayoutAttributes]()
+            var list = [UICollectionViewLayoutAttributes]()
+            
+            var attributes = attributes
+            let sections = Set(self.sections.compactMap(\.wrappedValue))
+            if !sections.isEmpty {
+                attributes = attributes.filter({ sections.contains($0.indexPath.section) })
+            }
+            
+            for item in attributes {
+                guard item.representedElementCategory == .cell else {
+                    list.append(item)
+                    continue
                 }
                 
-                list.append(contentsOf: appendLine(lineStore))
-                return list
+                if lineStore.isEmpty {
+                    lineStore.append(item)
+                } else if let lastItem = lineStore.last,
+                          lastItem.indexPath.section == item.indexPath.section,
+                          lastItem.frame.minY == item.frame.minY
+                {
+                    lineStore.append(item)
+                } else {
+                    list.append(contentsOf: appendLine(lineStore))
+                    lineStore = [item]
+                }
+            }
+            
+            list.append(contentsOf: appendLine(lineStore))
+            return list
         }
         
         private func appendLine(_ lineStore: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes] {

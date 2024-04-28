@@ -30,6 +30,7 @@ public extension SKBindingKey {
 }
 
 public extension SKBindingKey where Value == Int {
+    
     static let all = SKBindingKey.constant(-1)
     
     init(_ section: SKCSectionActionProtocol) {

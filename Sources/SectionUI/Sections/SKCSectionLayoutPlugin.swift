@@ -9,9 +9,17 @@ import UIKit
 import SectionKit
 
 public enum SKCSectionLayoutPlugin {
+    
     case decorations([any SKCLayoutDecorationPlugin])
-    public var convert: SKCLayoutPlugins.Mode {
+    case left
+    case centerX
+
+    public func convert(_ section: SKCSectionActionProtocol) -> SKCLayoutPlugins.Mode {
         switch self {
+        case .left:
+            return .left([.init(section)])
+        case .centerX:
+            return .centerX([.init(section)])
         case .decorations(let array):
             return .decorations(array)
         }
@@ -31,19 +39,40 @@ extension SKCSingleTypeSection: SKCSectionLayoutPluginProtocol {
         get { self.environment(of: [SKCSectionLayoutPlugin].self) ?? [] }
     }
     
-    public typealias DecorationViewStyle<View: SKCDecorationView> = ((_ decoration: SKCLayoutDecoration.Entity<View>) -> Void)
+}
+
+public extension SKCSingleTypeSection {
     
-    public func set<View: SKCDecorationView>(decoration: View.Type,
-                                             style: DecorationViewStyle<View>? = nil) -> Self {
+    func addLayoutPlugins(_ value: SKCSectionLayoutPlugin...) -> Self {
+        return addLayoutPlugins(value)
+    }
+    
+    func addLayoutPlugins(_ value: SKCSectionLayoutPlugin) -> Self {
+        return addLayoutPlugins([value])
+    }
+    
+    func addLayoutPlugins(_ value: [SKCSectionLayoutPlugin]) -> Self {
+        plugins.append(contentsOf: value)
+        return self
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    typealias DecorationViewStyle<View: SKCDecorationView> = ((_ decoration: SKCLayoutDecoration.Entity<View>) -> Void)
+    
+    func set<View: SKCDecorationView>(decoration: View.Type,
+                                      style: DecorationViewStyle<View>? = nil) -> Self {
         let decoration = SKCLayoutDecoration.Entity<View>(from: .init(self))
         style?(decoration)
         plugins.append(.decorations([decoration]))
         return self
     }
     
-    public func set<View: SKCDecorationView & SKConfigurableModelProtocol>(decoration: View.Type,
-                                                                           model: View.Model,
-                                                                           style: DecorationViewStyle<View>? = nil) -> Self {
+    func set<View: SKCDecorationView & SKConfigurableModelProtocol>(decoration: View.Type,
+                                                                    model: View.Model,
+                                                                    style: DecorationViewStyle<View>? = nil) -> Self {
         return set(decoration: decoration) { decoration in
             decoration.onAction(.willDisplay) { context in
                 context.view.config(model)

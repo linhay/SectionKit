@@ -21,9 +21,11 @@
 // SOFTWARE.
 
 import Combine
+import Foundation
 
-public class SKSelectionState: Equatable {
+public class SKSelectionState: Equatable, Hashable, Identifiable {
     
+    public let id: UUID = .init()
     // 返回一个 AnyPublisher，用于订阅选中状态、选择能力、可用性的变化
     public var changedPublisher: AnyPublisher<SKSelectionState, Never> {
         Publishers
@@ -55,9 +57,7 @@ public class SKSelectionState: Equatable {
     
     // 判断两个 SKSelectionState 是否相等
     public static func == (lhs: SKSelectionState, rhs: SKSelectionState) -> Bool {
-        return lhs.isSelected == rhs.isSelected
-            && lhs.canSelect == rhs.canSelect
-            && lhs.isEnabled == rhs.isEnabled
+        return lhs.id == rhs.id
     }
     
     // 是否被选中
@@ -104,6 +104,10 @@ public class SKSelectionState: Equatable {
             return subject.eraseToAnyPublisher()
         }
         .eraseToAnyPublisher()
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
     
 }

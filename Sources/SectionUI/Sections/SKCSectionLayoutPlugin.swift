@@ -27,9 +27,9 @@ public enum SKCSectionLayoutPlugin {
     
 }
 
-public protocol SKCSectionLayoutPluginProtocol {
+public protocol SKCSectionLayoutPluginProtocol: AnyObject {
     var sectionInjection: SKCSectionInjection? { get set }
-    var plugins: [SKCSectionLayoutPlugin] { get }
+    var plugins: [SKCSectionLayoutPlugin] { get set }
 }
 
 extension SKCSingleTypeSection: SKCSectionLayoutPluginProtocol {
@@ -41,7 +41,7 @@ extension SKCSingleTypeSection: SKCSectionLayoutPluginProtocol {
     
 }
 
-public extension SKCSingleTypeSection {
+public extension SKCSectionLayoutPluginProtocol {
     
     func addLayoutPlugins(_ value: SKCSectionLayoutPlugin...) -> Self {
         return addLayoutPlugins(value)
@@ -58,10 +58,11 @@ public extension SKCSingleTypeSection {
     
 }
 
-public extension SKCSingleTypeSection {
+public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
     
     typealias DecorationViewStyle<View: SKCDecorationView> = ((_ decoration: SKCLayoutDecoration.Entity<View>) -> Void)
     
+    @discardableResult
     func set<View: SKCDecorationView>(decoration: View.Type,
                                       style: DecorationViewStyle<View>? = nil) -> Self {
         let decoration = SKCLayoutDecoration.Entity<View>(from: .init(self))
@@ -70,6 +71,7 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+    @discardableResult
     func set<View: SKCDecorationView & SKConfigurableModelProtocol>(decoration: View.Type,
                                                                     model: View.Model,
                                                                     style: DecorationViewStyle<View>? = nil) -> Self {

@@ -31,14 +31,14 @@ public extension SKBindingKey {
 
 public extension SKBindingKey where Value == Int {
     
-    static let all = SKBindingKey.constant(-1)
+    static let all = SKBindingKey.constant(-1132123)
     
-    init(_ section: SKCSectionActionProtocol) {
+    init(_ section: SKCSectionActionProtocol, offset: Int = 0) {
         self.init(get: { [weak section] in
             guard let section = section, let injection = section.sectionInjection else {
                 return nil
             }
-            return injection.index
+            return injection.index + offset
         })
     }
 }

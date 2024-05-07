@@ -128,7 +128,6 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
     }
     
     private func initialize() {
-        translatesAutoresizingMaskIntoConstraints = false
         sectionView.translatesAutoresizingMaskIntoConstraints = false
         sectionView.backgroundColor = .clear
         contentView.addSubview(sectionView)

@@ -16,6 +16,7 @@ public class SKSectionKit {
     
     public struct Options {
         /// 当承载视图 size 为0时禁用刷新
+        @available(*, deprecated, message: "已不再使用")
         public var disableReloadWhenViewSizeIsZero = true
     }
     

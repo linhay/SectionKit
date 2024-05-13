@@ -37,45 +37,33 @@ public extension SKCLayoutPlugins {
         }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
-            var dict = [Int: [Int: [any SKCLayoutDecorationPlugin]]](minimumCapacity: decorations.count)
-            decorations.forEach { item in
-                if let value = item.from.index.wrappedValue {
-                    if dict[value] == nil {
-                        dict[value] = [:]
+            var current_sections = attributes.map(\.indexPath.section).sorted()
+            var section_offset = [Int: Int]()
+            var attributes = attributes
+            
+            for decoration in decorations {
+                if decoration.from.index == .all {
+                    for current_section in current_sections {
+                        let offset = section_offset[current_section] ?? 0
+                        if let attribute = task(section: current_section,
+                                                index: offset,
+                                                decoration: decoration) {
+                            section_offset[current_section] = offset + 1
+                            attributes.append(attribute)
+                        }
                     }
-                    
-                    if dict[value]?[item.zIndex] == nil {
-                        dict[value]?[item.zIndex] = [item]
-                    } else {
-                        dict[value]?[item.zIndex]?.append(item)
+                } else if let indexRange = decoration.indexRange {
+                    let offset = section_offset[indexRange.lowerBound] ?? 0
+                    if let attribute = task(section: indexRange.lowerBound,
+                                            index: offset,
+                                            decoration: decoration) {
+                        section_offset[indexRange.lowerBound] = offset + 1
+                        attributes.append(attribute)
                     }
                 }
             }
-            
-            var all: [Int: [any SKCLayoutDecorationPlugin]]?
-            if let wrappedValue = SKBindingKey<Int>.all.wrappedValue {
-                all = dict[wrappedValue]
-            }
-            
-            var set = Set<Int>()
-            let sections = attributes
-                .map(\.indexPath.section)
-                .filter { set.insert($0).inserted }
-                .map { index -> [UICollectionViewLayoutAttributes] in
-                    guard let decorations = dict[index] ?? all else {
-                        return [UICollectionViewLayoutAttributes]()
-                    }
-                    return decorations
-                        .sorted(by: { $0.key < $1.key })
-                        .compactMap { (zIndex: Int, list: [any SKCLayoutDecorationPlugin]) in
-                            list.enumerated().compactMap { (offset, decoration) in
-                                task(section: index, index: offset, decoration: decoration)
-                            }
-                        }.flatMap({ $0 })
-                }.flatMap { $0 }
-            
-            return attributes + sections
-            
+        
+            return attributes
         }
         
         func frame(for item: SKCLayoutDecoration.Item, at section: IndexPath) -> CGRect? {

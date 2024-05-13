@@ -21,6 +21,16 @@ public protocol SKCLayoutDecorationPlugin: AnyObject {
 
 public extension SKCLayoutDecorationPlugin {
     
+    var indexRange: ClosedRange<Int>? {
+        if let from = from.index.wrappedValue, let to = to?.index.wrappedValue {
+            return min(from, to)...max(to, to)
+        } else if let from = from.index.wrappedValue {
+            return from...from
+        } else {
+            return nil
+        }
+    }
+    
     func apply(to layout: UICollectionViewFlowLayout) {
         if let nib = viewType.nib {
             layout.register(nib, forDecorationViewOfKind: viewType.identifier)

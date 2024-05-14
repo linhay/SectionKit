@@ -48,7 +48,6 @@ struct SKScrollViewDelegateObserverBox: SKScrollViewDelegateObserverProtocol {
     }
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView, value: Bool) {
         _ = target?.scrollViewShouldScrollToTop?(scrollView)
-        assertionFailure("不处理返回值")
     }
     func scrollViewDidScrollToTop(_ scrollView: UIScrollView, value: Void) {
         target?.scrollViewDidScrollToTop?(scrollView)

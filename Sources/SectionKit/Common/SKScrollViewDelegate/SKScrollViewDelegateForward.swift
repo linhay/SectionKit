@@ -40,10 +40,8 @@ public extension SKScrollViewDelegateForward {
         scrollForwards.append(item)
     }
     
-    /// 对 2.1.0 以下版本兼容处理
-    @available(*, deprecated, message: "调整为 SKScrollViewDelegateObserverProtocol")
     func add(_ item: UIScrollViewDelegate) {
-        add(SKScrollViewDelegateObserverBox.init(box: .init(item)))
+        add(SKScrollViewDelegateObserverBox(box: .init(item)))
     }
     
     func add(_ item: SKScrollViewDelegateObserverProtocol) {

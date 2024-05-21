@@ -34,6 +34,17 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         case loadedToSectionView(UICollectionView)
     }
     
+    public enum ReloadKind {
+        case normal
+        case difference(by: (_ lhs: Model, _ rhs: Model) -> Bool)
+        
+        public static func difference() -> ReloadKind where Model: Equatable {
+            return .difference { lhs, rhs in
+                lhs == rhs
+            }
+        }
+    }
+    
     public enum CellActionType: Int, Hashable {
         /// 选中
         case selected
@@ -199,6 +210,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open var itemCount: Int { models.count }
     
     public private(set) lazy var publishers = SKCSingleTypePublishers()
+    public var reloadKind: ReloadKind = .normal
     var highPerformance: SKHighPerformanceStore<String>?
     var highPerformanceID: HighPerformanceIDBlock?
     
@@ -542,9 +554,36 @@ private extension SKCSingleTypeSection {
         reload([model])
     }
     
-    func reload(_ models: [Model]) {
-        self.models = models
-        sectionInjection?.reload()
+    func reload(_ models: [Model])  {
+        switch reloadKind {
+        case .difference(by: let areEquivalent):
+            self.reload(models: models, by: areEquivalent)
+        case .normal:
+            self.models = models
+            sectionInjection?.reload()
+        }
+    }
+    
+    func reload(models: [Model], by areEquivalent: (Model, Model) -> Bool) {
+        if models.isEmpty || self.models.isEmpty {
+            self.models = models
+            sectionInjection?.reload()
+            return
+        } else {
+            let difference = models.difference(from: self.models, by: areEquivalent)
+            sectionInjection?.pick({
+                for change in difference {
+                        switch change {
+                        case .remove(let offset, _, _):
+                            self.delete(offset)
+                        case .insert(let offset, let model, _):
+                            self.insert(at: offset, model)
+                        }
+                    }
+            }, completion: { flag in
+
+            })
+        }
     }
     
 }

@@ -104,8 +104,8 @@ public struct SKCLayoutPlugins {
 
 public extension SKCLayoutPlugins.Mode {
     
-    static var left: SKCLayoutPlugins.Mode { .left([]) }
-    static var centerX: SKCLayoutPlugins.Mode { .centerX([]) }
+    static var left: SKCLayoutPlugins.Mode { .left([.all]) }
+    static var centerX: SKCLayoutPlugins.Mode { .centerX([.all]) }
 
     static func decorations(_ decoration: [SKCLayoutAnyDecoration]) -> SKCLayoutPlugins.Mode {
         .decorations(decoration.map(\.wrapperValue))

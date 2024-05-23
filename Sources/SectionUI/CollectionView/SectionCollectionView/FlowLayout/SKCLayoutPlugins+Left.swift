@@ -36,10 +36,15 @@ extension SKCLayoutPlugins {
             
             var attributes = attributes
             let sections = Set(self.sections.compactMap(\.wrappedValue))
-            if !sections.isEmpty {
+            if let all = SKBindingKey<Int>.all.wrappedValue,
+               sections.contains(all) {
+                
+            } else if sections.isEmpty {
+                attributes = []
+            } else {
                 attributes = attributes.filter({ sections.contains($0.indexPath.section) })
             }
-            
+
             for item in attributes {
                 guard item.representedElementCategory == .cell else {
                     list.append(item)

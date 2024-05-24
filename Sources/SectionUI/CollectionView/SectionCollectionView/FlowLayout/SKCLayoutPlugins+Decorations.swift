@@ -164,16 +164,11 @@ public extension SKCLayoutPlugins {
                 frames.append(frame)
             }
             
-            if var to = decoration.to {
-                if to.index == .last {
-                    to.index = .constant(max(collectionView.numberOfSections - 1, 0))
-                }
-                if let section = to.index.wrappedValue,
-                   let frame = frame(for: to, at: IndexPath(item: index, section: section)) {
-                    frames.append(frame)
-                }
-            }
-            
+            if var to = decoration.to,
+               let section = to.index.wrappedValue,
+               let frame = frame(for: to, at: IndexPath(item: index, section: section)) {
+                frames.append(frame)
+            }            
             guard let frame = CGRect.union(frames)?.apply(insets: decoration.insets) else {
                 return nil
             }

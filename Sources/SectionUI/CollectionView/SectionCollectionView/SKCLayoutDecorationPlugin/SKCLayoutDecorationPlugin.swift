@@ -21,8 +21,12 @@ public protocol SKCLayoutDecorationPlugin: AnyObject {
 
 public extension SKCLayoutDecorationPlugin {
     
-    var indexRange: ClosedRange<Int>? {
-        if let from = from.index.wrappedValue, let to = to?.index.wrappedValue {
+    func indexRange(_ view: UICollectionView) -> ClosedRange<Int>? {
+        var toIndex = to?.index
+        if let index = toIndex, index == .last {
+            toIndex = .constant(max(view.numberOfSections - 1, 0))
+        }
+        if let from = from.index.wrappedValue, let to = toIndex?.wrappedValue {
             return min(from, to)...max(to, to)
         } else if let from = from.index.wrappedValue {
             return from...from

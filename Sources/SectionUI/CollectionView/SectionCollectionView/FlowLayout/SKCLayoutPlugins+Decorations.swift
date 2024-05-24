@@ -52,7 +52,7 @@ public extension SKCLayoutPlugins {
                             attributes.append(attribute)
                         }
                     }
-                } else if let indexRange = decoration.indexRange,
+                } else if let indexRange = decoration.indexRange(collectionView),
                           !Set(current_sections).intersection(indexRange).isEmpty {
                     let offset = section_offset[indexRange.lowerBound] ?? 0
                     if let attribute = task(section: indexRange.lowerBound,
@@ -68,8 +68,10 @@ public extension SKCLayoutPlugins {
         }
         
         func frame(for item: SKCLayoutDecoration.Item, at section: IndexPath) -> CGRect? {
-            guard let layout else { return nil }
-            
+            guard let layout,
+                  collectionView.numberOfSections > 0 else {
+                return nil
+            }
             var supplementaryMode: SKCLayoutDecoration.Mode?
             var sectionInsetPaddingWhenLayout: [SKCLayoutDecoration.Layout] = []
             
@@ -162,10 +164,14 @@ public extension SKCLayoutPlugins {
                 frames.append(frame)
             }
             
-            if let to = decoration.to,
-               let section = to.index.wrappedValue,
-               let frame = frame(for: to, at: IndexPath(item: index, section: section)) {
-                frames.append(frame)
+            if var to = decoration.to {
+                if to.index == .last {
+                    to.index = .constant(max(collectionView.numberOfSections - 1, 0))
+                }
+                if let section = to.index.wrappedValue,
+                   let frame = frame(for: to, at: IndexPath(item: index, section: section)) {
+                    frames.append(frame)
+                }
             }
             
             guard let frame = CGRect.union(frames)?.apply(insets: decoration.insets) else {

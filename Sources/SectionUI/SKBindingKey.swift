@@ -65,17 +65,18 @@ public extension SKBindingKey where Value == Int {
     /// - Example:
     /// ```
     /// let collectionView: UICollectionView? = ...
-    /// let relativeKey = SKBindingKey.relative(from: collectionView, \Range<Int>.first)
+    /// let relativeKey = SKBindingKey.relative(from: collectionView, \.first)
     /// print(relativeKey.wrappedValue)
     /// ```
-    static func relative(from view: UICollectionView?, _ path: KeyPath<Range<Int>, Int?>) -> Self {
+    static func relative(from view: UICollectionView?, _ task: @escaping (_ range: Range<Int>) -> Int?) -> Self {
        return .init(get: { [weak view] in
             guard let view = view else {
                 return nil
             }
-            return (0..<view.numberOfSections)[keyPath: path]
+            return task(0..<view.numberOfSections)
         })
     }
+    
     
     /// Initializes a new binding key with a section action protocol and an offset.
     /// - Parameters:

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// A type that binds a value using a closure.
 public struct SKBindingKey<Value> {

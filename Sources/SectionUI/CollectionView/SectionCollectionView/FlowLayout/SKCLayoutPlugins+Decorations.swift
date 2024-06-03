@@ -74,7 +74,8 @@ public extension SKCLayoutPlugins {
             }
             var supplementaryMode: SKCLayoutDecoration.Mode?
             var sectionInsetPaddingWhenLayout: [SKCLayoutDecoration.Layout] = []
-            
+            let insets = insetForSection(at: section.section)
+
             for mode in item.modes {
                 switch mode {
                 case .section, .visibleView:
@@ -96,17 +97,9 @@ public extension SKCLayoutPlugins {
                 }
             }
             
-            func inset(_ layout: SKCLayoutDecoration.Layout) -> CGFloat {
+            func inset(_ path: KeyPath<UIEdgeInsets, CGFloat>) -> CGFloat {
                 guard !sectionInsetPaddingWhenLayout.isEmpty else { return 0 }
-                let insets = insetForSection(at: section.section)
-                switch layout {
-                case .header:
-                    return insets.top
-                case .cells:
-                    return 0
-                case .footer:
-                    return insets.bottom
-                }
+                return insets[keyPath: path]
             }
             
             var frames = [CGRect]()
@@ -143,14 +136,18 @@ public extension SKCLayoutPlugins {
             }
             
             if !unions.contains(.header), sectionInsetPaddingWhenLayout.contains(.header) {
-                let inset = inset(.header)
+                let inset = inset(\.top)
                 frame.origin.y -= inset
                 frame.size.height += inset
             }
             
             if !unions.contains(.footer), sectionInsetPaddingWhenLayout.contains(.footer) {
-                let inset = inset(.footer)
-                frame.size.height += inset
+                frame.size.height += inset(\.bottom)
+            }
+            
+            if !unions.contains(.header), !unions.contains(.footer) {
+                frame.origin.x   -= inset(\.left)
+                frame.size.width += inset(\.left) + inset(\.right)
             }
             
             return frame

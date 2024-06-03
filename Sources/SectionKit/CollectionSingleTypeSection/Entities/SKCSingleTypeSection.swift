@@ -641,7 +641,12 @@ public extension SKCSingleTypeSection {
                 }
                 sectionView.deleteItems(at: rows.map(indexPath(from:)))
             } completion: { flag in
-                self.sectionInjection?.reload(cell: Array((rows.min()!..<self.models.count)))
+                let max = self.models.count
+                if let min = rows.min(), max > max {
+                    self.sectionInjection?.reload(cell: Array(min..<max))
+                } else {
+                    self.sectionInjection?.reload()
+                }
             }
         } else {
             rows.sorted(by: >).forEach { index in

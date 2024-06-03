@@ -78,13 +78,14 @@ public struct SKCLayoutDecoration {
         public var to: Item?
         public var viewType: View.Type
         public var insets: UIEdgeInsets
-        public var zIndex: Int
+        public var index: Int?
+        public var zIndex: Int?
         public var actions: [SKCSupplementaryActionType : [ActionBlock]] = [:]
         
         public init(from: Item,
                     to: Item? = nil,
                     insets: UIEdgeInsets = .zero,
-                    zIndex: Int = -1,
+                    zIndex: Int? = nil,
                     actions: [SKCSupplementaryActionType : [ActionBlock]] = [:]) {
             self.from = from
             self.to = to

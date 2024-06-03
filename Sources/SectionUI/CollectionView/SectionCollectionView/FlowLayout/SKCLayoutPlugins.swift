@@ -65,8 +65,7 @@ public struct SKCLayoutPlugins {
         /// 优先级冲突去重
         for mode in modes {
             switch mode {
-            case .centerX,
-                    .fixSupplementaryViewInset,
+            case .fixSupplementaryViewInset,
                     .fixSupplementaryViewSize,
                     .adjustSupplementaryViewSize:
                 if set.insert(mode.priority).inserted {

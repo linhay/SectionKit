@@ -37,28 +37,48 @@ public extension SKCLayoutPlugins {
         }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
-            var current_sections = attributes.map(\.indexPath.section).sorted()
+            let current_sections = attributes.map(\.indexPath.section).sorted()
             var section_offset = [Int: Int]()
+            var section_zIndex = [Int: Set<Int>]()
             var attributes = attributes
+            
+            func get_zIndex(current_section: Int, decoration: any SKCLayoutDecorationPlugin) -> Int {
+                if section_zIndex[current_section] == nil {
+                    section_zIndex[current_section] = .init()
+                }
+                if let zIndex = decoration.zIndex {
+                    if zIndex < 0 {
+                        section_zIndex[current_section]?.insert(zIndex)
+                    }
+                    return zIndex
+                } else {
+                    return (section_zIndex[current_section]?.min() ?? 0) - 1
+                }
+            }
             
             for decoration in decorations {
                 if decoration.from.index == .all {
                     for current_section in current_sections {
                         let offset = section_offset[current_section] ?? 0
-                        if let attribute = task(section: current_section,
-                                                index: offset,
-                                                decoration: decoration) {
+                        let zIndex = get_zIndex(current_section: current_section, decoration: decoration)
+                        let payload = TaskPayload(section: current_section, index: offset, zIndex: zIndex)
+                        if let attribute = task(payload: payload, decoration: decoration) {
                             section_offset[current_section] = offset + 1
+                            section_zIndex[current_section]?.insert(zIndex)
+                            decoration.index = offset
                             attributes.append(attribute)
                         }
                     }
                 } else if let indexRange = decoration.indexRange(collectionView),
                           !Set(current_sections).intersection(indexRange).isEmpty {
-                    let offset = section_offset[indexRange.lowerBound] ?? 0
-                    if let attribute = task(section: indexRange.lowerBound,
-                                            index: offset,
-                                            decoration: decoration) {
+                    let current_section = indexRange.lowerBound
+                    let offset = section_offset[current_section] ?? 0
+                    let zIndex = get_zIndex(current_section: current_section, decoration: decoration)
+                    let payload = TaskPayload(section: current_section, index: offset, zIndex: zIndex)
+                    if let attribute = task(payload: payload, decoration: decoration) {
                         section_offset[indexRange.lowerBound] = offset + 1
+                        section_zIndex[current_section]?.insert(zIndex)
+                        decoration.index = offset
                         attributes.append(attribute)
                     }
                 }
@@ -153,17 +173,23 @@ public extension SKCLayoutPlugins {
             return frame
         }
         
-        func task(section: Int, index: Int, decoration: any SKCLayoutDecorationPlugin) -> UICollectionViewLayoutAttributes? {
-            let sectionIndexPath = IndexPath(item: index, section: section)
+        struct TaskPayload {
+            let section: Int
+            let index: Int
+            let zIndex: Int
+        }
+        
+        func task(payload: TaskPayload, decoration: any SKCLayoutDecorationPlugin) -> UICollectionViewLayoutAttributes? {
+            let sectionIndexPath = IndexPath(item: payload.index, section: payload.section)
             var frames = [CGRect]()
             
             if let frame = frame(for: decoration.from, at: sectionIndexPath) {
                 frames.append(frame)
             }
             
-            if var to = decoration.to,
+            if let to = decoration.to,
                let section = to.index.wrappedValue,
-               let frame = frame(for: to, at: IndexPath(item: index, section: section)) {
+               let frame = frame(for: to, at: IndexPath(item: payload.index, section: section)) {
                 frames.append(frame)
             }            
             guard let frame = CGRect.union(frames)?.apply(insets: decoration.insets) else {
@@ -171,7 +197,7 @@ public extension SKCLayoutPlugins {
             }
             
             let attribute = UICollectionViewLayoutAttributes(forDecorationViewOfKind: decoration.viewType.identifier, with: sectionIndexPath)
-            attribute.zIndex = decoration.zIndex
+            attribute.zIndex = payload.zIndex
             attribute.frame = frame
             return attribute
         }

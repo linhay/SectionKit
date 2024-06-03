@@ -15,7 +15,8 @@ public protocol SKCLayoutDecorationPlugin: AnyObject {
     var to: SKCLayoutDecoration.Item? { get }
     var viewType: View.Type { get }
     var insets: UIEdgeInsets { get }
-    var zIndex: Int { get }
+    var zIndex: Int? { get set }
+    var index: Int? { get set }
     var actions: [SKCSupplementaryActionType: [ActionBlock]] { get set }
 }
 
@@ -38,6 +39,15 @@ public extension SKCLayoutDecorationPlugin {
             layout.register(viewType.self, forDecorationViewOfKind: viewType.identifier)
         }
     }
+
+    @discardableResult
+    func onAction<T>(_ kind: SKCSupplementaryActionType,
+                     on keyPath: ReferenceWritableKeyPath<SKCLayoutDecoration.Context<View>, T>,
+                     _ value: T) -> Self {
+        return self.onAction(kind) { context in
+            context[keyPath: keyPath] = value
+        }
+    }
     
     @discardableResult
     func onAction(_ kind: SKCSupplementaryActionType, block: @escaping ActionBlock) -> Self {
@@ -53,6 +63,7 @@ public extension SKCLayoutDecorationPlugin {
                at indexPath: IndexPath,
                view: UICollectionReusableView) {
         guard from.index.wrappedValue == indexPath.section,
+              self.index == indexPath.item,
               viewType.identifier == identifier,
               let actions = actions[kind],
               !actions.isEmpty,

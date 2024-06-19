@@ -132,20 +132,6 @@ class PluginsController: SKCollectionViewController {
                       viewType: ReusableView.self,
                       insets: .init(top: 20, left: 20, bottom: 20, right: 20))
             ]))
-        case .sectionHeadersPinToVisibleBounds:
-            let sections: [SKCBaseSectionProtocol] = (0...10).map { idx in
-                return ColorBlockCell
-                    .wrapperToSingleTypeSection((0...4).map({ _ in
-                        ColorBlockCell.Model(color: .red, text: idx.description, size: .init(width: 77, height: 50))
-                    }))
-                    .setSectionStyle({ section in
-                        section.sectionInset = .init(top: 10, left: 0, bottom: 20, right: 0)
-                    })
-                    .set(supplementary: .header, type: ReusableView.self, model: "header \(idx)")
-                    .set(supplementary: .footer, type: ReusableView.self, model: "footer")
-            }
-            self.manager.reload(sections)
-            self.plugin(modes: .sectionHeadersPinToVisibleBounds([.init(sections[2])]))
         case .none:
             break
         }
@@ -168,7 +154,6 @@ class PluginsToolbarController: SKCollectionViewController {
         case fixSupplementaryViewInsetVertical
         case fixSupplementaryViewSize
         case decoration
-        case sectionHeadersPinToVisibleBounds
     }
     
     let event = Delegate<Action, Void>()

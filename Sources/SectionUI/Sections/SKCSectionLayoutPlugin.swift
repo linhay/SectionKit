@@ -8,12 +8,18 @@
 import UIKit
 import SectionKit
 
+/// 枚举，表示不同的节布局插件。
 public enum SKCSectionLayoutPlugin {
     
+    case attributes([SKCPluginAdjustAttributes])
     case decorations([any SKCLayoutDecorationPlugin])
     case left
     case centerX
-
+    
+    /// 将节布局插件转换为对应的布局插件模式。
+    ///
+    /// - Parameter section: 需要转换的节。
+    /// - Returns: 对应的布局插件模式。
     public func convert(_ section: SKCSectionActionProtocol) -> SKCLayoutPlugins.Mode {
         switch self {
         case .left:
@@ -22,11 +28,14 @@ public enum SKCSectionLayoutPlugin {
             return .centerX([.init(section)])
         case .decorations(let array):
             return .decorations(array)
+        case .attributes(let array):
+            return .attributes(array)
         }
     }
     
 }
 
+/// 协议，表示节布局插件协议。
 public protocol SKCSectionLayoutPluginProtocol: AnyObject {
     var sectionInjection: SKCSectionInjection? { get set }
     var plugins: [SKCSectionLayoutPlugin] { get set }
@@ -43,14 +52,26 @@ extension SKCSingleTypeSection: SKCSectionLayoutPluginProtocol {
 
 public extension SKCSectionLayoutPluginProtocol {
     
+    /// 添加多个布局插件。
+    ///
+    /// - Parameter value: 布局插件数组。
+    /// - Returns: 更新后的对象。
     func addLayoutPlugins(_ value: SKCSectionLayoutPlugin...) -> Self {
         return addLayoutPlugins(value)
     }
     
+    /// 添加单个布局插件。
+    ///
+    /// - Parameter value: 布局插件。
+    /// - Returns: 更新后的对象。
     func addLayoutPlugins(_ value: SKCSectionLayoutPlugin) -> Self {
         return addLayoutPlugins([value])
     }
     
+    /// 添加布局插件数组。
+    ///
+    /// - Parameter value: 布局插件数组。
+    /// - Returns: 更新后的对象。
     func addLayoutPlugins(_ value: [SKCSectionLayoutPlugin]) -> Self {
         plugins.append(contentsOf: value)
         return self
@@ -59,18 +80,58 @@ public extension SKCSectionLayoutPluginProtocol {
 }
 
 public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
+
+    /// 设置属性调整构建器。
+    ///
+    /// - Parameter builder: 属性调整构建器闭包。
+    /// - Returns: 更新后的对象。
+    @discardableResult
+    func setAttributes(_ builder: SKCPluginAdjustAttributes.Style) -> Self {
+        return self.addLayoutPlugins(.attributes([SKCPluginAdjustAttributes(section: .init(self), builder)]))
+    }
+    
+    /// 设置属性调整构建器，当条件满足时应用。
+    ///
+    /// - Parameters:
+    ///   - when: 条件闭包，当返回 true 时应用 builder。
+    ///   - builder: 属性调整构建器闭包。
+    /// - Returns: 更新后的对象。
+    @discardableResult
+    func setAttributes(when: SKWhen<UICollectionViewLayoutAttributes>,
+                       style: SKCPluginAdjustAttributes.Style) -> Self {
+        return self.setAttributes(.init({ object in
+            guard when.isIncluded(object) else { return }
+            style.build(&object)
+        }))
+    }
+    
+}
+
+public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
     
     typealias DecorationViewStyle<View: SKCDecorationView> = ((_ decoration: SKCLayoutDecoration.Entity<View>) -> Void)
     
+    /// 设置装饰视图样式。
+    ///
+    /// - Parameters:
+    ///   - decoration: 装饰视图类型。
+    ///   - style: 可选的装饰视图样式闭包。
+    /// - Returns: 更新后的对象。
     @discardableResult
     func set<View: SKCDecorationView>(decoration: View.Type,
                                       style: DecorationViewStyle<View>? = nil) -> Self {
         let decoration = SKCLayoutDecoration.Entity<View>(from: .init(self))
         style?(decoration)
-        plugins.append(.decorations([decoration]))
-        return self
+        return self.addLayoutPlugins(.decorations([decoration]))
     }
     
+    /// 设置带模型的装饰视图样式。
+    ///
+    /// - Parameters:
+    ///   - decoration: 装饰视图类型。
+    ///   - model: 装饰视图模型。
+    ///   - style: 可选的装饰视图样式闭包。
+    /// - Returns: 更新后的对象。
     @discardableResult
     func set<View: SKCDecorationView & SKConfigurableModelProtocol>(decoration: View.Type,
                                                                     model: View.Model,

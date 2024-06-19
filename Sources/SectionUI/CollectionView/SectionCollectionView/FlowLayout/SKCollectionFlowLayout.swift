@@ -113,6 +113,9 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         var fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
         for mode in modes {
             switch mode {
+            case .attributes(let adjusts):
+                let plugin = SKCLayoutPlugins.AdjustAttributesAgent(layout: self, adjusts: adjusts)
+                attributes = plugin.run(with: attributes) ?? []
             case .fixSupplementaryViewSize:
                 attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: .excluding([])).run(with: attributes) ?? []
             case .adjustSupplementaryViewSize(let condition):

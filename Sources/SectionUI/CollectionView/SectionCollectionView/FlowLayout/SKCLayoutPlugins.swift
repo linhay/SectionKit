@@ -11,6 +11,7 @@ public struct SKCLayoutPlugins {
     
     /// 布局插件样式
     public enum Mode: Equatable {
+        case attributes([SKCPluginAdjustAttributes])
         /// 左对齐
         case left([SKBindingKey<Int>])
         /// 居中对齐
@@ -26,8 +27,9 @@ public struct SKCLayoutPlugins {
         
         var priority: Int {
             switch self {
-            case .left:    return 100
-            case .centerX: return 100
+            case .attributes: return 0
+            case .left:       return 100
+            case .centerX:    return 100
             case .fixSupplementaryViewSize:    return 1
             case .fixSupplementaryViewInset:   return 2
             case .adjustSupplementaryViewSize: return 3
@@ -58,6 +60,7 @@ public struct SKCLayoutPlugins {
         var set = Set<Int>()
         var newModes = [Mode]()
         
+        var attributes = [SKCPluginAdjustAttributes]()
         var lefts = [SKBindingKey<Int>]()
         var centerXs = [SKBindingKey<Int>]()
         var decorations = [any SKCLayoutDecorationPlugin]()
@@ -65,6 +68,8 @@ public struct SKCLayoutPlugins {
         /// 优先级冲突去重
         for mode in modes {
             switch mode {
+            case .attributes(let list):
+                attributes.append(contentsOf: list)
             case .fixSupplementaryViewInset,
                     .fixSupplementaryViewSize,
                     .adjustSupplementaryViewSize:
@@ -94,6 +99,10 @@ public struct SKCLayoutPlugins {
             newModes.append(.decorations(decorations))
         }
         
+        if !attributes.isEmpty {
+            newModes.append(.attributes(attributes))
+        }
+        
         /// mode 重排
         return newModes.sorted(by: { $0.priority < $1.priority })
     }
@@ -105,6 +114,10 @@ public extension SKCLayoutPlugins.Mode {
     
     static var left: SKCLayoutPlugins.Mode { .left([.all]) }
     static var centerX: SKCLayoutPlugins.Mode { .centerX([.all]) }
+    
+    static func attributes(_ item: SKCPluginAdjustAttributes) -> SKCLayoutPlugins.Mode {
+        return .attributes([item])
+    }
 
     static func decorations(_ decoration: [SKCLayoutAnyDecoration]) -> SKCLayoutPlugins.Mode {
         .decorations(decoration.map(\.wrapperValue))

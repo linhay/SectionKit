@@ -11,7 +11,6 @@ import UIKit
 
 class HomeController: SKCollectionViewController {
     enum Action: String, CaseIterable {
-        case registration
         case singleTypeSection
         case prefetch
         case decoration
@@ -39,8 +38,6 @@ extension HomeController {
         section.onCellAction(.selected) { result in
             var controller: UIViewController?
             switch result.model {
-            case .registration:
-                controller = RegistrationViewController()
             case .prefetch:
                 controller = PrefetchViewController()
                 break

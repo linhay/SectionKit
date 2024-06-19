@@ -90,7 +90,6 @@ extension DecorationViewController {
                         .init(color: .red, text: "\(sectionIndex - index)", size: size)
                 })
                 .set(supplementary: .init(kind: .header, type: ReusableView.self, model: "header - \(sectionIndex)"))
-//                .set(supplementary: .init(kind: .footer, type: ReusableView.self, model: "footer - \(sectionIndex)"))
         }
         
         var isAnimating = false
@@ -130,12 +129,7 @@ extension DecorationViewController {
             case .all_section:
                 update(.init(sectionIndex: .all, viewType: ReusableView.self, modes: [.useSectionInsetWhenNotExist([.header, .footer])]))
             case .add:
-                update(
-                    .init(sectionIndex: .init(sections.first!), viewType: ReusableView.self)
-                    .onAction(.willDisplay, block: { context in
-                        context.view.backgroundColor = .red
-                    })
-                )
+                update(.init(sectionIndex: .init(sections.first!), viewType: ReusableView.self))
             case .add_header:
                 update(.init(sectionIndex: .init(sections.first!), viewType: ReusableView.self, layout: [.header]))
             case .add_cells:
@@ -158,7 +152,7 @@ extension DecorationViewController {
             }
         }
         
-        func update<View: SKCDecorationView>(_ decoration: SKCLayoutPlugins.Decoration<View>...) {
+        func update(_ decoration: SKCLayoutAnyDecoration...) {
             sectionView.set(pluginModes: [.decorations(decoration)] + defaultPluginModes)
             sectionView.reloadData()
         }

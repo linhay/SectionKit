@@ -19,7 +19,6 @@
 		CD33B82A27DCEB620032987B /* SingleTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B82927DCEB620032987B /* SingleTypeViewController.swift */; };
 		CD33B82C27DCEBB40032987B /* ColorBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B82B27DCEBB40032987B /* ColorBlockCell.swift */; };
 		CD33B83127DD05650032987B /* PrefetchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B83027DD05650032987B /* PrefetchViewController.swift */; };
-		CD3ABCC028A7D5CE006BD03D /* RegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */; };
 		CD5A7AE9282394AA00337098 /* DecorationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AE8282394AA00337098 /* DecorationViewController.swift */; };
 		CD5A7AF02823BF1D00337098 /* ReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AEF2823BF1D00337098 /* ReusableView.swift */; };
 		CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */; };
@@ -35,7 +34,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CD33B80427DCE3A70032987B /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Example.app; path = "/Users/linhey/Desktop/丁香园/SectionKit/Example/build/Debug-iphoneos/Example.app"; sourceTree = "<absolute>"; };
 		CD33B80727DCE3A70032987B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CD33B80927DCE3A70032987B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		CD33B80E27DCE3A70032987B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -45,12 +43,12 @@
 		CD33B82927DCEB620032987B /* SingleTypeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTypeViewController.swift; sourceTree = "<group>"; };
 		CD33B82B27DCEBB40032987B /* ColorBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorBlockCell.swift; sourceTree = "<group>"; };
 		CD33B83027DD05650032987B /* PrefetchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefetchViewController.swift; sourceTree = "<group>"; };
-		CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationViewController.swift; sourceTree = "<group>"; };
 		CD5A7AE8282394AA00337098 /* DecorationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecorationViewController.swift; sourceTree = "<group>"; };
 		CD5A7AEF2823BF1D00337098 /* ReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReusableView.swift; sourceTree = "<group>"; };
 		CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSectionViewController.swift; sourceTree = "<group>"; };
 		CDA3FEF52AD92734000A8735 /* PluginsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginsController.swift; sourceTree = "<group>"; };
 		CDC122F328D45AB8003790E3 /* CustomSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSection.swift; sourceTree = "<group>"; };
+		CDC217092C228C460091211F /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDDD973728AD1EA3001942B0 /* StringRawCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringRawCell.swift; sourceTree = "<group>"; };
 		CDDD973928AD1ED6001942B0 /* StringCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,6 +77,7 @@
 			isa = PBXGroup;
 			children = (
 				CD33B80627DCE3A70032987B /* Example */,
+				CDC217092C228C460091211F /* Example.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -103,7 +102,6 @@
 				CD33B82727DCE6640032987B /* HomeController.swift */,
 				CD5A7AE8282394AA00337098 /* DecorationViewController.swift */,
 				CD33B82927DCEB620032987B /* SingleTypeViewController.swift */,
-				CD3ABCBF28A7D5CE006BD03D /* RegistrationViewController.swift */,
 				CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */,
 				CD33B83027DD05650032987B /* PrefetchViewController.swift */,
 				CDA3FEF52AD92734000A8735 /* PluginsController.swift */,
@@ -150,7 +148,7 @@
 				CDA3FEF32AD92642000A8735 /* SectionUI */,
 			);
 			productName = Example;
-			productReference = CD33B80427DCE3A70032987B /* Example.app */;
+			productReference = CDC217092C228C460091211F /* Example.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -218,7 +216,6 @@
 				CD33B80A27DCE3A70032987B /* SceneDelegate.swift in Sources */,
 				CD5A7AF02823BF1D00337098 /* ReusableView.swift in Sources */,
 				CD5A7AE9282394AA00337098 /* DecorationViewController.swift in Sources */,
-				CD3ABCC028A7D5CE006BD03D /* RegistrationViewController.swift in Sources */,
 				CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */,
 				CD33B82A27DCEB620032987B /* SingleTypeViewController.swift in Sources */,
 				CD33B82827DCE6640032987B /* HomeController.swift in Sources */,

@@ -9,19 +9,16 @@ import UIKit
 import SectionKit
 
 public extension SKCLayoutPlugins {
-                
-    struct Decorations: SKCLayoutPlugin {
+    
+    public struct Decorations: SKCLayoutPlugin {
         
-        let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
-        let decorations: [any SKCLayoutDecorationPlugin]
-        let fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
+        public let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
+        public let decorations: [any SKCLayoutDecorationPlugin]
         
-        init(layout: SKCollectionFlowLayout,
-             decorations: [any SKCLayoutDecorationPlugin],
-             fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?) {
+        public init(layout: SKCollectionFlowLayout,
+                    decorations: [any SKCLayoutDecorationPlugin]) {
             self.layoutWeakBox = .init(layout)
             self.decorations = decorations
-            self.fixSupplementaryViewInset = fixSupplementaryViewInset
             decorations.forEach { decoration in
                 decoration.apply(to: layout)
             }
@@ -83,7 +80,7 @@ public extension SKCLayoutPlugins {
                     }
                 }
             }
-        
+            
             return attributes
         }
         
@@ -95,7 +92,7 @@ public extension SKCLayoutPlugins {
             var supplementaryMode: SKCLayoutDecoration.Mode?
             var sectionInsetPaddingWhenLayout: [SKCLayoutDecoration.Layout] = []
             let insets = insetForSection(at: section.section)
-
+            
             for mode in item.modes {
                 switch mode {
                 case .section, .visibleView:
@@ -191,7 +188,7 @@ public extension SKCLayoutPlugins {
                let section = to.index.wrappedValue,
                let frame = frame(for: to, at: IndexPath(item: payload.index, section: section)) {
                 frames.append(frame)
-            }            
+            }
             guard let frame = CGRect.union(frames)?.apply(insets: decoration.insets) else {
                 return nil
             }

@@ -97,11 +97,11 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
     ///   - builder: 属性调整构建器闭包。
     /// - Returns: 更新后的对象。
     @discardableResult
-    func setAttributes(when: SKWhen<UICollectionViewLayoutAttributes>,
+    func setAttributes(when: SKWhen<SKCPluginAdjustAttributes.Context>,
                        style: SKCPluginAdjustAttributes.Style) -> Self {
         return self.setAttributes(.init({ object in
-            guard when.isIncluded(object) else { return }
-            style.build(&object)
+            guard when.isIncluded(object) else { return object }
+            return style.build(object)
         }))
     }
     

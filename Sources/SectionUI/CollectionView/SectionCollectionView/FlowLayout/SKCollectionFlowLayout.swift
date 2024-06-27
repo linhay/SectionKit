@@ -25,20 +25,20 @@ import UIKit
 import SectionKit
 
 open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserverProtocol {
-
+    
     public typealias DecorationView = UICollectionReusableView & SKLoadViewProtocol
     public typealias FixSupplementaryViewInset = SKCLayoutPlugins.FixSupplementaryViewInset.Direction
     public typealias DecorationLayout = SKCLayoutDecoration.Layout
     public typealias Decoration = SKCLayoutAnyDecoration
     public typealias BindingKey = SKBindingKey
     public typealias PluginMode = SKCLayoutPlugins.Mode
-
+    
     class LayoutStore {
         
         lazy var cells: [IndexPath: UICollectionViewLayoutAttributes] = [:]
         lazy var decorations: [String: [IndexPath: UICollectionViewLayoutAttributes]] = [:]
         lazy var supplementaries: [String: [IndexPath: UICollectionViewLayoutAttributes]] = [:]
-                
+        
         init(attributes: [UICollectionViewLayoutAttributes]) {
             for attribute in attributes {
                 store(attribute: attribute)
@@ -66,9 +66,9 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
             @unknown default:
                 return
             }
-
+            
         }
-
+        
     }
     
     struct PluginsStore {
@@ -97,19 +97,33 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         layoutStore = .init(attributes: [])
         oldBounds = collectionView.bounds
     }
-
-    override open func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        defer { layoutTempStore = nil }
-        
-        guard var attributes = super.layoutAttributesForElements(in: rect) else {
-            return nil
+    
+    func adjust(for rawValue: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        guard let modes = fetchPlugins?().modes, !modes.isEmpty else { return rawValue }
+        var attributes = [rawValue]
+        var fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
+        for mode in modes {
+            switch mode {
+            case .attributes(let adjusts):
+                let plugin = SKCLayoutPlugins.AdjustAttributesAgent(layout: self, adjusts: adjusts)
+                attributes = plugin.run(with: attributes) ?? []
+            case .fixSupplementaryViewSize:
+                attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: .excluding([])).run(with: attributes) ?? []
+            case .adjustSupplementaryViewSize(let condition):
+                attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: condition).run(with: attributes) ?? []
+            case let .fixSupplementaryViewInset(direction):
+                fixSupplementaryViewInset = SKCLayoutPlugins.FixSupplementaryViewInset(layout: self, direction: direction)
+                attributes = fixSupplementaryViewInset?.run(with: attributes) ?? []
+            default:
+                break
+            }
         }
+        return attributes.first ?? rawValue
+    }
+    
+    func applyMode(for attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
         guard let modes = fetchPlugins?().modes, !modes.isEmpty else { return attributes }
-
-        attributes = attributes.compactMap { $0.copy() as? UICollectionViewLayoutAttributes }
-        layoutTempStore = .init(attributes: attributes)
-        pluginsStore = .init()
-        
+        var attributes = attributes
         var fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
         for mode in modes {
             switch mode {
@@ -130,9 +144,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
                 fixSupplementaryViewInset = SKCLayoutPlugins.FixSupplementaryViewInset(layout: self, direction: direction)
                 attributes = fixSupplementaryViewInset?.run(with: attributes) ?? []
             case let .decorations(decorations):
-                let plugin = SKCLayoutPlugins.Decorations(layout: self,
-                                                          decorations: decorations,
-                                                          fixSupplementaryViewInset: fixSupplementaryViewInset)
+                let plugin = SKCLayoutPlugins.Decorations(layout: self, decorations: decorations)
                 pluginsStore.decorations = plugin
                 attributes = plugin.run(with: attributes) ?? []
             }
@@ -140,7 +152,18 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         
         return attributes
     }
-        
+    
+    override open func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        defer { layoutTempStore = nil }
+        guard var rawValue = super.layoutAttributesForElements(in: rect) else {
+            return nil
+        }
+        var attributes = rawValue.compactMap { $0.copy() as? UICollectionViewLayoutAttributes }
+        layoutTempStore = .init(attributes: attributes)
+        pluginsStore = .init()
+        return applyMode(for: attributes)
+    }
+    
     open override func layoutAttributesForDecorationView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         if let decoration = layoutTempStore?.decorations[elementKind]?[indexPath] {
             return decoration
@@ -161,15 +184,19 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
             return super.layoutAttributesForItem(at: indexPath)
         }
     }
-
+    
     func attributes(of supplementary: String, at indexPath: IndexPath, useCache: Bool) -> UICollectionViewLayoutAttributes? {
-        let attributes: UICollectionViewLayoutAttributes?
-        if useCache, let supplementary = layoutTempStore?.supplementaries[supplementary]?[indexPath] {
-            attributes = supplementary
+        if useCache, let attributes = layoutTempStore?.supplementaries[supplementary]?[indexPath] {
+            return attributes
+        } else if let attributes = layoutStore.supplementaries[supplementary]?[indexPath] {
+            return attributes
+        } else if var attributes = super.layoutAttributesForSupplementaryView(ofKind: supplementary, at: indexPath).flatMap { $0.copy() as? UICollectionViewLayoutAttributes } {
+            attributes = adjust(for: attributes)
+            layoutStore.store(attribute: attributes)
+            return attributes
         } else {
-            attributes = super.layoutAttributesForSupplementaryView(ofKind: supplementary, at: indexPath)
+            return nil
         }
-        return attributes
     }
     
     override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
@@ -177,9 +204,45 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
     }
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        oldBounds.size != newBounds.size 
+        oldBounds.size != newBounds.size
         || sectionHeadersPinToVisibleBounds
         || sectionFootersPinToVisibleBounds
+    }
+    
+    open override func invalidateLayout() {
+        layoutStore = .init(attributes: [])
+        layoutTempStore = nil
+        super.invalidateLayout()
+    }
+    
+    open override func invalidateLayout(with context: UICollectionViewLayoutInvalidationContext) {
+        layoutStore = .init(attributes: [])
+        layoutTempStore = nil
+        super.invalidateLayout(with: context)
+    }
+    
+    open override func invalidationContext(forBoundsChange newBounds: CGRect) -> UICollectionViewLayoutInvalidationContext {
+        layoutStore = .init(attributes: [])
+        layoutTempStore = nil
+        return super.invalidationContext(forBoundsChange: newBounds)
+    }
+    
+    open override func invalidationContext(forPreferredLayoutAttributes preferredAttributes: UICollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutInvalidationContext {
+        layoutStore = .init(attributes: [])
+        layoutTempStore = nil
+        return super.invalidationContext(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
+    }
+    
+    open override func invalidationContext(forInteractivelyMovingItems targetIndexPaths: [IndexPath], withTargetPosition targetPosition: CGPoint, previousIndexPaths: [IndexPath], previousPosition: CGPoint) -> UICollectionViewLayoutInvalidationContext {
+        layoutStore = .init(attributes: [])
+        layoutTempStore = nil
+        return super.invalidationContext(forInteractivelyMovingItems: targetIndexPaths, withTargetPosition: targetPosition, previousIndexPaths: previousIndexPaths, previousPosition: previousPosition)
+    }
+    
+    open override func invalidationContextForEndingInteractiveMovementOfItems(toFinalIndexPaths indexPaths: [IndexPath], previousIndexPaths: [IndexPath], movementCancelled: Bool) -> UICollectionViewLayoutInvalidationContext {
+        layoutStore = .init(attributes: [])
+        layoutTempStore = nil
+        return super.invalidationContextForEndingInteractiveMovementOfItems(toFinalIndexPaths: indexPaths, previousIndexPaths: previousIndexPaths, movementCancelled: movementCancelled)
     }
 }
 #endif

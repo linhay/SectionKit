@@ -90,6 +90,10 @@ extension DecorationViewController {
                         .init(color: .red, text: "\(sectionIndex - index)", size: size)
                 })
                 .set(supplementary: .init(kind: .header, type: ReusableView.self, model: "header - \(sectionIndex)"))
+                .setAttributes(when: .equal(\.representedElementCategory, .cell), style: .set(\.zIndex, 3))
+                .setAttributes(when: .equal(\.representedElementCategory, .decorationView), style: .set(\.zIndex, 1))
+                .setAttributes(when: .equal(\.representedElementCategory, .supplementaryView).and(.equal(\.indexPath.row, 0)),
+                               style: .set(\.zIndex, 0).set(\.frame.size.width, 100))
         }
         
         var isAnimating = false

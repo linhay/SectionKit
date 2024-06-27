@@ -85,7 +85,7 @@ public extension SKCSingleTypeSection {
     }
     
     @discardableResult
-    func set<T>(supplementary: SKCSupplementary<T>) -> Self {
+    private func set<T>(supplementary: SKCSupplementary<T>) -> Self {
         taskIfLoaded { section in
             section.register(supplementary.type, for: supplementary.kind)
         }
@@ -121,7 +121,7 @@ public extension SKCSingleTypeSection {
     func onAsyncSupplementaryAction(_ kind: SKCSupplementaryActionType, block: @escaping AsyncSupplementaryActionBlock) -> Self {
         return onSupplementaryAction(kind) { context in
             Task {
-               try await block(context)
+                try await block(context)
             }
         }
     }

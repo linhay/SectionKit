@@ -106,6 +106,10 @@ public extension SKCManager {
     
     func append(_ input: SKCBaseSectionProtocol) { append([input]) }
     
+    func append(_ input: [SKCBaseSectionProtocol]) {
+        insert(input, at: sections.count)
+    }
+    
     func delete(_ input: SKCBaseSectionProtocol) { remove(input) }
     func delete(_ input: [SKCBaseSectionProtocol]) { remove(input) }
     
@@ -181,10 +185,6 @@ public extension SKCManager {
         } else {
             reload(sections)
         }
-    }
-    
-    func append(_ input: [SKCBaseSectionProtocol]) {
-        insert(input, at: sections.count)
     }
     
 }

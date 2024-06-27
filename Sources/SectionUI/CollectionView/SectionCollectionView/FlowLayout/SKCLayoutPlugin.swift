@@ -8,11 +8,11 @@
 import UIKit
 import SectionKit
 
-protocol SKCLayoutPlugin {
+public protocol SKCLayoutPlugin {
     var layoutWeakBox: SKWeakBox<SKCollectionFlowLayout> { get }
 }
 
-extension SKCLayoutPlugin {
+public extension SKCLayoutPlugin {
     
     var layout: SKCollectionFlowLayout? { layoutWeakBox.value }
     var collectionView: UICollectionView {

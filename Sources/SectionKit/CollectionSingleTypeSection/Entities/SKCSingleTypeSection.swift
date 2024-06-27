@@ -36,6 +36,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public enum ReloadKind {
         case normal
+        case configAndDelete
         case difference(by: (_ lhs: Model, _ rhs: Model) -> Bool)
         
         public static func difference() -> ReloadKind where Model: Equatable {
@@ -203,7 +204,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open lazy var hiddenFooterWhenNoItem = true
     /// 无数据时隐藏 headerView
     open lazy var hiddenHeaderWhenNoItem = true
-    
+    lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
+
     open lazy var sectionInset: UIEdgeInsets = .zero
     open lazy var minimumLineSpacing: CGFloat = .zero
     open lazy var minimumInteritemSpacing: CGFloat = .zero
@@ -215,7 +217,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     var highPerformanceID: HighPerformanceIDBlock?
     
     lazy var deletedModels: [Int: Model] = [:]
-    lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
     lazy var supplementaryActions: [SKCSupplementaryActionType: [SupplementaryActionBlock]] = [:]
     lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
     lazy var cellStyles: [CellStyleBox] = []
@@ -558,6 +559,24 @@ private extension SKCSingleTypeSection {
         switch reloadKind {
         case .difference(by: let areEquivalent):
             self.reload(models: models, by: areEquivalent)
+        case .configAndDelete:
+            if models.count < self.models.count {
+                self.models = models
+                sectionInjection?.reload()
+            } else {
+                if self.models.count > models.count {
+                    let rows = Array((0..<self.models.count).dropFirst(models.count))
+                    self.remove(rows)
+                }
+                self.models = models
+                for (index, model) in models.enumerated() {
+                    if let cell = self.cellForItem(at: index) {
+                        cell.config(model)
+                    } else {
+                        sectionInjection?.reload()
+                    }
+                }
+            }
         case .normal:
             self.models = models
             sectionInjection?.reload()

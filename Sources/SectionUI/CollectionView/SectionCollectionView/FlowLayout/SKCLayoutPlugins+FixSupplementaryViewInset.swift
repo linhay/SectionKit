@@ -10,7 +10,7 @@ import SectionKit
 
 public extension SKCLayoutPlugins {
     
-    struct FixSupplementaryViewInset: SKCLayoutPlugin {
+    public struct FixSupplementaryViewInset: SKCLayoutPlugin {
         
         public enum Direction: Int {
             case vertical
@@ -18,10 +18,10 @@ public extension SKCLayoutPlugins {
             case all
         }
         
-        let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
-        let direction: Direction
+        public let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
+        public let direction: Direction
         
-        init(layout: SKCollectionFlowLayout, direction: Direction) {
+        public init(layout: SKCollectionFlowLayout, direction: Direction) {
             self.layoutWeakBox = .init(layout)
             self.direction = direction
         }

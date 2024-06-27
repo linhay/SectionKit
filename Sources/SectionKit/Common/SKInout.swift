@@ -9,9 +9,9 @@ import Foundation
 
 public struct SKInout<Object> {
     
-    public let build: (_ object: inout Object) -> Void
+    public let build: (_ object: Object) -> Object
     
-    public init(_ build: @escaping (_ object: inout Object) -> Void) {
+    public init(_ build: @escaping (_ object: Object) -> Object) {
         self.build = build
     }
     
@@ -20,38 +20,51 @@ public struct SKInout<Object> {
 
 public extension SKInout {
     
-    static func set(_ block: @escaping (_ object: inout Object) -> Void) -> SKInout<Object> {
+    static func set(_ block: @escaping (_ object: Object) -> Object) -> SKInout<Object> {
         return .init(block)
     }
     
     static func set<V>(_ keyPath: ReferenceWritableKeyPath<Object, V>, _ value: V) -> SKInout<Object> {
         return .set { object in
             object[keyPath: keyPath] = value
+            return object
         }
     }
     
     static func set<V>(_ keyPath: WritableKeyPath<Object, V>, _ value: V) -> SKInout<Object> {
         return .set { object in
+            var object = object
             object[keyPath: keyPath] = value
+            return object
         }
     }
     
-    func set(_ block: @escaping (_ object: inout Object) -> Void) -> SKInout<Object> {
-        return .init { object in
-            build(&object)
-            block(&object)
+}
+
+public extension SKInout {
+
+    func set(_ block: @escaping (_ object: Object) -> Object) -> SKInout<Object> {
+        return .set { object in
+            var object = object
+            object = build(object)
+            object = block(object)
+            return object
         }
     }
     
     func set<V>(_ keyPath: ReferenceWritableKeyPath<Object, V>, _ value: V) -> SKInout<Object> {
-        return .set { object in
+        return self.set { object in
+            var object = object
             object[keyPath: keyPath] = value
+            return object
         }
     }
     
     func set<V>(_ keyPath: WritableKeyPath<Object, V>, _ value: V) -> SKInout<Object> {
-        return .set { object in
+        return self.set { object in
+            var object = object
             object[keyPath: keyPath] = value
+            return object
         }
     }
     

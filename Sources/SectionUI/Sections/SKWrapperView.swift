@@ -23,7 +23,7 @@ public extension SKSectionWrapper where Base: UIView {
 
 
 open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol, SKConfigurableView {
-
+    
     public struct Model {
         
         public let userInfo: UserInfo
@@ -31,14 +31,27 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
         public let size: (_ limit: CGSize) -> CGSize
         public let style: (_ view: Content) -> Void
         
-        public init(userInfo: UserInfo,
-                    insets: UIEdgeInsets,
-                    size: @escaping (_ limit: CGSize) -> CGSize,
-                    style: @escaping (Content) -> Void) {
+        public init(userInfo: UserInfo, insets: UIEdgeInsets, size: @escaping (_ limit: CGSize) -> CGSize, style: @escaping (Content) -> Void) {
             self.userInfo = userInfo
             self.insets = insets
             self.size = size
             self.style = style
+        }
+        
+        public init(userInfo: UserInfo, insets: UIEdgeInsets) where Content: SKConfigurableView, UserInfo == Content.Model {
+            self.userInfo = userInfo
+            self.insets = insets
+            self.size = { limit in
+                var size = Content.preferredSize(limit: .init(width: limit.width - insets.left - insets.right,
+                                                              height: limit.height - insets.top - insets.bottom),
+                                                 model: userInfo)
+                size.width += insets.left + insets.right
+                size.height += insets.top + insets.bottom
+                return size
+            }
+            self.style = { view in
+                view.config(userInfo)
+            }
         }
         
         public init(insets: UIEdgeInsets,
@@ -52,12 +65,12 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
         guard let model else { return .zero }
         return model.size(size)
     }
-        
+    
     public func config(_ model: Model) {
         model.style(content)
-        left.constant = model.insets.left
-        right.constant = -model.insets.right
-        top.constant = model.insets.top
+        left.constant   = model.insets.left
+        right.constant  = -model.insets.right
+        top.constant    = model.insets.top
         bottom.constant = -model.insets.bottom
     }
     
@@ -66,7 +79,7 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
     private lazy var right  = content.rightAnchor.constraint(equalTo: rightAnchor, constant: 0)
     private lazy var top    = content.topAnchor.constraint(equalTo: topAnchor, constant: 0)
     private lazy var bottom = content.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)
-
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         self.addSubview(content)

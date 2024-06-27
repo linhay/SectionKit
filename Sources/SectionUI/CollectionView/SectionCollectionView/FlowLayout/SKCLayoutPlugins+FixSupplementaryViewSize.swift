@@ -9,10 +9,10 @@ import UIKit
 import SectionKit
 
 extension SKCLayoutPlugins {
- 
-   public struct FixSupplementaryViewSize: SKCLayoutPlugin {
+    
+    public struct FixSupplementaryViewSize: SKCLayoutPlugin {
         
-       public enum Condition {
+        public enum Condition {
             case excluding([Constraint])
             case including([Constraint])
         }
@@ -21,7 +21,7 @@ extension SKCLayoutPlugins {
             public let section: SKBindingKey<Int>
             public let kind: SKSupplementaryKind
             public let insets: UIEdgeInsets
-
+            
             public init(section: SKBindingKey<Int>, kind: SKSupplementaryKind, insets: UIEdgeInsets = .zero) {
                 self.section = section
                 self.kind = kind
@@ -35,22 +35,22 @@ extension SKCLayoutPlugins {
             }
         }
         
-        let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
-        let condition: Condition
-       
-       init(layout: SKCollectionFlowLayout, condition: Condition) {
-           self.layoutWeakBox = .init(layout)
-           self.condition = condition
-       }
-       
-       func constraint(of index: Int, kind: SKSupplementaryKind) -> Constraint? {
-           switch condition {
-           case .excluding(let array):
-               return array.contains(where: { $0.section.wrappedValue == index && $0.kind == kind }) ? nil : .init(section: .init(get: { index }), kind: kind)
-           case .including(let array):
-               return array.first(where: { $0.section.wrappedValue == index && $0.kind == kind })
-           }
-       }
+        public let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
+        public let condition: Condition
+        
+        public init(layout: SKCollectionFlowLayout, condition: Condition) {
+            self.layoutWeakBox = .init(layout)
+            self.condition = condition
+        }
+        
+        func constraint(of index: Int, kind: SKSupplementaryKind) -> Constraint? {
+            switch condition {
+            case .excluding(let array):
+                return array.contains(where: { $0.section.wrappedValue == index && $0.kind == kind }) ? nil : .init(section: .init(get: { index }), kind: kind)
+            case .including(let array):
+                return array.first(where: { $0.section.wrappedValue == index && $0.kind == kind })
+            }
+        }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
             attributes

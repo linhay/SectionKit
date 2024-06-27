@@ -10,12 +10,12 @@ import SectionKit
 
 public extension SKCLayoutPlugins {
     
-    struct AdjustAttributesAgent: SKCLayoutPlugin {
+    public struct AdjustAttributesAgent: SKCLayoutPlugin {
         
-        let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
-        let adjusts: [SKCPluginAdjustAttributes]
+        public let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
+        public let adjusts: [SKCPluginAdjustAttributes]
         
-        init(layout: SKCollectionFlowLayout, adjusts: [SKCPluginAdjustAttributes]) {
+        public init(layout: SKCollectionFlowLayout, adjusts: [SKCPluginAdjustAttributes]) {
             self.layoutWeakBox = .init(layout)
             self.adjusts = adjusts
         }
@@ -28,8 +28,10 @@ public extension SKCLayoutPlugins {
                 }
             }
             return attributes.map { attributes in
-                var attributes = attributes
-                store[attributes.indexPath.section]?.style.build(&attributes)
+                var context = SKCPluginAdjustAttributes.Context(plugin: self, attributes: attributes)
+                if let build = store[attributes.indexPath.section]?.style.build {
+                    context = build(context)
+                }
                 return attributes
             }
         }

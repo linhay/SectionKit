@@ -29,10 +29,22 @@ public extension SKCSingleTypeSection {
     
     /// A struct representing a payload for refreshing a specific row.
     struct RefreshPayload {
-        let row: Int
-        let model: Model
+        public var row: Int
+        public var model: Model
+        public init(row: Int, model: Model) {
+            self.row = row
+            self.model = model
+        }
     }
     
+    func refresh(at row: Int, model: Model) {
+        refresh(with: .init(row: row, model: model))
+    }
+    
+    func refresh(with payloads: RefreshPayload) {
+        refresh(with: [payloads])
+    }
+
     /// Refreshes the section with the provided payloads.
     /// - Parameter payloads: An array of RefreshPayload to update the section.
     func refresh(with payloads: [RefreshPayload]) {

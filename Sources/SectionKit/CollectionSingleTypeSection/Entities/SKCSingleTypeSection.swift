@@ -183,7 +183,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     /// cell 对应的数据集
-    public private(set) var models: [Model] {
+    public internal(set) var models: [Model] {
         set { publishers.modelsSubject.send(newValue) }
         get { publishers.modelsSubject.value }
     }
@@ -443,7 +443,7 @@ public extension SKCSingleTypeSection {
     /// - Parameter row: row
     /// - Returns: cell
     func cellForItem(at row: Int) -> Cell? {
-        sectionView.cellForItem(at: indexPath(from: row)) as? Cell
+        sectionInjection?.sectionView?.cellForItem(at: indexPath(from: row)) as? Cell
     }
     
 }

@@ -20,6 +20,27 @@ public struct SKInout<Object> {
 
 public extension SKInout {
     
+    static func set(_ block: ((_ object: Object) -> Void)?) -> SKInout<Object>? {
+        guard let block = block else { return nil }
+        return .init { object in
+            block(object)
+            return object
+        }
+    }
+    
+    func set(_ block: ((_ object: Object) -> Void)?) -> SKInout<Object>? {
+        guard let block = block else { return self }
+        return .set { object in
+            block(object)
+            return object
+        }
+    }
+    
+}
+
+
+public extension SKInout {
+    
     static func set(_ block: @escaping (_ object: Object) -> Object) -> SKInout<Object> {
         return .init(block)
     }

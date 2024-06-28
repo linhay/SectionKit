@@ -11,19 +11,25 @@ import SectionKit
 
 public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SKCDelegateProtocol {
     
+    func wrapperToHorizontalSection(_ model: SKCSectionViewCell.Model) -> SKCSingleTypeSection<SKCSectionViewCell> {
+        SKCSectionViewCell.wrapperToSingleTypeSection(model)
+    }
+    
+    func wrapperToHorizontalSection(_ model: [SKCSectionViewCell.Model]) -> SKCSingleTypeSection<SKCSectionViewCell> {
+        SKCSectionViewCell.wrapperToSingleTypeSection(model)
+    }
+    
     func wrapperToHorizontalSection(height: CGFloat,
                                     insets: UIEdgeInsets = .zero,
                                     style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
-        SKCSectionViewCell
-            .wrapperToSingleTypeSection([.init(section: .normal([self]),
-                                               height: height,
-                                               insets: insets,
-                                               scrollDirection: .horizontal,
-                                               style: { [weak self] sectionView in
-                guard let self = self else { return }
-                style?(sectionView, self)
-            })])
-        
+        wrapperToHorizontalSection(.init(section: .normal([self]),
+                                         height: height,
+                                         insets: insets,
+                                         scrollDirection: .horizontal,
+                                         style: { [weak self] sectionView in
+            guard let self = self else { return }
+            style?(sectionView, self)
+        }))
     }
     
     @available(*, deprecated, renamed: "wrapperToHorizontalSection", message: "调整命名")
@@ -43,38 +49,63 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
             case normal([any SKCBaseSectionProtocol])
         }
         
-        public let section: SectionType
-        public let height: CGFloat?
-        public let insets: UIEdgeInsets
-        public let style: ((_ sectionView: SKCollectionView) -> Void)?
-        public let scrollDirection: UICollectionView.ScrollDirection
+        public var section: SectionType
+        public var insets: UIEdgeInsets
+        public var size: (_ size: CGSize, _ model: Model) -> CGSize
+        public var style: SKInout<SKCollectionView>?
+        public var scrollDirection: UICollectionView.ScrollDirection
+        
+        public static func horizontal<Cell: SKLoadViewProtocol & SKConfigurableView,
+                                      S: SKCSingleTypeSection<Cell>>(section: S,
+                                                                     heightModel: Cell.Model? = nil,
+                                                                     insets: UIEdgeInsets = .zero,
+                                                                     style: SKInout<SKCollectionView>? = nil) -> Model {
+            .init(section: .normal([section]),
+                  insets: insets,
+                  scrollDirection: .horizontal,
+                  style: style,
+                  size: { size, _ in
+                return .init(width: size.width,
+                             height: Cell.preferredSize(limit: size, model: heightModel).height)
+            })
+        }
+        
+        public init(section: SectionType,
+                    insets: UIEdgeInsets = .zero,
+                    scrollDirection: UICollectionView.ScrollDirection,
+                    style: SKInout<SKCollectionView>? = nil,
+                    size: @escaping (_ size: CGSize, _ model: Model) -> CGSize) {
+            self.section = section
+            self.insets = insets
+            self.size = size
+            self.style = style
+            self.scrollDirection = scrollDirection
+        }
         
         public init(section: SectionType,
                     height: CGFloat? = nil,
                     insets: UIEdgeInsets = .zero,
                     scrollDirection: UICollectionView.ScrollDirection,
                     style: ((_ sectionView: SKCollectionView) -> Void)? = nil) {
-            self.section = section
-            self.height = height
-            self.insets = insets
-            self.scrollDirection = scrollDirection
-            self.style = style
+            self.init(section: section,
+                      insets: insets,
+                      scrollDirection: scrollDirection,
+                      style: .set(style),
+                      size: { size, model in
+                return CGSize(width: size.width, height: (height ?? .zero) + model.insets.top + model.insets.bottom)
+            })
         }
         
     }
     
     public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model = model else { return .zero }
-        if let height = model.height {
-            return CGSize(width: size.width, height: height + model.insets.top + model.insets.bottom)
-        } else {
-            return size
-        }
+        return model.size(size, model)
     }
     
     public func config(_ model: Model) {
         sectionView.scrollDirection = model.scrollDirection
-        model.style?(sectionView)
+        model.style?.build(sectionView)
         edgeConstraint.apply(model.insets)
         switch model.section {
         case .normal(let list):

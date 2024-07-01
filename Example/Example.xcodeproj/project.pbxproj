@@ -22,6 +22,7 @@
 		CD5A7AE9282394AA00337098 /* DecorationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AE8282394AA00337098 /* DecorationViewController.swift */; };
 		CD5A7AF02823BF1D00337098 /* ReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5A7AEF2823BF1D00337098 /* ReusableView.swift */; };
 		CD8A33FB27DF2583007846E6 /* MultiSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */; };
+		CDA0A3502C32866300C7B1F4 /* LayoutPluginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDA0A34F2C32866300C7B1F4 /* LayoutPluginViewController.swift */; };
 		CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */ = {isa = PBXBuildFile; productRef = CDA10DED28B4A90C000698F2 /* Delegate */; };
 		CDA3FEF22AD92642000A8735 /* SectionKit in Frameworks */ = {isa = PBXBuildFile; productRef = CDA3FEF12AD92642000A8735 /* SectionKit */; };
 		CDA3FEF42AD92642000A8735 /* SectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = CDA3FEF32AD92642000A8735 /* SectionUI */; };
@@ -46,6 +47,7 @@
 		CD5A7AE8282394AA00337098 /* DecorationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecorationViewController.swift; sourceTree = "<group>"; };
 		CD5A7AEF2823BF1D00337098 /* ReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReusableView.swift; sourceTree = "<group>"; };
 		CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSectionViewController.swift; sourceTree = "<group>"; };
+		CDA0A34F2C32866300C7B1F4 /* LayoutPluginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutPluginViewController.swift; sourceTree = "<group>"; };
 		CDA3FEF52AD92734000A8735 /* PluginsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginsController.swift; sourceTree = "<group>"; };
 		CDC122F328D45AB8003790E3 /* CustomSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSection.swift; sourceTree = "<group>"; };
 		CDC217092C228C460091211F /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -101,6 +103,7 @@
 				CDDD973628AD1D9E001942B0 /* Cells */,
 				CD33B82727DCE6640032987B /* HomeController.swift */,
 				CD5A7AE8282394AA00337098 /* DecorationViewController.swift */,
+				CDA0A34F2C32866300C7B1F4 /* LayoutPluginViewController.swift */,
 				CD33B82927DCEB620032987B /* SingleTypeViewController.swift */,
 				CD8A33FA27DF2583007846E6 /* MultiSectionViewController.swift */,
 				CD33B83027DD05650032987B /* PrefetchViewController.swift */,
@@ -213,6 +216,7 @@
 				CD33B83127DD05650032987B /* PrefetchViewController.swift in Sources */,
 				CDA3FEF62AD92734000A8735 /* PluginsController.swift in Sources */,
 				CD33B82C27DCEBB40032987B /* ColorBlockCell.swift in Sources */,
+				CDA0A3502C32866300C7B1F4 /* LayoutPluginViewController.swift in Sources */,
 				CD33B80A27DCE3A70032987B /* SceneDelegate.swift in Sources */,
 				CD5A7AF02823BF1D00337098 /* ReusableView.swift in Sources */,
 				CD5A7AE9282394AA00337098 /* DecorationViewController.swift in Sources */,

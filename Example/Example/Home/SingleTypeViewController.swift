@@ -225,9 +225,9 @@ extension SingleTypeViewController {
                     })
                 }
             case .setHeader:
-                section.set(supplementary: SKCSupplementary(kind: .header, type: ReusableView.self, model: "header"))
+                section.set(supplementary: .header, type: ReusableView.self, model: "header")
             case .setFooter:
-                section.set(supplementary: SKCSupplementary(kind: .footer, type: ReusableView.self, model: "footer"))
+                section.set(supplementary: .footer, type: ReusableView.self, model: "footer")
             case .removeHeader:
                 section.remove(supplementary: .header)
             case .removeFooter:

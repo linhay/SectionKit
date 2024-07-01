@@ -12,10 +12,8 @@ public struct SKCLayoutPlugins {
     /// 布局插件样式
     public enum Mode: Equatable {
         case attributes([SKCPluginAdjustAttributes])
-        /// 左对齐
-        case left([SKBindingKey<Int>])
-        /// 居中对齐
-        case centerX([SKBindingKey<Int>])
+        /// 水平对齐
+        case verticalAlignment([VerticalAlignmentPayload])
         /// fix: header & footer 贴合 cell
         case fixSupplementaryViewInset(FixSupplementaryViewInset.Direction)
         /// fix: header & footer size 与设定值不符
@@ -28,8 +26,7 @@ public struct SKCLayoutPlugins {
         var priority: Int {
             switch self {
             case .attributes: return 0
-            case .left:       return 100
-            case .centerX:    return 100
+            case .verticalAlignment: return 100
             case .fixSupplementaryViewSize:    return 1
             case .fixSupplementaryViewInset:   return 2
             case .adjustSupplementaryViewSize: return 3
@@ -61,7 +58,7 @@ public struct SKCLayoutPlugins {
         var newModes = [Mode]()
         
         var attributes = [SKCPluginAdjustAttributes]()
-        var lefts = [SKBindingKey<Int>]()
+        var verticalAlignments = [VerticalAlignmentPayload]()
         var centerXs = [SKBindingKey<Int>]()
         var decorations = [any SKCLayoutDecorationPlugin]()
 
@@ -78,23 +75,17 @@ public struct SKCLayoutPlugins {
                 } else {
                     assertionFailure("mode冲突: \(newModes.filter { $0.priority == mode.priority })")
                 }
-            case .centerX(let array):
-                centerXs.append(contentsOf: array)
-            case .left(let array):
-                lefts.append(contentsOf: array)
+            case .verticalAlignment(let array):
+                verticalAlignments.append(contentsOf: array)
             case .decorations(let array):
                 decorations.append(contentsOf: array)
             }
         }
 
-        if !lefts.isEmpty {
-            newModes.append(.left(lefts))
+        if !verticalAlignments.isEmpty {
+            newModes.append(.verticalAlignment(verticalAlignments))
         }
-        
-        if !centerXs.isEmpty {
-            newModes.append(.centerX(centerXs))
-        }
-        
+
         if !decorations.isEmpty {
             newModes.append(.decorations(decorations))
         }
@@ -112,8 +103,17 @@ public struct SKCLayoutPlugins {
 
 public extension SKCLayoutPlugins.Mode {
     
-    static var left: SKCLayoutPlugins.Mode { .left([.all]) }
-    static var centerX: SKCLayoutPlugins.Mode { .centerX([.all]) }
+    static var left: SKCLayoutPlugins.Mode {
+        .verticalAlignment([.init(alignment: .left, sections: [.all])])
+    }
+    
+    static var right: SKCLayoutPlugins.Mode {
+        .verticalAlignment([.init(alignment: .right, sections: [.all])])
+    }
+    
+    static var centerX: SKCLayoutPlugins.Mode {
+        .verticalAlignment([.init(alignment: .center, sections: [.all])])
+    }
     
     static func attributes(_ item: SKCPluginAdjustAttributes) -> SKCLayoutPlugins.Mode {
         return .attributes([item])

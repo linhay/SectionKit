@@ -15,6 +15,7 @@ class HomeController: SKCollectionViewController {
         case prefetch
         case decoration
         case plugins
+        case layoutPlugin
     }
     
     let section = SKCSingleTypeSection<StringRawCell<Action>>()
@@ -47,6 +48,8 @@ extension HomeController {
                 controller = DecorationViewController()
             case .plugins:
                 controller = PluginsController()
+            case .layoutPlugin:
+                controller = LayoutPluginViewController()
             }
             guard let controller = controller else {
                 return

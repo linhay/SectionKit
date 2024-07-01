@@ -89,11 +89,15 @@ extension DecorationViewController {
                 .wrapperToSingleTypeSection((0 ... 10).map { index in
                         .init(color: .red, text: "\(sectionIndex - index)", size: size)
                 })
-                .set(supplementary: .init(kind: .header, type: ReusableView.self, model: "header - \(sectionIndex)"))
-                .setAttributes(when: .equal(\.representedElementCategory, .cell), style: .set(\.zIndex, 3))
-                .setAttributes(when: .equal(\.representedElementCategory, .decorationView), style: .set(\.zIndex, 1))
-                .setAttributes(when: .equal(\.representedElementCategory, .supplementaryView).and(.equal(\.indexPath.row, 0)),
-                               style: .set(\.zIndex, 0).set(\.frame.size.width, 100))
+                .set(supplementary: .header, type: ReusableView.self, model: "header - \(sectionIndex)")
+                .setAttributes(when: .equal(\.attributes.representedElementCategory, .cell), 
+                               style: .set(\.attributes.zIndex, 3))
+                .setAttributes(when: .equal(\.attributes.representedElementCategory, .decorationView),
+                               style: .set(\.attributes.zIndex, 1))
+                .setAttributes(when: .equal(\.attributes.representedElementCategory, .supplementaryView)
+                    .and(.equal(\.attributes.indexPath.row, 0)),
+                               style: .set(\.attributes.zIndex, 0)
+                    .set(\.attributes.frame.size.width, 100))
         }
         
         var isAnimating = false

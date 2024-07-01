@@ -134,11 +134,8 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
                 attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: .excluding([])).run(with: attributes) ?? []
             case .adjustSupplementaryViewSize(let condition):
                 attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: condition).run(with: attributes) ?? []
-            case .centerX(let elements):
-                attributes = SKCLayoutPlugins.CenterX(layout: self,
-                                                      sections: elements).run(with: attributes) ?? []
-            case .left(let elements):
-                attributes = SKCLayoutPlugins.Left(layout: self, sections: elements)
+            case .verticalAlignment(let payload):
+                attributes = SKCLayoutPlugins.VerticalAlignmentPlugin(layout: self, payloads: payload)
                     .run(with: attributes) ?? []
             case let .fixSupplementaryViewInset(direction):
                 fixSupplementaryViewInset = SKCLayoutPlugins.FixSupplementaryViewInset(layout: self, direction: direction)

@@ -8,13 +8,33 @@
 import UIKit
 import SectionKit
 
+
+public enum SKCSectionLayoutPluginAlias {
+    
+    case left
+    case centerX
+    case right
+    
+    public var convert: SKCSectionLayoutPlugin {
+        switch self {
+        case .left:
+            return SKCSectionLayoutPlugin.verticalAlignment(.left)
+        case .centerX:
+            return SKCSectionLayoutPlugin.verticalAlignment(.center)
+        case .right:
+            return SKCSectionLayoutPlugin.verticalAlignment(.right)
+        }
+        
+    }
+}
+
+
 /// 枚举，表示不同的节布局插件。
 public enum SKCSectionLayoutPlugin {
     
     case attributes([SKCPluginAdjustAttributes])
     case decorations([any SKCLayoutDecorationPlugin])
-    case left
-    case centerX
+    case verticalAlignment(SKCLayoutPlugins.VerticalAlignment)
     
     /// 将节布局插件转换为对应的布局插件模式。
     ///
@@ -22,10 +42,8 @@ public enum SKCSectionLayoutPlugin {
     /// - Returns: 对应的布局插件模式。
     public func convert(_ section: SKCSectionActionProtocol) -> SKCLayoutPlugins.Mode {
         switch self {
-        case .left:
-            return .left([.init(section)])
-        case .centerX:
-            return .centerX([.init(section)])
+        case .verticalAlignment(let payload):
+            return .verticalAlignment([.init(alignment: payload, sections: [.init(section)])])
         case .decorations(let array):
             return .decorations(array)
         case .attributes(let array):
@@ -56,6 +74,39 @@ public extension SKCSectionLayoutPluginProtocol {
     ///
     /// - Parameter value: 布局插件数组。
     /// - Returns: 更新后的对象。
+    @discardableResult
+    func addLayoutPlugins(_ value: SKCSectionLayoutPluginAlias...) -> Self {
+        return addLayoutPlugins(value)
+    }
+    
+    /// 添加单个布局插件。
+    ///
+    /// - Parameter value: 布局插件。
+    /// - Returns: 更新后的对象。
+    @discardableResult
+    func addLayoutPlugins(_ value: SKCSectionLayoutPluginAlias) -> Self {
+        return addLayoutPlugins([value])
+    }
+    
+    /// 添加布局插件数组。
+    ///
+    /// - Parameter value: 布局插件数组。
+    /// - Returns: 更新后的对象。
+    @discardableResult
+    func addLayoutPlugins(_ value: [SKCSectionLayoutPluginAlias]) -> Self {
+        plugins.append(contentsOf: value.map(\.convert))
+        return self
+    }
+    
+}
+
+public extension SKCSectionLayoutPluginProtocol {
+    
+    /// 添加多个布局插件。
+    ///
+    /// - Parameter value: 布局插件数组。
+    /// - Returns: 更新后的对象。
+    @discardableResult
     func addLayoutPlugins(_ value: SKCSectionLayoutPlugin...) -> Self {
         return addLayoutPlugins(value)
     }
@@ -64,6 +115,7 @@ public extension SKCSectionLayoutPluginProtocol {
     ///
     /// - Parameter value: 布局插件。
     /// - Returns: 更新后的对象。
+    @discardableResult
     func addLayoutPlugins(_ value: SKCSectionLayoutPlugin) -> Self {
         return addLayoutPlugins([value])
     }
@@ -72,6 +124,7 @@ public extension SKCSectionLayoutPluginProtocol {
     ///
     /// - Parameter value: 布局插件数组。
     /// - Returns: 更新后的对象。
+    @discardableResult
     func addLayoutPlugins(_ value: [SKCSectionLayoutPlugin]) -> Self {
         plugins.append(contentsOf: value)
         return self

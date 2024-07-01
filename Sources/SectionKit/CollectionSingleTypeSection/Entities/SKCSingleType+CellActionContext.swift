@@ -28,13 +28,21 @@ public extension SKCSingleTypeSection.CellActionContext {
     func delete() {
         section.delete(row)
     }
+
+    func insert(before model: Cell.Model) {
+        insert(after: [model])
+    }
     
-    func insert(after model: Cell.Model) {
+    func insert(before model: [Cell.Model]) {
         section.insert(at: row, model)
     }
     
-    func insert(after model:[ Cell.Model]) {
-        section.insert(at: row, model)
+    func insert(after model: Cell.Model) {
+        insert(after: [model])
+    }
+    
+    func insert(after model: [Cell.Model]) {
+        section.insert(at: row + 1, model)
     }
     
 }

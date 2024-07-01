@@ -111,7 +111,7 @@ extension SKCLayoutPlugins {
                         let insets = insetForSection(at: section)
                         let spacing = minimumInteritemSpacing(at: section)
                         let allWidth = items.reduce(0) { $0 + $1.frame.width } + spacing * CGFloat(items.count - 1)
-                        let offset = (collectionView.bounds.width - insets.left - insets.right - allWidth) / 2
+                        let offset = (collectionView.bounds.width - insets.left - insets.right - allWidth) / 2 + insets.left
                         var last: UICollectionViewLayoutAttributes?
                         for item in items {
                             if let last = last {

@@ -22,6 +22,9 @@ class LayoutPluginViewController: SKCollectionViewController {
             .onCellAction(.selected) { context in
                 context.delete()
             }
+            .onCellAction(.didEndDisplay) { context in
+                print(context.row, context.model.text)
+            }
     }
     
     

@@ -234,7 +234,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     open func apply(_ models: [Model]) {
-        models.enumerated().forEach { item in
+        self.models.enumerated().forEach { item in
             deletedModels[item.offset] = item.element
         }
         reload(models)
@@ -661,7 +661,7 @@ public extension SKCSingleTypeSection {
                 sectionView.deleteItems(at: rows.map(indexPath(from:)))
             } completion: { flag in
                 let max = self.models.count
-                if let min = rows.min(), max > max {
+                if let min = rows.min(), max > min {
                     self.sectionInjection?.reload(cell: Array(min..<max))
                 } else {
                     self.sectionInjection?.reload()

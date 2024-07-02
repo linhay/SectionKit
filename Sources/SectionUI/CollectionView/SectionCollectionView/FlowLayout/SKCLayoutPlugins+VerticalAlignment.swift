@@ -38,7 +38,7 @@ extension SKCLayoutPlugins {
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
             guard scrollDirection == .vertical else {
-                assertionFailure("SKCLayoutPlugins.Left only support vertical scrollDirection")
+                debugPrint("SKCLayoutPlugins.Left only support vertical scrollDirection")
                 return attributes
             }
             for payload in payloads {

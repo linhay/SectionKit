@@ -6,8 +6,16 @@
 //
 
 import Foundation
+import UIKit
 
-public extension SKCSingleTypeSection.CellActionContext {
+public protocol SKCSingleTypeCellActionContextProtocol {
+    associatedtype Cell: SKConfigurableView & SKLoadViewProtocol & UICollectionViewCell
+    var section: SKCSingleTypeSection<Cell> { get }
+    var row: Int { get }
+    var model: Cell.Model { get }
+}
+
+public extension SKCSingleTypeCellActionContextProtocol {
     
     func reload() {
         section.refresh(at: row)

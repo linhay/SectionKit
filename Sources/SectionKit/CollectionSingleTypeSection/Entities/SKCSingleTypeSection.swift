@@ -62,7 +62,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         case move
     }
     
-    public struct ContextMenuContext {
+    public struct ContextMenuContext: SKCSingleTypeCellActionContextProtocol {
         
         public let section: SKCSingleTypeSection<Cell>
         public let model: Cell.Model
@@ -78,7 +78,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
     }
     
-    public struct CellActionContext: SKCSingleTypeSectionRowContext {
+    public struct CellActionContext: SKCSingleTypeSectionRowContext, SKCSingleTypeCellActionContextProtocol {
         
         public let section: SKCSingleTypeSection<Cell>
         public let type: CellActionType

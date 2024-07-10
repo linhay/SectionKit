@@ -30,17 +30,19 @@ public struct SKUIContextMenuResult: ExpressibleByArrayLiteral {
     public init(arrayLiteral elements: SKUIAction...) {
         self.init(elements)
     }
-    
-    public init(_ elements: [UIAction]) {
+
+    public init(_ menu: UIMenu) {
         self.init(configuration: .init(actionProvider: { suggest in
-            return UIMenu(children: elements)
+            return menu
         }))
     }
     
+    public init(_ elements: [UIAction]) {
+        self.init(UIMenu(children: elements))
+    }
+    
     public init(_ elements: [SKUIAction]) {
-        self.init(configuration: .init(actionProvider: { suggest in
-            return UIMenu(children: elements)
-        }))
+        self.init(UIMenu(children: elements))
     }
     
 }

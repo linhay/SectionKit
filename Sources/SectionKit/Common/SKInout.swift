@@ -75,7 +75,7 @@ public extension SKInout {
     
     func set<V>(_ keyPath: ReferenceWritableKeyPath<Object, V>, _ value: V) -> SKInout<Object> {
         return self.set { object in
-            var object = object
+            let object = object
             object[keyPath: keyPath] = value
             return object
         }

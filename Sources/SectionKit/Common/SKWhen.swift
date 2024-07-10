@@ -28,7 +28,7 @@ public extension SKWhen {
     ///
     /// - Parameter other: 另一个 SKWhen 实例
     /// - Returns: 一个新的 SKWhen 实例，包含两个条件的逻辑与组合
-    public func and(_ other: SKWhen) -> SKWhen {
+    func and(_ other: SKWhen) -> SKWhen {
         return SKWhen { object in
             self.isIncluded(object) && other.isIncluded(object)
         }
@@ -38,7 +38,7 @@ public extension SKWhen {
     ///
     /// - Parameter other: 另一个 SKWhen 实例
     /// - Returns: 一个新的 SKWhen 实例，包含两个条件的逻辑或组合
-    public func or(_ other: SKWhen) -> SKWhen {
+    func or(_ other: SKWhen) -> SKWhen {
         return SKWhen { object in
             self.isIncluded(object) || other.isIncluded(object)
         }

@@ -57,7 +57,7 @@ public extension SKInout where Object == SKCPluginAdjustAttributes.Context {
     static var reverseFooterAndSectionInset: SKInout<Object> {
         .set { context in
             guard context.attributes.representedElementCategory == .supplementaryView,
-                  context.attributes.representedElementKind == UICollectionView.elementKindSectionHeader else {
+                  context.attributes.representedElementKind == UICollectionView.elementKindSectionFooter else {
                 return context
             }
             let inset = context.plugin.insetForSection(at: context.attributes.indexPath.section)

@@ -35,19 +35,22 @@ public enum SKCSectionLayoutPlugin {
     case attributes([SKCPluginAdjustAttributes])
     case decorations([any SKCLayoutDecorationPlugin])
     case verticalAlignment(SKCLayoutPlugins.VerticalAlignment)
-    
+    case horizontalAlignment(SKCLayoutPlugins.HorizontalAlignment)
+
     /// 将节布局插件转换为对应的布局插件模式。
     ///
     /// - Parameter section: 需要转换的节。
     /// - Returns: 对应的布局插件模式。
     public func convert(_ section: SKCSectionActionProtocol) -> SKCLayoutPlugins.Mode {
         switch self {
-        case .verticalAlignment(let payload):
-            return .verticalAlignment([.init(alignment: payload, sections: [.init(section)])])
         case .decorations(let array):
             return .decorations(array)
         case .attributes(let array):
             return .attributes(array)
+        case .verticalAlignment(let payload):
+            return .verticalAlignment([.init(alignment: payload, sections: [.init(section)])])
+        case .horizontalAlignment(let payload):
+            return .horizontalAlignment([.init(alignment: payload, sections: [.init(section)])])
         }
     }
     

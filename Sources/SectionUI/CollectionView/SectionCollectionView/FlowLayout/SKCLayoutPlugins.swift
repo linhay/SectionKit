@@ -12,6 +12,7 @@ public struct SKCLayoutPlugins {
     /// 布局插件样式
     public enum Mode: Equatable {
         case attributes([SKCPluginAdjustAttributes])
+        case horizontalAlignment([HorizontalAlignmentPayload])
         /// 水平对齐
         case verticalAlignment([VerticalAlignmentPayload])
         /// fix: header & footer 贴合 cell
@@ -26,6 +27,7 @@ public struct SKCLayoutPlugins {
         var priority: Int {
             switch self {
             case .attributes: return 0
+            case .horizontalAlignment: return 100
             case .verticalAlignment: return 100
             case .fixSupplementaryViewSize:    return 1
             case .fixSupplementaryViewInset:   return 2
@@ -58,7 +60,8 @@ public struct SKCLayoutPlugins {
         var newModes = [Mode]()
         
         var attributes = [SKCPluginAdjustAttributes]()
-        var verticalAlignments = [VerticalAlignmentPayload]()
+        var verticalAlignments  = [VerticalAlignmentPayload]()
+        var horizontalAlignments = [HorizontalAlignmentPayload]()
         var centerXs = [SKBindingKey<Int>]()
         var decorations = [any SKCLayoutDecorationPlugin]()
 
@@ -77,6 +80,8 @@ public struct SKCLayoutPlugins {
                 }
             case .verticalAlignment(let array):
                 verticalAlignments.append(contentsOf: array)
+            case .horizontalAlignment(let array):
+                horizontalAlignments.append(contentsOf: array)
             case .decorations(let array):
                 decorations.append(contentsOf: array)
             }
@@ -84,6 +89,10 @@ public struct SKCLayoutPlugins {
 
         if !verticalAlignments.isEmpty {
             newModes.append(.verticalAlignment(verticalAlignments))
+        }
+        
+        if !horizontalAlignments.isEmpty {
+            newModes.append(.horizontalAlignment(horizontalAlignments))
         }
 
         if !decorations.isEmpty {

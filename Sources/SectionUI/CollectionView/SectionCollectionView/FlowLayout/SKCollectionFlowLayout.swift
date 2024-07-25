@@ -134,9 +134,6 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
                 attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: .excluding([])).run(with: attributes) ?? []
             case .adjustSupplementaryViewSize(let condition):
                 attributes = SKCLayoutPlugins.FixSupplementaryViewSize(layout: self, condition: condition).run(with: attributes) ?? []
-            case .verticalAlignment(let payload):
-                attributes = SKCLayoutPlugins.VerticalAlignmentPlugin(layout: self, payloads: payload)
-                    .run(with: attributes) ?? []
             case let .fixSupplementaryViewInset(direction):
                 fixSupplementaryViewInset = SKCLayoutPlugins.FixSupplementaryViewInset(layout: self, direction: direction)
                 attributes = fixSupplementaryViewInset?.run(with: attributes) ?? []
@@ -144,6 +141,12 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
                 let plugin = SKCLayoutPlugins.Decorations(layout: self, decorations: decorations)
                 pluginsStore.decorations = plugin
                 attributes = plugin.run(with: attributes) ?? []
+            case .verticalAlignment(let payload):
+                attributes = SKCLayoutPlugins.VerticalAlignmentPlugin(layout: self, payloads: payload)
+                    .run(with: attributes) ?? []
+            case .horizontalAlignment(let payload):
+                attributes = SKCLayoutPlugins.HorizontalAlignmentPlugin(layout: self, payloads: payload)
+                    .run(with: attributes) ?? []
             }
         }
         

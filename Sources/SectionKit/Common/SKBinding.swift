@@ -61,6 +61,20 @@ public extension SKBinding {
 public extension SKBinding {
     
     // 从一个现有的绑定创建一个新的绑定
+    init(_ source: CurrentValueSubject<Value, Never>) {
+        self.init(get: { source.value }, set: { source.send($0) })
+    }
+    
+    // 从一个现有的绑定创建一个新的绑定
+    init(_ source: CurrentValueSubject<Value?, Never>, default: Value) {
+        self.init(get: { source.value ?? `default` }, set: { source.send($0) })
+    }
+    
+}
+
+public extension SKBinding {
+    
+    // 从一个现有的绑定创建一个新的绑定
     init(_ source: SKBinding<Value>) {
         self.init(get: source._get, set: source._set)
     }

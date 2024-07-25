@@ -39,6 +39,12 @@ public extension SKScrollViewDelegateForward {
     func add(scroll item: SKScrollViewDelegateForwardProtocol) {
         scrollForwards.append(item)
     }
+
+    func add(scroll build: (_ handle: inout SKScrollViewDelegateHandler) -> Void) {
+        var item = SKScrollViewDelegateHandler()
+        build(&item)
+        add(scroll: item)
+    }
     
     func add(_ item: UIScrollViewDelegate) {
         add(SKScrollViewDelegateObserverBox(box: .init(item)))

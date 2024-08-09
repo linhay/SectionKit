@@ -288,7 +288,6 @@ public extension SKCDelegateForward {
         return value
     }
     
-    
     @available(iOS 15.0, *)
     func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveOfItemFromOriginalIndexPath originalIndexPath: IndexPath, atCurrentIndexPath currentIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
         let value = find(default: proposedIndexPath, overwrite: nil) { $0.collectionView(collectionView, targetIndexPathForMoveOfItemFromOriginalIndexPath: originalIndexPath, atCurrentIndexPath: currentIndexPath, toProposedIndexPath: proposedIndexPath) }

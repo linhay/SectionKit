@@ -52,15 +52,16 @@ public extension SKCSingleTypeSection {
         }, config: config)
     }
     
-//    @discardableResult
-//    func set<View>(supplementary kind: SKSupplementaryKind,
-//                   type: View.Type,
-//                   model: SKBinding<View.Model?>,
-//                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
-//        set(supplementary: kind, type: type, model: {
-//            model.wrappedValue
-//        }, config: config)
-//    }
+    @available(*, deprecated, renamed: "set(supplementary:type:model:config:)")
+    @discardableResult
+    func set<View>(supplementary kind: SKSupplementaryKind,
+                   type: View.Type,
+                   model: SKBinding<View.Model?>,
+                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
+        set(supplementary: kind, type: type, model: {
+            model.wrappedValue
+        }, config: config)
+    }
     
 }
 

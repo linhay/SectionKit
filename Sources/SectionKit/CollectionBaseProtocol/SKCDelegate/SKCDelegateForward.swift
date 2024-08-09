@@ -8,6 +8,17 @@
 import UIKit
 
 public class SKCDelegateForward: SKScrollViewDelegateForward, UICollectionViewDelegate {
+   
+    var shouldBeginMultipleSelectionInteraction: Bool?
+    var shouldSpringLoad: Bool?
+    var canEdit: Bool?
+    var canFocus: Bool?
+    var shouldUpdateFocus: Bool?
+    var selectionFollowsFocus: Bool?
+    var shouldHighlight: Bool?
+    var shouldSelect: Bool?
+    var shouldDeselect: Bool?
+    var canPerformPrimaryAction: Bool?
     
     var uiForwards: [SKCDelegateForwardProtocol] = []
     var uiObservers: [SKCDelegateObserverProtocol] = []
@@ -32,7 +43,12 @@ public extension SKCDelegateForward {
         add(ui: item)
     }
     
-    func find<T>(`default`: T, _ task: (_ item: SKCDelegateForwardProtocol) -> SKHandleResult<T>) -> T {
+    func find<T>(`default`: T,
+                 overwrite: KeyPath<SKCDelegateForward, T?>?,
+                 _ task: (_ item: SKCDelegateForwardProtocol) -> SKHandleResult<T>) -> T {
+        if let overwrite = overwrite, let value = self[keyPath: overwrite] {
+            return value
+        }
         for item in uiForwards.reversed() {
             let result = task(item)
             switch result {
@@ -46,7 +62,7 @@ public extension SKCDelegateForward {
     }
     
     func find(_ task: (_ item: SKCDelegateForwardProtocol) -> SKHandleResult<Void>) -> Void {
-        return find(default: (), task)
+        return find(default: (), overwrite: nil, task)
     }
     
     func observe(_ task: (_ item: SKCDelegateObserverProtocol) -> Void) {
@@ -69,7 +85,7 @@ public extension SKCDelegateForward {
     // 5. -collectionView:didUnhighlightItemAtIndexPath:
     @available(iOS 8.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, shouldHighlightItemAt: indexPath) }
+        let value = find(default: true, overwrite: \.shouldHighlight) { $0.collectionView(collectionView, shouldHighlightItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, shouldHighlightItemAt: indexPath, value: value)
         }
@@ -96,7 +112,7 @@ public extension SKCDelegateForward {
     
     @available(iOS 8.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, shouldSelectItemAt: indexPath) }
+        let value = find(default: true, overwrite: \.shouldSelect) { $0.collectionView(collectionView, shouldSelectItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, shouldSelectItemAt: indexPath, value: value)
         }
@@ -106,7 +122,7 @@ public extension SKCDelegateForward {
     // called when the user taps on an already-selected item in multi-select mode
     @available(iOS 8.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, shouldDeselectItemAt: indexPath) }
+        let value = find(default: true, overwrite: \.shouldDeselect) { $0.collectionView(collectionView, shouldDeselectItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, shouldDeselectItemAt: indexPath, value: value)
         }
@@ -144,7 +160,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS 16.0, *)
     func collectionView(_ collectionView: UICollectionView, canPerformPrimaryActionForItemAt indexPath: IndexPath) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, canPerformPrimaryActionForItemAt: indexPath) }
+        let value = find(default: true, overwrite: \.canPerformPrimaryAction) { $0.collectionView(collectionView, canPerformPrimaryActionForItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, canPerformPrimaryActionForItemAt: indexPath, value: value)
         }
@@ -215,7 +231,7 @@ public extension SKCDelegateForward {
     // support for custom transition layout
     @available(iOS 7.0, *)
     func collectionView(_ collectionView: UICollectionView, transitionLayoutForOldLayout fromLayout: UICollectionViewLayout, newLayout toLayout: UICollectionViewLayout) -> UICollectionViewTransitionLayout {
-        let value = find(default: UICollectionViewTransitionLayout(currentLayout: fromLayout, nextLayout: toLayout)) { $0.collectionView(collectionView, transitionLayoutForOldLayout: fromLayout, newLayout: toLayout) }
+        let value = find(default: UICollectionViewTransitionLayout(currentLayout: fromLayout, nextLayout: toLayout), overwrite: nil) { $0.collectionView(collectionView, transitionLayoutForOldLayout: fromLayout, newLayout: toLayout) }
         observe { item in
             item.collectionView(collectionView, transitionLayoutForOldLayout: fromLayout, newLayout: toLayout, value: value)
         }
@@ -226,7 +242,7 @@ public extension SKCDelegateForward {
     // Focus
     @available(iOS 9.0, *)
     func collectionView(_ collectionView: UICollectionView, canFocusItemAt indexPath: IndexPath) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, canFocusItemAt: indexPath) }
+        let value = find(default: true, overwrite: \.canFocus) { $0.collectionView(collectionView, canFocusItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, canFocusItemAt: indexPath, value: value)
         }
@@ -235,7 +251,7 @@ public extension SKCDelegateForward {
     
     @available(iOS 9.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldUpdateFocusIn context: UICollectionViewFocusUpdateContext) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, shouldUpdateFocusIn: context) }
+        let value = find(default: true, overwrite: \.shouldUpdateFocus) { $0.collectionView(collectionView, shouldUpdateFocusIn: context) }
         observe { item in
             item.collectionView(collectionView, shouldUpdateFocusIn: context, value: value)
         }
@@ -253,7 +269,7 @@ public extension SKCDelegateForward {
     
     @available(iOS 9.0, *)
     func indexPathForPreferredFocusedView(in collectionView: UICollectionView) -> IndexPath? {
-        let value = find(default: nil) { $0.indexPathForPreferredFocusedView(in: collectionView) }
+        let value = find(default: nil, overwrite: nil) { $0.indexPathForPreferredFocusedView(in: collectionView) }
         observe { item in
             item.indexPathForPreferredFocusedView(in: collectionView, value: value)
         }
@@ -265,7 +281,7 @@ public extension SKCDelegateForward {
     /// If the collection view's global selectionFollowsFocus is enabled, this method will allow you to override that behavior on a per-index path basis. This method is not called if selectionFollowsFocus is disabled.
     @available(iOS 15.0, *)
     func collectionView(_ collectionView: UICollectionView, selectionFollowsFocusForItemAt indexPath: IndexPath) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, selectionFollowsFocusForItemAt: indexPath) }
+        let value = find(default: true, overwrite: \.selectionFollowsFocus) { $0.collectionView(collectionView, selectionFollowsFocusForItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, selectionFollowsFocusForItemAt: indexPath, value: value)
         }
@@ -275,7 +291,7 @@ public extension SKCDelegateForward {
     
     @available(iOS 15.0, *)
     func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveOfItemFromOriginalIndexPath originalIndexPath: IndexPath, atCurrentIndexPath currentIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
-        let value = find(default: proposedIndexPath) { $0.collectionView(collectionView, targetIndexPathForMoveOfItemFromOriginalIndexPath: originalIndexPath, atCurrentIndexPath: currentIndexPath, toProposedIndexPath: proposedIndexPath) }
+        let value = find(default: proposedIndexPath, overwrite: nil) { $0.collectionView(collectionView, targetIndexPathForMoveOfItemFromOriginalIndexPath: originalIndexPath, atCurrentIndexPath: currentIndexPath, toProposedIndexPath: proposedIndexPath) }
         observe { item in
             item.collectionView(collectionView, targetIndexPathForMoveOfItemFromOriginalIndexPath: originalIndexPath, atCurrentIndexPath: currentIndexPath, toProposedIndexPath: proposedIndexPath, value: value)
         }
@@ -284,7 +300,7 @@ public extension SKCDelegateForward {
     
     @available(iOS, introduced: 9.0, deprecated: 15.0)
     func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt currentIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
-        let value = find(default: proposedIndexPath) { $0.collectionView(collectionView, targetIndexPathForMoveFromItemAt: currentIndexPath, toProposedIndexPath: proposedIndexPath) }
+        let value = find(default: proposedIndexPath, overwrite: nil) { $0.collectionView(collectionView, targetIndexPathForMoveFromItemAt: currentIndexPath, toProposedIndexPath: proposedIndexPath) }
         observe { item in
             item.collectionView(collectionView, targetIndexPathForMoveFromItemAt: currentIndexPath, toProposedIndexPath: proposedIndexPath, value: value)
         }
@@ -294,7 +310,7 @@ public extension SKCDelegateForward {
     // customize the content offset to be applied during transition or update animations
     @available(iOS 9.0, *)
     func collectionView(_ collectionView: UICollectionView, targetContentOffsetForProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-        let value = find(default: proposedContentOffset) { $0.collectionView(collectionView, targetContentOffsetForProposedContentOffset: proposedContentOffset) }
+        let value = find(default: proposedContentOffset, overwrite: nil) { $0.collectionView(collectionView, targetContentOffsetForProposedContentOffset: proposedContentOffset) }
         observe { item in
             item.collectionView(collectionView, targetContentOffsetForProposedContentOffset: proposedContentOffset, value: value)
         }
@@ -312,7 +328,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS 14.0, *)
     func collectionView(_ collectionView: UICollectionView, canEditItemAt indexPath: IndexPath) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, canEditItemAt: indexPath) }
+        let value = find(default: true, overwrite: \.canEdit) { $0.collectionView(collectionView, canEditItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, canEditItemAt: indexPath, value: value)
         }
@@ -331,7 +347,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS 11.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldSpringLoadItemAt indexPath: IndexPath, with context: any UISpringLoadedInteractionContext) -> Bool {
-        let value = find(default: true) { $0.collectionView(collectionView, shouldSpringLoadItemAt: indexPath, with: context) }
+        let value = find(default: true, overwrite: \.shouldSpringLoad) { $0.collectionView(collectionView, shouldSpringLoadItemAt: indexPath, with: context) }
         observe { item in
             item.collectionView(collectionView, shouldSpringLoadItemAt: indexPath, with: context, value: value)
         }
@@ -354,7 +370,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
-        let value = find(default: false) { $0.collectionView(collectionView, shouldBeginMultipleSelectionInteractionAt: indexPath) }
+        let value = find(default: false, overwrite: \.shouldBeginMultipleSelectionInteraction) { $0.collectionView(collectionView, shouldBeginMultipleSelectionInteractionAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, shouldBeginMultipleSelectionInteractionAt: indexPath, value: value)
         }
@@ -411,7 +427,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS 16.0, *)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        let value = find(default: nil) { $0.collectionView(collectionView, contextMenuConfigurationForItemsAt: indexPaths, point: point) }
+        let value = find(default: nil, overwrite: nil) { $0.collectionView(collectionView, contextMenuConfigurationForItemsAt: indexPaths, point: point) }
         observe { item in
             item.collectionView(collectionView, contextMenuConfigurationForItemsAt: indexPaths, point: point, value: value)
         }
@@ -429,7 +445,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS 16.0, *)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
-        let value = find(default: nil) { $0.collectionView(collectionView, contextMenuConfiguration: configuration, highlightPreviewForItemAt: indexPath) }
+        let value = find(default: nil, overwrite: nil) { $0.collectionView(collectionView, contextMenuConfiguration: configuration, highlightPreviewForItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, contextMenuConfiguration: configuration, highlightPreviewForItemAt: indexPath, value: value)
         }
@@ -446,7 +462,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS 16.0, *)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, dismissalPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
-        let value = find(default: nil) { $0.collectionView(collectionView, contextMenuConfiguration: configuration, dismissalPreviewForItemAt: indexPath) }
+        let value = find(default: nil, overwrite: nil) { $0.collectionView(collectionView, contextMenuConfiguration: configuration, dismissalPreviewForItemAt: indexPath) }
         observe { item in
             item.collectionView(collectionView, contextMenuConfiguration: configuration, dismissalPreviewForItemAt: indexPath, value: value)
         }
@@ -514,7 +530,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS 15.0, *)
     func collectionView(_ collectionView: UICollectionView, sceneActivationConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIWindowScene.ActivationConfiguration? {
-        let value = find(default: nil) { $0.collectionView(collectionView, sceneActivationConfigurationForItemAt: indexPath, point: point) }
+        let value = find(default: nil, overwrite: nil) { $0.collectionView(collectionView, sceneActivationConfigurationForItemAt: indexPath, point: point) }
         observe { item in
             item.collectionView(collectionView, sceneActivationConfigurationForItemAt: indexPath, point: point, value: value)
         }
@@ -536,7 +552,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        let value = find(default: nil) { $0.collectionView(collectionView, contextMenuConfigurationForItemAt: indexPath, point: point) }
+        let value = find(default: nil, overwrite: nil) { $0.collectionView(collectionView, contextMenuConfigurationForItemAt: indexPath, point: point) }
         observe { item in
             item.collectionView(collectionView, contextMenuConfigurationForItemAt: indexPath, point: point, value: value)
         }
@@ -553,7 +569,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
     func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        let value = find(default: nil) { $0.collectionView(collectionView, previewForHighlightingContextMenuWithConfiguration: configuration) }
+        let value = find(default: nil, overwrite: nil) { $0.collectionView(collectionView, previewForHighlightingContextMenuWithConfiguration: configuration) }
         observe { item in
             item.collectionView(collectionView, previewForHighlightingContextMenuWithConfiguration: configuration, value: value)
         }
@@ -571,7 +587,7 @@ public extension SKCDelegateForward {
      */
     @available(iOS, introduced: 13.0, deprecated: 16.0)
     func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        let value = find(default: nil) { $0.collectionView(collectionView, previewForDismissingContextMenuWithConfiguration: configuration) }
+        let value = find(default: nil, overwrite: nil) { $0.collectionView(collectionView, previewForDismissingContextMenuWithConfiguration: configuration) }
         observe { item in
             item.collectionView(collectionView, previewForDismissingContextMenuWithConfiguration: configuration, value: value)
         }

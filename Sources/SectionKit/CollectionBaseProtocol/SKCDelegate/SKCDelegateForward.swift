@@ -9,16 +9,16 @@ import UIKit
 
 public class SKCDelegateForward: SKScrollViewDelegateForward, UICollectionViewDelegate {
    
-    var shouldBeginMultipleSelectionInteraction: Bool?
-    var shouldSpringLoad: Bool?
-    var canEdit: Bool?
-    var canFocus: Bool?
-    var shouldUpdateFocus: Bool?
-    var selectionFollowsFocus: Bool?
-    var shouldHighlight: Bool?
-    var shouldSelect: Bool?
-    var shouldDeselect: Bool?
-    var canPerformPrimaryAction: Bool?
+    public var shouldBeginMultipleSelectionInteraction: Bool?
+    public var shouldSpringLoad: Bool?
+    public var canEdit: Bool?
+    public var canFocus: Bool?
+    public var shouldUpdateFocus: Bool?
+    public var selectionFollowsFocus: Bool?
+    public var shouldHighlight: Bool?
+    public var shouldSelect: Bool?
+    public var shouldDeselect: Bool?
+    public var canPerformPrimaryAction: Bool?
     
     var uiForwards: [SKCDelegateForwardProtocol] = []
     var uiObservers: [SKCDelegateObserverProtocol] = []

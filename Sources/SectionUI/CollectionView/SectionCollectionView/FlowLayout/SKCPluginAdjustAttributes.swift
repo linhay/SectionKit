@@ -68,6 +68,28 @@ public extension SKInout where Object == SKCPluginAdjustAttributes.Context {
     
     /// Fixes the size of supplementary views.
     static var fixSupplementaryViewSize: SKInout<Object> {
+        fixFooterViewSize.set(fixHeaderViewSize)
+    }
+    
+    static var fixFooterViewSize: SKInout<Object> {
+        .set { context in
+            guard context.attributes.representedElementCategory == .supplementaryView else {
+                return context
+            }
+
+            let attribute = context.attributes
+            let inset = context.plugin.insetForSection(at: attribute.indexPath.section)
+            switch context.plugin.kind(of: attribute) {
+            case .footer:
+                attribute.size = context.plugin.footerSize(at: attribute.indexPath.section)
+            case .header, .cell, .custom:
+                break
+            }
+            return context
+        }
+    }
+    
+    static var fixHeaderViewSize: SKInout<Object> {
         .set { context in
             guard context.attributes.representedElementCategory == .supplementaryView else {
                 return context
@@ -78,9 +100,7 @@ public extension SKInout where Object == SKCPluginAdjustAttributes.Context {
             switch context.plugin.kind(of: attribute) {
             case .header:
                 attribute.size = context.plugin.headerSize(at: attribute.indexPath.section)
-            case .footer:
-                attribute.size = context.plugin.footerSize(at: attribute.indexPath.section)
-            case .cell, .custom:
+            case .footer, .cell, .custom:
                 break
             }
             return context

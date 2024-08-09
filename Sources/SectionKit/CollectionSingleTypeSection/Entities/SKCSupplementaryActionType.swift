@@ -8,6 +8,7 @@
 import Foundation
 
 public enum SKCSupplementaryActionType: Int, Hashable {
+    case reload
     /// 即将显示
     case willDisplay
     /// 结束显示

@@ -64,6 +64,15 @@ public extension SKInout {
 
 public extension SKInout {
 
+    func set(_ other: SKInout<Object>) -> SKInout<Object> {
+        return .set { object in
+            var object = object
+            object = build(object)
+            object = other.build(object)
+            return object
+        }
+    }
+    
     func set(_ block: @escaping (_ object: Object) -> Object) -> SKInout<Object> {
         return .set { object in
             var object = object

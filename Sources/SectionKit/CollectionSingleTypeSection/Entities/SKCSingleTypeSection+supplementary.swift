@@ -27,6 +27,20 @@ public extension SKCSingleTypeSection {
             return View.preferredSize(limit: limitSize, model: model)
         })
     }
+
+    @discardableResult
+    func setHeader<View>(_ type: View.Type,
+                   model: View.Model,
+                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
+        set(supplementary: .header, type: type, model: model, config: config)
+    }
+    
+    @discardableResult
+    func setFooter<View>(_ type: View.Type,
+                   model: View.Model,
+                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
+        set(supplementary: .footer, type: type, model: model, config: config)
+    }
     
     @discardableResult
     func set<View>(supplementary kind: SKSupplementaryKind,
@@ -38,15 +52,15 @@ public extension SKCSingleTypeSection {
         }, config: config)
     }
     
-    @discardableResult
-    func set<View>(supplementary kind: SKSupplementaryKind,
-                   type: View.Type,
-                   model: SKBinding<View.Model?>,
-                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
-        set(supplementary: kind, type: type, model: {
-            model.wrappedValue
-        }, config: config)
-    }
+//    @discardableResult
+//    func set<View>(supplementary kind: SKSupplementaryKind,
+//                   type: View.Type,
+//                   model: SKBinding<View.Model?>,
+//                   config: ((View) -> Void)? = nil) -> Self where View: UICollectionReusableView & SKLoadViewProtocol & SKConfigurableView {
+//        set(supplementary: kind, type: type, model: {
+//            model.wrappedValue
+//        }, config: config)
+//    }
     
 }
 

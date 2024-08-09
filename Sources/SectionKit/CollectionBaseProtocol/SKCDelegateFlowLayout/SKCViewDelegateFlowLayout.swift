@@ -31,9 +31,8 @@ public extension SKCDelegateFlowLayout {
             size = .init(width: max(size.width, 0), height: max(size.height, 0))
         }
         
-        if indexPath.section == 0,
-           indexPath.row == 0,
-           size == .zero {
+        if size == .zero {
+            SKPrint.function("size is zero, \(indexPath)")
             size = .init(width: 0.01, height: 0.01)
         }
         

@@ -577,6 +577,14 @@ private extension SKCSingleTypeSection {
                     }
                 }
             }
+            
+//            if self.isBindSectionView, let headerView = headerView {
+//                sendSupplementaryAction(.reload, kind: .header, row: 0, view: headerView)
+//            }
+//            
+//            if self.isBindSectionView, let footerView = footerView {
+//                sendSupplementaryAction(.reload, kind: .footer, row: 0, view: footerView)
+//            }
         case .normal:
             self.models = models
             sectionInjection?.reload()
@@ -843,7 +851,10 @@ public extension SKCSingleTypeSection {
         publishers.cellActionSubject?.send(result)
     }
     
-    func sendSupplementaryAction(_ type: SKCSupplementaryActionType, kind: SKSupplementaryKind, row: Int, view: UICollectionReusableView) {
+    func sendSupplementaryAction(_ type: SKCSupplementaryActionType,
+                                 kind: SKSupplementaryKind,
+                                 row: Int,
+                                 view: UICollectionReusableView) {
         let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row, view: view)
         if let blocks = supplementaryActions[type] {
             for block in blocks {

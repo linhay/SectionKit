@@ -10,7 +10,7 @@ import SectionKit
 
 public extension SKCLayoutPlugins {
     
-    public struct FixSupplementaryViewInset: SKCLayoutPlugin {
+    struct FixSupplementaryViewInset: SKCLayoutPlugin {
         
         public enum Direction: Int {
             case vertical

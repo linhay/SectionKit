@@ -10,7 +10,7 @@ import SectionKit
 
 public extension SKCLayoutPlugins {
     
-    public struct Decorations: SKCLayoutPlugin {
+    struct Decorations: SKCLayoutPlugin {
         
         public let layoutWeakBox: SKWeakBox<SKCollectionFlowLayout>
         public let decorations: [any SKCLayoutDecorationPlugin]

@@ -78,7 +78,6 @@ public extension SKInout where Object == SKCPluginAdjustAttributes.Context {
             }
 
             let attribute = context.attributes
-            let inset = context.plugin.insetForSection(at: attribute.indexPath.section)
             switch context.plugin.kind(of: attribute) {
             case .footer:
                 attribute.size = context.plugin.footerSize(at: attribute.indexPath.section)
@@ -96,7 +95,6 @@ public extension SKInout where Object == SKCPluginAdjustAttributes.Context {
             }
 
             let attribute = context.attributes
-            let inset = context.plugin.insetForSection(at: attribute.indexPath.section)
             switch context.plugin.kind(of: attribute) {
             case .header:
                 attribute.size = context.plugin.headerSize(at: attribute.indexPath.section)

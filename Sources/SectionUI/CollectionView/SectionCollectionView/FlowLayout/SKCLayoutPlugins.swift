@@ -62,7 +62,6 @@ public struct SKCLayoutPlugins {
         var attributes = [SKCPluginAdjustAttributes]()
         var verticalAlignments  = [VerticalAlignmentPayload]()
         var horizontalAlignments = [HorizontalAlignmentPayload]()
-        var centerXs = [SKBindingKey<Int>]()
         var decorations = [any SKCLayoutDecorationPlugin]()
 
         /// 优先级冲突去重

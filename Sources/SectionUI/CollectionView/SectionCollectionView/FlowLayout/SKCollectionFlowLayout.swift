@@ -155,10 +155,10 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
     
     override open func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         defer { layoutTempStore = nil }
-        guard var rawValue = super.layoutAttributesForElements(in: rect) else {
+        guard let rawValue = super.layoutAttributesForElements(in: rect) else {
             return nil
         }
-        var attributes = rawValue.compactMap { $0.copy() as? UICollectionViewLayoutAttributes }
+        let attributes = rawValue.compactMap { $0.copy() as? UICollectionViewLayoutAttributes }
         layoutTempStore = .init(attributes: attributes)
         pluginsStore = .init()
         return applyMode(for: attributes)
@@ -190,7 +190,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
             return attributes
         } else if let attributes = layoutStore.supplementaries[supplementary]?[indexPath] {
             return attributes
-        } else if var attributes = super.layoutAttributesForSupplementaryView(ofKind: supplementary, at: indexPath).flatMap { $0.copy() as? UICollectionViewLayoutAttributes } {
+        } else if var attributes = super.layoutAttributesForSupplementaryView(ofKind: supplementary, at: indexPath).flatMap({ $0.copy() as? UICollectionViewLayoutAttributes }) {
             attributes = adjust(for: attributes)
             layoutStore.store(attribute: attributes)
             return attributes

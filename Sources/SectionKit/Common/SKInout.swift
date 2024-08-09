@@ -9,6 +9,7 @@ import Foundation
 
 public struct SKInout<Object> {
     
+    
     public let build: (_ object: Object) -> Object
     
     public init(_ build: @escaping (_ object: Object) -> Object) {

@@ -7,10 +7,8 @@
 
 import Combine
 import SectionUI
-import Stem
 #if canImport(UIKit)
 import UIKit
-import StemColor
 
 class PrefetchViewController: SKCollectionViewController {
     private let section = ColorBlockCell
@@ -32,7 +30,7 @@ class PrefetchViewController: SKCollectionViewController {
 
 extension PrefetchViewController {
     func next() {
-        let color: UIColor = StemColor.random.alpha(with: 0.4).convert()
+        let color: UIColor = .blue.withAlphaComponent(0.4)
         section.config(models: section.models + (0 ... 20).map { index in
                 .init(color: color,
                       text: (section.models.count + index).description,

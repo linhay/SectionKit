@@ -8,7 +8,6 @@
 #if canImport(UIKit)
 import UIKit
 import SectionKit
-import StemColor
 
 class StringCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     
@@ -17,7 +16,7 @@ class StringCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
         let size: CGSize
         let color: UIColor
         
-        init(text: String, size: CGSize, color: UIColor = StemColor.random.convert()) {
+        init(text: String, size: CGSize, color: UIColor) {
             self.text = text
             self.size = size
             self.color = color

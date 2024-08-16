@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CD0621A128A7FBD200272233 /* Stem in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A028A7FBD200272233 /* Stem */; };
-		CD0621A328A7FBD200272233 /* StemColor in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A228A7FBD200272233 /* StemColor */; };
-		CD0621A528A7FBD200272233 /* StemFilePath in Frameworks */ = {isa = PBXBuildFile; productRef = CD0621A428A7FBD200272233 /* StemFilePath */; };
 		CD33B80827DCE3A70032987B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B80727DCE3A70032987B /* AppDelegate.swift */; };
 		CD33B80A27DCE3A70032987B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD33B80927DCE3A70032987B /* SceneDelegate.swift */; };
 		CD33B80F27DCE3A70032987B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CD33B80D27DCE3A70032987B /* Main.storyboard */; };
@@ -61,10 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CDC42B842959ACE500AEF423 /* SectionUI in Frameworks */,
-				CD0621A328A7FBD200272233 /* StemColor in Frameworks */,
-				CD0621A128A7FBD200272233 /* Stem in Frameworks */,
 				CDC42B822959ACE000AEF423 /* SectionKit in Frameworks */,
-				CD0621A528A7FBD200272233 /* StemFilePath in Frameworks */,
 				CD33B82627DCE6190032987B /* SnapKit in Frameworks */,
 				CDA10DEE28B4A90C000698F2 /* Delegate in Frameworks */,
 				CDA3FEF22AD92642000A8735 /* SectionKit in Frameworks */,
@@ -141,9 +135,6 @@
 			name = Example;
 			packageProductDependencies = (
 				CD33B82527DCE6190032987B /* SnapKit */,
-				CD0621A028A7FBD200272233 /* Stem */,
-				CD0621A228A7FBD200272233 /* StemColor */,
-				CD0621A428A7FBD200272233 /* StemFilePath */,
 				CDA10DED28B4A90C000698F2 /* Delegate */,
 				CDC42B812959ACE000AEF423 /* SectionKit */,
 				CDC42B832959ACE500AEF423 /* SectionUI */,
@@ -180,7 +171,6 @@
 			mainGroup = CD33B7FB27DCE3A70032987B;
 			packageReferences = (
 				CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */,
-				CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */,
 				CDA10DEC28B4A90C000698F2 /* XCRemoteSwiftPackageReference "Delegate" */,
 				CDA3FEF02AD92642000A8735 /* XCLocalSwiftPackageReference ".." */,
 			);
@@ -454,14 +444,6 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/linhay/Stem.git";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 1.1.2;
-			};
-		};
 		CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit";
@@ -481,21 +463,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		CD0621A028A7FBD200272233 /* Stem */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
-			productName = Stem;
-		};
-		CD0621A228A7FBD200272233 /* StemColor */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
-			productName = StemColor;
-		};
-		CD0621A428A7FBD200272233 /* StemFilePath */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CD06219F28A7FBD200272233 /* XCRemoteSwiftPackageReference "Stem" */;
-			productName = StemFilePath;
-		};
 		CD33B82527DCE6190032987B /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CD33B82427DCE6190032987B /* XCRemoteSwiftPackageReference "SnapKit" */;

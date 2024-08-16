@@ -16,7 +16,7 @@ class PluginsController: SKCollectionViewController {
     var enable = false
     override func viewDidLoad() {
         super.viewDidLoad()
-        st.addChilds(toolbar)
+        addChild(toolbar)
         view.addSubview(toolbar.view)
         toolbar.view.snp.makeConstraints { make in
             make.bottom.left.right.equalToSuperview()

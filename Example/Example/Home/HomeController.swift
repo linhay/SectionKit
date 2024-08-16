@@ -67,6 +67,13 @@ extension HomeController {
         section.sectionInset = .init(top: 20, left: 20, bottom: 0, right: 20)
         section.minimumLineSpacing = 8
         manager.reload(section)
+        manager.scrollObserver.add(scroll: "1") { hander in
+            
+        }
+        manager.scrollObserver.add(scroll: "1") { hander in
+            
+        }
+        print(1)
     }
 }
 

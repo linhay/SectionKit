@@ -9,6 +9,8 @@ import UIKit
 
 public struct SKScrollViewDelegateHandler: SKScrollViewDelegateObserverProtocol {
     
+    public var id: String = UUID().uuidString
+    
     @discardableResult
     public mutating func didScroll(_ observe: @escaping (_ scrollView: UIScrollView) -> Void) -> Self {
         self.didScrolls.append(observe)

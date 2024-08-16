@@ -6,10 +6,8 @@
 //
 
 import SectionUI
-import Stem
 #if canImport(UIKit)
 import UIKit
-import StemColor
 
 class SingleTypeViewController: SKCollectionViewController {
     
@@ -48,7 +46,7 @@ class SingleTypeViewController: SKCollectionViewController {
         
         sectionController.section.onCellAction(.selected) { [weak self] context in
             guard let self = self else { return }
-            context.view().backgroundColor = StemColor.random.convert()
+            context.view().backgroundColor = .blue
             switch context.model {
             case .section_0:
                 self.rightController.section = self.rightController.section0
@@ -168,13 +166,13 @@ extension SingleTypeViewController {
             case .add_section:
                 manager.reload([section2, section])
             case .add:
-                section.append(.init(color: StemColor.random.alpha(with: 0.4).convert(),
+                section.append(.init(color: .red.withAlphaComponent(0.4),
                                      text: "\(section.models.count) New",
                                      size: size))
             case .insert:
                 if let offset = (0..<section.itemCount).randomElement() {
                     section.insert(at: offset,
-                                   .init(color: StemColor.random.alpha(with: 0.4).convert(),
+                                   .init(color: .red.withAlphaComponent(0.4),
                                          text: "\(offset) New",
                                          size: size))
                 }
@@ -237,9 +235,9 @@ extension SingleTypeViewController {
         
         func animate(_ event: @escaping () -> Void, finish: (() -> Void)? = nil) {
             isAnimating = true
-            Gcd.delay(.main, seconds: 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                 event()
-                Gcd.delay(.main, seconds: 0.5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                     self.isAnimating = false
                     finish?()
                 }

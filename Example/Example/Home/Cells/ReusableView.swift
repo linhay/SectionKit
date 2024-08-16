@@ -6,10 +6,8 @@
 //
 
 import SectionKit
-import Stem
 #if canImport(UIKit)
 import UIKit
-import StemColor
 
 class ReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigurableView {
     
@@ -56,7 +54,7 @@ class ReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigurable
         super.init(frame: frame)
         layer.borderColor = UIColor.black.cgColor
         layer.borderWidth = 1
-        backgroundColor = StemColor.random.convert()
+        backgroundColor = .red
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview()

@@ -6,7 +6,6 @@
 //
 
 import SectionUI
-import Stem
 #if canImport(UIKit)
 import UIKit
 
@@ -167,10 +166,10 @@ extension DecorationViewController {
         
         func animate(_ event: @escaping () -> Void) {
             isAnimating = true
-            Gcd.delay(.main, seconds: 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
                 self.isAnimating = false
                 event()
-            }
+            })
         }
         
         func setupUI() {

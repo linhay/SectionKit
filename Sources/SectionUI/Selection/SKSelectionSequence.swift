@@ -8,6 +8,19 @@
 import Foundation
 import Combine
 
+public extension SKCSingleTypeSection where Model: SKSelectionProtocol {
+    
+    func selectionSequence(isUnique: Bool = true) -> SKSelectionSequence<Model> {
+        let sequence = SKSelectionSequence<Model>(isUnique: isUnique)
+        sequence.subscribe = self.publishers.modelsPulisher.sink { [weak sequence] items in
+            guard let sequence = sequence else { return }
+            sequence.reload(items)
+        }
+        return sequence
+    }
+    
+}
+
 public final class SKSelectionSequence<Element: SKSelectionProtocol> {
     
     public struct ChangedContent {
@@ -30,12 +43,28 @@ public final class SKSelectionSequence<Element: SKSelectionProtocol> {
         }.eraseToAnyPublisher()
     }()
     
-    private var itemChangedSubject: PassthroughSubject<ChangedContent, Never>?
+    public private(set) lazy var reloadPublisher: AnyPublisher<SKSelectionSequence<Element>, Never> = {
+        Deferred { [weak self] in
+            guard let self = self else {
+                return PassthroughSubject<SKSelectionSequence<Element>, Never>()
+            }
+            if let subject = self.reloadSubject {
+                return subject
+            }
+            let subject = PassthroughSubject<SKSelectionSequence<Element>, Never>()
+            self.reloadSubject = subject
+            return subject
+        }.eraseToAnyPublisher()
+    }()
     
+    private var itemChangedSubject: PassthroughSubject<ChangedContent, Never>?
+    private var reloadSubject: PassthroughSubject<SKSelectionSequence<Element>, Never>?
+
     /// 是否让选中的元素是整个序列中唯一的选中 | default: true
     public var isUnique: Bool = true
     public private(set) var store: [Element] = []
     private var cancellables = Set<AnyCancellable>()
+    fileprivate var subscribe: AnyCancellable?
     
     /// init
     /// - Parameters:
@@ -68,6 +97,7 @@ public extension SKSelectionSequence {
         store.removeAll()
         store = elements
         self.observeAll()
+        self.reloadSubject?.send(self)
     }
     
     func append(_ elements: [Element]) {

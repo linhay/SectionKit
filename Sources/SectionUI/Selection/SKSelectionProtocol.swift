@@ -40,9 +40,6 @@ public extension SKSelectionProtocol {
     
     @discardableResult
     func select(_ value: Bool) -> Bool {
-        guard isEnabled else {
-            return false
-        }
         if value {
             if canSelect {
                 self.selection.isSelected = canSelect

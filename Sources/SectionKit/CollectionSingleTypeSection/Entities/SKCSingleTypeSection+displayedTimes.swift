@@ -19,6 +19,7 @@ public extension SKCSingleTypeSection {
     ///   - count: 第 n 次曝光
     ///   - observe: 回调
     /// - Returns: self
+    @discardableResult
     func model(displayedAt time: Int,
                observe: @escaping (_ context: ModelDisplayedContext) -> Void) -> Self {
         displayedTimes.trigger { [weak self] (row, count) in

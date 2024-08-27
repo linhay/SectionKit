@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 #if canImport(UIKit)
-#if canImport(UIKit)
 import UIKit
 
 /// 从代码加载当前视图
@@ -39,6 +38,4 @@ public extension SKLoadViewProtocol {
         return nil
     }
 }
-#endif
-
 #endif

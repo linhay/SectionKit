@@ -74,24 +74,40 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
         bottom.constant = -model.insets.bottom
     }
     
-    private lazy var content = Content()
+    private let content: Content
     private lazy var left   = content.leftAnchor.constraint(equalTo: leftAnchor, constant: 0)
     private lazy var right  = content.rightAnchor.constraint(equalTo: rightAnchor, constant: 0)
     private lazy var top    = content.topAnchor.constraint(equalTo: topAnchor, constant: 0)
     private lazy var bottom = content.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)
     
+    public init(content: Content) where Content: SKLoadViewProtocol {
+        if let nib = Content.nib {
+            self.content = nib.instantiate(withOwner: nil, options: nil).first as! Content
+        } else {
+            self.content = .init()
+        }
+        super.init(frame: .zero)
+        initialize()
+    }
+    
     public override init(frame: CGRect) {
+        content = .init()
         super.init(frame: frame)
+        initialize()
+    }
+    
+    public required init?(coder: NSCoder) {
+        content = .init()
+        super.init(coder: coder)
+    }
+    
+    func initialize() {
         self.addSubview(content)
         content.translatesAutoresizingMaskIntoConstraints = false
         left.isActive = true
         right.isActive = true
         top.isActive = true
         bottom.isActive = true
-    }
-    
-    public required init?(coder: NSCoder) {
-        super.init(coder: coder)
     }
     
 }

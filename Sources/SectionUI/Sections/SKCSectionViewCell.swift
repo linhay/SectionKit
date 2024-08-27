@@ -106,7 +106,7 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
     
     public func config(_ model: Model) {
         sectionView.scrollDirection = model.scrollDirection
-        model.style?.build(sectionView)
+        _ = model.style?.build(sectionView)
         edgeConstraint.apply(model.insets)
         switch model.section {
         case .normal(let list):

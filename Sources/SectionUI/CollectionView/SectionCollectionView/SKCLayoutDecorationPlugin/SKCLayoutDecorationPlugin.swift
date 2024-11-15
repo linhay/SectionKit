@@ -11,6 +11,7 @@ import UIKit
 public protocol SKCLayoutDecorationPlugin: AnyObject {
     associatedtype View: SKCDecorationView
     typealias ActionBlock = (_ context: SKCLayoutDecoration.Context<View>) -> Void
+    var id: String { get }
     var from: SKCLayoutDecoration.Item { get set }
     var to: SKCLayoutDecoration.Item? { get }
     var viewType: View.Type { get }

@@ -178,6 +178,19 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
                                       style: DecorationViewStyle<View>? = nil) -> Self {
         let decoration = SKCLayoutDecoration.Entity<View>(from: .init(self))
         style?(decoration)
+        plugins = plugins.compactMap { plugin in
+            switch plugin {
+            case .decorations(var list):
+                list = list.filter({ $0.id != decoration.id })
+                if !list.isEmpty {
+                    return .decorations(list)
+                } else {
+                    return nil
+                }
+            default:
+                return plugin
+            }
+        }
         return self.addLayoutPlugins(.decorations([decoration]))
     }
     

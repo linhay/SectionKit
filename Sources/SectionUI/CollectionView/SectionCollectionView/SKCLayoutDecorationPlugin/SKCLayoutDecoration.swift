@@ -74,6 +74,7 @@ public struct SKCLayoutDecoration {
     public class Entity<Target: SKCDecorationView>: SKCLayoutDecorationPlugin {
         
         public typealias View = Target
+        public var id: String
         public var from: Item
         public var to: Item?
         public var viewType: View.Type
@@ -82,11 +83,13 @@ public struct SKCLayoutDecoration {
         public var zIndex: Int?
         public var actions: [SKCSupplementaryActionType : [ActionBlock]] = [:]
         
-        public init(from: Item,
+        public init(id: String = UUID().uuidString,
+                    from: Item,
                     to: Item? = nil,
                     insets: UIEdgeInsets = .zero,
                     zIndex: Int? = nil,
                     actions: [SKCSupplementaryActionType : [ActionBlock]] = [:]) {
+            self.id = id
             self.from = from
             self.to = to
             self.viewType = View.self

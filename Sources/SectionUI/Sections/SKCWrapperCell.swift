@@ -51,7 +51,6 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.translatesAutoresizingMaskIntoConstraints = false
         initialize(contentView: contentView)
     }
     

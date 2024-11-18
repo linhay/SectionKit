@@ -27,26 +27,28 @@ public class STCHostingCell<ContentView: SKExistModelView & View>: UICollectionV
     weak var wrappedView: UIView?
     
     public func config(_ model: ContentView.Model) {
+        var wrappedView: UIView
+        
         if #available(iOS 16.0, *) {
-            contentConfiguration = UIHostingConfiguration(content: {
-                ContentView.init(model: model)
-            })
-            
+            wrappedView = UIHostingConfiguration { [frame = self.frame] in
+                ContentView(model: model)
+                    .frame(width: frame.width, height: frame.height)
+            }.makeContentView()
         } else {
-            let view = ContentView(model: model)
-            let controller = UIHostingController(rootView: view)
-            self.wrappedView?.removeFromSuperview()
-            if let wrappedView = controller.view {
-                self.wrappedView = wrappedView
-                contentView.addSubview(wrappedView)
-                wrappedView.translatesAutoresizingMaskIntoConstraints = false
-                [wrappedView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),
-                 wrappedView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
-                 wrappedView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
-                 wrappedView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
-                    constraint.isActive = true
-                }
-            }
+            let controller = UIHostingController(rootView: ContentView(model: model)
+                .frame(width: frame.width, height: frame.height))
+            wrappedView = controller.view
+        }
+        
+        self.wrappedView?.removeFromSuperview()
+        self.wrappedView = wrappedView
+        contentView.addSubview(wrappedView)
+        wrappedView.translatesAutoresizingMaskIntoConstraints = false
+        [wrappedView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),
+         wrappedView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
+         wrappedView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
+         wrappedView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
+            constraint.isActive = true
         }
     }
     

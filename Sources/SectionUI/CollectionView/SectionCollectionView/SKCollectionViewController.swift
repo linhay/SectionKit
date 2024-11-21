@@ -54,6 +54,9 @@ open class SKCollectionViewController: UIViewController {
     
     override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
+        guard isViewLoaded else {
+            return
+        }
 #if targetEnvironment(macCatalyst)
         sectionView.collectionViewLayout.invalidateLayout()
         return

@@ -7,9 +7,21 @@
 
 #if canImport(UIKit)
 import UIKit
+
+public protocol SKCAnySectionProtocol {
+   var section: SKCSectionProtocol { get }
+}
  
 public typealias SKCBaseSectionProtocol = SKCSectionActionProtocol & SKCDataSourceProtocol & SKCDelegateProtocol
-public typealias SKCSectionProtocol = SKCBaseSectionProtocol & SKCViewDelegateFlowLayoutProtocol
+public typealias SKCSectionProtocol = SKCBaseSectionProtocol & SKCViewDelegateFlowLayoutProtocol & SKCAnySectionProtocol
+
+public extension SKCAnySectionProtocol where Self: SKCSectionProtocol {
+    
+    var section: SKCSectionProtocol {
+        self
+    }
+    
+}
 
 public extension SKCDataSourceProtocol where Self: SKCViewDelegateFlowLayoutProtocol {
     

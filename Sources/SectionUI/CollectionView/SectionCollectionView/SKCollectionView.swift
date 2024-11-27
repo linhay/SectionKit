@@ -23,11 +23,14 @@
 #if canImport(UIKit)
 import UIKit
 import SectionKit
+import Combine
 
-open class SKCollectionView: UICollectionView {
+open class SKCollectionView: UICollectionView, SKCRequestViewProtocol {
     
     public private(set) lazy var manager = SKCManager(sectionView: self)
     private var pluginsModes: [SKCLayoutPlugins.Mode] = []
+    public var requestPublishers: SKRequestPublishers = .init()
+
     
     public convenience init() {
         let layout = SKCollectionFlowLayout()
@@ -46,6 +49,11 @@ open class SKCollectionView: UICollectionView {
         collectionViewLayout = layout
         initialize()
         initialize(layout: layout)
+    }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        requestPublishers.layoutSubviews.send()
     }
     
 }

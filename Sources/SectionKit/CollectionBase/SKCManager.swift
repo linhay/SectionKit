@@ -9,6 +9,38 @@
 import UIKit
 import Combine
 
+public class SKRequestID {
+    
+    public let id: String
+    var isCancelled: Bool = false
+    let task: () -> Bool
+    
+    init(id: String, task: @escaping () -> Bool) {
+        self.id = id
+        self.task = task
+    }
+    
+    public func cancel() {
+        isCancelled = true
+    }
+    
+    public func perform() {
+        if !isCancelled, task() {
+            cancel()
+        }
+    }
+    
+}
+
+public struct SKRequestPublishers {
+    public let layoutSubviews = PassthroughSubject<Void, Never>()
+    public init() {}
+}
+
+public protocol SKCRequestViewProtocol {
+    var requestPublishers: SKRequestPublishers { get }
+}
+
 public class SKCManagerPublishers {
     
     fileprivate lazy var sectionsSubject = CurrentValueSubject<[SKCBaseSectionProtocol], Never>([])
@@ -55,7 +87,6 @@ public class SKCManager {
     public private(set) lazy var prefetchForward   = SKCDataSourcePrefetchingForward()
     public var scrollObserver: SKScrollViewDelegateForward { flowLayoutForward }
     
-    
     private lazy var endDisplaySections: [Int: SKCBaseSectionProtocol] = [:]
     
     public private(set) lazy var flowlayoutDelegate = SKCDelegateFlowLayout(dataSource: publishers)
@@ -65,7 +96,26 @@ public class SKCManager {
     
     private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView)
     
+    var afterReloadRequests: [SKRequestID] = []
+    private var cancellables = Set<AnyCancellable>()
+    
     public init(sectionView: UICollectionView) {
+        setup(sectionView: sectionView)
+    }
+    
+    public init(sectionView: UICollectionView & SKCRequestViewProtocol) {
+        setup(sectionView: sectionView)
+        setup(request: sectionView)
+    }
+    
+    private func setup(request: SKCRequestViewProtocol) {
+        request.requestPublishers.layoutSubviews.sink { [weak self] _ in
+            guard let self = self else { return }
+            perform(of: &self.afterReloadRequests)
+        }.store(in: &cancellables)
+    }
+    
+    private func setup(sectionView: UICollectionView) {
         self.sectionView = sectionView
         sectionView.delegate = flowLayoutForward
         sectionView.dataSource = dataSourceForward
@@ -75,7 +125,7 @@ public class SKCManager {
         dataSourceForward.add(dataSource)
         prefetchForward.add(prefetching)
     }
-    
+        
 }
 
 public extension SKCManager {
@@ -140,6 +190,93 @@ public extension SKCManager {
         }
     }
     
+}
+
+public extension SKCManager {
+    
+    private func set(request: SKRequestID, to store: inout [SKRequestID]) {
+        store = store.filter({ $0.id != request.id && $0.isCancelled == false })
+        store.append(request)
+    }
+
+    private func perform(of store: inout [SKRequestID]) {
+        store.forEach { $0.perform() }
+        clear(of: &store)
+    }
+    
+    private func clear(of store: inout [SKRequestID]) {
+        store = store.filter({ $0.isCancelled == false })
+    }
+    
+}
+
+public extension SKCManager {
+    
+    @discardableResult
+    func scroll(to section: SKCBaseSectionProtocol,
+                row: Int = 0,
+                at scrollPosition: UICollectionView.ScrollPosition? = nil,
+                animated: Bool = true,
+                id: String = UUID().uuidString) -> SKRequestID? {
+        if _scroll(to: section, row: row, at: scrollPosition, animated: animated) {
+            return nil
+        } else if let request = afterReloadRequests.first(where: { $0.id == id }), !request.isCancelled {
+            return request
+        } else {
+            let request = SKRequestID(id: id) { [weak self] in
+                guard let self = self else { return false }
+                return _scroll(to: section, row: row, at: scrollPosition, animated: animated)
+            }
+            set(request: request, to: &afterReloadRequests)
+            return request
+        }
+    }
+    
+    private func _scroll(to section: SKCBaseSectionProtocol,
+                row: Int,
+                at scrollPosition: UICollectionView.ScrollPosition? = nil,
+                animated: Bool) -> Bool {
+        guard let sectionView = sectionView,
+              sectionView.window != nil,
+              let sectionIndex = section.sectionIndex,
+              section.isBindSectionView,
+              section.sectionView.numberOfItems(inSection: sectionIndex) > row else {
+            return false
+        }
+        
+        // 调整 ScrollPosition 位置
+        let position: UICollectionView.ScrollPosition
+        if let scrollPosition {
+            position = scrollPosition
+        } else if let direction = (sectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection {
+            switch direction {
+            case .horizontal:
+                position = .left
+            case .vertical:
+                position = .top
+            }
+        } else {
+            position = .top
+        }
+            
+        let indexPath = IndexPath(row: row, section: sectionIndex)
+        let isPagingEnabled: Bool?
+
+        if sectionView.isPagingEnabled {
+            isPagingEnabled = sectionView.isPagingEnabled
+            sectionView.isPagingEnabled = false
+        } else {
+            isPagingEnabled = nil
+        }
+        
+        sectionView.scrollToItem(at: indexPath, at: position, animated: animated)
+        
+        if let isPagingEnabled {
+            sectionView.isPagingEnabled = isPagingEnabled
+        }
+        
+        return true
+    }
 }
 
 public extension SKCManager {

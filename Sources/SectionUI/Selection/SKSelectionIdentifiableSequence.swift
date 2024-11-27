@@ -14,11 +14,17 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
     public var isUnique: Bool
     
     public private(set) lazy var itemChangedPublisher = observer.eraseToAnyPublisher()
+    public var selectedItemsPublisher: AnyPublisher<[Element], Never> {
+        itemChangedPublisher.map(\.selectedItems).eraseToAnyPublisher()
+    }
+
     private let observer = PassthroughSubject<SKSelectionIdentifiableSequence, Never>()
     
+    public var values: [Element] { .init(store.values) }
     public private(set) var store: [ID: Element] = [:]
-    private var cancelables: [ID: AnyCancellable] = [:]
     
+    private var cancelables: [ID: AnyCancellable] = [:]
+    private let idPath: KeyPath<Element, ID>
     /// init
     /// - Parameters:
     ///   - items: 数据组
@@ -28,6 +34,7 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
                 id: KeyPath<Element, ID>,
                 isUnique: Bool = true) {
         self.isUnique = isUnique
+        self.idPath = id
         self.update(items, by: id)
     }
     
@@ -58,6 +65,12 @@ public extension SKSelectionIdentifiableSequence {
 }
 
 public extension SKSelectionIdentifiableSequence {
+    
+    func reload(_ items: [Element] = []) {
+        store.removeAll()
+        cancelables.removeAll()
+        update(items, by: idPath)
+    }
     
     func update(_ element: Element, by id: ID) {
         store[id] = element
@@ -92,19 +105,52 @@ public extension SKSelectionIdentifiableSequence {
 }
 
 public extension SKSelectionIdentifiableSequence {
-    
+        
     func removeAll() {
         store.removeAll()
         cancelables.removeAll()
+        observer.send(self)
+    }
+
+    func remove(id: any Collection<ID>) {
+        for id in id {
+            remove(id: id, observer: false)
+        }
+        observer.send(self)
+    }
+
+    func remove(id: ID) {
+        remove(id: id, observer: true)
     }
     
-    func remove(id: ID) {
+    private func remove(id: ID, observer: Bool) {
         store[id] = nil
         cancelables[id] = nil
+        if observer {
+            self.observer.send(self)
+        }
     }
     
     func contains(id: ID) -> Bool {
         return store[id] != nil
+    }
+    
+    func selectAll() {
+        store
+            .values
+            .filter { !$0.isSelected }
+            .forEach { item in
+                item.select(true)
+            }
+    }
+    
+    func deselectAll() {
+        store
+            .values
+            .filter { $0.isSelected }
+            .forEach { item in
+                item.select(false)
+            }
     }
     
 }

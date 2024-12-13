@@ -80,6 +80,7 @@ public extension SKCSectionActionProtocol {
         (sectionInjection?.sectionView?.indexPathsForSelectedItems ?? [])
             .filter { $0.section == sectionInjection?.index }
             .map(\.row)
+            .sorted(by: <)
     }
     
     /// 获取可见的 cell 的 row 集合
@@ -88,7 +89,8 @@ public extension SKCSectionActionProtocol {
             .sectionView?
             .indexPathsForVisibleItems
             .filter { $0.section == sectionInjection?.index }
-            .map(\.row) ?? []
+            .map(\.row)
+            .sorted(by: <) ?? []
     }
     
     /// 获取可见的 cell 集合

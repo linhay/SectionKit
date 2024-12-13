@@ -25,15 +25,43 @@ import UIKit
 import SectionKit
 
 open class SKCollectionViewController: UIViewController {
+        
+    public class EndPoint {
+        
+        public var before: ((_ controller: SKCollectionViewController) -> Void)?
+        public var after: ((_ controller: SKCollectionViewController) -> Void)?
+        public var animate: ((_ controller: SKCollectionViewController) -> Void)?
+        
+        @discardableResult
+        public func set<Value>(_ keyPath: ReferenceWritableKeyPath<EndPoint, Value?>, value: Value?) -> Self {
+            self[keyPath: keyPath] = value
+            return self
+        }
+        
+        @discardableResult
+        public func set<Value>(_ keyPaths: [ReferenceWritableKeyPath<EndPoint, Value?>], value: Value?) -> Self {
+            for keyPath in keyPaths {
+                self[keyPath: keyPath] = value
+            }
+            return self
+        }
+    }
+    
+    public class Events {
+        public let viewDidLoad = EndPoint()
+        public let viewTransition = EndPoint()
+    }
     
     public private(set) lazy var sectionView = SKCollectionView()
     public var manager: SKCManager { sectionView.manager }
-    
+    public let events: Events = .init()
+
     public convenience init() {
         self.init(nibName: nil, bundle: nil)
     }
     
     override open func viewDidLoad() {
+        events.viewDidLoad.before?(self)
         super.viewDidLoad()
         if view.backgroundColor == nil {
             view.backgroundColor = .white
@@ -45,6 +73,7 @@ open class SKCollectionViewController: UIViewController {
         layout(anchor1: sectionView.bottomAnchor, anchor2: view.bottomAnchor)
         layout(anchor1: sectionView.rightAnchor, anchor2: safeArea.rightAnchor)
         layout(anchor1: sectionView.leftAnchor, anchor2: safeArea.leftAnchor)
+        events.viewDidLoad.after?(self)
     }
     
     open override func viewDidLayoutSubviews() {
@@ -53,6 +82,7 @@ open class SKCollectionViewController: UIViewController {
     }
     
     override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        events.viewTransition.before?(self)
         super.viewWillTransition(to: size, with: coordinator)
         guard isViewLoaded else {
             return
@@ -61,16 +91,18 @@ open class SKCollectionViewController: UIViewController {
         sectionView.collectionViewLayout.invalidateLayout()
         return
 #endif
-        coordinator.animate { [weak self] _ in
+        coordinator.animate { [weak self] context in
             guard let self = self else { return }
-            self.view.bounds.size.width = size.width
-            self.sectionView.collectionViewLayout.invalidateLayout()
-        } completion: { [weak self] _ in
+            view.bounds.size.width = size.width
+            sectionView.collectionViewLayout.invalidateLayout()
+            events.viewTransition.animate?(self)
+        } completion: { [weak self] context in
             guard let self = self else { return }
-            self.view.bounds.size.width = size.width
+            view.bounds.size.width = size.width
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
-                self.sectionView.collectionViewLayout.invalidateLayout()
+                sectionView.collectionViewLayout.invalidateLayout()
+                events.viewTransition.after?(self)
             }
         }
     }

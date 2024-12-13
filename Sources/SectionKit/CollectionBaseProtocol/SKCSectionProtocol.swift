@@ -9,17 +9,20 @@
 import UIKit
 
 public protocol SKCAnySectionProtocol {
-   var section: SKCSectionProtocol { get }
+    var section: SKCSectionProtocol { get }
+    var objectIdentifier: ObjectIdentifier { get }
 }
  
 public typealias SKCBaseSectionProtocol = SKCSectionActionProtocol & SKCDataSourceProtocol & SKCDelegateProtocol
 public typealias SKCSectionProtocol = SKCBaseSectionProtocol & SKCViewDelegateFlowLayoutProtocol & SKCAnySectionProtocol
 
+public extension SKCAnySectionProtocol {
+    var objectIdentifier: ObjectIdentifier { .init(section) }
+}
+
 public extension SKCAnySectionProtocol where Self: SKCSectionProtocol {
     
-    var section: SKCSectionProtocol {
-        self
-    }
+    var section: SKCSectionProtocol { self }
     
 }
 

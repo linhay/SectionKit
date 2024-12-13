@@ -650,17 +650,20 @@ public extension SKCSingleTypeSection {
     func remove(_ row: Int) {
         remove([row])
     }
-    
+
     func remove(_ rows: [Int]) {
+    remove(rows, applySectionView: true)
+    }
+
+    func remove(_ rows: [Int], applySectionView: Bool) {
         var set = Set<Int>()
         let rows = rows
             .filter { set.insert($0).inserted }
             .filter { models.indices.contains($0) }
             .sorted(by: >)
-        guard !rows.isEmpty else {
+        guard !rows.isEmpty, applySectionView else {
             return
         }
-        
         if let sectionView = sectionInjection?.sectionView {
             sectionView.performBatchUpdates {
                 for row in rows {

@@ -1,22 +1,31 @@
 {
-  "originHash" : "150dd805ac83f32a8101df4e7da1c99371eab2e67bb6e27d9724cd7372b907aa",
+  "originHash" : "d9dbe50dd5550060e9013d82ec65cfd53075a2a05814c0da380fe7ce31b3e51e",
   "pins" : [
     {
       "identity" : "delegate",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/onevcat/Delegate",
+      "location" : "git@github.com:onevcat/Delegate.git",
       "state" : {
-        "revision" : "499e507f2a68d6e8737f7f6f7c0385596b4398fc",
-        "version" : "1.2.0"
+        "revision" : "ec3014ca2621c717f758d8718ec90e84b6e774b3",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "lookinserver",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:QMUI/LookinServer.git",
+      "state" : {
+        "revision" : "e553d1b689d147817dc54ad5c28fcff71e860101",
+        "version" : "1.2.8"
       }
     },
     {
       "identity" : "snapkit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SnapKit/SnapKit",
+      "location" : "git@github.com:SnapKit/SnapKit.git",
       "state" : {
-        "revision" : "d458564516e5676af9c70b4f4b2a9178294f1bc6",
-        "version" : "5.0.1"
+        "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
+        "version" : "5.7.1"
       }
     }
   ],

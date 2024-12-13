@@ -96,7 +96,7 @@ public class SKCManager {
     
     private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView)
     
-    var afterReloadRequests: [SKRequestID] = []
+    var afterLayoutSubviewsRequests: [SKRequestID] = []
     private var cancellables = Set<AnyCancellable>()
     
     public init(sectionView: UICollectionView) {
@@ -111,7 +111,7 @@ public class SKCManager {
     private func setup(request: SKCRequestViewProtocol) {
         request.requestPublishers.layoutSubviews.sink { [weak self] _ in
             guard let self = self else { return }
-            perform(of: &self.afterReloadRequests)
+            perform(of: &self.afterLayoutSubviewsRequests)
         }.store(in: &cancellables)
     }
     
@@ -213,21 +213,31 @@ public extension SKCManager {
 public extension SKCManager {
     
     @discardableResult
+    func scroll(to section: Int,
+                row: Int = 0,
+                at scrollPosition: UICollectionView.ScrollPosition? = nil,
+                animated: Bool = true) -> SKRequestID? {
+        guard sections.indices.contains(section) else {
+            return nil
+        }
+        let seciton = sections[section]
+        return scroll(to: seciton, row: row, at: scrollPosition, animated: animated)
+    }
+    
+    @discardableResult
     func scroll(to section: SKCBaseSectionProtocol,
                 row: Int = 0,
                 at scrollPosition: UICollectionView.ScrollPosition? = nil,
-                animated: Bool = true,
-                id: String = UUID().uuidString) -> SKRequestID? {
+                animated: Bool = true) -> SKRequestID? {
+        let ID = "scroll"
         if _scroll(to: section, row: row, at: scrollPosition, animated: animated) {
             return nil
-        } else if let request = afterReloadRequests.first(where: { $0.id == id }), !request.isCancelled {
-            return request
         } else {
-            let request = SKRequestID(id: id) { [weak self] in
+            let request = SKRequestID(id: "scroll") { [weak self] in
                 guard let self = self else { return false }
                 return _scroll(to: section, row: row, at: scrollPosition, animated: animated)
             }
-            set(request: request, to: &afterReloadRequests)
+            set(request: request, to: &afterLayoutSubviewsRequests)
             return request
         }
     }

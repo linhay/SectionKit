@@ -9,11 +9,12 @@ import Foundation
 import SwiftUI
 import SectionKit
 
-public struct SKCHostingCollectionView: UIViewRepresentable {
+public struct SKCHostingCollectionView: UIViewControllerRepresentable {
    
-    public typealias UIViewType = SKCollectionView
+    public typealias UIViewControllerType = SKCollectionViewController
     
     public class Coordinator {
+        
         public var manager: SKCManager?
         public var sections: [SKCAnySectionProtocol]
         
@@ -28,7 +29,11 @@ public struct SKCHostingCollectionView: UIViewRepresentable {
     public init(_ sections: [any SKCAnySectionProtocol]) {
         self.sections = sections
     }
-
+    
+    public init(_ sections: () -> [any SKCAnySectionProtocol]) {
+        self.sections = sections()
+    }
+    
     public init(@SectionArrayResultBuilder<SKCAnySectionProtocol> builder: () -> [SKCAnySectionProtocol]) {
         self.sections = builder()
     }
@@ -37,14 +42,19 @@ public struct SKCHostingCollectionView: UIViewRepresentable {
         .init(manager: nil, sections: sections)
     }
     
-    public func makeUIView(context: Context) -> SKCollectionView {
-        let view = SKCollectionView()
-        context.coordinator.manager = view.manager
+    public func makeUIViewController(context: Context) -> UIViewControllerType {
+        let controller = SKCollectionViewController()
+        controller.view.backgroundColor = .clear
+        controller.sectionView.backgroundColor = .clear
+        context.coordinator.manager = controller.manager
         context.coordinator.manager?.reload(context.coordinator.sections.map(\.section))
-        return view
+        return controller
     }
     
-    public func updateUIView(_ uiView: SKCollectionView, context: Context) {
-        context.coordinator.manager?.reload(context.coordinator.sections.map(\.section))
+    public func updateUIViewController(_ uiViewController: SKCollectionViewController, context: Context) {
+        if sections.map(\.objectIdentifier) != context.coordinator.sections.map(\.objectIdentifier) {
+            context.coordinator.sections = sections
+            context.coordinator.manager?.reload(context.coordinator.sections.map(\.section))
+        }
     }
 }

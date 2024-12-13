@@ -16,6 +16,7 @@ class HomeController: SKCollectionViewController {
         case decoration
         case plugins
         case layoutPlugin
+        case photos
     }
     
     let section = SKCSingleTypeSection<StringRawCell<Action>>()
@@ -39,6 +40,8 @@ extension HomeController {
         section.onCellAction(.selected) { result in
             var controller: UIViewController?
             switch result.model {
+            case .photos:
+                controller = BrowerController()
             case .prefetch:
                 controller = PrefetchViewController()
                 break
@@ -73,7 +76,6 @@ extension HomeController {
         manager.scrollObserver.add(scroll: "1") { hander in
             
         }
-        print(1)
     }
 }
 

@@ -24,7 +24,7 @@ public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
 }
 
-public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
+open class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
     
     public static func preferredSize(limit size: CGSize, model: View.Model?) -> CGSize {
         View.preferredSize(limit: size, model: model)
@@ -32,7 +32,7 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
     
     public typealias Model = View.Model
     
-    public func config(_ model: View.Model) {
+    open func config(_ model: View.Model) {
         wrappedView.config(model)
     }
     
@@ -49,7 +49,7 @@ public class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICo
         initialize(contentView: contentView)
     }
     
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         super.init(coder: coder)
         initialize(contentView: contentView)
     }

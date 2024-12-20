@@ -109,7 +109,15 @@ public class SKCManager {
     }
     
     private func setup(request: SKCRequestViewProtocol) {
-        request.requestPublishers.layoutSubviews.sink { [weak self] _ in
+        request.requestPublishers.layoutSubviews
+            .filter({ [weak sectionView] in
+                guard let sectionView = sectionView else {
+                    return false
+                }
+                return sectionView.frame.width > 0 && sectionView.frame.height > 0
+            })
+            .throttle(for: .milliseconds(100), scheduler: RunLoop.main, latest: true)
+            .sink { [weak self] _ in
             guard let self = self else { return }
             perform(of: &self.afterLayoutSubviewsRequests)
         }.store(in: &cancellables)
@@ -216,21 +224,23 @@ public extension SKCManager {
     func scroll(to section: Int,
                 row: Int = 0,
                 at scrollPosition: UICollectionView.ScrollPosition? = nil,
+                offset: CGPoint? = nil,
                 animated: Bool = true) -> SKRequestID? {
         guard sections.indices.contains(section) else {
             return nil
         }
         let seciton = sections[section]
-        return scroll(to: seciton, row: row, at: scrollPosition, animated: animated)
+        return scroll(to: seciton, row: row, at: scrollPosition, offset: offset, animated: animated)
     }
     
     @discardableResult
     func scroll(to section: SKCBaseSectionProtocol,
                 row: Int = 0,
                 at scrollPosition: UICollectionView.ScrollPosition? = nil,
+                offset: CGPoint? = nil,
                 animated: Bool = true) -> SKRequestID? {
         let ID = "scroll"
-        if _scroll(to: section, row: row, at: scrollPosition, animated: animated) {
+        if _scroll(to: section, row: row, at: scrollPosition, offset: offset, animated: animated) {
             return nil
         } else {
             let request = SKRequestID(id: "scroll") { [weak self] in
@@ -243,9 +253,10 @@ public extension SKCManager {
     }
     
     private func _scroll(to section: SKCBaseSectionProtocol,
-                row: Int,
-                at scrollPosition: UICollectionView.ScrollPosition? = nil,
-                animated: Bool) -> Bool {
+                         row: Int,
+                         at scrollPosition: UICollectionView.ScrollPosition? = nil,
+                         offset: CGPoint? = nil,
+                         animated: Bool) -> Bool {
         guard let sectionView = sectionView,
               sectionView.window != nil,
               let sectionIndex = section.sectionIndex,
@@ -270,21 +281,49 @@ public extension SKCManager {
         }
             
         let indexPath = IndexPath(row: row, section: sectionIndex)
-        let isPagingEnabled: Bool?
-
-        if sectionView.isPagingEnabled {
-            isPagingEnabled = sectionView.isPagingEnabled
-            sectionView.isPagingEnabled = false
+        if let offset, let frame = sectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath)?.frame {
+            let point: CGPoint
+            switch position {
+            case .top:
+                // 将该 item 的上边缘与 collectionView 的顶部对齐
+                point = CGPoint(x: frame.minX, y: frame.minY)
+            case .bottom:
+                // 将该 item 的下边缘与 collectionView 的底部对齐
+                // 这里需要考虑当前 collectionView 的可见区域高度，故用 frame.maxY - sectionView.bounds.height
+                point = CGPoint(x: frame.minX, y: frame.maxY - sectionView.bounds.height)
+            case .centeredVertically:
+                // 垂直居中显示 item：item 的中点居中于 collectionView 的中点
+                let offsetY = frame.midY - (sectionView.bounds.height / 2)
+                point = CGPoint(x: frame.minX, y: max(offsetY, 0)) // 避免滚动到负值位置
+            case .left:
+                // 将该 item 的左边缘与 collectionView 左侧对齐
+                point = CGPoint(x: frame.minX, y: frame.minY)
+            case .right:
+                // 将该 item 的右边缘与 collectionView 右侧对齐
+                let offsetX = frame.maxX - sectionView.bounds.width
+                point = CGPoint(x: max(offsetX, 0), y: frame.minY) // 避免出现负值
+            case .centeredHorizontally:
+                // 水平居中显示 item：item 的中点居中于 collectionView 的中点
+                let offsetX = frame.midX - (sectionView.bounds.width / 2)
+                point = CGPoint(x: max(offsetX, 0), y: frame.minY)
+            default:
+                // 将该 item 的上边缘与 collectionView 的顶部对齐
+                point = CGPoint(x: frame.minX, y: frame.minY)
+            }
+            sectionView.setContentOffset(.init(x: point.x + offset.x, y: point.y + offset.y), animated: animated)
         } else {
-            isPagingEnabled = nil
+            let isPagingEnabled: Bool?
+            if sectionView.isPagingEnabled {
+                isPagingEnabled = sectionView.isPagingEnabled
+                sectionView.isPagingEnabled = false
+            } else {
+                isPagingEnabled = nil
+            }
+            sectionView.scrollToItem(at: indexPath, at: position, animated: animated)
+            if let isPagingEnabled {
+                sectionView.isPagingEnabled = isPagingEnabled
+            }
         }
-        
-        sectionView.scrollToItem(at: indexPath, at: position, animated: animated)
-        
-        if let isPagingEnabled {
-            sectionView.isPagingEnabled = isPagingEnabled
-        }
-        
         return true
     }
 }

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/8/11.
 //
@@ -245,7 +245,7 @@ public extension SKCManager {
         } else {
             let request = SKRequestID(id: "scroll") { [weak self] in
                 guard let self = self else { return false }
-                return _scroll(to: section, row: row, at: scrollPosition, animated: animated)
+                return _scroll(to: section, row: row, at: scrollPosition, offset: offset, animated: animated)
             }
             set(request: request, to: &afterLayoutSubviewsRequests)
             return request
@@ -259,6 +259,8 @@ public extension SKCManager {
                          animated: Bool) -> Bool {
         guard let sectionView = sectionView,
               sectionView.window != nil,
+              sectionView.frame.width > 0,
+              sectionView.frame.height > 0,
               let sectionIndex = section.sectionIndex,
               section.isBindSectionView,
               section.sectionView.numberOfItems(inSection: sectionIndex) > row else {
@@ -282,6 +284,11 @@ public extension SKCManager {
             
         let indexPath = IndexPath(row: row, section: sectionIndex)
         if let offset, let frame = sectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath)?.frame {
+            
+            if frame == .zero {
+                return false
+            }
+            
             let point: CGPoint
             switch position {
             case .top:

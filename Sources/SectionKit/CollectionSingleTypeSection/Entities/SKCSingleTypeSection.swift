@@ -44,6 +44,13 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
                 lhs == rhs
             }
         }
+        
+        public static func difference<ID: Equatable>(by id: KeyPath<Model, ID>) -> ReloadKind where ID: Equatable {
+            return .difference { lhs, rhs in
+                lhs[keyPath: id] == rhs[keyPath: id]
+            }
+        }
+        
     }
     
     public enum CellActionType: Int, Hashable {

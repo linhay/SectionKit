@@ -146,7 +146,7 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
         }
     }
     
-    private lazy var sectionView = SKCollectionView()
+    public private(set) lazy var sectionView = SKCollectionView()
     private lazy var edgeConstraint = EdgeConstraint(sectionView, superView: contentView)
     
     override init(frame _: CGRect) {

@@ -182,6 +182,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     /// 配置 cell 与 supplementary 的 limit size
     public lazy var safeSizeProvider: SKSafeSizeProvider = defaultSafeSizeProvider
+    public var cellSafeSizeProvider: SKSafeSizeProvider?
+    
     /// 曝光数, 重置曝光数的时机需要手动控制
     public lazy var displayedTimes: SKCountedStore = .init()
     /// 预加载
@@ -279,7 +281,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             return .zero
         }
         
-        let limitSize = safeSizeProvider.size
+        let limitSize = cellSafeSizeProvider?.size ?? safeSizeProvider.size
         let model = models[row]
         
         if let highPerformance = highPerformance,
@@ -505,6 +507,7 @@ public extension SKCSingleTypeSection where Model: Equatable {
     
 }
 
+@available(*, deprecated, renamed: "safeSize(_:)", message: "")
 public extension SKCSingleTypeSection {
     
     @discardableResult
@@ -521,6 +524,67 @@ public extension SKCSingleTypeSection {
     @discardableResult
     func apply<Root>(safeSize: KeyPath<Root, SKSafeSizeProvider>, on object: Root) -> Self {
         return apply(safeSize: object[keyPath: safeSize])
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    /// 提供 Cell - preferredSize(limit size: CGSize, model: Model?) 中 limit size 的值
+    enum SKSafeSizeProviderKind {
+        /// 使用默认的 safeSizeProvider 提供者尺寸
+        case `default`
+        /// 使用固定的 CGSize 来提供尺寸
+        case fixed(CGSize)
+        /// 根据比例来计算尺寸
+        case fraction(Double)
+    }
+    
+    @discardableResult
+    func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: SKSafeSizeTransform) -> Self {
+        cellSafeSize(kind, transforms: [transforms])
+    }
+
+    @discardableResult
+    func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: [SKSafeSizeTransform] = []) -> Self {
+        switch kind {
+        case .fixed(let size):
+            self.cellSafeSizeProvider = .init(block: { size })
+        case .default:
+            return safeSize(self.safeSizeProvider)
+        case .fraction(let value):
+            self.cellSafeSizeProvider = .init(block: { [weak self] in
+                guard let self = self else { return .zero }
+                let size = self.safeSizeProvider.size
+                guard value > 0, value <= 1,
+                      let layout = sectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
+                    return size
+                }
+                
+                let count = floor(1 / value)
+                let spacing = layout.minimumLineSpacing
+                let itemWidth = floor((size.width - (count - 1) * spacing) / count)
+                let newSize = CGSize(width: itemWidth, height: size.height)
+                return transforms.reduce(into: newSize, { $0 = $1.transform($0) })
+            })
+        }
+        return self
+    }
+    
+    @discardableResult
+    func safeSize(_ provider: SKSafeSizeProvider) -> Self {
+        safeSizeProvider = provider
+        return self
+    }
+    
+    @discardableResult
+    func safeSize(_ path: KeyPath<SKCSingleTypeSection, SKSafeSizeProvider>) -> Self {
+        return safeSize(self[keyPath: path])
+    }
+    
+    @discardableResult
+    func safeSize<Root>(_ path: KeyPath<Root, SKSafeSizeProvider>, on object: Root) -> Self {
+        return safeSize(object[keyPath: path])
     }
     
 }

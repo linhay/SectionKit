@@ -14,12 +14,26 @@ public protocol SKSafeSizeProviderProtocol: AnyObject {
 }
 
 public struct SKSafeSizeProvider {
-    
+
     public var size: CGSize { block() }
     private let block: () -> CGSize
     
     public init(block: @escaping () -> CGSize) {
         self.block = block
+    }
+    
+}
+
+public struct SKSafeSizeTransform {
+    
+    public let transform: (CGSize) -> CGSize
+    
+    public static func fixed(height: CGFloat) -> SKSafeSizeTransform {
+        SKSafeSizeTransform { CGSize(width: $0.width, height: height) }
+    }
+    
+    public static func fixed(width: CGFloat) -> SKSafeSizeTransform {
+        SKSafeSizeTransform { CGSize(width: width, height: $0.height) }
     }
     
 }

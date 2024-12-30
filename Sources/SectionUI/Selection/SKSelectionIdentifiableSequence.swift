@@ -66,7 +66,7 @@ public extension SKSelectionIdentifiableSequence {
 
 public extension SKSelectionIdentifiableSequence {
     
-    func reload(_ items: [Element] = []) {
+    func reload(_ items: any Collection<Element> = []) {
         store.removeAll()
         cancelables.removeAll()
         update(items, by: idPath)
@@ -96,7 +96,7 @@ public extension SKSelectionIdentifiableSequence {
         update(element, by: element[keyPath: keyPath])
     }
     
-    func update(_ elements: [Element], by keyPath: KeyPath<Element, ID>) {
+    func update(_ elements: any Collection<Element>, by keyPath: KeyPath<Element, ID>) {
         for element in elements {
             update(element, by: keyPath)
         }

@@ -592,6 +592,18 @@ public extension SKCSingleTypeSection {
 public extension SKCSingleTypeSection {
     
     @discardableResult
+    func `if`(_ isIncluded: () -> Bool, _ action: SectionStyleBlock) -> Self {
+        if isIncluded() {
+            action(self)
+        }
+        return self
+    }
+    
+}
+
+public extension SKCSingleTypeSection {
+    
+    @discardableResult
     func config(models: [Model]) -> Self {
         apply(models)
         return self

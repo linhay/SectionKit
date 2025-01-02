@@ -25,43 +25,43 @@ import UIKit
 import SectionKit
 
 open class SKCollectionViewController: UIViewController {
-        
+    
+    public typealias ControllerStyleBlock  = (_ controller: SKCollectionViewController) -> Void
+    public typealias SectionViewStyleBlock = (_ view: SKCollectionView) -> Void
+
     public class EndPoint {
         
-        public var before: ((_ controller: SKCollectionViewController) -> Void)?
-        public var after: ((_ controller: SKCollectionViewController) -> Void)?
-        public var animate: ((_ controller: SKCollectionViewController) -> Void)?
+        public var before: ControllerStyleBlock?
+        public var after: ControllerStyleBlock?
+        public var animate: ControllerStyleBlock?
         
-        @discardableResult
-        public func set<Value>(_ keyPath: ReferenceWritableKeyPath<EndPoint, Value?>, value: Value?) -> Self {
-            self[keyPath: keyPath] = value
-            return self
+        init(before: ControllerStyleBlock? = nil,
+             after: ControllerStyleBlock? = nil,
+             animate: ControllerStyleBlock? = nil) {
+            self.before = before
+            self.after = after
+            self.animate = animate
         }
         
-        @discardableResult
-        public func set<Value>(_ keyPaths: [ReferenceWritableKeyPath<EndPoint, Value?>], value: Value?) -> Self {
-            for keyPath in keyPaths {
-                self[keyPath: keyPath] = value
-            }
-            return self
-        }
     }
     
     public class Events {
-        public let viewDidLoad = EndPoint()
-        public let viewTransition = EndPoint()
+        public var viewDidLoad = [EndPoint]()
+        public var viewTransition = [EndPoint]()
     }
     
     public private(set) lazy var sectionView = SKCollectionView()
     public var manager: SKCManager { sectionView.manager }
     public let events: Events = .init()
-
+        
     public convenience init() {
         self.init(nibName: nil, bundle: nil)
     }
     
     override open func viewDidLoad() {
-        events.viewDidLoad.before?(self)
+        for event in events.viewDidLoad {
+            event.before?(self)
+        }
         super.viewDidLoad()
         if view.backgroundColor == nil {
             view.backgroundColor = .white
@@ -73,7 +73,10 @@ open class SKCollectionViewController: UIViewController {
         layout(anchor1: sectionView.bottomAnchor, anchor2: view.bottomAnchor)
         layout(anchor1: sectionView.rightAnchor, anchor2: safeArea.rightAnchor)
         layout(anchor1: sectionView.leftAnchor, anchor2: safeArea.leftAnchor)
-        events.viewDidLoad.after?(self)
+        
+        for event in events.viewDidLoad {
+            event.after?(self)
+        }
     }
     
     open override func viewDidLayoutSubviews() {
@@ -82,7 +85,9 @@ open class SKCollectionViewController: UIViewController {
     }
     
     override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        events.viewTransition.before?(self)
+        for event in events.viewTransition {
+            event.before?(self)
+        }
         super.viewWillTransition(to: size, with: coordinator)
         guard isViewLoaded else {
             return
@@ -95,18 +100,47 @@ open class SKCollectionViewController: UIViewController {
             guard let self = self else { return }
             view.bounds.size.width = size.width
             sectionView.collectionViewLayout.invalidateLayout()
-            events.viewTransition.animate?(self)
+            for event in events.viewTransition {
+                event.animate?(self)
+            }
         } completion: { [weak self] context in
             guard let self = self else { return }
             view.bounds.size.width = size.width
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 sectionView.collectionViewLayout.invalidateLayout()
-                events.viewTransition.after?(self)
+                for event in events.viewTransition {
+                    event.after?(self)
+                }
             }
         }
     }
     
+}
+
+public extension SKCollectionViewController {
+    
+    func controllerStyle(_ block: @escaping ControllerStyleBlock) -> Self {
+        events.viewDidLoad.append(.init(after: block))
+        return self
+    }
+    
+    func sectionViewStyle(_ block: @escaping SectionViewStyleBlock) -> Self {
+        events.viewDidLoad.append(.init(after: { controller in
+            block(controller.sectionView)
+        }))
+        return self
+    }
+    
+    func reload(_ section: any SKCBaseSectionProtocol) -> Self {
+        return reload([section])
+    }
+    
+    func reload(_ section: [any SKCBaseSectionProtocol]) -> Self {
+        return controllerStyle { controller in
+            controller.manager.reload(section)
+        }
+    }
     
 }
 

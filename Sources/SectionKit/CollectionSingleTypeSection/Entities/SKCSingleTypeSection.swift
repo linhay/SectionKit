@@ -63,6 +63,16 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         case didEndDisplay
         /// 配置完成
         case config
+        
+        public var description: String {
+            switch self {
+            case .selected: return "selected"
+            case .deselected: return "deselected"
+            case .willDisplay: return "willDisplay"
+            case .didEndDisplay: return "didEndDisplay"
+            case .config: return "config"
+            }
+        }
     }
     
     public enum CellShouldType: Int, Hashable {
@@ -547,11 +557,22 @@ public extension SKCSingleTypeSection {
 
     @discardableResult
     func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: [SKSafeSizeTransform] = []) -> Self {
+        
+        func transform(size: CGSize) -> CGSize {
+            return transforms.reduce(into: size, { $0 = $1.transform($0) })
+        }
+        
         switch kind {
         case .fixed(let size):
-            self.cellSafeSizeProvider = .init(block: { size })
+            self.cellSafeSizeProvider = .init(block: {
+                return transform(size: size)
+            })
         case .default:
-            return safeSize(self.safeSizeProvider)
+            self.cellSafeSizeProvider = .init(block: { [weak self] in
+                guard let self = self else { return .zero }
+                let size = self.safeSizeProvider.size
+                return transform(size: size)
+            })
         case .fraction(let value):
             self.cellSafeSizeProvider = .init(block: { [weak self] in
                 guard let self = self else { return .zero }
@@ -565,7 +586,7 @@ public extension SKCSingleTypeSection {
                 let spacing = layout.minimumLineSpacing
                 let itemWidth = floor((size.width - (count - 1) * spacing) / count)
                 let newSize = CGSize(width: itemWidth, height: size.height)
-                return transforms.reduce(into: newSize, { $0 = $1.transform($0) })
+                return transform(size: newSize)
             })
         }
         return self

@@ -54,6 +54,10 @@ public extension SKSelectionIdentifiableSequence {
 
 public extension SKSelectionIdentifiableSequence {
     
+    var isSelectedAll: Bool {
+        store.values.allSatisfy(\.isSelected)
+    }
+    
     var selectedItems: [Element] {
         store.values.filter(\.isSelected)
     }

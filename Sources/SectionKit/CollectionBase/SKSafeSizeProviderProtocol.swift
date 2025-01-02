@@ -28,12 +28,35 @@ public struct SKSafeSizeTransform {
     
     public let transform: (CGSize) -> CGSize
     
-    public static func fixed(height: CGFloat) -> SKSafeSizeTransform {
-        SKSafeSizeTransform { CGSize(width: $0.width, height: height) }
+    public init(transform: @escaping (CGSize) -> CGSize) {
+        self.transform = transform
     }
     
-    public static func fixed(width: CGFloat) -> SKSafeSizeTransform {
-        SKSafeSizeTransform { CGSize(width: width, height: $0.height) }
+    public static func print(prefix: String) -> SKSafeSizeTransform {
+#if DEBUG
+        .init { size in
+            debugPrint(prefix, size)
+            return size
+        }
+#else
+        .init { $0 }
+#endif
+    }
+    
+    public static func fixed(height value: CGFloat) -> SKSafeSizeTransform {
+        SKSafeSizeTransform { CGSize(width: $0.width, height: value) }
+    }
+    
+    public static func fixed(width value: CGFloat) -> SKSafeSizeTransform {
+        SKSafeSizeTransform { CGSize(width: value, height: $0.height) }
+    }
+    
+    public static func offset(height value: CGFloat) -> SKSafeSizeTransform {
+        SKSafeSizeTransform { CGSize(width: $0.width, height: $0.height + value) }
+    }
+    
+    public static func offset(width value: CGFloat) -> SKSafeSizeTransform {
+        SKSafeSizeTransform { CGSize(width: $0.width + value, height: $0.height) }
     }
     
 }

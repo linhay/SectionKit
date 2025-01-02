@@ -98,7 +98,7 @@ class IntroductionCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurable
 
 struct IntroductionView: View {
     
-    let colors = [UIColor.red, .green, .blue, .yellow, .orange].map({ $0.withAlphaComponent(0.5) })
+    let colors = [UIColor.red, .green, .blue, .yellow, .orange]
 
     @State
     var section = IntroductionCell

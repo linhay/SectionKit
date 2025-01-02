@@ -10,15 +10,26 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         NavigationStack {
-            VStack {
-                NavigationLink("introduction") {
+            List {
+                NavigationLink("01-Introduction") {
                     IntroductionView()
                 }
-                NavigationLink("multipleSection") {
-                    IntroductionView()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                NavigationLink("02-MultipleSection") {
+                    MultipleSectionView()
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                NavigationLink("03-FooterAndHeaderView") {
+                    FooterAndHeaderView()
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                NavigationLink("04-LoadAndPullView") {
+                    LoadAndPullView()
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding()
+            .font(.title3)
+            .fontWeight(.medium)
         }
     }
 }

@@ -23,7 +23,7 @@ class TextCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
         titleLabel.text = model.text
         descLabel.text = nil
         descLabel.isHidden = true
-        contentView.backgroundColor = model.color
+        contentView.backgroundColor = model.color.withAlphaComponent(0.5)
     }
     
     func desc(_ string: String) {

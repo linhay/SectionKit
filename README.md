@@ -26,6 +26,8 @@
 ![02-MultipleSection](https://github.com/linhay/RepoImages/blob/main/SectionUI/02-MultipleSection.png?raw=true)
 #### 设置 Header 和 Footer
 ![03-FooterAndHeader](https://github.com/linhay/RepoImages/blob/main/SectionUI/03-FooterAndHeader.png?raw=true)
+#### 加载更多数据 / 重置数据
+![04-LoadAndPull](https://github.com/linhay/RepoImages/blob/main/SectionUI/04-LoadAndPull.png?raw=true)
 
 ## 前提条件:
 

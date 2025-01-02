@@ -28,7 +28,8 @@ open class SKCollectionViewController: UIViewController {
     
     public typealias ControllerStyleBlock  = (_ controller: SKCollectionViewController) -> Void
     public typealias SectionViewStyleBlock = (_ view: SKCollectionView) -> Void
-
+    public typealias VoidAsyncAction = () async -> Void
+    
     public class EndPoint {
         
         public var before: ControllerStyleBlock?
@@ -47,8 +48,11 @@ open class SKCollectionViewController: UIViewController {
     
     public class Events {
         public var viewDidLoad = [EndPoint]()
+        public var viewDidAppear = [EndPoint]()
         public var viewTransition = [EndPoint]()
     }
+    
+    private var refreshableAction: VoidAsyncAction?
     
     public private(set) lazy var sectionView = SKCollectionView()
     public var manager: SKCManager { sectionView.manager }
@@ -75,6 +79,16 @@ open class SKCollectionViewController: UIViewController {
         layout(anchor1: sectionView.leftAnchor, anchor2: safeArea.leftAnchor)
         
         for event in events.viewDidLoad {
+            event.after?(self)
+        }
+    }
+    
+    open override func viewDidAppear(_ animated: Bool) {
+        for event in events.viewDidAppear {
+            event.before?(self)
+        }
+        super.viewDidAppear(animated)
+        for event in events.viewDidAppear {
             event.after?(self)
         }
     }
@@ -113,6 +127,36 @@ open class SKCollectionViewController: UIViewController {
                     event.after?(self)
                 }
             }
+        }
+    }
+    
+}
+
+public extension SKCollectionViewController {
+    
+    func onAppear(perform action: (() -> Void)? = nil) -> Self {
+        events.viewDidAppear.append(.init(after: { controller in
+            action?()
+        }))
+        return self
+    }
+    
+}
+
+public extension SKCollectionViewController {
+    
+    public func refreshable(action: @escaping VoidAsyncAction) -> Self {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshAction), for: .valueChanged)
+        sectionView.refreshControl = refreshControl
+        self.refreshableAction = action
+        return self
+    }
+
+    @objc private func refreshAction() {
+        Task { @MainActor in
+            await refreshableAction?()
+            sectionView.refreshControl?.endRefreshing()
         }
     }
     

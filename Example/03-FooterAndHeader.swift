@@ -15,7 +15,7 @@ import SectionUI
 
 struct FooterAndHeaderView: View {
     
-    let colors = [UIColor.red, .green, .blue, .yellow, .orange].map({ $0.withAlphaComponent(0.5) })
+    let colors = [UIColor.red, .green, .blue, .yellow, .orange]
 
     @State
     var section = TextCell

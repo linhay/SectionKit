@@ -48,6 +48,4 @@
 
 ## License
 
-`IGListKit` 遵循[MIT-licensed](./LICENSE)。
-
-`/Examples/`目录下的文件，在文档里指明了它们各自所遵循的协议。文档遵循[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)。
+`SectionUI` 遵循[Apache License](./LICENSE)。

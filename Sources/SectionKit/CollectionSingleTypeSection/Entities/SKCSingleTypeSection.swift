@@ -576,15 +576,13 @@ public extension SKCSingleTypeSection {
         case .fraction(let value):
             self.cellSafeSizeProvider = .init(block: { [weak self] in
                 guard let self = self else { return .zero }
-                let size = self.safeSizeProvider.size
-                guard value > 0, value <= 1,
-                      let layout = sectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
+                let size = safeSizeProvider.size
+                guard value > 0, value <= 1 else {
                     return size
                 }
                 
                 let count = floor(1 / value)
-                let spacing = layout.minimumLineSpacing
-                let itemWidth = floor((size.width - (count - 1) * spacing) / count)
+                let itemWidth = floor((size.width - (count - 1) * minimumInteritemSpacing) / count)
                 let newSize = CGSize(width: itemWidth, height: size.height)
                 return transform(size: newSize)
             })

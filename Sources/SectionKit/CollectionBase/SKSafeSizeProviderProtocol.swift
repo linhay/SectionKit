@@ -42,6 +42,16 @@ public struct SKSafeSizeTransform {
         .init { $0 }
 #endif
     }
+
+    /// 基于宽度设置高度的比例
+    public static func height(asRatioOfWidth ratio: CGFloat) -> SKSafeSizeTransform {
+        SKSafeSizeTransform { CGSize(width: $0.width, height: $0.width * ratio) }
+    }
+    
+    /// 基于高度设置宽度的比例
+    public static func width(asRatioOfHeight ratio: CGFloat) -> SKSafeSizeTransform {
+        SKSafeSizeTransform { CGSize(width: $0.height * ratio, height: $0.height) }
+    }
     
     public static func fixed(height value: CGFloat) -> SKSafeSizeTransform {
         SKSafeSizeTransform { CGSize(width: $0.width, height: value) }

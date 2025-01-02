@@ -31,13 +31,14 @@ class TextReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigur
         descLabel.isHidden = false
     }
 
-    private lazy var titleLabel: UILabel = {
+    lazy var titleLabel: UILabel = {
         let view = UILabel()
         view.font = .systemFont(ofSize: 18, weight: .regular)
         view.textColor = .black
-        view.snp.makeConstraints { make in
-            make.height.equalTo(20)
-        }
+        view.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        view.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        view.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+        view.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return view
     }()
     
@@ -45,9 +46,10 @@ class TextReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigur
         let view = UILabel()
         view.font = .systemFont(ofSize: 18, weight: .regular)
         view.textColor = .black.withAlphaComponent(0.6)
-        view.snp.makeConstraints { make in
-            make.height.equalTo(20)
-        }
+        view.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        view.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        view.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+        view.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return view
     }()
     
@@ -64,8 +66,7 @@ class TextReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigur
         super.init(frame: frame)
         addSubview(hStackView)
         hStackView.snp.makeConstraints { make in
-            make.left.equalToSuperview().inset(8)
-            make.centerY.equalToSuperview()
+            make.center.equalToSuperview()
         }
     }
     

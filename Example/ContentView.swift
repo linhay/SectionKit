@@ -26,6 +26,12 @@ struct ContentView: View {
                 NavigationLink("05-SubscribeDataWithCombine") {
                     SubscribeDataWithCombineView()
                 }
+                NavigationLink("06-Grid") {
+                    GridColorView()
+                }
+                NavigationLink("07-Decoration") {
+                    DecorationView()
+                }
             }
             .font(.title3)
             .fontWeight(.medium)

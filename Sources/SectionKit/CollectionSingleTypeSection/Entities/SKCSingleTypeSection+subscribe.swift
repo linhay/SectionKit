@@ -12,19 +12,6 @@ import Combine
 public extension SKCSingleTypeSection {
     
     @discardableResult
-    func subscribe(models void: Never?)  -> Self {
-        publishers.modelsCancellable = nil
-        return self
-    }
-    
-    @discardableResult
-    func subscribe<Output>(models publisher: some Publisher<[Output], Never>, convert: @escaping (Output) -> Model?) -> Self {
-        return subscribe(models: publisher.map({ list in
-            list.compactMap(convert)
-        }))
-    }
-    
-    @discardableResult
     func subscribe(models publisher: some Publisher<[Model], Never>) -> Self {
         publishers.modelsCancellable = publisher
             .receive(on: RunLoop.main)
@@ -34,16 +21,27 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+    @available(*, deprecated, message: "use subscribe(models:) instead")
+    @discardableResult
+    func subscribe<Output>(models publisher: some Publisher<[Output], Never>, convert: @escaping (Output) -> Model?) -> Self {
+        return subscribe(models: publisher.map({ list in
+            list.compactMap(convert)
+        }))
+    }
+    
+    @available(*, deprecated, message: "use subscribe(models:) instead")
     @discardableResult
     func subscribe(models publisher: some Publisher<[Model]?, Never>) -> Self {
         return subscribe(models: publisher.map({ $0 ?? [] }))
     }
     
+    @available(*, deprecated, message: "use subscribe(models:) instead")
     @discardableResult
     func subscribe(models publisher: some Publisher<Model, Never>) -> Self {
         return subscribe(models: publisher.map({ [$0] }))
     }
     
+    @available(*, deprecated, message: "use subscribe(models:) instead")
     @discardableResult
     func subscribe(models publisher: some Publisher<Model?, Never>) -> Self {
         return subscribe(models: publisher.map({ model in

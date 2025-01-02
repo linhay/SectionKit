@@ -14,19 +14,18 @@ struct ContentView: View {
                 NavigationLink("01-Introduction") {
                     IntroductionView()
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 NavigationLink("02-MultipleSection") {
                     MultipleSectionView()
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 NavigationLink("03-FooterAndHeaderView") {
                     FooterAndHeaderView()
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 NavigationLink("04-LoadAndPullView") {
                     LoadAndPullView()
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                NavigationLink("05-SubscribeDataWithCombine") {
+                    SubscribeDataWithCombineView()
+                }
             }
             .font(.title3)
             .fontWeight(.medium)

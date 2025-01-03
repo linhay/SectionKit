@@ -31,17 +31,15 @@ struct SKPublishedView: View {
     }()
     
     var body: some View {
-        VStack {
-            SKUIView { context in
-                label
-            }
+        SKUIView { context in
+            label
         }
+        .ignoresSafeArea()
         .task {
             vm.cancellable = vm.$count.bind { count in
                 label.text = "\(count)"
             }
         }
-        .ignoresSafeArea()
         .overlay(alignment: .bottom) {
             Button {
                 vm.count += 1

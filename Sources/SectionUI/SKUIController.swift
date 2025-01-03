@@ -14,7 +14,7 @@ public struct SKUIController<Controller: UIViewController>: UIViewControllerRepr
     public typealias MakeAction   = () -> Controller
     public typealias UpdateAction = (_ controller: Controller, _ context: Context) -> Void
     
-    public let make: () -> Controller
+    public let make: MakeAction
     public let update: UpdateAction
     
     public init(make: @escaping MakeAction,

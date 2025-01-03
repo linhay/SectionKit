@@ -32,6 +32,9 @@ struct ContentView: View {
                 NavigationLink("07-Decoration") {
                     DecorationView()
                 }
+                NavigationLink("xx-SKPublished") {
+                    SKPublishedView()
+                }
             }
             .font(.title3)
             .fontWeight(.medium)

@@ -52,7 +52,7 @@
 - Cocoapods
 
     ``` ruby
-    pod 'SectionUI', '2.3.5'
+    pod 'SectionUI', '2.4.0'
     ```
 
 ## License

@@ -66,17 +66,19 @@ public extension SKCDataSource {
         return .handle(indexTitles.isEmpty ? nil : indexTitles)
     }
     
-    
     /// Returns the index path that corresponds to the given title / index. (e.g. "B",1)
     /// Return an index path with a single index to indicate an entire section, instead of a specific item.
     @available(iOS 14.0, *)
     func collectionView(_ collectionView: UICollectionView, indexPathForIndexTitle title: String, at index: Int) -> SKHandleResult<IndexPath> {
-        if let section = sections().filter({ $0.indexTitle == title }).dropFirst(index).first,
-           let sectionIndex = section.sectionIndex {
-            return .handle(.init(item: section.indexTitleRow, section: sectionIndex))
-        } else {
+        guard let section = sections()
+            .filter({ $0.indexTitle != nil })
+            .enumerated()
+            .first(where: { $0.offset == index })?
+            .element,
+              let sectionIndex = section.sectionIndex else {
             return .next
         }
+        return .handle(.init(item: section.indexTitleRow, section: sectionIndex))
     }
     
 }

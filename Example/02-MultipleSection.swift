@@ -50,8 +50,8 @@ struct MultipleSectionView: View {
         }
     
     var body: some View {
-        SKUIController {
-            SKCollectionViewController().reload([section1, section2])
+        SKPreview.sections {
+            [section1, section2]
         }.onAppear {
             section1.config(models: (0...4).map({ idx in
                 TextCell.Model(text: "第 1 组, 第 \(idx) 行", color: colors[idx % colors.count])

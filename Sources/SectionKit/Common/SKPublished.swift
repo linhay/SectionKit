@@ -32,44 +32,39 @@ public final class SKPublishedValue<Output>: Publisher {
             self.onChanged = onChanged
         }
         
-        public init(publisher publisherTranshform: TranshformAnyPublisher?) {
-            if let publisherTranshform = publisherTranshform {
-                self.publisher = { publisher in
-                    publisherTranshform(publisher).eraseToAnyPublisher()
-                }
-            } else {
-                self.publisher = nil
+        public static func mapPublisher(_ transhform: @escaping TranshformAnyPublisher) -> Transhform {
+            .init { publisher in
+                transhform(publisher).eraseToAnyPublisher()
             }
-            self.onChanged = nil
         }
         
         public static func print(prefix: String = "") -> Transhform {
-            .init { old, new in
+            .init(onChanged: { old, new in
                 if prefix.isEmpty {
                     Swift.print("[SKPublished]", old, "=>", new)
                 } else {
                     Swift.print("[SKPublished]", prefix, old, "=>", new)
                 }
-            }
+            })
         }
         
         public static func onChanged(_ transhform: @escaping TranshformOnChanged) -> Transhform {
-            .init { old, new in
+            .init(onChanged: { old, new in
                 transhform(new)
-            }
+            })
         }
         
         public static func onChanged(_ transhform: @escaping TranshformOnChanged) -> Transhform where Output: Equatable {
-            .init { old, new in
+            .init(onChanged: { old, new in
                 guard old != new else {
                     return
                 }
                 transhform(new)
-            }
+            })
         }
         
         public static func removeDuplicates() -> Transhform where Output: Equatable {
-            Transhform.init { publisher in
+            .mapPublisher { publisher in
                 publisher.removeDuplicates()
             }
         }
@@ -113,7 +108,7 @@ public final class SKPublishedValue<Output>: Publisher {
     
     public func sink(receiveValue: @escaping ((Output) -> Void)) -> AnyCancellable {
         publisher
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: receiveValue)
     }
     

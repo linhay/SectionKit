@@ -9,7 +9,7 @@
 import UIKit
 
 
-public extension SKSectionWrapper where Base: UIView {
+public extension SKWrapper where Base: UIView {
     
     static func wrapperToConfigurableView() -> SKWrapperView<Base, Void>.Type {
         return wrapperToConfigurableView(userInfo: Void.self)

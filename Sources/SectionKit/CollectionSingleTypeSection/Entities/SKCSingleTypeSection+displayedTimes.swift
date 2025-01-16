@@ -10,6 +10,7 @@ import Foundation
 public extension SKCSingleTypeSection {
     
     struct ModelDisplayedContext {
+        public let section: SKCSingleTypeSection<Cell>
         public let model: Model
         public let row: Int
     }
@@ -28,7 +29,7 @@ public extension SKCSingleTypeSection {
                   self.models.indices.contains(row) else {
                 return
             }
-            observe(.init(model: models[row], row: row))
+            observe(.init(section: self, model: models[row], row: row))
         }
         return self
     }

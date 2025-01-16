@@ -24,8 +24,8 @@ struct FooterAndHeaderView: View {
         .setFooter(TextReusableView.self, model: .init(text: "Footer", color: .green))
 
     var body: some View {
-        SKUIController {
-            SKCollectionViewController().reload(section)
+        SKPreview.sections {
+            section
         }.onAppear {
             section.config(models: (0...4).map({ idx in
                 TextCell.Model(text: "第 1 组, 第 \(idx) 行", color: colors[idx % colors.count])

@@ -117,8 +117,8 @@ struct IntroductionView: View {
         }
     
     var body: some View {
-        SKUIController {
-            SKCollectionViewController().reload(section)
+        SKPreview.sections {
+            section
         }.onAppear {
             section.config(models: (0...100).map({ idx in
                 IntroductionCell.Model(text: "第 \(idx) 行", color: colors[idx % colors.count])

@@ -23,7 +23,7 @@ struct LoadAndPullView: View {
     var body: some View {
         SKUIController {
             SKCollectionViewController()
-                .reload(section)
+                .reloadSections(section)
                 .refreshable {
                     refreshableTime = 0
                     section

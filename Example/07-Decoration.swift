@@ -30,8 +30,8 @@ struct DecorationView: View {
         }
     
     var body: some View {
-        SKUIController {
-            SKCollectionViewController().reload(section)
+        SKPreview.sections {
+            section
         }
         .task {
             section.config(models: (0...50).map({ idx in

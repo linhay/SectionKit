@@ -9,7 +9,12 @@ import Foundation
 
 public extension SKCSingleTypeSection {
     
-    typealias HighPerformanceIDBlock = (_ context: ModelDisplayedContext) -> String?
+    struct HighPerformanceIDContext {
+        public let model: Model
+        public let row: Int
+    }
+    
+    typealias HighPerformanceIDBlock = (_ context: HighPerformanceIDContext) -> String?
     
     @discardableResult
     func setHighPerformance(_ value: SKHighPerformanceStore<String>?) -> Self {
@@ -28,14 +33,14 @@ public extension SKCSingleTypeSection {
     }
     
     @discardableResult
-    func highPerformanceID(by path: KeyPath<ModelDisplayedContext, Int?>) -> Self {
+    func highPerformanceID(by path: KeyPath<HighPerformanceIDContext, Int?>) -> Self {
         return highPerformanceID { context in
             context[keyPath: path]?.description
         }
     }
     
     @discardableResult
-    func highPerformanceID(by path: KeyPath<ModelDisplayedContext, Int>) -> Self {
+    func highPerformanceID(by path: KeyPath<HighPerformanceIDContext, Int>) -> Self {
         return highPerformanceID { context in
             context[keyPath: path].description
         }

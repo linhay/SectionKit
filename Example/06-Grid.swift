@@ -22,8 +22,8 @@ struct GridColorView: View {
         .cellSafeSize(.fraction(0.25), transforms: .height(asRatioOfWidth: 1))
     
     var body: some View {
-        SKUIController {
-            SKCollectionViewController().reload(section)
+        SKPreview.sections {
+            section
         }
         .task {
             section.config(models: (0...50).map({ idx in

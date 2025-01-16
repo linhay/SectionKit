@@ -18,8 +18,8 @@ struct SubscribeDataWithCombineView: View {
         .wrapperToSingleTypeSection()
     
     var body: some View {
-        SKUIController {
-            SKCollectionViewController().reload(section)
+        SKPreview.sections {
+            section
         }
         .task {
             section.subscribe(models: subject)

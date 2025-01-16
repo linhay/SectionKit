@@ -241,6 +241,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     lazy var cellStyles: [CellStyleBox] = []
     lazy var cellContextMenus: [ContextMenuBlock] = []
     lazy var cellShoulds: [CellShouldType: [CellShouldBlock]] = [:]
+   
+    public var indexTitle: String?
     
     private lazy var loadedTasks: [LoadedBlock] = []
     

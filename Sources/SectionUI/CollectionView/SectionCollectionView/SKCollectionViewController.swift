@@ -145,7 +145,7 @@ public extension SKCollectionViewController {
 
 public extension SKCollectionViewController {
     
-    public func refreshable(action: @escaping VoidAsyncAction) -> Self {
+    func refreshable(action: @escaping VoidAsyncAction) -> Self {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshAction), for: .valueChanged)
         sectionView.refreshControl = refreshControl
@@ -176,11 +176,11 @@ public extension SKCollectionViewController {
         return self
     }
     
-    func reload(_ section: any SKCBaseSectionProtocol) -> Self {
-        return reload([section])
+    func reloadSections(_ section: any SKCBaseSectionProtocol) -> Self {
+        return reloadSections([section])
     }
     
-    func reload(_ section: [any SKCBaseSectionProtocol]) -> Self {
+    func reloadSections(_ section: [any SKCBaseSectionProtocol]) -> Self {
         return controllerStyle { controller in
             controller.manager.reload(section)
         }

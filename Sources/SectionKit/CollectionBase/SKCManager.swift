@@ -89,10 +89,10 @@ public class SKCManager {
     
     private lazy var endDisplaySections: [Int: SKCBaseSectionProtocol] = [:]
     
-    public private(set) lazy var flowlayoutDelegate = SKCDelegateFlowLayout(dataSource: publishers)
-    public private(set) lazy var delegate = SKCDelegate(dataSource: publishers)
-    public private(set) lazy var dataSource = SKCDataSource(dataSource: publishers)
-    public private(set) lazy var prefetching = SKCDataSourcePrefetching(dataSource: publishers)
+    public lazy var flowlayoutDelegate = SKCDelegateFlowLayout(dataSource: publishers)
+    public lazy var delegate = SKCDelegate(dataSource: publishers)
+    public lazy var dataSource = SKCDataSource(dataSource: publishers)
+    public lazy var prefetching = SKCDataSourcePrefetching(dataSource: publishers)
     
     private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView)
     
@@ -239,7 +239,6 @@ public extension SKCManager {
                 at scrollPosition: UICollectionView.ScrollPosition? = nil,
                 offset: CGPoint? = nil,
                 animated: Bool = true) -> SKRequestID? {
-        let ID = "scroll"
         if _scroll(to: section, row: row, at: scrollPosition, offset: offset, animated: animated) {
             return nil
         } else {
@@ -276,6 +275,8 @@ public extension SKCManager {
             case .horizontal:
                 position = .left
             case .vertical:
+                position = .top
+            @unknown default:
                 position = .top
             }
         } else {

@@ -7,7 +7,7 @@
 
 import UIKit
 
-public extension SKSectionWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
+public extension SKWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
     
     static func wrapperToCollectionReusableView() -> SKCWrapperReusableView<Base>.Type {
         return Base.wrapperToCollectionReusableView()

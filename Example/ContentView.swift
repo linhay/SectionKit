@@ -32,6 +32,9 @@ struct ContentView: View {
                 NavigationLink("07-Decoration") {
                     DecorationView()
                 }
+                NavigationLink("09-PinIndex") {
+                    PinIndexView()
+                }
                 NavigationLink("xx-SKPublished") {
                     SKPublishedView()
                 }

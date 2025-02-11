@@ -23,7 +23,7 @@ class TextReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigur
         titleLabel.text = model.text
         descLabel.text = nil
         descLabel.isHidden = true
-        backgroundColor = model.color.withAlphaComponent(0.5)
+        backgroundColor = model.color
     }
     
     func desc(_ string: String) {

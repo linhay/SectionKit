@@ -94,7 +94,7 @@ public class SKCManager {
     public lazy var dataSource = SKCDataSource(dataSource: publishers)
     public lazy var prefetching = SKCDataSourcePrefetching(dataSource: publishers)
     
-    private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView)
+    private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView, manager: self)
     
     var afterLayoutSubviewsRequests: [SKRequestID] = []
     private var cancellables = Set<AnyCancellable>()
@@ -355,7 +355,7 @@ public extension SKCManager {
             return
         }
         context.sectionView = nil
-        context = .init(sectionView)
+        context = .init(sectionView, manager: self)
         self.endDisplaySections.removeAll()
         self.sections
             .enumerated()

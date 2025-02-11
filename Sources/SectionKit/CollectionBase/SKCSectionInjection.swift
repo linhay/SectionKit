@@ -67,9 +67,11 @@ public class SKCSectionInjection {
     class SectionViewProvider {
         
         weak var sectionView: UICollectionView?
-        
-        init(_ sectionView: UICollectionView?) {
+        weak var manager: SKCManager?
+
+        init(_ sectionView: UICollectionView?, manager: SKCManager?) {
             self.sectionView = sectionView
+            self.manager = manager
         }
     }
     
@@ -77,7 +79,8 @@ public class SKCSectionInjection {
     public var configuration = SKCSectionInjection.configuration
     public internal(set) var index: Int
     public var sectionView: UICollectionView? { sectionViewProvider.sectionView }
-        
+    public var manager: SKCManager? { sectionViewProvider.manager }
+
     var sectionViewProvider: SectionViewProvider
     private var events: [ActionKind: ActionTask] = [:]
     

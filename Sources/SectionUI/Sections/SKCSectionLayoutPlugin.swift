@@ -28,10 +28,10 @@ public enum SKCSectionLayoutPluginAlias {
     }
 }
 
-
 /// 枚举，表示不同的节布局插件。
 public enum SKCSectionLayoutPlugin {
-    
+    case pin(SKCSectionPin)
+    case permanentAttributes(SKCLayoutPlugins.FetchAttributes)
     case attributes([SKCPluginAdjustAttributes])
     case decorations([any SKCLayoutDecorationPlugin])
     case verticalAlignment(SKCLayoutPlugins.VerticalAlignment)
@@ -41,8 +41,12 @@ public enum SKCSectionLayoutPlugin {
     ///
     /// - Parameter section: 需要转换的节。
     /// - Returns: 对应的布局插件模式。
-    public func convert(_ section: SKCSectionActionProtocol) -> SKCLayoutPlugins.Mode {
+    public func convert(_ section: SKCSectionActionProtocol) -> SKCLayoutPlugins.Mode? {
         switch self {
+        case .pin:
+            return nil
+        case .permanentAttributes(let array):
+            return .permanentAttributes(array)
         case .decorations(let array):
             return .decorations(array)
         case .attributes(let array):
@@ -211,6 +215,92 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
             }
             style?(decoration)
         }
+    }
+    
+}
+
+public class SKCSectionPin {
+    
+    public weak var sectionView: UICollectionView?
+    let id = UUID().uuidString
+    var frame: CGRect?
+    let when: SKWhen<SKCPluginAdjustAttributes.Context>
+    var contentOffset: CGPoint = .zero
+    var attributes: UICollectionViewLayoutAttributes?
+    
+    lazy var sroll: SKScrollViewDelegateHandler = {
+        let item = SKScrollViewDelegateHandler()
+        item.id = id
+        item.onChanged { [weak self] scrollView in
+            guard let self = self else { return }
+            contentOffset = sectionView?.contentOffset ?? .zero
+            sectionView?.collectionViewLayout.invalidateLayout()
+        }
+        return item
+    }()
+    
+    lazy var style = SKCPluginAdjustAttributes.Style { [weak self] object in
+        guard let self = self else { return object }
+        if frame == nil {
+            frame = object.attributes.frame
+        }
+        attributes = object.attributes
+        let frame = frame ?? object.attributes.frame
+        object.attributes.frame.origin.y = max(contentOffset.y, frame.origin.y)
+        return object
+    }
+    
+    var deinitHook: (_ id: String) -> Void
+
+    public init(when: SKWhen<SKCPluginAdjustAttributes.Context>, deinit: @escaping (_ id: String) -> Void) {
+        self.when = when
+        self.deinitHook = `deinit`
+    }
+    
+    
+    deinit {
+        deinitHook(id)
+    }
+}
+
+public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
+
+    func pin(header manager: SKCManager) {
+        pin(when: .init({ [weak self] object in
+            guard let self = self else { return false }
+            return object.plugin.kind(of: object.attributes) == .header
+        }), manager: manager)
+    }
+    
+    func pin(footer manager: SKCManager) {
+        pin(when: .init({ [weak self] object in
+            guard let self = self else { return false }
+            return object.plugin.kind(of: object.attributes) == .footer
+        }), manager: manager)
+    }
+    
+    func pin(cell row: Int, manager: SKCManager) {
+        pin(when: .equal(\.attributes.indexPath.row, row)
+            .and(.equal(\.attributes.representedElementCategory, .cell)),
+            manager: manager)
+    }
+    
+    func pin(when: SKWhen<SKCPluginAdjustAttributes.Context>, manager: SKCManager) {
+        let model = SKCSectionPin(when: when) { [weak self] id in
+            guard let self = self else { return }
+            self.sectionInjection?.manager?.scrollObserver.remove(id: id)
+        }
+        self.addLayoutPlugins(.pin(model))
+        self.setAttributes(when: .init({ [weak self] object in
+            guard let self = self else { return false }
+            return object.attributes.indexPath.section == self.sectionIndex
+        }).and(when), style: model.style)
+        self.addLayoutPlugins(.permanentAttributes(.init(fetch: { [weak model] in
+            guard let model = model else { return nil }
+            return model.attributes
+        })))
+        model.sectionView = manager.sectionView
+        manager.scrollObserver.add(scroll: model.sroll)
     }
     
 }

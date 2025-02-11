@@ -7,10 +7,11 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 
 /// A struct that represents adjustments to be applied to layout attributes.
 public struct SKCPluginAdjustAttributes {
-
+    
     /// A context that holds the plugin and the attributes to be adjusted.
     public struct Context {
         public let plugin: SKCLayoutPlugin
@@ -39,6 +40,13 @@ public struct SKCPluginAdjustAttributes {
 }
 
 public extension SKInout where Object == SKCPluginAdjustAttributes.Context {
+    
+    static func updating<Value>(_ state: Binding<Value>, from keyPath: KeyPath<Object, Value>) -> SKInout<Object> {
+        .set { object in
+            state.wrappedValue = object[keyPath: keyPath]
+            return object
+        }
+    }
     
     /// Reverses the header and section inset.
     static var reverseHeaderAndSectionInset: SKInout<Object> {

@@ -93,7 +93,7 @@ public extension SKCollectionView {
         manager.sections
             .compactMap({ $0 as? (SKCSectionLayoutPluginProtocol & SKCSectionActionProtocol) })
             .map({ section in
-                section.plugins.map { plugin in
+                section.plugins.compactMap { plugin in
                     plugin.convert(section)
                 }
             })

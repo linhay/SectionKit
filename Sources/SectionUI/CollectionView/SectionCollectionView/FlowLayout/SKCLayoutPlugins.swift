@@ -9,8 +9,30 @@ import UIKit
 
 public struct SKCLayoutPlugins {
     
+    public struct FetchAttributes: ExpressibleByArrayLiteral {
+       
+        public let fetch: () -> [UICollectionViewLayoutAttributes]
+        
+        public init(fetch: @escaping () -> [UICollectionViewLayoutAttributes]) {
+            self.fetch = fetch
+        }
+        
+        public init(fetch: @escaping () -> UICollectionViewLayoutAttributes?) {
+            self.fetch = { fetch().map { [$0] } ?? [] }
+        }
+        
+        public init(arrayLiteral elements: UICollectionViewLayoutAttributes...) {
+            self.fetch = { elements }
+        }
+        
+        public init(_ element: UICollectionViewLayoutAttributes?) {
+            self.fetch = { element.map { [$0] } ?? [] }
+        }
+    }
+    
     /// 布局插件样式
     public enum Mode: Equatable {
+        case permanentAttributes(FetchAttributes)
         case attributes([SKCPluginAdjustAttributes])
         case horizontalAlignment([HorizontalAlignmentPayload])
         /// 水平对齐
@@ -33,6 +55,7 @@ public struct SKCLayoutPlugins {
             case .fixSupplementaryViewInset:   return 2
             case .adjustSupplementaryViewSize: return 3
             case .decorations: return 200
+            case .permanentAttributes: return 300
             }
         }
         
@@ -63,10 +86,12 @@ public struct SKCLayoutPlugins {
         var verticalAlignments  = [VerticalAlignmentPayload]()
         var horizontalAlignments = [HorizontalAlignmentPayload]()
         var decorations = [any SKCLayoutDecorationPlugin]()
-        
+        var permanentAttributes = [SKCLayoutPlugins.FetchAttributes]()
         /// 优先级冲突去重
         for mode in modes {
             switch mode {
+            case .permanentAttributes(let list):
+                permanentAttributes.append(list)
             case .attributes(let list):
                 attributes.append(contentsOf: list)
             case .fixSupplementaryViewInset,
@@ -100,6 +125,12 @@ public struct SKCLayoutPlugins {
         
         if !attributes.isEmpty {
             newModes.append(.attributes(attributes))
+        }
+        
+        if !permanentAttributes.isEmpty {
+            newModes.append(.permanentAttributes(.init(fetch: {
+                permanentAttributes.map(\.fetch).flatMap { $0() }
+            })))
         }
         
         /// mode 重排

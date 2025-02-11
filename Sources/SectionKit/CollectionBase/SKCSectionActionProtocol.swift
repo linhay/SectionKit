@@ -155,12 +155,17 @@ public extension SKCSectionActionProtocol {
     }
     
     func _register<T: UICollectionViewCell & SKLoadViewProtocol>(_ cell: T.Type) {
+        _register(cell, id: cell.identifier)
+    }
+    
+    func _register<T: UICollectionViewCell & SKLoadViewProtocol>(_ cell: T.Type, id: String) {
         if let nib = T.nib {
-            sectionView.register(nib, forCellWithReuseIdentifier: T.identifier)
+            sectionView.register(nib, forCellWithReuseIdentifier: id)
         } else {
-            sectionView.register(T.self, forCellWithReuseIdentifier: T.identifier)
+            sectionView.register(T.self, forCellWithReuseIdentifier: id)
         }
     }
+    
     func _register<T: UICollectionReusableView & SKLoadViewProtocol>(_ view: T.Type, for kind: SKSupplementaryKind) {
         if let nib = T.nib {
             sectionView.register(nib, forSupplementaryViewOfKind: kind.rawValue, withReuseIdentifier: T.identifier)
@@ -169,8 +174,13 @@ public extension SKCSectionActionProtocol {
         }
     }
     func _dequeue<V: UICollectionViewCell & SKLoadViewProtocol>(at row: Int) -> V {
-        sectionView.dequeueReusableCell(withReuseIdentifier: V.identifier, for: indexPath(from: row)) as! V
+        _dequeue(at: row, id: V.identifier)
     }
+    
+    func _dequeue<V: UICollectionViewCell & SKLoadViewProtocol>(at row: Int, id: String) -> V {
+        sectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath(from: row)) as! V
+    }
+    
     func _dequeue<V: UICollectionReusableView & SKLoadViewProtocol>(kind: SKSupplementaryKind) -> V {
         sectionView.dequeueReusableSupplementaryView(ofKind: kind.rawValue, withReuseIdentifier: V.identifier, for: indexPath(from: 0)) as! V
     }

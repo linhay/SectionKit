@@ -13,6 +13,12 @@ class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     struct Model {
         let text: String
         let color: UIColor?
+        let alignment: NSTextAlignment
+        init(text: String, color: UIColor?, alignment: NSTextAlignment = .center) {
+            self.text = text
+            self.color = color
+            self.alignment = alignment
+        }
     }
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
@@ -21,6 +27,7 @@ class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     
     func config(_ model: Model) {
         titleLabel.text = model.text
+        titleLabel.textAlignment = model.alignment
         contentView.backgroundColor = model.color?.withAlphaComponent(0.5) ?? .clear
     }
 
@@ -35,7 +42,7 @@ class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
         super.init(frame: frame)
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.edges.equalToSuperview()
         }
     }
     

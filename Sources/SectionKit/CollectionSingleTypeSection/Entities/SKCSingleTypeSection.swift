@@ -9,6 +9,58 @@
 import UIKit
 import Combine
 
+public struct SKCSupplementaryActionContext<Section> {
+   
+    public let section: Section
+    public let type: SKCSupplementaryActionType
+    public let kind: SKSupplementaryKind
+    public let row: Int
+    let _view: SKWeakBox<UICollectionReusableView>?
+    
+    public func view() -> UICollectionReusableView where Section: SKCDataSourceProtocol {
+        guard let cell = _view?.value ?? section.supplementary(kind: kind, at: row) else {
+            assertionFailure()
+            return .init(frame: .zero)
+        }
+        return cell
+    }
+    
+    init(section: Section,
+         type: SKCSupplementaryActionType,
+         kind: SKSupplementaryKind,
+         row: Int,
+         view: UICollectionReusableView?) {
+        self.section = section
+        self.type = type
+        self.kind = kind
+        self.row = row
+        self._view = .init(view)
+    }
+}
+
+public enum SKCCellActionType: Int, Hashable {
+    /// 选中
+    case selected
+    case deselected
+    /// 即将显示
+    case willDisplay
+    /// 结束显示
+    case didEndDisplay
+    /// 配置完成
+    case config
+    
+    public var description: String {
+        switch self {
+        case .selected: return "selected"
+        case .deselected: return "deselected"
+        case .willDisplay: return "willDisplay"
+        case .didEndDisplay: return "didEndDisplay"
+        case .config: return "config"
+        }
+    }
+}
+
+
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol, SKDisplayedTimesProtocol {
     
     public typealias SectionBlock<Return>               = (_ section: SKCSingleTypeSection<Cell>) -> Return
@@ -25,6 +77,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: SKCCellStyleContext<Cell>) -> Void
     public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: CellActionContext) -> Void
     
+    public typealias SupplementaryActionContext = SKCSupplementaryActionContext<SKCSingleTypeSection<Cell>>
     public typealias SupplementaryActionBlock = ContextBlock<SupplementaryActionContext, Void>
     public typealias CellActionBlock          = ContextBlock<CellActionContext, Void>
     public typealias ContextMenuBlock         = ContextBlock<ContextMenuContext, SKUIContextMenuResult?>
@@ -53,28 +106,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
     }
     
-    public enum CellActionType: Int, Hashable {
-        /// 选中
-        case selected
-        case deselected
-        /// 即将显示
-        case willDisplay
-        /// 结束显示
-        case didEndDisplay
-        /// 配置完成
-        case config
-        
-        public var description: String {
-            switch self {
-            case .selected: return "selected"
-            case .deselected: return "deselected"
-            case .willDisplay: return "willDisplay"
-            case .didEndDisplay: return "didEndDisplay"
-            case .config: return "config"
-            }
-        }
-    }
-    
     public enum CellShouldType: Int, Hashable {
         case move
     }
@@ -98,7 +129,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public struct CellActionContext: SKCSingleTypeSectionRowContext, SKCSingleTypeCellActionContextProtocol {
         
         public let section: SKCSingleTypeSection<Cell>
-        public let type: CellActionType
+        public let type: SKCCellActionType
         public let model: Cell.Model
         public let row: Int
         fileprivate let _view: SKWeakBox<Cell>?
@@ -112,7 +143,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         }
         
         fileprivate init(section: SKCSingleTypeSection<Cell>,
-                         type: CellActionType,
+                         type: SKCCellActionType,
                          model: Cell.Model, row: Int,
                          _view: Cell?) {
             self.section = section
@@ -123,48 +154,29 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         }
     }
     
-    public struct SupplementaryActionContext {
-        public let section: SKCSingleTypeSection<Cell>
-        public let type: SKCSupplementaryActionType
-        public let kind: SKSupplementaryKind
-        public let row: Int
-        let _view: SKWeakBox<UICollectionReusableView>?
-        
-        public func view() -> UICollectionReusableView {
-            guard let cell = _view?.value ?? section.supplementary(kind: kind, at: row) else {
-                assertionFailure()
-                return .init(frame: .zero)
-            }
-            return cell
-        }
-        
-        init(section: SKCSingleTypeSection<Cell>,
-             type: SKCSupplementaryActionType,
-             kind: SKSupplementaryKind,
-             row: Int,
-             view: UICollectionReusableView?) {
-            self.section = section
-            self.type = type
-            self.kind = kind
-            self.row = row
-            self._view = .init(view)
-        }
-    }
-    
     public final class SKCSingleTypePublishers {
         
         public var modelsCancellable: AnyCancellable?
-        
+
         /// models 变更订阅
-        public private(set) lazy var modelsPulisher = modelsSubject.eraseToAnyPublisher()
-        /// cell 事件订阅, 事件类型参照 `CellActionType`
-        public private(set) lazy var cellActionPulisher = deferred(bind: \.cellActionSubject)
+        public private(set) lazy var modelsPublisher = modelsSubject.eraseToAnyPublisher()
+        /// cell 事件订阅, 事件类型参照 `SKCCellActionType`
+        public private(set) lazy var cellActionPublisher = deferred(bind: \.cellActionSubject)
         /// supplementary 事件订阅, 事件类型参照 `SupplementaryActionType`
-        public private(set) lazy var supplementaryActionPulisher = deferred(bind: \.supplementaryActionSubject)
+        public private(set) lazy var supplementaryActionPublisher = deferred(bind: \.supplementaryActionSubject)
         /// section 生命周期监听
-        public private(set) lazy var lifeCyclePulisher = deferred(bind: \.lifeCycleSubject)
+        public private(set) lazy var lifeCyclePublisher = deferred(bind: \.lifeCycleSubject)
             .delay(for: .seconds(0.3), scheduler: RunLoop.main)
             .eraseToAnyPublisher()
+        
+        @available(*, deprecated, renamed: "modelsPublisher")
+        public private(set) lazy var modelsPulisher = modelsPublisher
+        @available(*, deprecated, renamed: "cellActionPublisher")
+        public private(set) lazy var cellActionPulisher = cellActionPublisher
+        @available(*, deprecated, renamed: "supplementaryActionPublisher")
+        public private(set) lazy var supplementaryActionPulisher = supplementaryActionPublisher
+        @available(*, deprecated, renamed: "lifeCyclePublisher")
+        public private(set) lazy var lifeCyclePulisher = lifeCyclePublisher
         
         fileprivate lazy var modelsSubject = CurrentValueSubject<[Model], Never>([])
         fileprivate var lifeCycleSubject: PassthroughSubject<LifeCycleKind, Never>?
@@ -237,7 +249,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     lazy var deletedModels: [Int: Model] = [:]
     lazy var supplementaryActions: [SKCSupplementaryActionType: [SupplementaryActionBlock]] = [:]
-    lazy var cellActions: [CellActionType: [CellActionBlock]] = [:]
+    lazy var cellActions: [SKCCellActionType: [CellActionBlock]] = [:]
     lazy var cellStyles: [CellStyleBox] = []
     lazy var cellContextMenus: [ContextMenuBlock] = []
     lazy var cellShoulds: [CellShouldType: [CellShouldBlock]] = [:]
@@ -536,76 +548,6 @@ public extension SKCSingleTypeSection {
     @discardableResult
     func apply<Root>(safeSize: KeyPath<Root, SKSafeSizeProvider>, on object: Root) -> Self {
         return apply(safeSize: object[keyPath: safeSize])
-    }
-    
-}
-
-public extension SKCSingleTypeSection {
-    
-    /// 提供 Cell - preferredSize(limit size: CGSize, model: Model?) 中 limit size 的值
-    enum SKSafeSizeProviderKind {
-        /// 使用默认的 safeSizeProvider 提供者尺寸
-        case `default`
-        /// 使用固定的 CGSize 来提供尺寸
-        case fixed(CGSize)
-        /// 根据比例来计算尺寸
-        case fraction(Double)
-    }
-    
-    @discardableResult
-    func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: SKSafeSizeTransform) -> Self {
-        cellSafeSize(kind, transforms: [transforms])
-    }
-
-    @discardableResult
-    func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: [SKSafeSizeTransform] = []) -> Self {
-        
-        func transform(size: CGSize) -> CGSize {
-            return transforms.reduce(into: size, { $0 = $1.transform($0) })
-        }
-        
-        switch kind {
-        case .fixed(let size):
-            self.cellSafeSizeProvider = .init(block: {
-                return transform(size: size)
-            })
-        case .default:
-            self.cellSafeSizeProvider = .init(block: { [weak self] in
-                guard let self = self else { return .zero }
-                let size = self.safeSizeProvider.size
-                return transform(size: size)
-            })
-        case .fraction(let value):
-            self.cellSafeSizeProvider = .init(block: { [weak self] in
-                guard let self = self else { return .zero }
-                let size = safeSizeProvider.size
-                guard value > 0, value <= 1 else {
-                    return size
-                }
-                
-                let count = floor(1 / value)
-                let itemWidth = floor((size.width - (count - 1) * minimumInteritemSpacing) / count)
-                let newSize = CGSize(width: itemWidth, height: size.height)
-                return transform(size: newSize)
-            })
-        }
-        return self
-    }
-    
-    @discardableResult
-    func safeSize(_ provider: SKSafeSizeProvider) -> Self {
-        safeSizeProvider = provider
-        return self
-    }
-    
-    @discardableResult
-    func safeSize(_ path: KeyPath<SKCSingleTypeSection, SKSafeSizeProvider>) -> Self {
-        return safeSize(self[keyPath: path])
-    }
-    
-    @discardableResult
-    func safeSize<Root>(_ path: KeyPath<Root, SKSafeSizeProvider>, on object: Root) -> Self {
-        return safeSize(object[keyPath: path])
     }
     
 }
@@ -940,7 +882,7 @@ public extension SKCSingleTypeSection {
         return nil
     }
     
-    func sendDeleteAction(_ type: CellActionType, view: Cell?, row: Int) {
+    func sendDeleteAction(_ type: SKCCellActionType, view: Cell?, row: Int) {
         guard deletedModels[row] != nil || models.indices.contains(row) else {
             return
         }
@@ -952,7 +894,7 @@ public extension SKCSingleTypeSection {
         sendAction(result)
     }
     
-    func sendAction(_ type: CellActionType, view: Cell?, row: Int) {
+    func sendAction(_ type: SKCCellActionType, view: Cell?, row: Int) {
         guard models.indices.contains(row) else { return }
         let result = CellActionContext(section: self, type: type, model: models[row], row: row, _view: view)
         sendAction(result)

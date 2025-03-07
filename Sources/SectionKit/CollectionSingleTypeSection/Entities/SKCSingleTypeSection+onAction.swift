@@ -87,7 +87,7 @@ public extension SKCSingleTypeSection {
 public extension SKCSingleTypeSection {
     
     @discardableResult
-    func clearCellAction(_ kind: CellActionType) -> Self {
+    func clearCellAction(_ kind: SKCCellActionType) -> Self {
         cellActions[kind]?.removeAll()
         return self
     }
@@ -98,7 +98,7 @@ public extension SKCSingleTypeSection {
     ///   - block: 回调
     /// - Returns: self
     @discardableResult
-    func onCellAction(_ kind: CellActionType, block: @escaping CellActionBlock) -> Self {
+    func onCellAction(_ kind: SKCCellActionType, block: @escaping CellActionBlock) -> Self {
         if cellActions[kind] == nil {
             cellActions[kind] = []
         }
@@ -107,7 +107,7 @@ public extension SKCSingleTypeSection {
     }
     
     @discardableResult
-    func onAsyncCellAction(_ kind: CellActionType, block: @escaping AsyncCellActionBlock) -> Self {
+    func onAsyncCellAction(_ kind: SKCCellActionType, block: @escaping AsyncCellActionBlock) -> Self {
         return onCellAction(kind) { context in
             Task {
                 try await block(context)
@@ -174,7 +174,7 @@ public extension SKCSingleTypeSection {
     ///   - block: 回调
     /// - Returns: self
     @discardableResult
-    func onCellAction<ON: AnyObject>(on: ON, _ kind: CellActionType, block: @escaping CellActionWeakBlock<ON>) -> Self {
+    func onCellAction<ON: AnyObject>(on: ON, _ kind: SKCCellActionType, block: @escaping CellActionWeakBlock<ON>) -> Self {
         return onCellAction(kind) { [weak on] context in
             guard let on = on else { return }
             block(on, context)

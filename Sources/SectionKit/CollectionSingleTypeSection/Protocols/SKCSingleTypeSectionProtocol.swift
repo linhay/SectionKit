@@ -10,7 +10,7 @@ import UIKit
 
 public protocol SKCSingleTypeSectionProtocol: SKCSectionProtocol,
                                               SKCViewDataSourcePrefetchingProtocol,
-                                              SKSafeSizeProviderProtocol {
+                                              SKSafeSizeSetterProviderProtocol {
     
     associatedtype Cell: UICollectionViewCell & SKConfigurableView
     typealias Model = Cell.Model

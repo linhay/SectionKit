@@ -15,10 +15,10 @@ public struct SKUIView<View: UIView>: UIViewRepresentable {
     public typealias UpdateAction = (_ view: View, _ context: Context) -> Void
     
     public let make: MakeAction
-    public let update: UpdateAction
+    public let update: UpdateAction?
     
     public init(make: @escaping MakeAction,
-                update: @escaping UpdateAction = { _, _ in }) {
+                update: UpdateAction? = nil) {
         self.make = make
         self.update = update
     }
@@ -28,7 +28,11 @@ public struct SKUIView<View: UIView>: UIViewRepresentable {
     }
     
     public func updateUIView(_ uiView: View, context: Context) {
-        update(uiView, context)
+        if let update {
+            update(uiView, context)
+        } else {
+            uiView.frame = uiView.superview?.bounds ?? uiView.frame
+        }
     }
     
 }

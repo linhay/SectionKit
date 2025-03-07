@@ -9,8 +9,14 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-public protocol SKSafeSizeProviderProtocol: AnyObject {
-    var safeSizeProvider: SKSafeSizeProvider { get }
+/// 提供 Cell - preferredSize(limit size: CGSize, model: Model?) 中 limit size 的值
+public enum SKSafeSizeProviderKind {
+    /// 使用默认的 safeSizeProvider 提供者尺寸
+    case `default`
+    /// 使用固定的 CGSize 来提供尺寸
+    case fixed(CGSize)
+    /// 根据比例来计算尺寸
+    case fraction(Double)
 }
 
 public struct SKSafeSizeProvider {
@@ -71,7 +77,7 @@ public struct SKSafeSizeTransform {
     
 }
 
-public extension SKCViewDelegateFlowLayoutProtocol where Self: SKCSectionActionProtocol {
+public extension SKSafeSizeProviderProtocol where Self: SKCSectionActionProtocol & SKCViewDelegateFlowLayoutProtocol {
     
     var defaultSafeSizeProvider: SKSafeSizeProvider {
         SKSafeSizeProvider { [weak self] in
@@ -110,6 +116,79 @@ public extension SKCViewDelegateFlowLayoutProtocol where Self: SKCSectionActionP
         }
     }
     
+}
+
+public protocol SKSafeSizeProviderProtocol: AnyObject {
+    var safeSizeProvider: SKSafeSizeProvider { get }
+    var cellSafeSizeProvider: SKSafeSizeProvider? { get }
+}
+
+public extension SKSafeSizeProviderProtocol {
+    var cellSafeSizeProvider: SKSafeSizeProvider? { nil }
+}
+
+public protocol SKSafeSizeSetterProviderProtocol: SKSafeSizeProviderProtocol {
+    var safeSizeProvider: SKSafeSizeProvider { set get }
+    var cellSafeSizeProvider: SKSafeSizeProvider? { set get }
+}
+
+public extension SKSafeSizeSetterProviderProtocol where Self: SKCSectionProtocol {
+    
+    @discardableResult
+    func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: SKSafeSizeTransform) -> Self {
+        cellSafeSize(kind, transforms: [transforms])
+    }
+
+    @discardableResult
+    func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: [SKSafeSizeTransform] = []) -> Self {
+        
+        func transform(size: CGSize) -> CGSize {
+            return transforms.reduce(into: size, { $0 = $1.transform($0) })
+        }
+        
+        switch kind {
+        case .fixed(let size):
+            self.cellSafeSizeProvider = .init(block: {
+                return transform(size: size)
+            })
+        case .default:
+            self.cellSafeSizeProvider = .init(block: { [weak self] in
+                guard let self = self else { return .zero }
+                let size = self.safeSizeProvider.size
+                return transform(size: size)
+            })
+        case .fraction(let value):
+            self.cellSafeSizeProvider = .init(block: { [weak self] in
+                guard let self = self else { return .zero }
+                let size = safeSizeProvider.size
+                guard value > 0, value <= 1 else {
+                    return size
+                }
+                
+                let count = floor(1 / value)
+                let itemWidth = floor((size.width - (count - 1) * minimumInteritemSpacing) / count)
+                let newSize = CGSize(width: itemWidth, height: size.height)
+                return transform(size: newSize)
+            })
+        }
+        return self
+    }
+    
+    @discardableResult
+    func safeSize(_ provider: SKSafeSizeProvider) -> Self {
+        safeSizeProvider = provider
+        return self
+    }
+    
+    @discardableResult
+    func safeSize(_ path: KeyPath<Self, SKSafeSizeProvider>) -> Self {
+        return safeSize(self[keyPath: path])
+    }
+    
+    @discardableResult
+    func safeSize<Root>(_ path: KeyPath<Root, SKSafeSizeProvider>, on object: Root) -> Self {
+        return safeSize(object[keyPath: path])
+    }
 }
 
 #endif

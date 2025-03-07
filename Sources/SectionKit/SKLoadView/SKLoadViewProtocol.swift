@@ -31,7 +31,7 @@ public protocol SKLoadViewProtocol: UIView {
 
 public extension SKLoadViewProtocol {
     static var identifier: String {
-        return String(describing: Self.self)
+        return String(reflecting: Self.self)
     }
     
     static var nib: UINib? {

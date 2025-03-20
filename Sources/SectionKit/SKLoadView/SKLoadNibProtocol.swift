@@ -28,6 +28,10 @@ public protocol SKLoadNibProtocol: SKLoadViewProtocol {}
 
 public extension SKLoadNibProtocol {
     
+    static var identifier: String {
+        return String(describing: Self.self)
+    }
+    
     static var nib: UINib? {
         return UINib(nibName: String(describing: Self.self), bundle: bundle(of: Self.self))
     }

@@ -553,6 +553,12 @@ public extension SKCSingleTypeSection {
     }
     
     @discardableResult
+    func cellSafeSize(_ provider: SKSafeSizeProvider) -> Self {
+        cellSafeSizeProvider = provider
+        return self
+    }
+    
+    @discardableResult
     func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: SKSafeSizeTransform) -> Self {
         cellSafeSize(kind, transforms: [transforms])
     }

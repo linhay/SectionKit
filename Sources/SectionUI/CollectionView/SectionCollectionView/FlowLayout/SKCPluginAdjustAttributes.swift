@@ -95,6 +95,20 @@ public extension SKInout where Object == SKCPluginAdjustAttributes.Context {
             return context
         }
     }
+
+    static func zIndex(when categories: [UICollectionView.ElementCategory], _ value: Int) -> SKInout<Object> {
+        .set { context in
+            guard categories.contains(context.attributes.representedElementCategory) else {
+                return context
+            }
+            context.attributes.zIndex = value
+            return context
+        }
+    }
+    
+    static func zIndex(when category: UICollectionView.ElementCategory, _ value: Int) -> SKInout<Object> {
+        .zIndex(when: [category], value)
+    }
     
     static var fixHeaderViewSize: SKInout<Object> {
         .set { context in

@@ -16,29 +16,29 @@ public enum SKPublishedKind {
 public final class SKPublishedValue<Output>: Publisher {
     
     public typealias Failure = Never
-    public typealias TranshformPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> AnyPublisher<Output, Failure>
-    public typealias TranshformAnyPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> any Publisher<Output, Failure>
-    public typealias TranshformOnValueChanged = (_ old: Output, _ new: Output) -> Void
-    public typealias TranshformOnChanged = (_ value: Output) -> Void
+    public typealias TransformPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> AnyPublisher<Output, Failure>
+    public typealias TransformAnyPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> any Publisher<Output, Failure>
+    public typealias TransformOnValueChanged = (_ old: Output, _ new: Output) -> Void
+    public typealias TransformOnChanged = (_ value: Output) -> Void
 
-    public struct Transhform {
+    public struct Transform {
         
-        public let publisher: TranshformPublisher?
-        public let onChanged: TranshformOnValueChanged?
+        public let publisher: TransformPublisher?
+        public let onChanged: TransformOnValueChanged?
 
-        public init(publisher publisherTranshform: TranshformPublisher? = nil,
-                    onChanged: TranshformOnValueChanged? = nil) {
-            self.publisher = publisherTranshform
+        public init(publisher publisherTransform: TransformPublisher? = nil,
+                    onChanged: TransformOnValueChanged? = nil) {
+            self.publisher = publisherTransform
             self.onChanged = onChanged
         }
         
-        public static func mapPublisher(_ transhform: @escaping TranshformAnyPublisher) -> Transhform {
+        public static func mapPublisher(_ transform: @escaping TransformAnyPublisher) -> Transform {
             .init { publisher in
-                transhform(publisher).eraseToAnyPublisher()
+                transform(publisher).eraseToAnyPublisher()
             }
         }
         
-        public static func print(prefix: String = "") -> Transhform {
+        public static func print(prefix: String = "") -> Transform {
             .init(onChanged: { old, new in
                 if prefix.isEmpty {
                     Swift.print("[SKPublished]", old, "=>", new)
@@ -48,13 +48,13 @@ public final class SKPublishedValue<Output>: Publisher {
             })
         }
         
-        public static func onChanged(_ transhform: @escaping TranshformOnChanged) -> Transhform {
+        public static func onChanged(_ transhform: @escaping TransformOnChanged) -> Transform {
             .init(onChanged: { old, new in
                 transhform(new)
             })
         }
         
-        public static func onChanged(_ transhform: @escaping TranshformOnChanged) -> Transhform where Output: Equatable {
+        public static func onChanged(_ transhform: @escaping TransformOnChanged) -> Transform where Output: Equatable {
             .init(onChanged: { old, new in
                 guard old != new else {
                     return
@@ -63,7 +63,7 @@ public final class SKPublishedValue<Output>: Publisher {
             })
         }
         
-        public static func removeDuplicates() -> Transhform where Output: Equatable {
+        public static func removeDuplicates() -> Transform where Output: Equatable {
             .mapPublisher { publisher in
                 publisher.removeDuplicates()
             }
@@ -75,7 +75,7 @@ public final class SKPublishedValue<Output>: Publisher {
         didSet {
             currentValueSubject?.send(value)
             passThroughSubject?.send(value)
-            transhforms.forEach { $0.onChanged?(oldValue, value) }
+            transforms.forEach { $0.onChanged?(oldValue, value) }
         }
     }
     
@@ -83,15 +83,24 @@ public final class SKPublishedValue<Output>: Publisher {
     private let currentValueSubject: CurrentValueSubject<Output, Failure>?
     private let subject: AnyPublisher<Output, Failure>
 
-    public var transhforms: [Transhform] = []
+    public var transforms: [Transform] = []
     
     public var publisher: AnyPublisher<Output, Failure> {
-        return transhforms.compactMap(\.publisher).reduce(subject) { $1($0) }
+        return transforms.compactMap(\.publisher).reduce(subject) { $1($0) }
     }
-
-    public init(wrappedValue: Output, kind: SKPublishedKind = .currentValue, transhforms: [Transhform] = []) {
+    
+    public convenience init(wrappedValue: Output, kind: SKPublishedKind = .currentValue, transform: Transform) {
+        self.init(wrappedValue: wrappedValue, kind: kind, transform: [transform])
+    }
+    
+    @available(*, deprecated, message: "Use init(wrappedValue:kind:transform:) instead")
+    public convenience init(wrappedValue: Output, kind: SKPublishedKind = .currentValue, transhforms: [Transform] = []) {
+        self.init(wrappedValue: wrappedValue, kind: kind, transform: transhforms)
+    }
+    
+    public init(wrappedValue: Output, kind: SKPublishedKind = .currentValue, transform: [Transform] = []) {
         self.value = wrappedValue
-        self.transhforms = transhforms
+        self.transforms = transform
         switch kind {
         case .passThrough:
             let subject = PassthroughSubject<Output, Failure>()
@@ -105,6 +114,8 @@ public final class SKPublishedValue<Output>: Publisher {
             self.subject = subject.eraseToAnyPublisher()
         }
     }
+    
+
     
     public func sink(receiveValue: @escaping ((Output) -> Void)) -> AnyCancellable {
         publisher
@@ -137,27 +148,54 @@ public final class SKPublishedValue<Output>: Publisher {
     }
     
     public var projectedValue: SKPublishedValue<Value>
-    
+
     public init(wrappedValue: Value,
                 kind: SKPublishedKind = .currentValue,
-                transhforms: [SKPublishedValue<Value>.Transhform] = []) {
-        self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transhforms: transhforms)
+                transform: [SKPublishedValue<Value>.Transform] = []) {
+        self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transform: transform)
     }
     
     public init<V>(kind: SKPublishedKind = .currentValue,
-                   transhforms: [SKPublishedValue<Value>.Transhform] = []) where Value == Optional<V> {
-        self.projectedValue = .init(wrappedValue: nil, kind: kind, transhforms: transhforms)
+                   transform: [SKPublishedValue<Value>.Transform] = []) where Value == Optional<V> {
+        self.projectedValue = .init(wrappedValue: nil, kind: kind, transform: transform)
     }
     
     public init(wrappedValue: Value,
                 kind: SKPublishedKind = .currentValue,
-                transhforms: SKPublishedValue<Value>.Transhform) {
-        self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transhforms: [transhforms])
+                transform: SKPublishedValue<Value>.Transform) {
+        self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transform: [transform])
     }
     
     public init<V>(kind: SKPublishedKind = .currentValue,
-                   transhforms: SKPublishedValue<Value>.Transhform) where Value == Optional<V> {
-        self.projectedValue = .init(wrappedValue: nil, kind: kind, transhforms: [transhforms])
+                   transform: SKPublishedValue<Value>.Transform) where Value == Optional<V> {
+        self.projectedValue = .init(wrappedValue: nil, kind: kind, transform: [transform])
+    }
+    
+    
+    @available(*, deprecated)
+    public init(wrappedValue: Value,
+                kind: SKPublishedKind = .currentValue,
+                transhforms: [SKPublishedValue<Value>.Transform]) {
+        self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transform: transhforms)
+    }
+    
+    @available(*, deprecated)
+    public init<V>(kind: SKPublishedKind = .currentValue,
+                   transhforms: [SKPublishedValue<Value>.Transform]) where Value == Optional<V> {
+        self.projectedValue = .init(wrappedValue: nil, kind: kind, transform: transhforms)
+    }
+    
+    @available(*, deprecated)
+    public init(wrappedValue: Value,
+                kind: SKPublishedKind = .currentValue,
+                transhforms: SKPublishedValue<Value>.Transform) {
+        self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transform: [transhforms])
+    }
+    
+    @available(*, deprecated)
+    public init<V>(kind: SKPublishedKind = .currentValue,
+                   transhforms: SKPublishedValue<Value>.Transform) where Value == Optional<V> {
+        self.projectedValue = .init(wrappedValue: nil, kind: kind, transform: [transhforms])
     }
     
     public init(initialValue: Value) {

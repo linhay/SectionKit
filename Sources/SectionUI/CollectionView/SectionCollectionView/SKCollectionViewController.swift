@@ -134,6 +134,7 @@ open class SKCollectionViewController: UIViewController {
 
 public extension SKCollectionViewController {
     
+    @discardableResult
     func onAppear(perform action: (() -> Void)? = nil) -> Self {
         events.viewDidAppear.append(.init(after: { controller in
             action?()
@@ -145,6 +146,7 @@ public extension SKCollectionViewController {
 
 public extension SKCollectionViewController {
     
+    @discardableResult
     func refreshable(action: @escaping VoidAsyncAction) -> Self {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshAction), for: .valueChanged)
@@ -164,11 +166,13 @@ public extension SKCollectionViewController {
 
 public extension SKCollectionViewController {
     
+    @discardableResult
     func controllerStyle(_ block: @escaping ControllerStyleBlock) -> Self {
         events.viewDidLoad.append(.init(after: block))
         return self
     }
     
+    @discardableResult
     func sectionViewStyle(_ block: @escaping SectionViewStyleBlock) -> Self {
         events.viewDidLoad.append(.init(after: { controller in
             block(controller.sectionView)
@@ -176,10 +180,12 @@ public extension SKCollectionViewController {
         return self
     }
     
+    @discardableResult
     func reloadSections(_ section: any SKCBaseSectionProtocol) -> Self {
         return reloadSections([section])
     }
     
+    @discardableResult
     func reloadSections(_ section: [any SKCBaseSectionProtocol]) -> Self {
         return controllerStyle { controller in
             controller.manager.reload(section)

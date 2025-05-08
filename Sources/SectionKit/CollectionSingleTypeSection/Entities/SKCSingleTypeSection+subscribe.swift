@@ -21,6 +21,11 @@ public extension SKCSingleTypeSection {
         return self
     }
     
+    @discardableResult
+    func subscribe(models publisher: some Publisher<Model, Never>) -> Self {
+        return subscribe(models: publisher.map({ [$0] }))
+    }
+    
     @available(*, deprecated, message: "use subscribe(models:) instead")
     @discardableResult
     func subscribe<Output>(models publisher: some Publisher<[Output], Never>, convert: @escaping (Output) -> Model?) -> Self {
@@ -33,12 +38,6 @@ public extension SKCSingleTypeSection {
     @discardableResult
     func subscribe(models publisher: some Publisher<[Model]?, Never>) -> Self {
         return subscribe(models: publisher.map({ $0 ?? [] }))
-    }
-    
-    @available(*, deprecated, message: "use subscribe(models:) instead")
-    @discardableResult
-    func subscribe(models publisher: some Publisher<Model, Never>) -> Self {
-        return subscribe(models: publisher.map({ [$0] }))
     }
     
     @available(*, deprecated, message: "use subscribe(models:) instead")

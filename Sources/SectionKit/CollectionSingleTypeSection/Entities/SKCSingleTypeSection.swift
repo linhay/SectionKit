@@ -192,7 +192,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     /// 配置 cell 与 supplementary 的 limit size
     public lazy var safeSizeProvider: SKSafeSizeProvider = defaultSafeSizeProvider
-    public var cellSafeSizeProvider: SKSafeSizeProvider?
+    private var safeSizeProviders: [SKSupplementaryKind: SKSafeSizeProvider] = [:]
     
     /// 曝光数, 重置曝光数的时机需要手动控制
     public lazy var displayedTimes: SKCountedStore = .init()
@@ -224,7 +224,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     /// 无数据时隐藏 headerView
     open lazy var hiddenHeaderWhenNoItem = true
     lazy var supplementaries: [SKSupplementaryKind: any SKCSupplementaryProtocol] = [:]
-
+    
     open lazy var sectionInset: UIEdgeInsets = .zero
     open lazy var minimumLineSpacing: CGFloat = .zero
     open lazy var minimumInteritemSpacing: CGFloat = .zero
@@ -241,7 +241,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     lazy var cellStyles: [CellStyleBox] = []
     lazy var cellContextMenus: [ContextMenuBlock] = []
     lazy var cellShoulds: [CellShouldType: [CellShouldBlock]] = [:]
-   
+    
     public var indexTitle: String?
     
     private lazy var loadedTasks: [LoadedBlock] = []
@@ -293,7 +293,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
             return .zero
         }
         
-        let limitSize = cellSafeSizeProvider?.size ?? safeSizeProvider.size
+        let limitSize = safeSizeProviders[.cell]?.size ?? safeSizeProvider.size
         let model = models[row]
         
         if let highPerformance = highPerformance,
@@ -330,7 +330,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         guard let supplementary = supplementaries[.header] else {
             return .zero
         }
-        return supplementary.size(safeSizeProvider.size)
+        return supplementary.size(safeSizeProviders[.header]?.size ?? safeSizeProvider.size)
     }
     
     open var headerView: UICollectionReusableView? {
@@ -347,7 +347,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         guard let supplementary = supplementaries[.footer] else {
             return .zero
         }
-        return supplementary.size(safeSizeProvider.size)
+        return supplementary.size(safeSizeProviders[.footer]?.size ?? safeSizeProvider.size)
     }
     
     open var footerView: UICollectionReusableView? {
@@ -543,7 +543,7 @@ public extension SKCSingleTypeSection {
 public extension SKCSingleTypeSection {
     
     /// 提供 Cell - preferredSize(limit size: CGSize, model: Model?) 中 limit size 的值
-    enum SKSafeSizeProviderKind {
+    enum SKCellSafeSizeProviderKind {
         /// 使用默认的 safeSizeProvider 提供者尺寸
         case `default`
         /// 使用固定的 CGSize 来提供尺寸
@@ -552,37 +552,69 @@ public extension SKCSingleTypeSection {
         case fraction(Double)
     }
     
+    /// 提供 Cell - preferredSize(limit size: CGSize, model: Model?) 中 limit size 的值
+    enum SKSupplementarySafeSizeProviderKind {
+        /// 使用默认的 safeSizeProvider 提供者尺寸
+        case `default`
+        case apple
+    }
+    
     @discardableResult
-    func cellSafeSize(_ provider: SKSafeSizeProvider) -> Self {
-        cellSafeSizeProvider = provider
+    func supplementarySafeSize(_ kind: SKSupplementaryKind, _ providerKind: SKSupplementarySafeSizeProviderKind) -> Self {
+        return supplementarySafeSize([kind], providerKind)
+    }
+    
+    @discardableResult
+    func supplementarySafeSize(_ kinds: [SKSupplementaryKind], _ providerKind: SKSupplementarySafeSizeProviderKind) -> Self {
+        for kind in kinds {
+            switch providerKind {
+            case .apple:
+                safeSize(kind, .init(block: { [weak self] in
+                    guard let sectionView = self?.sectionView else { return .zero }
+                    return sectionView.bounds.size
+                }))
+            case .default:
+                safeSize(kind, nil)
+            }
+        }
         return self
     }
     
     @discardableResult
-    func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: SKSafeSizeTransform) -> Self {
+    func safeSize(_ kind: SKSupplementaryKind, _ provider: SKSafeSizeProvider?) -> Self {
+        safeSizeProviders[kind] = provider
+        return self
+    }
+    
+    @discardableResult
+    func cellSafeSize(_ provider: SKSafeSizeProvider) -> Self {
+        return safeSize(.cell, provider)
+    }
+    
+    @discardableResult
+    func cellSafeSize(_ kind: SKCellSafeSizeProviderKind, transforms: SKSafeSizeTransform) -> Self {
         cellSafeSize(kind, transforms: [transforms])
     }
-
+    
     @discardableResult
-    func cellSafeSize(_ kind: SKSafeSizeProviderKind, transforms: [SKSafeSizeTransform] = []) -> Self {
-        
+    func cellSafeSize(_ kind: SKCellSafeSizeProviderKind, transforms: [SKSafeSizeTransform] = []) -> Self {
         func transform(size: CGSize) -> CGSize {
             return transforms.reduce(into: size, { $0 = $1.transform($0) })
         }
         
         switch kind {
         case .fixed(let size):
-            self.cellSafeSizeProvider = .init(block: {
+            return self.cellSafeSize(.init(block: { [weak self] in
                 return transform(size: size)
-            })
+            }))
         case .default:
-            self.cellSafeSizeProvider = .init(block: { [weak self] in
+            return self.cellSafeSize(.init(block: { [weak self] in
                 guard let self = self else { return .zero }
                 let size = self.safeSizeProvider.size
                 return transform(size: size)
-            })
+            }))
         case .fraction(let value):
-            self.cellSafeSizeProvider = .init(block: { [weak self] in
+            return self.cellSafeSize(.init(block: { [weak self] in
                 guard let self = self else { return .zero }
                 let size = safeSizeProvider.size
                 guard value > 0, value <= 1 else {
@@ -593,9 +625,8 @@ public extension SKCSingleTypeSection {
                 let itemWidth = floor((size.width - (count - 1) * minimumInteritemSpacing) / count)
                 let newSize = CGSize(width: itemWidth, height: size.height)
                 return transform(size: newSize)
-            })
+            }))
         }
-        return self
     }
     
     @discardableResult
@@ -688,13 +719,13 @@ private extension SKCSingleTypeSection {
                 }
             }
             
-//            if self.isBindSectionView, let headerView = headerView {
-//                sendSupplementaryAction(.reload, kind: .header, row: 0, view: headerView)
-//            }
-//            
-//            if self.isBindSectionView, let footerView = footerView {
-//                sendSupplementaryAction(.reload, kind: .footer, row: 0, view: footerView)
-//            }
+            //            if self.isBindSectionView, let headerView = headerView {
+            //                sendSupplementaryAction(.reload, kind: .header, row: 0, view: headerView)
+            //            }
+            //            
+            //            if self.isBindSectionView, let footerView = footerView {
+            //                sendSupplementaryAction(.reload, kind: .footer, row: 0, view: footerView)
+            //            }
         case .normal:
             self.models = models
             sectionInjection?.reload()
@@ -710,15 +741,15 @@ private extension SKCSingleTypeSection {
             let difference = models.difference(from: self.models, by: areEquivalent)
             sectionInjection?.pick({
                 for change in difference {
-                        switch change {
-                        case .remove(let offset, _, _):
-                            self.delete(offset)
-                        case .insert(let offset, let model, _):
-                            self.insert(at: offset, model)
-                        }
+                    switch change {
+                    case .remove(let offset, _, _):
+                        self.delete(offset)
+                    case .insert(let offset, let model, _):
+                        self.insert(at: offset, model)
                     }
+                }
             }, completion: { flag in
-
+                
             })
         }
     }
@@ -760,11 +791,11 @@ public extension SKCSingleTypeSection {
     func remove(_ row: Int) {
         remove([row])
     }
-
+    
     func remove(_ rows: [Int]) {
-    remove(rows, applySectionView: true)
+        remove(rows, applySectionView: true)
     }
-
+    
     func remove(_ rows: [Int], applySectionView: Bool) {
         var set = Set<Int>()
         let rows = rows
@@ -850,7 +881,6 @@ public extension SKCSingleTypeSection {
     
 }
 
-
 public extension SKCSingleTypeSection {
     
     func firstRow(of item: Model) -> Int? where Model: Equatable {
@@ -928,7 +958,6 @@ public extension SKCSingleTypeSection {
     }
     
 }
-
 
 public extension SKCSingleTypeSection {
     

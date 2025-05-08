@@ -13,10 +13,21 @@ class TextCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     struct Model {
         let text: String
         let color: UIColor
+        let height: CGFloat?
+        
+        init(text: String, color: UIColor, height: CGFloat? = 44) {
+            self.text = text
+            self.color = color
+            self.height = height
+        }
     }
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
-        return .init(width: size.width, height: 44)
+        if let height = model?.height {
+            return .init(width: size.width, height: height)
+        } else {
+            return size
+        }
     }
     
     func config(_ model: Model) {

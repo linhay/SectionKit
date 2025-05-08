@@ -22,7 +22,7 @@ public final class SKPublishedValue<Output>: Publisher {
     public typealias TransformOnChanged = (_ value: Output) -> Void
 
     public struct Transform {
-        
+                
         public let publisher: TransformPublisher?
         public let onChanged: TransformOnValueChanged?
 
@@ -62,11 +62,25 @@ public final class SKPublishedValue<Output>: Publisher {
                 transhform(new)
             })
         }
+
+        public static func receiveOnMainQueue() -> Transform {
+            .mapPublisher { $0.receive(on: DispatchQueue.main) }
+        }
         
         public static func removeDuplicates() -> Transform where Output: Equatable {
-            .mapPublisher { publisher in
-                publisher.removeDuplicates()
-            }
+            .mapPublisher { $0.removeDuplicates() }
+        }
+        
+        public static func dropFirst(count: Int = 1) -> Transform {
+            .mapPublisher { $0.dropFirst(count) }
+        }
+        
+        public static func drop(while predicate: @escaping (Output) -> Bool) -> Transform {
+            .mapPublisher { $0.drop(while: predicate) }
+        }
+        
+        public static func filter(_ isIncluded: @escaping (Output) -> Bool) -> Transform {
+            .mapPublisher { $0.filter(isIncluded) }
         }
         
     }
@@ -114,8 +128,6 @@ public final class SKPublishedValue<Output>: Publisher {
             self.subject = subject.eraseToAnyPublisher()
         }
     }
-    
-
     
     public func sink(receiveValue: @escaping ((Output) -> Void)) -> AnyCancellable {
         publisher

@@ -36,7 +36,7 @@ open class SKCollectionViewController: UIViewController {
         public var after: ControllerStyleBlock?
         public var animate: ControllerStyleBlock?
         
-        init(before: ControllerStyleBlock? = nil,
+        public init(before: ControllerStyleBlock? = nil,
              after: ControllerStyleBlock? = nil,
              animate: ControllerStyleBlock? = nil) {
             self.before = before
@@ -110,24 +110,18 @@ open class SKCollectionViewController: UIViewController {
         sectionView.collectionViewLayout.invalidateLayout()
         return
 #endif
-        coordinator.animate { [weak self] context in
+        coordinator.animate(alongsideTransition: { [weak self] context in
             guard let self = self else { return }
-            view.bounds.size.width = size.width
             sectionView.collectionViewLayout.invalidateLayout()
             for event in events.viewTransition {
                 event.animate?(self)
             }
-        } completion: { [weak self] context in
+        }, completion: { [weak self] context in
             guard let self = self else { return }
-            view.bounds.size.width = size.width
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                sectionView.collectionViewLayout.invalidateLayout()
-                for event in events.viewTransition {
-                    event.after?(self)
-                }
+            for event in events.viewTransition {
+                event.after?(self)
             }
-        }
+        })
     }
     
 }

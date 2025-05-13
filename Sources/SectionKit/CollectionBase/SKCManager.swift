@@ -118,9 +118,9 @@ public class SKCManager {
             })
             .throttle(for: .milliseconds(100), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] _ in
-            guard let self = self else { return }
-            perform(of: &self.afterLayoutSubviewsRequests)
-        }.store(in: &cancellables)
+                guard let self = self else { return }
+                perform(of: &self.afterLayoutSubviewsRequests)
+            }.store(in: &cancellables)
     }
     
     private func setup(sectionView: UICollectionView) {
@@ -133,7 +133,7 @@ public class SKCManager {
         dataSourceForward.add(dataSource)
         prefetchForward.add(prefetching)
     }
-        
+    
 }
 
 public extension SKCManager {
@@ -206,7 +206,7 @@ public extension SKCManager {
         store = store.filter({ $0.id != request.id && $0.isCancelled == false })
         store.append(request)
     }
-
+    
     private func perform(of store: inout [SKRequestID]) {
         store.forEach { $0.perform() }
         clear(of: &store)
@@ -282,7 +282,7 @@ public extension SKCManager {
         } else {
             position = .top
         }
-            
+        
         let indexPath = IndexPath(row: row, section: sectionIndex)
         if let offset, let frame = sectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath)?.frame {
             
@@ -318,7 +318,16 @@ public extension SKCManager {
                 // 将该 item 的上边缘与 collectionView 的顶部对齐
                 point = CGPoint(x: frame.minX, y: frame.minY)
             }
-            sectionView.setContentOffset(.init(x: point.x + offset.x, y: point.y + offset.y), animated: animated)
+            
+            if position == .top || position == .bottom {
+                let currentOffsetY = point.y + offset.y
+                let maxOffsetY = sectionView.contentSize.height - sectionView.bounds.height + sectionView.adjustedContentInset.bottom
+                let trueOffsetY = min(max(maxOffsetY, offset.y), point.y + offset.y)
+                let offset = CGPoint(x: point.x + offset.x, y: trueOffsetY)
+                sectionView.setContentOffset(offset, animated: animated)
+            } else {
+                sectionView.setContentOffset(.init(x: point.x + offset.x, y: point.y + offset.y), animated: animated)
+            }
         } else {
             let isPagingEnabled: Bool?
             if sectionView.isPagingEnabled {

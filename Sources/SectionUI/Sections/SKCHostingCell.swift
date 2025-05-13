@@ -29,10 +29,12 @@ public class STCHostingCell<ContentView: SKExistModelView & View>: UICollectionV
     public func config(_ model: ContentView.Model) {
         var wrappedView: UIView
         if #available(iOS 16.0, *) {
-            wrappedView = UIHostingConfiguration { [frame = self.frame] in
+            wrappedView = UIHostingConfiguration {
                 ContentView(model: model)
-                    .frame(width: frame.width, height: frame.height)
-            }.makeContentView()
+            }
+            .margins(.all, 0)
+            .makeContentView()
+                
         } else {
             let controller = UIHostingController(rootView: ContentView(model: model)
                 .frame(width: frame.width, height: frame.height))

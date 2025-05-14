@@ -128,14 +128,30 @@ public final class SKPublishedValue<Output>: Publisher {
             self.subject = subject.eraseToAnyPublisher()
         }
     }
+
+}
+
+public extension SKPublishedValue {
     
-    public func sink(receiveValue: @escaping ((Output) -> Void)) -> AnyCancellable {
+    func send(_ value: Output) {
+        self.value = value
+    }
+    
+    func send() where Output == Void {
+     send(())
+    }
+    
+}
+
+public extension SKPublishedValue {
+    
+     func sink(receiveValue: @escaping ((Output) -> Void)) -> AnyCancellable {
         publisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: receiveValue)
     }
     
-    public func bind(_ receiveValue: @escaping (Output) -> Void) -> AnyCancellable {
+     func bind(_ receiveValue: @escaping (Output) -> Void) -> AnyCancellable {
         if Thread.isMainThread {
             receiveValue(value)
         } else {
@@ -146,11 +162,12 @@ public final class SKPublishedValue<Output>: Publisher {
         return sink(receiveValue: receiveValue)
     }
     
-    public func receive<S>(subscriber: S) where S : Subscriber, Never == S.Failure, Output == S.Input {
+     func receive<S>(subscriber: S) where S : Subscriber, Never == S.Failure, Output == S.Input {
         publisher.receive(subscriber: subscriber)
     }
     
 }
+
 
 @propertyWrapper public struct SKPublished<Value> {
     

@@ -7,7 +7,7 @@
 
 import UIKit
 import SectionKit
-
+import Combine
 
 public enum SKCSectionLayoutPluginAlias {
     
@@ -219,7 +219,7 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
     
 }
 
-public class SKCSectionPin {
+public class SKCSectionPin: Cancellable {
     
     public weak var sectionView: UICollectionView?
     let id = UUID().uuidString
@@ -227,10 +227,12 @@ public class SKCSectionPin {
     let when: SKWhen<SKCPluginAdjustAttributes.Context>
     var contentOffset: CGPoint = .zero
     var attributes: UICollectionViewLayoutAttributes?
+     var cancellables = Set<AnyCancellable>()
     
     lazy var sroll: SKScrollViewDelegateHandler = {
         let item = SKScrollViewDelegateHandler()
         item.id = id
+        contentOffset = sectionView?.contentOffset ?? .zero
         item.onChanged { [weak self] scrollView in
             guard let self = self else { return }
             contentOffset = sectionView?.contentOffset ?? .zero
@@ -245,18 +247,26 @@ public class SKCSectionPin {
             frame = object.attributes.frame
         }
         attributes = object.attributes
-        let frame = frame ?? object.attributes.frame
-        object.attributes.frame.origin.y = max(contentOffset.y, frame.origin.y)
+        self.refresh(attributes: object.attributes)
         return object
     }
     
+    func refresh(attributes: UICollectionViewLayoutAttributes) {
+        let frame = frame ?? attributes.frame
+        attributes.frame.origin.y = max(contentOffset.y, frame.origin.y)
+    }
+    
     var deinitHook: (_ id: String) -> Void
-
+    
     public init(when: SKWhen<SKCPluginAdjustAttributes.Context>, deinit: @escaping (_ id: String) -> Void) {
         self.when = when
         self.deinitHook = `deinit`
     }
     
+    public func cancel() {
+        deinitHook(id)
+        cancellables.removeAll()
+    }
     
     deinit {
         deinitHook(id)
@@ -265,42 +275,58 @@ public class SKCSectionPin {
 
 public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
 
-    func pin(header manager: SKCManager) {
+    @discardableResult
+    func pin(header manager: SKCManager) -> AnyCancellable {
         pin(when: .init({ [weak self] object in
             guard let self = self else { return false }
             return object.plugin.kind(of: object.attributes) == .header
         }), manager: manager)
     }
     
-    func pin(footer manager: SKCManager) {
+    @discardableResult
+    func pin(footer manager: SKCManager) -> AnyCancellable {
         pin(when: .init({ [weak self] object in
             guard let self = self else { return false }
             return object.plugin.kind(of: object.attributes) == .footer
         }), manager: manager)
     }
     
-    func pin(cell row: Int, manager: SKCManager) {
+    @discardableResult
+    func pin(cell row: Int, manager: SKCManager) -> AnyCancellable {
         pin(when: .equal(\.attributes.indexPath.row, row)
             .and(.equal(\.attributes.representedElementCategory, .cell)),
             manager: manager)
     }
     
-    func pin(when: SKWhen<SKCPluginAdjustAttributes.Context>, manager: SKCManager) {
+    @discardableResult
+    func pin(when: SKWhen<SKCPluginAdjustAttributes.Context>, manager: SKCManager) -> AnyCancellable {
         let model = SKCSectionPin(when: when) { [weak self] id in
             guard let self = self else { return }
             self.sectionInjection?.manager?.scrollObserver.remove(id: id)
+            self.plugins = self.plugins.filter { plugin in
+                switch plugin {
+                case .pin(let model):
+                    return model.id != id
+                case .permanentAttributes(let list):
+                    return list.id != id
+                default:
+                    return true
+                }
+            }
         }
-        self.addLayoutPlugins(.pin(model))
         self.setAttributes(when: .init({ [weak self] object in
             guard let self = self else { return false }
             return object.attributes.indexPath.section == self.sectionIndex
         }).and(when), style: model.style)
-        self.addLayoutPlugins(.permanentAttributes(.init(fetch: { [weak model] in
+        
+        self.addLayoutPlugins(.pin(model))
+        self.addLayoutPlugins(.permanentAttributes(.init(id: model.id, fetch: { [weak model] in
             guard let model = model else { return nil }
             return model.attributes
         })))
         model.sectionView = manager.sectionView
         manager.scrollObserver.add(scroll: model.sroll)
+        return .init(model)
     }
     
 }

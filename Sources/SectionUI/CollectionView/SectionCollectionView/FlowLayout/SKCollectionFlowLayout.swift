@@ -75,6 +75,10 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         var decorations: SKCLayoutPlugins.Decorations?
     }
     
+    open override class var layoutAttributesClass: AnyClass {
+        SKCLayoutAttributes.self
+    }
+    
     private lazy var oldBounds = CGRect.zero
     private var layoutTempStore: LayoutStore?
     private var layoutStore: LayoutStore = .init(attributes: [])

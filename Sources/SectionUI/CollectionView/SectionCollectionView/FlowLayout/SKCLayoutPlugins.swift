@@ -9,24 +9,21 @@ import UIKit
 
 public struct SKCLayoutPlugins {
     
-    public struct FetchAttributes: ExpressibleByArrayLiteral {
-       
+    public struct FetchAttributes {
+        
+        let id: String
         public let fetch: () -> [UICollectionViewLayoutAttributes]
         
-        public init(fetch: @escaping () -> [UICollectionViewLayoutAttributes]) {
+        public init(id: String = UUID().uuidString,
+                    fetch: @escaping () -> [UICollectionViewLayoutAttributes]) {
             self.fetch = fetch
+            self.id = id
         }
         
-        public init(fetch: @escaping () -> UICollectionViewLayoutAttributes?) {
+        public init(id: String = UUID().uuidString,
+                    fetch: @escaping () -> UICollectionViewLayoutAttributes?) {
             self.fetch = { fetch().map { [$0] } ?? [] }
-        }
-        
-        public init(arrayLiteral elements: UICollectionViewLayoutAttributes...) {
-            self.fetch = { elements }
-        }
-        
-        public init(_ element: UICollectionViewLayoutAttributes?) {
-            self.fetch = { element.map { [$0] } ?? [] }
+            self.id = id
         }
     }
     
@@ -125,12 +122,6 @@ public struct SKCLayoutPlugins {
         
         if !attributes.isEmpty {
             newModes.append(.attributes(attributes))
-        }
-        
-        if !permanentAttributes.isEmpty {
-            newModes.append(.permanentAttributes(.init(fetch: {
-                permanentAttributes.map(\.fetch).flatMap { $0() }
-            })))
         }
         
         /// mode 重排

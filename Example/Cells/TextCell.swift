@@ -10,7 +10,7 @@ import SectionUI
 
 class TextCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     
-    struct Model {
+    struct Model: Equatable {
         let text: String
         let color: UIColor
         let height: CGFloat?

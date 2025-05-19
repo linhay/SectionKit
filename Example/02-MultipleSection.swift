@@ -19,6 +19,9 @@ struct MultipleSectionView: View {
     @State
     var section1 = TextCell
         .wrapperToSingleTypeSection()
+        .setSectionStyle({ section in
+            section.reloadKind = .difference()
+        })
         .onCellAction(.willDisplay) { context in
             context.view().desc(context.type.description)
         }
@@ -61,6 +64,14 @@ struct MultipleSectionView: View {
             }))
         }
         .ignoresSafeArea()
+        .overlay(alignment: .bottom) {
+            Button("diff") {
+                section1.config(models: (0...4).map({ idx in
+                    TextCell.Model(text: "第 1 组, 第 \(idx) 行", color: colors[idx % colors.count])
+                }).shuffled())
+            }
+            .foregroundStyle(.black)
+        }
     }
     
 }

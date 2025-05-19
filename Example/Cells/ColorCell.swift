@@ -10,7 +10,8 @@ import SectionUI
 
 class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     
-    struct Model {
+    struct Model: Equatable {
+        
         let text: String
         let color: UIColor?
         let alignment: NSTextAlignment
@@ -19,6 +20,7 @@ class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
             self.color = color
             self.alignment = alignment
         }
+        
     }
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {

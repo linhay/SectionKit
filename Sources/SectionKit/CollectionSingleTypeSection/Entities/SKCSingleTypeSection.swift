@@ -549,7 +549,14 @@ public extension SKCSingleTypeSection {
         /// 使用固定的 CGSize 来提供尺寸
         case fixed(CGSize)
         /// 根据比例来计算尺寸
-        case fraction(Double)
+        case fraction(() -> Double)
+        case router(() -> SKCellSafeSizeProviderKind)
+
+        public static func fraction(_ value: Double) -> SKCellSafeSizeProviderKind {
+            .fraction {
+                value
+            }
+        }
     }
     
     /// 提供 Cell - preferredSize(limit size: CGSize, model: Model?) 中 limit size 的值
@@ -607,16 +614,19 @@ public extension SKCSingleTypeSection {
             return self.cellSafeSize(.init(block: { [weak self] in
                 return transform(size: size)
             }))
+        case .router(let router):
+            return self.cellSafeSize(router(), transforms: transforms)
         case .default:
             return self.cellSafeSize(.init(block: { [weak self] in
                 guard let self = self else { return .zero }
                 let size = self.safeSizeProvider.size
                 return transform(size: size)
             }))
-        case .fraction(let value):
+        case .fraction(let block):
             return self.cellSafeSize(.init(block: { [weak self] in
                 guard let self = self else { return .zero }
                 let size = safeSizeProvider.size
+                let value = block()
                 guard value > 0, value <= 1 else {
                     return size
                 }

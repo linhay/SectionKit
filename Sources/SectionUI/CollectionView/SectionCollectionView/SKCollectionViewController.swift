@@ -52,12 +52,19 @@ open class SKCollectionViewController: UIViewController {
         public var viewTransition = [EndPoint]()
     }
     
-    private var refreshableAction: VoidAsyncAction?
+    public class LayoutConstraints {
+        var top, bottom, left, right: NSLayoutConstraint?
+        var safeAreaTop: NSLayoutConstraint?
+    }
     
+    private var refreshableAction: VoidAsyncAction?
     public private(set) lazy var sectionView = SKCollectionView()
+    public private(set) var isIgnoresSafeArea = false
+    
     public var manager: SKCManager { sectionView.manager }
     public let events: Events = .init()
-        
+    public let layoutConstraint: LayoutConstraints = .init()
+    
     public convenience init() {
         self.init(nibName: nil, bundle: nil)
     }
@@ -73,11 +80,11 @@ open class SKCollectionViewController: UIViewController {
         view.addSubview(sectionView)
         let safeArea = view.safeAreaLayoutGuide
         sectionView.translatesAutoresizingMaskIntoConstraints = false
-        layout(anchor1: sectionView.topAnchor, anchor2: safeArea.topAnchor)
-        layout(anchor1: sectionView.bottomAnchor, anchor2: view.bottomAnchor)
-        layout(anchor1: sectionView.rightAnchor, anchor2: safeArea.rightAnchor)
-        layout(anchor1: sectionView.leftAnchor, anchor2: safeArea.leftAnchor)
-        
+        layoutConstraint.safeAreaTop = layout(anchor1: sectionView.topAnchor, anchor2: safeArea.topAnchor, isActive: !isIgnoresSafeArea)
+        layoutConstraint.top         = layout(anchor1: sectionView.topAnchor, anchor2: view.topAnchor, isActive: isIgnoresSafeArea)
+        layoutConstraint.bottom      = layout(anchor1: sectionView.bottomAnchor, anchor2: view.bottomAnchor)
+        layoutConstraint.right       = layout(anchor1: sectionView.rightAnchor, anchor2: safeArea.rightAnchor)
+        layoutConstraint.left        = layout(anchor1: sectionView.leftAnchor, anchor2: safeArea.leftAnchor)
         for event in events.viewDidLoad {
             event.after?(self)
         }
@@ -140,6 +147,17 @@ public extension SKCollectionViewController {
 
 public extension SKCollectionViewController {
     
+    func ignoresSafeArea() -> Self {
+        self.isIgnoresSafeArea = true
+        layoutConstraint.top?.isActive = true
+        layoutConstraint.safeAreaTop?.isActive = false
+        return self
+    }
+    
+}
+
+public extension SKCollectionViewController {
+    
     @discardableResult
     func refreshable(action: @escaping VoidAsyncAction) -> Self {
         let refreshControl = UIRefreshControl()
@@ -190,16 +208,18 @@ public extension SKCollectionViewController {
 
 private extension SKCollectionViewController {
     
-    func layout(anchor1: NSLayoutYAxisAnchor, anchor2: NSLayoutYAxisAnchor) {
+    func layout(anchor1: NSLayoutYAxisAnchor, anchor2: NSLayoutYAxisAnchor, isActive: Bool = true) -> NSLayoutConstraint {
         let constraint = anchor1.constraint(equalTo: anchor2)
         constraint.priority = .defaultLow
-        constraint.isActive = true
+        constraint.isActive = isActive
+        return constraint
     }
     
-    func layout(anchor1: NSLayoutXAxisAnchor, anchor2: NSLayoutXAxisAnchor) {
+    func layout(anchor1: NSLayoutXAxisAnchor, anchor2: NSLayoutXAxisAnchor, isActive: Bool = true) -> NSLayoutConstraint {
         let constraint = anchor1.constraint(equalTo: anchor2)
         constraint.priority = .defaultLow
-        constraint.isActive = true
+        constraint.isActive = isActive
+        return constraint
     }
     
 }

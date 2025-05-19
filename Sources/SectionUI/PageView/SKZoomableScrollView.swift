@@ -56,10 +56,9 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
     private var scrollDirection: Axis = .horizontal
     private var contentView: UIView = PlaceholderContentView()
     private var context: SKZoomableContext = .init()
-    
     private var cancellables = Set<AnyCancellable>()
     
-    private lazy var scrollView: UIScrollView = {
+   public private(set) lazy var scrollView: UIScrollView = {
         let view = UIScrollView()
         view.delegate = self
         view.maximumZoomScale = maximumZoomScale
@@ -74,7 +73,7 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         return view
     }()
     
-    private lazy var doubleTapGesture: UITapGestureRecognizer = {
+    public private(set) lazy var doubleTapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         gesture.numberOfTapsRequired = 2
         return gesture

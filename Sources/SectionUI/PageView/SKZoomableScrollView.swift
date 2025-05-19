@@ -83,7 +83,7 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         didSet { scrollView.minimumZoomScale = minimumZoomScale }
     }
     
-    var maximumZoomScale: CGFloat = 10 {
+    var maximumZoomScale: CGFloat = 5 {
         didSet { scrollView.maximumZoomScale = maximumZoomScale }
     }
     

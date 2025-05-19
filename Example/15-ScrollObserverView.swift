@@ -26,7 +26,9 @@ struct ScrollObserverView: View {
     var body: some View {
         SKUIController {
            let controller = SKCollectionViewController()
+                .ignoresSafeArea()
                 .reloadSections(section)
+
             controller.manager.scrollObserver
                 .add(scroll: "observer") { handle in
                     handle.onChanged { scrollView in

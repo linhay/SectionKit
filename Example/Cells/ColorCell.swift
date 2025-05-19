@@ -11,7 +11,7 @@ import SectionUI
 class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     
     struct Model: Equatable {
-        
+                
         let text: String
         let color: UIColor?
         let alignment: NSTextAlignment

@@ -19,16 +19,19 @@ import SectionUI
 struct ScrollObserverView: View {
     
     let colors = [UIColor.red, .green, .blue, .yellow, .orange]
+    
+    @State var controller = SKCollectionViewController().ignoresSafeArea()
     @State var section = TextCell
-        .wrapperToSingleTypeSection()
+        .wrapperToSingleTypeSection((0...40).map({ idx in
+            TextCell.Model(text: "第 1 组, 第 \(idx) 行", color: .red)
+        }))
     @State var contentOffsetY = 0.0
     
     var body: some View {
         SKUIController {
-           let controller = SKCollectionViewController()
-                .ignoresSafeArea()
+            controller
                 .reloadSections(section)
-
+            
             controller.manager.scrollObserver
                 .add(scroll: "observer") { handle in
                     handle.onChanged { scrollView in
@@ -39,9 +42,9 @@ struct ScrollObserverView: View {
         }
         .ignoresSafeArea()
         .onAppear {
-            section.config(models: (0...40).map({ idx in
-                TextCell.Model(text: "第 1 组, 第 \(idx) 行", color: colors[idx % colors.count])
-            }))
+            if let section = controller.manager.sections.last {
+                controller.manager.scroll(to: section, row: section.itemCount - 1, at: .bottom, animated: false)
+            }
         }
         .overlay(alignment: .top) {
             Text("\(contentOffsetY.description)")
@@ -50,6 +53,29 @@ struct ScrollObserverView: View {
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding()
+        }
+        .overlay(alignment: .bottom) {
+            HStack {
+                Button("To Bottom") {
+                    section.scrollToBottom(animated: true)
+                }
+                .foregroundStyle(.white)
+                .padding()
+                .background {
+                    Capsule()
+                        .fill(Color.black)
+                }
+                Button("To Top") {
+                    section.scrollToTop(animated: true)
+                }
+                .foregroundStyle(.white)
+                .padding()
+                .background {
+                    Capsule()
+                        .fill(Color.black)
+                }
+            }
+            .padding()
         }
     }
     

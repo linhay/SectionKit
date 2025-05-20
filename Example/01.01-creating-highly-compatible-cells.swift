@@ -24,9 +24,9 @@ import SnapKit
  在本文件中将演示:
  1. 如何创建一个由代码创建的高兼容性 Cell
  2. 如何创建一个由 XIB 创建的高兼容性 Cell
- 3. 如何创建一个适应高度的高兼容性 Cell, 使用 SKConfigurableView 的高级变体 SKConfigurableAdaptiveMainView, 记得添加 final 标记
+ 3. 如何创建一个适应高度的高兼容性 Cell, 使用 SKConfigurableView 的高级变体 SKConfigurableAdaptiveMainView
+    - 记得添加 final 标记
 */
-
 
 /// 1. 由代码创建的高兼容性 Cell
 class HighlyCompatibleByCodeCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
@@ -57,6 +57,7 @@ class HighlyCompatibleByXIBCell: UICollectionViewCell, SKLoadNibProtocol, SKConf
 }
 
 /// 3. 适应高度的高兼容性 Cell
+/// > 使用 SKConfigurableAdaptiveMainView, 记得添加 final 标记
 final class HighlyCompatibleWithAdaptiveCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableAdaptiveMainView {
     
     static let adaptive = SpecializedAdaptive()
@@ -80,7 +81,6 @@ final class HighlyCompatibleWithAdaptiveCell: UICollectionViewCell, SKLoadViewPr
 }
 
 #Preview {
-    
     SKPreview
         .sections {
         [

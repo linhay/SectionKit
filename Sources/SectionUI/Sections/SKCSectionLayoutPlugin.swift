@@ -277,16 +277,14 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
 
     @discardableResult
     func pin(header manager: SKCManager) -> AnyCancellable {
-        pin(when: .init({ [weak self] object in
-            guard let self = self else { return false }
+        pin(when: .init({ object in
             return object.plugin.kind(of: object.attributes) == .header
         }), manager: manager)
     }
     
     @discardableResult
     func pin(footer manager: SKCManager) -> AnyCancellable {
-        pin(when: .init({ [weak self] object in
-            guard let self = self else { return false }
+        pin(when: .init({ object in
             return object.plugin.kind(of: object.attributes) == .footer
         }), manager: manager)
     }

@@ -320,7 +320,6 @@ public extension SKCManager {
             }
             
             if position == .top || position == .bottom {
-                let currentOffsetY = point.y + offset.y
                 let maxOffsetY = sectionView.contentSize.height - sectionView.bounds.height + sectionView.adjustedContentInset.bottom
                 let trueOffsetY = min(max(maxOffsetY, offset.y), point.y + offset.y)
                 let offset = CGPoint(x: point.x + offset.x, y: trueOffsetY)

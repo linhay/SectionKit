@@ -22,6 +22,42 @@ public protocol SKConfigurableAdaptiveMainView: SKConfigurableAdaptiveView where
     // 要求提供适配视图结构体
     static var adaptive: SpecializedAdaptive { get }
 }
+
+
+public protocol SKConfigurableAutoAdaptiveView: UIView, SKConfigurableView {
+    static func adaptive() -> SKAdaptive<Self, Model>
+}
+
+public extension SKConfigurableAutoAdaptiveView {
+    
+    static func adaptive() -> SKAdaptive<Self, Model> { .init() }
+        
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        let key = SKAdaptive<Self, Model>.self
+        if let item = SKConfigurableAdaptiveAutoCache.shared[key] as? SKAdaptive<Self, Model> {
+            return item.preferredSize(limit: size, model: model)
+        } else {
+            let item = adaptive()
+            SKConfigurableAdaptiveAutoCache.shared[key] = item
+            return item.preferredSize(limit: size, model: model)
+        }
+    }
+    
+}
+
+public class SKConfigurableAdaptiveAutoCache {
+    
+    public static let shared = SKConfigurableAdaptiveAutoCache()
+    var cache = [ObjectIdentifier: SKAdaptiveProtocol]()
+    
+    subscript<T>(_ type: T.Type) -> SKAdaptiveProtocol? {
+        get { cache[ObjectIdentifier(type)] }
+        set { cache[ObjectIdentifier(type)] = newValue }
+    }
+    
+}
+
+
 #endif
 
 

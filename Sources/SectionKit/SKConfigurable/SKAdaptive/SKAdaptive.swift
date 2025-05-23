@@ -25,7 +25,52 @@ public struct SKAdaptiveFittingPriority {
     }
 }
 
-public struct SKAdaptive<AdaptiveView: UIView, Model> {
+public protocol SKAdaptiveProtocol {
+    associatedtype AdaptiveView: UIView
+    associatedtype Model
+    var direction: SKLayoutDirection { get }
+    var view: AdaptiveView { get }
+    var content: KeyPath<AdaptiveView, UIView>? { get }
+    var insets: UIEdgeInsets { get }
+    var fittingPriority: SKAdaptiveFittingPriority { get }
+    var config: (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void  { get }
+}
+
+extension SKAdaptiveProtocol {
+    
+    func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        guard let model = model else { return .zero }
+        var size = size
+        var adaptive = self
+        adaptive.config(adaptive.view, size, model)
+        size = adaptive.view.systemLayoutSizeFitting(adaptive.view.bounds.size,
+                                                     withHorizontalFittingPriority: adaptive.fittingPriority.horizontal,
+                                                     verticalFittingPriority: adaptive.fittingPriority.vertical)
+        if let content = adaptive.content {
+            adaptive.view.layoutIfNeeded()
+            let view = adaptive.view[keyPath: content]
+            let contentSize = view.frame.size
+            if adaptive.fittingPriority.horizontal == .fittingSizeLevel {
+                size.width = contentSize.width
+            }
+            if adaptive.fittingPriority.vertical == .fittingSizeLevel {
+                size.height = contentSize.height
+            }
+        }
+        
+        let result = CGSize(width: size.width + adaptive.insets.left + adaptive.insets.right,
+                            height: size.height + adaptive.insets.top + adaptive.insets.bottom)
+        
+        if result.width == 0 || result.height == 0 {
+            return .zero
+        }
+        
+        return result
+    }
+    
+}
+
+public struct SKAdaptive<AdaptiveView: UIView, Model>: SKAdaptiveProtocol {
     
     // 适配方向
     public let direction: SKLayoutDirection

@@ -120,10 +120,7 @@ public extension SKCSingleTypeSection {
     /// - Returns: self
     @discardableResult
     func onSupplementaryAction(_ kind: SKCSupplementaryActionType, block: @escaping SupplementaryActionBlock) -> Self {
-        if supplementaryActions[kind] == nil {
-            supplementaryActions[kind] = []
-        }
-        supplementaryActions[kind]?.append(block)
+        supplementaryActions.append(of: kind, block)
         return self
     }
     

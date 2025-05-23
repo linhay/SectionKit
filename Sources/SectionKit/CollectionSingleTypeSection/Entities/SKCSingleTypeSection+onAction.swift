@@ -87,8 +87,8 @@ public extension SKCSingleTypeSection {
 public extension SKCSingleTypeSection {
     
     @discardableResult
-    func clearCellAction(_ kind: CellActionType) -> Self {
-        cellActions[kind]?.removeAll()
+    func clearCellAction(_ kind: SKCCellActionType) -> Self {
+        cellActions.removeAll(of: kind)
         return self
     }
     
@@ -98,16 +98,13 @@ public extension SKCSingleTypeSection {
     ///   - block: 回调
     /// - Returns: self
     @discardableResult
-    func onCellAction(_ kind: CellActionType, block: @escaping CellActionBlock) -> Self {
-        if cellActions[kind] == nil {
-            cellActions[kind] = []
-        }
-        cellActions[kind]?.append(block)
+    func onCellAction(_ kind: SKCCellActionType, block: @escaping CellActionBlock) -> Self {
+        cellActions.append(of: kind, block)
         return self
     }
     
     @discardableResult
-    func onAsyncCellAction(_ kind: CellActionType, block: @escaping AsyncCellActionBlock) -> Self {
+    func onAsyncCellAction(_ kind: SKCCellActionType, block: @escaping AsyncCellActionBlock) -> Self {
         return onCellAction(kind) { context in
             Task {
                 try await block(context)
@@ -120,22 +117,19 @@ public extension SKCSingleTypeSection {
 public extension SKCSingleTypeSection {
 
     @discardableResult
-    func clearCellShouldActions(_ kind: CellShouldType) -> Self {
-        cellShoulds[kind]?.removeAll()
+    func clearCellShouldActions(_ kind: SKCCellShouldType) -> Self {
+        cellShoulds.removeAll(of: kind)
         return self
     }
     
-    func onCellShould(_ kind: CellShouldType, _ value: Bool) -> Self {
+    func onCellShould(_ kind: SKCCellShouldType, _ value: Bool) -> Self {
         onCellShould(kind) { _ in
             value
         }
     }
     
-    func onCellShould(_ kind: CellShouldType, block: @escaping CellShouldBlock) -> Self {
-        if cellShoulds[kind] == nil {
-            cellShoulds[kind] = []
-        }
-        cellShoulds[kind]?.append(block)
+    func onCellShould(_ kind: SKCCellShouldType, block: @escaping CellShouldBlock) -> Self {
+        cellShoulds.append(of: kind, block)
         return self
     }
     
@@ -174,7 +168,7 @@ public extension SKCSingleTypeSection {
     ///   - block: 回调
     /// - Returns: self
     @discardableResult
-    func onCellAction<ON: AnyObject>(on: ON, _ kind: CellActionType, block: @escaping CellActionWeakBlock<ON>) -> Self {
+    func onCellAction<ON: AnyObject>(on: ON, _ kind: SKCCellActionType, block: @escaping CellActionWeakBlock<ON>) -> Self {
         return onCellAction(kind) { [weak on] context in
             guard let on = on else { return }
             block(on, context)

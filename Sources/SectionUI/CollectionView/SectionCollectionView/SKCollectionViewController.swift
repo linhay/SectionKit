@@ -180,16 +180,19 @@ public extension SKCollectionViewController {
     
     @discardableResult
     func controllerStyle(_ block: @escaping ControllerStyleBlock) -> Self {
-        events.viewDidLoad.append(.init(after: block))
+        if isViewLoaded {
+            block(self)
+        } else {
+            events.viewDidLoad.append(.init(after: block))
+        }
         return self
     }
     
     @discardableResult
     func sectionViewStyle(_ block: @escaping SectionViewStyleBlock) -> Self {
-        events.viewDidLoad.append(.init(after: { controller in
+        return controllerStyle { controller in
             block(controller.sectionView)
-        }))
-        return self
+        }
     }
     
     @discardableResult

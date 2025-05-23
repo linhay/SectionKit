@@ -8,24 +8,8 @@
 #if canImport(UIKit)
 import UIKit
 
-public protocol SKCAnySectionProtocol {
-    var section: SKCSectionProtocol { get }
-    var objectIdentifier: ObjectIdentifier { get }
-}
- 
 public typealias SKCBaseSectionProtocol = SKCSectionActionProtocol & SKCDataSourceProtocol & SKCDelegateProtocol
 public typealias SKCSectionProtocol = SKCBaseSectionProtocol & SKCViewDelegateFlowLayoutProtocol & SKCAnySectionProtocol
-
-public extension SKCAnySectionProtocol {
-    var objectIdentifier: ObjectIdentifier { .init(section) }
-}
-
-public extension SKCAnySectionProtocol where Self: SKCSectionProtocol {
-    
-    var section: SKCSectionProtocol { self }
-    
-}
-
 public extension SKCDataSourceProtocol where Self: SKCViewDelegateFlowLayoutProtocol {
     
     func supplementary(kind: SKSupplementaryKind, at row: Int) -> UICollectionReusableView? {
@@ -40,5 +24,4 @@ public extension SKCDataSourceProtocol where Self: SKCViewDelegateFlowLayoutProt
     }
     
 }
-
 #endif

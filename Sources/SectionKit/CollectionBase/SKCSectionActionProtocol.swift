@@ -178,7 +178,12 @@ public extension SKCSectionActionProtocol {
     }
     
     func _dequeue<V: UICollectionViewCell & SKLoadViewProtocol>(at row: Int, id: String) -> V {
-        sectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath(from: row)) as! V
+        let cell = sectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath(from: row))
+        if let cell = cell as? V {
+            return cell
+        } else {
+            fatalError("[SectionKit] cell dequeue failed, \(cell.debugDescription)")
+        }
     }
     
     func _dequeue<V: UICollectionReusableView & SKLoadViewProtocol>(kind: SKSupplementaryKind) -> V {

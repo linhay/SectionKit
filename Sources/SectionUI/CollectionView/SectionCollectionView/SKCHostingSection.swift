@@ -9,7 +9,8 @@ import Foundation
 import SwiftUI
 import SectionKit
 
-public struct SKCHostingSection<Content: SKExistModelView & View>: SKCAnySectionProtocol {
+@available(iOS 16.0, *)
+public struct SKCHostingSection<Content: SKExistModelProtocol & View>: SKCAnySectionProtocol {
    
     public let cell: Content.Type
     public let models: [Content.Model]

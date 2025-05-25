@@ -28,10 +28,16 @@ public protocol SKConfigurableAutoAdaptiveView: UIView, SKConfigurableView {
     static func adaptive() -> SKAdaptive<Self, Model>
 }
 
-public extension SKConfigurableAutoAdaptiveView {
+public extension SKConfigurableAutoAdaptiveView where Self: UICollectionViewCell {
     
-    static func adaptive() -> SKAdaptive<Self, Model> { .init() }
-        
+    static func adaptive() -> SKAdaptive<Self, Model> {
+        .contentConfiguration()
+    }
+
+}
+
+public extension SKConfigurableAutoAdaptiveView {
+            
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         let key = SKAdaptive<Self, Model>.self
         if let item = SKConfigurableAdaptiveAutoCache.shared[key] as? SKAdaptive<Self, Model> {

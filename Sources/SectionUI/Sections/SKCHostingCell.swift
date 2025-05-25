@@ -9,7 +9,8 @@ import UIKit
 import SectionKit
 import SwiftUI
 
-public extension SKExistModelView where Self: View {
+@available(iOS 16.0, *)
+public extension SKExistModelProtocol where Self: View {
     
     static func wrapperToCollectionCell() -> STCHostingCell<Self>.Type {
         return STCHostingCell<Self>.self
@@ -21,41 +22,50 @@ public extension SKExistModelView where Self: View {
     
 }
 
-public class STCHostingCell<ContentView: SKExistModelView & View>: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
+@available(iOS 16.0, *)
+public final class STCHostingCell<ContentView: SKExistModelProtocol & View>: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableAutoAdaptiveView {
     
     public typealias Model = ContentView.Model
-    weak var wrappedView: UIView?
+    private let store = STCHostingCellContentReducer<ContentView.Model>()
+    private var wrappedView: UIView = .init()
     
     public func config(_ model: ContentView.Model) {
-        var wrappedView: UIView
-        if #available(iOS 16.0, *) {
-            wrappedView = UIHostingConfiguration {
-                ContentView(model: model)
-            }
-            .margins(.all, 0)
-            .makeContentView()
-                
-        } else {
-            let controller = UIHostingController(rootView: ContentView(model: model)
-                .frame(width: frame.width, height: frame.height))
-            wrappedView = controller.view
-        }
-        
-        self.wrappedView?.removeFromSuperview()
-        self.wrappedView = wrappedView
-        contentView.addSubview(wrappedView)
-        wrappedView.translatesAutoresizingMaskIntoConstraints = false
-        [wrappedView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 0),
-         wrappedView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: 0),
-         wrappedView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
-         wrappedView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)].forEach { constraint in
-            constraint.isActive = true
-        }
+        store.model = model
     }
     
-    public static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
-        return ContentView.preferredSize(limit: size, model: model)
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        initialize()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+            initialize()
+    }
+    
+    public func initialize() {
+        contentConfiguration = UIHostingConfiguration {
+            STCHostingCellContentView<ContentView>(store: store)
+        }
+        .margins(.all, 0)
     }
     
 }
 
+final class STCHostingCellContentReducer<Model>: ObservableObject {
+    @Published var model: Model?
+}
+
+struct STCHostingCellContentView<ContentView: SKExistModelProtocol & View>: View {
+    
+    @ObservedObject var store: STCHostingCellContentReducer<ContentView.Model>
+    
+    var body: some View {
+        if let model = store.model {
+            ContentView(model: model)
+        } else {
+            EmptyView()
+        }
+    }
+    
+}

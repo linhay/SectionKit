@@ -154,6 +154,13 @@ public extension SKCollectionViewController {
         return self
     }
     
+    func backgroundColor(_ color: UIColor) -> Self {
+        return self.controllerStyle { controller in
+            controller.view.backgroundColor = color
+            controller.sectionView.backgroundColor = color
+        }
+    }
+    
 }
 
 public extension SKCollectionViewController {

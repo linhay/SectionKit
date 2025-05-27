@@ -67,6 +67,9 @@ struct ContentView: View {
                 Link("15 - ContentOffset 监听", desc: "manager.scrollObserver 示例") {
                     ScrollObserverView()
                 }
+                Link("03.01 - 视差交互示例", desc: "") {
+                    ParallaxView()
+                }
             }
             .font(.title3)
             .fontWeight(.medium)

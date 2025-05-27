@@ -153,7 +153,6 @@ struct ParallaxView: View {
                     .backgroundColor(.clear)
                 
                 store.container = controller.view
-                controller.sectionView.decelerationRate = .fast
                 controller.sectionView.collectionViewLayout = layout
                 controller.sectionView.scrollDirection = .horizontal
                 controller.manager.scrollObserver.add { handle in

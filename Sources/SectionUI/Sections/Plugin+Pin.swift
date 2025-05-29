@@ -115,8 +115,8 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
             var stickyAttribute: UICollectionViewLayoutAttributes?
             func sticky(attribute: UICollectionViewLayoutAttributes) {
                 let distance = attribute.frame.origin.y - (contentOffset.y + options.padding)
+                context.alwaysInvalidate = true
                 if 0 >= distance, options.isEnabled {
-                    context.alwaysInvalidate = true
                     attribute.frame.origin.y = contentOffset.y + options.padding
                     options.isPinned = true
                     options.distance = 0

@@ -6,6 +6,36 @@
 //
 
 import UIKit
+import Combine
+
+public class SKCPluginLayoutAttributesForElementsForward: Cancellable {
+    
+    public typealias Fetch = (_ context: Context) -> Void?
+    
+    public class Context {
+        public let layout: UICollectionViewLayout
+        public var alwaysInvalidate: Bool?
+        public var attributes: [UICollectionViewLayoutAttributes]
+        init(layout: UICollectionViewLayout, attributes: [UICollectionViewLayoutAttributes]) {
+            self.layout = layout
+            self.attributes = attributes
+        }
+    }
+    
+    public private(set) var isCanceled: Bool = false
+    public let fetch: Fetch
+    public var userInfo: [String: Any]?
+   
+    init(userInfo: [String: Any]? = nil, _ fetch: @escaping Fetch) {
+        self.fetch = fetch
+        self.userInfo = userInfo
+    }
+    
+    public func cancel() {
+        userInfo = nil
+        isCanceled = true
+    }
+}
 
 public struct SKCLayoutPlugins {
     
@@ -29,7 +59,7 @@ public struct SKCLayoutPlugins {
     
     /// 布局插件样式
     public enum Mode: Equatable {
-        case permanentAttributes(FetchAttributes)
+        case layoutAttributesForElements([SKCPluginLayoutAttributesForElementsForward])
         case attributes([SKCPluginAdjustAttributes])
         case horizontalAlignment([HorizontalAlignmentPayload])
         /// 水平对齐
@@ -52,7 +82,7 @@ public struct SKCLayoutPlugins {
             case .fixSupplementaryViewInset:   return 2
             case .adjustSupplementaryViewSize: return 3
             case .decorations: return 200
-            case .permanentAttributes: return 300
+            case .layoutAttributesForElements: return 400
             }
         }
         
@@ -84,11 +114,10 @@ public struct SKCLayoutPlugins {
         var horizontalAlignments = [HorizontalAlignmentPayload]()
         var decorations = [any SKCLayoutDecorationPlugin]()
         var permanentAttributes = [SKCLayoutPlugins.FetchAttributes]()
+        var layoutAttributesForElements = [SKCPluginLayoutAttributesForElementsForward]()
         /// 优先级冲突去重
         for mode in modes {
             switch mode {
-            case .permanentAttributes(let list):
-                permanentAttributes.append(list)
             case .attributes(let list):
                 attributes.append(contentsOf: list)
             case .fixSupplementaryViewInset,
@@ -105,6 +134,8 @@ public struct SKCLayoutPlugins {
                 horizontalAlignments.append(contentsOf: array)
             case .decorations(let array):
                 decorations.append(contentsOf: array)
+            case .layoutAttributesForElements(let array):
+                layoutAttributesForElements.append(contentsOf: array.filter({ !$0.isCanceled }))
             }
         }
 
@@ -122,6 +153,10 @@ public struct SKCLayoutPlugins {
         
         if !attributes.isEmpty {
             newModes.append(.attributes(attributes))
+        }
+        
+        if !layoutAttributesForElements.isEmpty {
+            newModes.append(.layoutAttributesForElements(layoutAttributesForElements))
         }
         
         /// mode 重排

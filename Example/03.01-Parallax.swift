@@ -154,7 +154,6 @@ struct ParallaxView: View {
                 
                 store.container = controller.view
                 controller.sectionView.collectionViewLayout = layout
-                controller.sectionView.scrollDirection = .horizontal
                 controller.manager.scrollObserver.add { handle in
                     handle.onChanged { scrollView in
                         store.contentOffset = scrollView.contentOffset.x

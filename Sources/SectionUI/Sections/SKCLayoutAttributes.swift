@@ -7,4 +7,13 @@
 
 import UIKit
 
-class SKCLayoutAttributes: UICollectionViewLayoutAttributes {}
+class SKCLayoutAttributes: UICollectionViewLayoutAttributes {
+    
+    override func copy(with zone: NSZone? = nil) -> Any {
+        guard let copiedAttributes = super.copy(with: zone) as? SKCLayoutAttributes else {
+            return super.copy(with: zone)
+        }
+        return copiedAttributes
+    }
+
+}

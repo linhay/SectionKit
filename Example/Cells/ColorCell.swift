@@ -30,7 +30,7 @@ class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     func config(_ model: Model) {
         titleLabel.text = model.text
         titleLabel.textAlignment = model.alignment
-        contentView.backgroundColor = model.color?.withAlphaComponent(0.5) ?? .clear
+        contentView.backgroundColor = model.color ?? .clear
     }
 
     private lazy var titleLabel: UILabel = {

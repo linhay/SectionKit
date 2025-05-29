@@ -13,12 +13,19 @@ import Combine
  装饰视图
  */
 
+@Observable
+class PinIndexReducer {
+     var cancellables = Set<AnyCancellable>()
+
+}
+
 struct PinIndexView: View {
     
     @State var frame: CGRect = .zero
     @State var contentOffset: CGPoint = .zero
     @State var index: IndexPath = .init(row: 0, section: 0)
-    
+    @State private var store = PinIndexReducer()
+
     var body: some View {
         SKUIController {
             let colors = [UIColor.red, .green, .blue, .yellow, .orange]
@@ -49,17 +56,26 @@ struct PinIndexView: View {
             let controller = SKCollectionViewController()
                 .reloadSections([section1, section2, section3])
             
-            section1.pin(cell: 9, manager: controller.manager)
-            section2.pin(cell: 2, manager: controller.manager)
-            section3.pin(cell: 5, manager: controller.manager)
+//            let layout = TestCollectionViewFlowLayout()
+//            layout.sectionHeadersPinToVisibleBounds = true
+//            controller.sectionView.setCollectionViewLayout(layout, animated: false)
+            section1.pinCell(at: 9, options: { options in
+                options.padding = 44
+            }).store(in: &store.cancellables)
+            section2.pinCell(at: 2, options: { options in
+                options.padding = 44 * 2
+            }).store(in: &store.cancellables)
+            section3.pinCell(at: 5, options: { options in
+                options.padding = 44 * 3
+            }).store(in: &store.cancellables)
 
-            section1.pin(header: controller.manager)
-            section2.pin(header: controller.manager)
-            section3.pin(header: controller.manager)
+            section1.pinHeader().store(in: &store.cancellables)
+            section2.pinHeader().store(in: &store.cancellables)
+            section3.pinHeader().store(in: &store.cancellables)
             
-            section1.pin(footer: controller.manager)
-            section2.pin(footer: controller.manager)
-            section3.pin(footer: controller.manager)
+            section1.pinFooter().store(in: &store.cancellables)
+            section2.pinFooter().store(in: &store.cancellables)
+            section3.pinFooter().store(in: &store.cancellables)
             
             controller.manager.reload()
             return controller

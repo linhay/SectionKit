@@ -79,6 +79,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         SKCLayoutAttributes.self
     }
     
+    private var alwaysInvalidate: Bool?
     private lazy var oldBounds = CGRect.zero
     private var layoutTempStore: LayoutStore?
     private var layoutStore: LayoutStore = .init(attributes: [])
@@ -133,20 +134,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
         
         for mode in modes {
             switch mode {
-            case .permanentAttributes(let list):
-                for item in list.fetch() {
-                    if attributesSet.insert(item).inserted {
-                        attributes.append(item)
-                    }
-                }
-            default:
-                break
-            }
-        }
-        
-        for mode in modes {
-            switch mode {
-            case .permanentAttributes:
+            case .layoutAttributesForElements:
                 break
             case .attributes(let adjusts):
                 let plugin = SKCLayoutPlugins.AdjustAttributesAgent(layout: self, adjusts: adjusts)
@@ -169,8 +157,25 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
                 attributes = SKCLayoutPlugins.HorizontalAlignmentPlugin(layout: self, payloads: payload)
                     .run(with: attributes) ?? []
             }
+            
+            let context = SKCPluginLayoutAttributesForElementsForward.Context(layout: self, attributes: attributes)
+            for mode in modes {
+                switch mode {
+                case .layoutAttributesForElements(let forwards):
+                    for forward in forwards where !forward.isCanceled {
+                        if context.alwaysInvalidate == true {
+                            alwaysInvalidate = true
+                        }
+                        forward.fetch(context)
+                    }
+                default:
+                    break
+                }
+            }
+            
+            self.alwaysInvalidate = context.alwaysInvalidate ?? false
+            attributes = context.attributes
         }
-        
         return attributes
     }
     
@@ -225,9 +230,10 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
     }
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        oldBounds.size != newBounds.size
-        || sectionHeadersPinToVisibleBounds
-        || sectionFootersPinToVisibleBounds
+        if oldBounds.size != newBounds.size || alwaysInvalidate == true {
+            return true
+        }
+        return super.shouldInvalidateLayout(forBoundsChange: newBounds)
     }
     
     open override func invalidateLayout() {

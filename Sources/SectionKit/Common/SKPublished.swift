@@ -13,7 +13,7 @@ public enum SKPublishedKind {
     case currentValue
 }
 
-public final class SKPublishedValue<Output>: Publisher {
+public final class SKPublishedValue<Output>: Publisher, Sendable {
     
     public typealias Failure = Never
     public typealias TransformPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> AnyPublisher<Output, Failure>

@@ -147,6 +147,7 @@ public extension SKCollectionViewController {
 
 public extension SKCollectionViewController {
     
+    @discardableResult
     func ignoresSafeArea() -> Self {
         self.isIgnoresSafeArea = true
         layoutConstraint.top?.isActive = true
@@ -154,6 +155,7 @@ public extension SKCollectionViewController {
         return self
     }
     
+    @discardableResult
     func backgroundColor(_ color: UIColor) -> Self {
         return self.controllerStyle { controller in
             controller.view.backgroundColor = color

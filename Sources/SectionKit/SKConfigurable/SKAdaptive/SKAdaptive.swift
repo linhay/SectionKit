@@ -140,25 +140,5 @@ public struct SKAdaptive<AdaptiveView: UIView, Model>: SKAdaptiveProtocol {
             afterConfig?(view, model)
         }
     }
-    
-    static func contentConfiguration<V: UICollectionViewCell & SKConfigurableView>(direction: SKLayoutDirection = .vertical) -> SKAdaptive<V, V.Model> {
-        .init(direction: direction) { view in
-            if #available(iOS 14.0, *), let configuration = view.contentConfiguration {
-                return nil
-            } else {
-                return nil
-            }
-        } config: { view, size, model in
-            switch direction {
-            case .horizontal:
-                view.bounds.size = .init(width: 0, height: size.height)
-            case .vertical:
-                view.bounds.size = .init(width: size.width, height: 0)
-            }
-            view.config(model)
-        }
-        
-    }
-    
 }
 #endif

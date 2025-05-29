@@ -28,10 +28,10 @@ public protocol SKConfigurableAutoAdaptiveView: UIView, SKConfigurableView {
     static func adaptive() -> SKAdaptive<Self, Model>
 }
 
-public extension SKConfigurableAutoAdaptiveView where Self: UICollectionViewCell {
+public extension SKConfigurableAutoAdaptiveView {
     
     static func adaptive() -> SKAdaptive<Self, Model> {
-        .contentConfiguration()
+        .init()
     }
 
 }

@@ -43,6 +43,8 @@ public class SKScrollViewDelegateHandler: SKScrollViewDelegateObserverProtocol {
     
     /// 独立存放的滚动事件（非拖拽、减速、缩放），更常见所以单独列出
     private var didScrolls: [ScrollEvent] = []
+    private var didAnimations: [ScrollEvent] = []
+    
     /// 拖拽事件回调组
     private var drags: [EventGroup<ScrollEvent>] = []
     /// 减速事件回调组
@@ -65,6 +67,12 @@ public class SKScrollViewDelegateHandler: SKScrollViewDelegateObserverProtocol {
     
     @discardableResult
     public func onChanged(_ observe: @escaping ScrollEvent) -> Self {
+        self.didScrolls.append(observe)
+        return self
+    }
+    
+    @discardableResult
+    public func onAnimation(_ observe: @escaping ScrollEvent) -> Self {
         self.didScrolls.append(observe)
         return self
     }
@@ -191,4 +199,9 @@ public class SKScrollViewDelegateHandler: SKScrollViewDelegateObserverProtocol {
             event(scrollView, view, scale)
         }
     }
+    
+    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView, value: Void) {
+        dispatchScrollEvents(didAnimations, with: scrollView)
+    }
+    
 }

@@ -122,10 +122,11 @@ extension SKPageManager: UIPageViewControllerDataSource, UIPageViewControllerDel
 open class SKPageViewController: UIViewController {
     
     public private(set) var manager = SKPageManager()
+    public var cancellables = Set<AnyCancellable>()
     
     private lazy var pageController = manager.makePageController()
     private var reloadSubject = PassthroughSubject<Void, Never>()
-    private var cancellables = Set<AnyCancellable>()
+    private var builtInCancellables = Set<AnyCancellable>()
     
     open override func viewDidLoad() {
         super.viewDidLoad()
@@ -137,7 +138,7 @@ open class SKPageViewController: UIViewController {
         guard isViewLoaded else {
             return
         }
-        cancellables.removeAll()
+        builtInCancellables.removeAll()
         reloadSubject
             .throttle(for: .milliseconds(60), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] in
@@ -145,21 +146,21 @@ open class SKPageViewController: UIViewController {
                 if !manager.childs.isEmpty {
                     renderUI()
                 }
-            }.store(in: &cancellables)
+            }.store(in: &builtInCancellables)
         manager.$scrollDirection.bind { [weak self] _ in
             guard let self = self else { return }
             reloadSubject.send(())
-        }.store(in: &cancellables)
+        }.store(in: &builtInCancellables)
         
         manager.$spacing.bind { [weak self] _ in
             guard let self = self else { return }
             reloadSubject.send(())
-        }.store(in: &cancellables)
+        }.store(in: &builtInCancellables)
         
         manager.$childs.bind { [weak self] _ in
             guard let self = self else { return }
             reloadSubject.send(())
-        }.store(in: &cancellables)
+        }.store(in: &builtInCancellables)
     }
     
     open func renderUI() {

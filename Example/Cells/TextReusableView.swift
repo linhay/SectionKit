@@ -13,6 +13,12 @@ class TextReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigur
     struct Model {
         let text: String
         let color: UIColor
+        var alignment: NSTextAlignment
+        init(text: String, color: UIColor, alignment: NSTextAlignment = .left) {
+            self.text = text
+            self.color = color
+            self.alignment = alignment
+        }
     }
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
@@ -21,6 +27,7 @@ class TextReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigur
     
     func config(_ model: Model) {
         titleLabel.text = model.text
+        titleLabel.textAlignment = model.alignment
         descLabel.text = nil
         descLabel.isHidden = true
         backgroundColor = model.color
@@ -65,6 +72,8 @@ class TextReusableView: UICollectionReusableView, SKLoadViewProtocol, SKConfigur
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(hStackView)
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.white.cgColor
         hStackView.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }

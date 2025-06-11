@@ -10,7 +10,7 @@ import UIKit
 
 public protocol SKCSectionActionProtocol: AnyObject {
     
-    var sectionView: UICollectionView { get }
+    var itemCount: Int { get }
     var sectionInjection: SKCSectionInjection? { get set }
     func config(sectionView: UICollectionView)
     
@@ -106,7 +106,8 @@ public extension SKCSectionActionProtocol {
     /// - Parameter row: row
     /// - Returns: cell
     func cellForItem(at row: Int) -> UICollectionViewCell? {
-        sectionView.cellForItem(at: indexPath(from: row))
+        guard isBindSectionView else { return nil }
+       return sectionView.cellForItem(at: indexPath(from: row))
     }
     
     func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
@@ -201,8 +202,7 @@ public extension SKCSectionActionProtocol {
     
 }
 
-
-public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol {
+public extension SKCSectionActionProtocol {
     
     func scrollToTop(animated: Bool) {
         scroll(to: 0, at: .top, animated: animated)
@@ -223,6 +223,124 @@ public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol {
         sectionView.scrollToItem(at: indexPath(from: row), at: scrollPosition, animated: animated)
     }
     
+    @discardableResult
+    func scroll(to kind: SKSupplementaryKind,
+                at scrollPosition: UICollectionView.ScrollPosition? = nil,
+                offset: CGPoint? = nil,
+                animated: Bool = true) -> Bool {
+        guard let sectionView = sectionInjection?.sectionView,
+              sectionView.window != nil,
+              sectionView.frame.width > 0,
+              sectionView.frame.height > 0,
+              let attributes = sectionView.collectionViewLayout.layoutAttributesForSupplementaryView(ofKind: kind.rawValue, at: indexPath(from: 0)),
+              attributes.frame != .zero else {
+            return false
+        }
+        scrollWithOffset(sectionView: sectionView,
+                         position: scrollPosition ?? defaultPosition(),
+                         frame: attributes.frame,
+                         offset: offset ?? .zero,
+                         animated: animated)
+        return true
+    }
+    
+    @discardableResult
+    func scroll(to row: Int,
+                at scrollPosition: UICollectionView.ScrollPosition? = nil,
+                offset: CGPoint? = nil,
+                animated: Bool = true) -> Bool {
+        guard let sectionView = sectionInjection?.sectionView,
+              sectionView.window != nil,
+              sectionView.frame.width > 0,
+              sectionView.frame.height > 0,
+              let indexPath = sectionInjection?.indexPath(from: row),
+              let attributes = sectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath) else {
+            return false
+        }
+        
+        let position = scrollPosition ?? defaultPosition()
+        let frame = attributes.frame
+        
+        if let offset {
+            if frame == .zero {
+                return false
+            }
+            scrollWithOffset(sectionView: sectionView,
+                             position: position,
+                             frame: frame,
+                             offset: offset,
+                             animated: animated)
+        } else {
+            let isPagingEnabled: Bool?
+            if sectionView.isPagingEnabled {
+                isPagingEnabled = sectionView.isPagingEnabled
+                sectionView.isPagingEnabled = false
+            } else {
+                isPagingEnabled = nil
+            }
+            sectionView.scrollToItem(at: indexPath, at: position, animated: animated)
+            if let isPagingEnabled {
+                sectionView.isPagingEnabled = isPagingEnabled
+            }
+        }
+        return true
+    }
+    
+    private func defaultPosition() -> UICollectionView.ScrollPosition {
+        if let direction = (sectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection {
+            switch direction {
+            case .horizontal:
+                return .left
+            @unknown default:
+                return .top
+            }
+        } else {
+            return .top
+        }
+    }
+    
+    private func scrollWithOffset(sectionView: UICollectionView,
+                                  position: UICollectionView.ScrollPosition,
+                                  frame: CGRect,
+                                  offset: CGPoint,
+                                  animated: Bool) {
+        let point: CGPoint
+        switch position {
+        case .top:
+            // 将该 item 的上边缘与 collectionView 的顶部对齐
+            point = CGPoint(x: sectionView.contentOffset.x, y: frame.minY)
+        case .bottom:
+            // 将该 item 的下边缘与 collectionView 的底部对齐
+            // 这里需要考虑当前 collectionView 的可见区域高度，故用 frame.maxY - sectionView.bounds.height
+            point = CGPoint(x: sectionView.contentOffset.x, y: frame.maxY - sectionView.bounds.height)
+        case .centeredVertically:
+            // 垂直居中显示 item：item 的中点居中于 collectionView 的中点
+            let offsetY = frame.midY - (sectionView.bounds.height / 2)
+            point = CGPoint(x: frame.minX, y: max(offsetY, 0)) // 避免滚动到负值位置
+        case .left:
+            // 将该 item 的左边缘与 collectionView 左侧对齐
+            point = CGPoint(x: frame.minX, y: frame.minY)
+        case .right:
+            // 将该 item 的右边缘与 collectionView 右侧对齐
+            let offsetX = frame.maxX - sectionView.bounds.width
+            point = CGPoint(x: max(offsetX, 0), y: frame.minY) // 避免出现负值
+        case .centeredHorizontally:
+            // 水平居中显示 item：item 的中点居中于 collectionView 的中点
+            let offsetX = frame.midX - (sectionView.bounds.width / 2)
+            point = CGPoint(x: max(offsetX, 0), y: frame.minY)
+        default:
+            // 将该 item 的上边缘与 collectionView 的顶部对齐
+            point = CGPoint(x: frame.minX, y: frame.minY)
+        }
+        
+        if position == .top || position == .bottom {
+            let maxOffsetY = sectionView.contentSize.height - sectionView.bounds.height + sectionView.adjustedContentInset.bottom
+            let trueOffsetY = min(max(maxOffsetY, offset.y), point.y + offset.y)
+            let offset = CGPoint(x: point.x + offset.x, y: trueOffsetY)
+            sectionView.setContentOffset(offset, animated: animated)
+        } else {
+            sectionView.setContentOffset(.init(x: point.x + offset.x, y: point.y + offset.y), animated: animated)
+        }
+    }
 }
-
 #endif

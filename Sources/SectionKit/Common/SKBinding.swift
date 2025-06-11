@@ -56,6 +56,10 @@ public extension SKBinding {
         .init(get: { value }, set: { _ in })
     }
     
+    static func constant(_ value: @escaping () -> Value) -> SKBinding<Value> {
+        .init(get: value, set: { _ in })
+    }
+    
 }
 
 public extension SKBinding {
@@ -88,8 +92,15 @@ public extension SKBinding {
         }
     }
     
-    // 从一个对象的 keyPath 和默认值创建一个绑定
     init<Root>(on object: Root, keyPath: ReferenceWritableKeyPath<Root, Value>, default: Value) where Root: AnyObject {
+        self.init { [weak object] in
+            object?[keyPath: keyPath] ?? `default`
+        } set: { [weak object] value in
+            object?[keyPath: keyPath] = value
+        }
+    }
+    
+    init<Root>(on object: Root, keyPath: ReferenceWritableKeyPath<Root, Value?>, default: Value) where Root: AnyObject {
         self.init { [weak object] in
             object?[keyPath: keyPath] ?? `default`
         } set: { [weak object] value in

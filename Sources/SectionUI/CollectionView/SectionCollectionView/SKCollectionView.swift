@@ -27,10 +27,11 @@ import Combine
 
 open class SKCollectionView: UICollectionView, SKCRequestViewProtocol {
     
-    public private(set) lazy var manager = SKCManager(sectionView: self)
-    private var pluginsModes: [SKCLayoutPlugins.Mode] = []
     public var requestPublishers: SKRequestPublishers = .init()
-
+    public private(set) lazy var manager = SKCManager(sectionView: self)
+    
+    private var pluginsModes: [SKCLayoutPlugins.Mode] = []
+    private var registeredCellIdentifiers: [String: AnyClass] = [:]
     
     public convenience init() {
         let layout = SKCollectionFlowLayout()

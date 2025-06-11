@@ -35,6 +35,11 @@ public class SKCSectionPinOptions {
         self.section = section
     }
     
+    public func set(_ block: (_ pin: SKCSectionPinOptions) -> Void) -> Self {
+        block(self)
+        return self
+    }
+    
     public func customAdjust(_ adjust: AttributesAdjust?) -> Self {
         self.customAdjust = adjust
         return self
@@ -102,10 +107,13 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
     @discardableResult
     func pin(options: SKCSectionPinOptions) -> AnyCancellable {
         let forward = SKCPluginLayoutAttributesForElementsForward(userInfo: ["options": options]) { [weak options] context in
+            
             guard let options = options,
                   let sectionView = context.layout.collectionView,
                   let sectionWrappedValue = options.section.wrappedValue,
-                  let section = sectionWrappedValue else {
+                  let section = sectionWrappedValue,
+                  let maxSection = context.attributes.map(\.indexPath.section).max(),
+                  maxSection >= section else {
                 options?.isPinned = false
                 options?.distance = nil
                 return
@@ -121,6 +129,7 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
                     options.isPinned = true
                     options.distance = 0
                 } else {
+                    options.isPinned = false
                     options.distance = distance
                 }
                 options.customAdjust?(options, attribute)

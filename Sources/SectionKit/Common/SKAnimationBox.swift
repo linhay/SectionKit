@@ -7,12 +7,15 @@
 //
 
 public struct SKAnimationBox<Value> {
-    public let value: Value
-    public let animation: Bool
+    
+    public var value: Value
+    public var isEnabled: Bool
+    public var animation: Bool
 
-    public init(value: Value, animation: Bool = false) {
+    public init(value: Value, animation: Bool = false, isEnabled: Bool = true) {
         self.value = value
         self.animation = animation
+        self.isEnabled = isEnabled
     }
 }
 

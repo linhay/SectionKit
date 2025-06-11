@@ -65,6 +65,20 @@ public extension SKCDataSourceObserverProtocol {
 
 public class SKCDataSourceForward: NSObject, UICollectionViewDataSource {
     
+    class SKDebugReusableCell: UICollectionViewCell, SKLoadViewProtocol {
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            backgroundColor = .systemRed
+        }
+        
+        required init?(coder: NSCoder) {
+            super.init(coder: coder)
+            backgroundColor = .systemRed
+        }
+        
+    }
+    
     var forwardItems: [SKCDataSourceForwardableProtocol]
     var observerItems: [SKCDataSourceObserverProtocol]
     
@@ -82,7 +96,7 @@ public class SKCDataSourceForward: NSObject, UICollectionViewDataSource {
         forwardItems.append(item)
     }
     
-    func find<T>(`default`: T, _ task: (_ item: SKCDataSourceForwardableProtocol) -> SKHandleResult<T>) -> T {
+    func find<T>(`default`: @autoclosure () -> T, _ task: (_ item: SKCDataSourceForwardableProtocol) -> SKHandleResult<T>) -> T {
         for item in forwardItems.reversed() {
             let result = task(item)
             switch result {
@@ -92,7 +106,7 @@ public class SKCDataSourceForward: NSObject, UICollectionViewDataSource {
                 break
             }
         }
-        return `default`
+        return `default`()
     }
     
     func find(_ task: (_ item: SKCDataSourceForwardableProtocol) -> SKHandleResult<Void>) -> Void {
@@ -125,7 +139,10 @@ public class SKCDataSourceForward: NSObject, UICollectionViewDataSource {
     
     // The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let value = find(default: .init()) { item in
+        let value = find(default: {
+            collectionView.register(SKDebugReusableCell.self, forCellWithReuseIdentifier: SKDebugReusableCell.identifier)
+            return collectionView.dequeueReusableCell(withReuseIdentifier: SKDebugReusableCell.identifier, for: indexPath)
+        }()) { item in
             item.collectionView(collectionView, cellForItemAt: indexPath)
         }
         observe { item in
@@ -136,7 +153,10 @@ public class SKCDataSourceForward: NSObject, UICollectionViewDataSource {
     
     // The view that is returned must be retrieved from a call to -dequeueReusableSupplementaryViewOfKind:withReuseIdentifier:forIndexPath:
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let value = find(default: .init()) { item in
+        let value = find(default: {
+            collectionView.register(SKDebugReusableCell.self, forSupplementaryViewOfKind: kind, withReuseIdentifier: SKDebugReusableCell.identifier)
+            return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SKDebugReusableCell.identifier, for: indexPath)
+        }()) { item in
             item.collectionView(collectionView, viewForSupplementaryElementOfKind: kind, at: indexPath)
         }
         observe { item in

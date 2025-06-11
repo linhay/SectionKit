@@ -38,7 +38,7 @@ public final class SKPageManager: NSObject {
     @SKPublished var trackSelection = Trackable<Int>(source: .user, value: 0)
     
     private var cancellables = Set<AnyCancellable>()
-    override init() {}
+    public override init() {}
 }
 
 extension SKPageManager {
@@ -121,15 +121,23 @@ extension SKPageManager: UIPageViewControllerDataSource, UIPageViewControllerDel
 
 open class SKPageViewController: UIViewController {
     
-    public let manager = SKPageManager()
+    public private(set) var manager = SKPageManager()
     
     private lazy var pageController = manager.makePageController()
     private var reloadSubject = PassthroughSubject<Void, Never>()
-    public var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()
     
     open override func viewDidLoad() {
         super.viewDidLoad()
-        
+        set(manager: manager)
+    }
+    
+   public func set(manager: SKPageManager) {
+        self.manager = manager
+        guard isViewLoaded else {
+            return
+        }
+        cancellables.removeAll()
         reloadSubject
             .throttle(for: .milliseconds(60), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] in
@@ -138,7 +146,6 @@ open class SKPageViewController: UIViewController {
                     renderUI()
                 }
             }.store(in: &cancellables)
-        
         manager.$scrollDirection.bind { [weak self] _ in
             guard let self = self else { return }
             reloadSubject.send(())

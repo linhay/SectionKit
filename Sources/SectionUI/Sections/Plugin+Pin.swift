@@ -28,7 +28,7 @@ public class SKCSectionPinOptions {
     @SKPublished public var isPinned: Bool = false
 
     public init(kind: SKSupplementaryKind,
-                row: Int,
+                row: Int = 0,
                 section: SKBindingKey<Int?>) {
         self.kind = kind
         self.row = row
@@ -118,6 +118,13 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
                 options?.distance = nil
                 return
             }
+            
+            #if DEBUG
+            if let layout = sectionView.collectionViewLayout as? UICollectionViewFlowLayout,
+               layout.sectionHeadersPinToVisibleBounds == true || layout.sectionFootersPinToVisibleBounds == true {
+                assertionFailure("SKCSectionPinOptions is not compatible with UICollectionViewFlowLayout's pinning feature. Please disable pinning in UICollectionViewFlowLayout.")
+            }
+            #endif
             
             var maxZIndex = 0
             var stickyAttribute: UICollectionViewLayoutAttributes?

@@ -13,6 +13,7 @@ public class SKCSectionPinOptions {
     
     public typealias Builder = (_ options: inout SKCSectionPinOptions) -> Void
     public typealias AttributesAdjust = (_ options: SKCSectionPinOptions, _ attributes: UICollectionViewLayoutAttributes) -> Void
+    public var id: String = UUID().uuidString
     public let kind: SKSupplementaryKind
     public var row: Int
     public let section: SKBindingKey<Int?>
@@ -25,11 +26,13 @@ public class SKCSectionPinOptions {
     /// 距离目标位置距离监听
     @SKPublished public var distance: CGFloat?
     /// 是否到达目标位置监听
-    @SKPublished public var isPinned: Bool = false
+    @SKPublished(transform: .removeDuplicates()) public var isPinned: Bool = false
 
     public init(kind: SKSupplementaryKind,
                 row: Int = 0,
-                section: SKBindingKey<Int?>) {
+                section: SKBindingKey<Int?>,
+                id: String = UUID().uuidString) {
+        self.id = id
         self.kind = kind
         self.row = row
         self.section = section
@@ -110,12 +113,15 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
             
             guard let options = options,
                   let sectionView = context.layout.collectionView,
-                  let sectionWrappedValue = options.section.wrappedValue,
+                  let maxSection = context.attributes.map(\.indexPath.section).max()else {
+                return
+            }
+            
+            guard let sectionWrappedValue = options.section.wrappedValue,
                   let section = sectionWrappedValue,
-                  let maxSection = context.attributes.map(\.indexPath.section).max(),
                   maxSection >= section else {
-                options?.isPinned = false
-                options?.distance = nil
+                options.isPinned = false
+                options.distance = nil
                 return
             }
             

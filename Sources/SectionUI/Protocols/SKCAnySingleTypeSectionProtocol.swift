@@ -15,6 +15,11 @@ public protocol SKCAnySingleTypeSectionProtocol: SKCRawSectionProtocol, SKCSecti
 
 public extension SKCAnySingleTypeSectionProtocol {
     
+    var sectionInset: UIEdgeInsets {
+        get { rawSection.sectionInset }
+        set { rawSection.sectionInset = newValue }
+    }
+    
     var sectionInjection: SKCSectionInjection? {
         get { rawSection.sectionInjection }
         set { rawSection.sectionInjection = newValue }

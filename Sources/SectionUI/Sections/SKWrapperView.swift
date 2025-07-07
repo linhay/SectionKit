@@ -42,15 +42,19 @@ open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol,
             self.userInfo = userInfo
             self.insets = insets
             self.size = { limit in
-                var size = Content.preferredSize(limit: .init(width: limit.width - insets.left - insets.right,
-                                                              height: limit.height - insets.top - insets.bottom),
-                                                 model: userInfo)
-                size.width += insets.left + insets.right
-                size.height += insets.top + insets.bottom
-                return size
+                MainActor.assumeIsolated {
+                    var size = Content.preferredSize(limit: .init(width: limit.width - insets.left - insets.right,
+                                                                  height: limit.height - insets.top - insets.bottom),
+                                                     model: userInfo)
+                    size.width += insets.left + insets.right
+                    size.height += insets.top + insets.bottom
+                    return size
+                }
             }
             self.style = { view in
-                view.config(userInfo)
+                MainActor.assumeIsolated {
+                    view.config(userInfo)
+                }
             }
         }
         

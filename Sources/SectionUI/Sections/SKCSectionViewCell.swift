@@ -65,9 +65,11 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
                   scrollDirection: .horizontal,
                   style: style,
                   size: { size, _ in
-                var size = CGSize(width: size.width, height: Cell.preferredSize(limit: size, model: heightModel).height)
-                size.height += insets.top + insets.bottom
-                return size
+                MainActor.assumeIsolated {
+                    var size = CGSize(width: size.width, height: Cell.preferredSize(limit: size, model: heightModel).height)
+                    size.height += insets.top + insets.bottom
+                    return size
+                }
             })
         }
         

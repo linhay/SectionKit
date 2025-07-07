@@ -24,14 +24,14 @@ import Foundation
 
 public protocol SKExistModelProtocol {
     associatedtype Model
-    init(model: Model)
+    @MainActor init(model: Model)
 }
 
 public protocol SKConfigurableModelProtocol {
     associatedtype Model
-    func config(_ model: Model)
+    @MainActor func config(_ model: Model)
 }
 
 public extension SKConfigurableModelProtocol where Model == Void {
-    func config(_: Model) {}
+    @MainActor func config(_: Model) {}
 }

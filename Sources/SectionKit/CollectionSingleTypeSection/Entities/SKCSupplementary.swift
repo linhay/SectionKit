@@ -17,8 +17,8 @@ public struct SKCSupplementary<View: UICollectionReusableView & SKLoadViewProtoc
     
     public init(kind: SKSupplementaryKind,
                 type: View.Type,
-                config: ((View) -> Void)? = nil,
-                size: @escaping (_ limitSize: CGSize) -> CGSize) {
+                config: (@MainActor (View) -> Void)? = nil,
+                size: @MainActor @escaping (_ limitSize: CGSize) -> CGSize) {
         self.kind = kind
         self.type = type
         self.config = config

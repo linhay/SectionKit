@@ -38,6 +38,7 @@ public extension SKConfigurableAutoAdaptiveView {
 
 public extension SKConfigurableAutoAdaptiveView {
             
+    @MainActor
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         let key = SKAdaptive<Self, Model>.self
         if let item = SKConfigurableAdaptiveAutoCache.shared[key] as? SKAdaptive<Self, Model> {
@@ -54,7 +55,7 @@ public extension SKConfigurableAutoAdaptiveView {
 public class SKConfigurableAdaptiveAutoCache {
     
     public static let shared = SKConfigurableAdaptiveAutoCache()
-    var cache = [ObjectIdentifier: any SKAdaptiveProtocol]()
+    public var cache = [ObjectIdentifier: any SKAdaptiveProtocol]()
     
     subscript<T>(_ type: T.Type) -> (any SKAdaptiveProtocol)? {
         get { cache[ObjectIdentifier(type)] }

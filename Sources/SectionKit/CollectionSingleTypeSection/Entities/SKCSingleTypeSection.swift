@@ -252,7 +252,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open func item(at row: Int) -> UICollectionViewCell {
         let cell = dequeue(at: row) as Cell
         let model = models[row]
-        cell.config(model)
+        MainActor.assumeIsolated {
+            cell.config(model)
+        }
         if !cellStyles.isEmpty {
             let result = SKCCellStyleContext(section: self, model: model, row: row, view: cell)
             cellStyles.forEach { style in
@@ -274,10 +276,14 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         if let highPerformance = highPerformance,
            let ID = highPerformanceID?(.init(model: model, row: row)) {
             return highPerformance.cache(by: ID, limit: limitSize) { limit in
-                Cell.preferredSize(limit: limitSize, model: model)
+                MainActor.assumeIsolated {
+                    Cell.preferredSize(limit: limitSize, model: model)
+                }
             }
         } else {
-            return Cell.preferredSize(limit: limitSize, model: model)
+           return MainActor.assumeIsolated {
+                return Cell.preferredSize(limit: limitSize, model: model)
+            }
         }
     }
     
@@ -579,7 +585,9 @@ private extension SKCSingleTypeSection {
                 self.models = models
                 for (index, model) in models.enumerated() {
                     if let cell = self.cellForItem(at: index) {
-                        cell.config(model)
+                        MainActor.assumeIsolated {
+                            cell.config(model)
+                        }
                     } else {
                         sectionInjection?.reload()
                     }

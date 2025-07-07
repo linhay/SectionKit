@@ -13,6 +13,7 @@ public protocol SKConfigurableView: SKConfigurableModelProtocol & SKConfigurable
 
 public extension SKConfigurableView where Model == Void {
     
+    @MainActor
     func config(_ model: Model) {}
     
 }
@@ -20,6 +21,7 @@ public extension SKConfigurableView where Model == Void {
 // 支持通过RawRepresentable配置模型
 public extension SKConfigurableView {
     
+    @MainActor
     func config<T: RawRepresentable>(_ model: T) where Model == T.RawValue {
         config(model.rawValue)
     }

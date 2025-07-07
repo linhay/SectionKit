@@ -14,7 +14,7 @@ public protocol SKConfigurableAdaptiveView: SKConfigurableView {
 }
 
 public extension SKConfigurableAdaptiveView {
-    
+    @MainActor
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         adaptive.preferredSize(limit: size, model: model)
     }

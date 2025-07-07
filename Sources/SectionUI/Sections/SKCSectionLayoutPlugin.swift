@@ -200,7 +200,9 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCAnySectionProtoco
                                                                     style: DecorationViewStyle<View>? = nil) -> Self {
         return set(decoration: decoration) { decoration in
             decoration.onAction(.willDisplay) { context in
-                context.view.config(model)
+                MainActor.assumeIsolated {
+                    context.view.config(model)
+                }
             }
             style?(decoration)
         }

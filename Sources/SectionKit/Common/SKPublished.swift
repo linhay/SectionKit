@@ -13,6 +13,15 @@ public enum SKPublishedKind {
     case currentValue
 }
 
+public extension Publisher {
+    
+    func ignoreOutputType() -> any Publisher<Void, Failure> {
+        self.map { _ in () }
+    }
+    
+}
+    
+
 public final class SKPublishedValue<Output>: Publisher, Sendable {
     
     public typealias Failure = Never

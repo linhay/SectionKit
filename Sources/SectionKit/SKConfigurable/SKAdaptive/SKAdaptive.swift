@@ -26,13 +26,13 @@ public protocol SKAdaptiveProtocol {
     var view: AdaptiveView { get }
     var insets: UIEdgeInsets { get }
     var fittingPriority: SKAdaptiveFittingPriority { get }
-    var config: (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void  { get }
-    var content: (_ view: AdaptiveView) -> UIView? { get }
+    var config: @MainActor (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void  { get }
+    var content: @MainActor (_ view: AdaptiveView) -> UIView? { get }
 }
 
 extension SKAdaptiveProtocol {
     
-    func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+    @MainActor func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model = model else { return .zero }
         var size = size
         config(view, size, model)
@@ -69,20 +69,20 @@ public struct SKAdaptive<AdaptiveView: UIView, Model>: SKAdaptiveProtocol {
     // 适配的视图
     public let view: AdaptiveView
     // 适配视图内容视图的keyPath
-    public var content: (_ view: AdaptiveView) -> UIView?
+    public var content: @MainActor (_ view: AdaptiveView) -> UIView?
     // 视图周围的inset
     public let insets: UIEdgeInsets
     // 视图适配优先级
     public let fittingPriority: SKAdaptiveFittingPriority
     // 配置视图的闭包
-    public let config: (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void
+    public let config: @MainActor (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void
     
     public init(view: AdaptiveView = .init(),
                 direction: SKLayoutDirection = .vertical,
                 insets: UIEdgeInsets = .zero,
                 fittingPriority: SKAdaptiveFittingPriority? = nil,
-                content: ((_ view: AdaptiveView) -> UIView?)? = nil,
-                config: @escaping (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void) {
+                content: (@MainActor (_ view: AdaptiveView) -> UIView?)? = nil,
+                config:  @MainActor @escaping (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void) {
         self.view = view
         self.direction = direction
         if let content {
@@ -114,7 +114,7 @@ public struct SKAdaptive<AdaptiveView: UIView, Model>: SKAdaptiveProtocol {
                            content: KeyPath<AdaptiveView, T>? = nil,
                            insets: UIEdgeInsets = .zero,
                            fittingPriority: SKAdaptiveFittingPriority? = nil,
-                           config: @escaping (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void) {
+                           config: @MainActor @escaping (_ view: AdaptiveView, _ size: CGSize, _ model: Model) -> Void) {
         self.init(view: view, direction: direction, insets: insets, fittingPriority: fittingPriority, content: { view in
             if let content {
                 return view[keyPath: content]

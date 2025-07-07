@@ -19,6 +19,18 @@ public extension Publisher {
         self.map { _ in () }
     }
     
+    func assign<Root: AnyObject>(
+        onWeak object: Root,
+        to keyPath: ReferenceWritableKeyPath<Root, Output>
+    ) -> AnyCancellable {
+        self.sink { _ in
+            
+        } receiveValue: { [weak object] value in
+            guard let object = object else { return }
+            object[keyPath: keyPath] = value
+        }
+    }
+    
 }
     
 

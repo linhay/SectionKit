@@ -11,8 +11,8 @@ import SectionKit
 import SwiftUI
 
 public class SKZoomableContext {
-    @SKPublished(transform: [.receiveOnMainQueue()])
-    public var size: CGSize = .zero
+    @SKPublished(transform: [.receiveOnMainQueue()]) public var size: CGSize = .zero
+    @SKPublished(transform: [.receiveOnMainQueue()]) public var zoomScale: CGFloat = 1
     public init() {}
 }
 
@@ -123,7 +123,6 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         scrollView.frame = bounds
         scrollView.setZoomScale(1.0, animated: false)
         let size = computeImageLayoutSize(for: context.size, in: scrollView)
-        print("2 ==> \(context.size)")
         let origin = computeImageLayoutOrigin(for: size, in: scrollView)
         contentView.frame = CGRect(origin: origin, size: size)
         scrollView.setZoomScale(1.0, animated: false)
@@ -310,5 +309,6 @@ extension SKZoomableScrollView: UIScrollViewDelegate {
     
     public func scrollViewDidZoom(_ scrollView: UIScrollView) {
         contentView.center = computeImageLayoutCenter(in: scrollView)
+        context.zoomScale = scrollView.zoomScale
     }
 }

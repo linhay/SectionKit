@@ -94,6 +94,18 @@ public extension SKCSingleTypeSection {
         refresh(models, predicate: ==)
     }
     
+    /// Refreshes the section with a single equatable model.
+    /// - Parameter model: The model to refresh the section with.
+    func refresh(_ model: Model) where Model: Equatable & AnyObject {
+        self.refresh([model])
+    }
+
+    /// Refreshes the section with an array of equatable models.
+    /// - Parameter models: An array of models to refresh the section with.
+    func refresh(_ models: [Model]) where Model: Equatable & AnyObject {
+        refresh(models, predicate: ==)
+    }
+    
     /// Refreshes the section with a single model conforming to AnyObject.
     /// - Parameter model: The model to refresh the section with.
     func refresh(_ model: Model) where Model: AnyObject {

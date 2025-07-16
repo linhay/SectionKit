@@ -18,10 +18,9 @@ public class SKCSectionCollector {
 
 public extension SKCSectionCollector {
     
-    public typealias When<Object> = (_ object: Object) -> Bool
-    public typealias FindSection<Object> = (_ object: Object) -> SKCSectionProtocol?
+     typealias When<Object> = (_ object: Object) -> Bool
+     typealias FindSection<Object> = (_ object: Object) -> SKCSectionProtocol?
 
-    @discardableResult
     func append(_ item: (any SKCSectionProtocol)?) {
         if let item = item {
             sections.append(item)
@@ -34,7 +33,6 @@ public extension SKCSectionCollector {
         }
     }
     
-    @discardableResult
     func append<Object: SKCAnySectionProtocol>(_ item: Object?, when: When<Object>? = nil) {
         append(item, section: \.section, when: when)
     }

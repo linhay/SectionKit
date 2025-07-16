@@ -9,7 +9,7 @@
 import UIKit
 import Combine
 
-open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol, SKDisplayedTimesProtocol {
+open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol, SKDisplayedTimesProtocol, SKEnvironmentConfiguration {
     
     public typealias SectionBlock<Return>               = (_ section: SKCSingleTypeSection<Cell>) -> Return
     public typealias ContextBlock<Context, Return>      = (_ context: Context) -> Return
@@ -181,17 +181,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         get { publishers.modelsSubject.value }
     }
     
-    public private(set) var environmentObject: [ObjectIdentifier: Any] = [:]
-    
-    public func environment<T>(of type: T.Type) -> T? {
-        environmentObject[.init(type)] as? T
-    }
-    
-    @discardableResult
-    public func environment<T>(of object: T) -> Self {
-        environmentObject[.init(T.self)] = object
-        return self
-    }
+    public var environmentObject: [ObjectIdentifier: Any] = [:]
     
     /// 无数据时隐藏 footerView
     open lazy var hiddenFooterWhenNoItem = true

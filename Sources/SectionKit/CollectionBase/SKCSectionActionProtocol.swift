@@ -231,11 +231,23 @@ public extension SKCSectionActionProtocol {
         guard let sectionView = sectionInjection?.sectionView,
               sectionView.window != nil,
               sectionView.frame.width > 0,
-              sectionView.frame.height > 0,
-              let attributes = sectionView.collectionViewLayout.layoutAttributesForSupplementaryView(ofKind: kind.rawValue, at: indexPath(from: 0)),
-              attributes.frame != .zero else {
+              sectionView.frame.height > 0 else {
             return false
         }
+        
+        var attributes: UICollectionViewLayoutAttributes?
+        
+        switch kind {
+        case .header, .footer, .custom:
+            attributes = sectionView.collectionViewLayout.layoutAttributesForSupplementaryView(ofKind: kind.rawValue, at: indexPath(from: 0))
+        case .cell:
+            attributes = sectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath(from: 0))
+        }
+            
+        guard let attributes, attributes.frame != .zero else {
+            return false
+        }
+            
         scrollWithOffset(sectionView: sectionView,
                          position: scrollPosition ?? defaultPosition(),
                          frame: attributes.frame,

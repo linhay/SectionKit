@@ -35,99 +35,246 @@ A powerful, data-driven `UICollectionView` framework designed for building fast,
 
 ### Basic Example
 
-Creating a simple list requires just a few lines of code:
+Create a task management list:
 
 ```swift
 import SectionUI
 import SwiftUI
 
-struct BasicListView: View {
-    @State
-    var section = TextCell
-        .wrapperToSingleTypeSection()
+// Create Task Item Cell
+class TaskItemCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
+    struct Model {
+        let title: String
+        let isCompleted: Bool
+        let dueDate: Date?
+        let priority: Priority
+        
+        enum Priority {
+            case urgent, high, normal, low
+            var color: UIColor {
+                switch self {
+                case .urgent: return .systemPink
+                case .high: return .systemRed
+                case .normal: return .systemBlue
+                case .low: return .systemGray
+                }
+            }
+        }
+    }
+    
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        return .init(width: size.width, height: 65)
+    }
+    
+    func config(_ model: Model) {
+        titleLabel.text = model.title
+        priorityIndicator.backgroundColor = model.priority.color
+        checkmarkButton.isSelected = model.isCompleted
+        
+        if let dueDate = model.dueDate {
+            dueDateLabel.text = DateFormatter.shortDate.string(from: dueDate)
+            dueDateLabel.isHidden = false
+        } else {
+            dueDateLabel.isHidden = true
+        }
+        
+        // Strike-through effect for completed tasks
+        let attributes: [NSAttributedString.Key: Any] = model.isCompleted ? 
+            [.strikethroughStyle: NSUnderlineStyle.single.rawValue, .foregroundColor: UIColor.secondaryLabel] :
+            [.foregroundColor: UIColor.label]
+        titleLabel.attributedText = NSAttributedString(string: model.title, attributes: attributes)
+    }
+    
+    // UI components implementation...
+    private lazy var titleLabel = UILabel()
+    private lazy var checkmarkButton = UIButton()
+    private lazy var priorityIndicator = UIView()
+    private lazy var dueDateLabel = UILabel()
+}
+
+struct TaskManagementView: View {
+    @State var taskSection = TaskItemCell.wrapperToSingleTypeSection()
     
     var body: some View {
-        SKPreview.sections {
-            section
-        }
-        .task {
-            section.config(models: [
-                .init(text: "First Row", color: .red),
-                .init(text: "Second Row", color: .green),
-                .init(text: "Third Row", color: .blue)
-            ])
-        }
+        SKPreview.sections { taskSection }
+            .task {
+                taskSection.config(models: [
+                    .init(title: "Review project proposal", isCompleted: false, dueDate: Date(), priority: .urgent),
+                    .init(title: "Team meeting preparation", isCompleted: true, dueDate: nil, priority: .high),
+                    .init(title: "Update documentation", isCompleted: false, dueDate: Date().addingTimeInterval(86400), priority: .normal)
+                ])
+            }
     }
 }
 ```
 
 ## 📖 Detailed Examples
 
-### 1. [Single Type List](./Example/01-Introduction.swift)
+### 1. Single Type List
 
-Create the simplest single data type list:
+Create a restaurant menu display:
 
 ```swift
-class IntroductionCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
+class MenuItemCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     struct Model {
-        let text: String
-        let color: UIColor
+        let dishName: String
+        let price: Double
+        let category: String
+        let isVegetarian: Bool
+        let isSpicy: Bool
+        let rating: Double
+        let description: String
     }
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
-        return .init(width: size.width, height: 44)
+        return .init(width: size.width, height: 90)
     }
     
     func config(_ model: Model) {
-        titleLabel.text = model.text
-        contentView.backgroundColor = model.color
+        dishNameLabel.text = model.dishName
+        priceLabel.text = String(format: "$%.2f", model.price)
+        categoryLabel.text = model.category
+        descriptionLabel.text = model.description
+        ratingLabel.text = String(format: "⭐ %.1f", model.rating)
+        
+        // Diet indicators
+        vegetarianIcon.isHidden = !model.isVegetarian
+        spicyIcon.isHidden = !model.isSpicy
+        
+        // Price color coding
+        priceLabel.textColor = model.price > 25.0 ? .systemRed : .systemGreen
     }
     
-    // UI component setup...
+    // UI components implementation...
+    private lazy var dishNameLabel = UILabel()
+    private lazy var priceLabel = UILabel()
+    private lazy var categoryLabel = UILabel()
+    private lazy var descriptionLabel = UILabel()
+    private lazy var ratingLabel = UILabel()
+    private lazy var vegetarianIcon = UIImageView()
+    private lazy var spicyIcon = UIImageView()
 }
 
-// Usage example
-let section = IntroductionCell
+// Create menu section
+let menuSection = MenuItemCell
     .wrapperToSingleTypeSection()
     .onCellAction(.selected) { context in
-        print("Selected: \(context.model.text)")
+        showDishDetails(context.model)
+    }
+    .onCellAction(.willDisplay) { context in
+        // Preload dish images
+        loadDishImage(for: context.model)
     }
 
-section.config(models: [
-    .init(text: "Item 1", color: .systemBlue),
-    .init(text: "Item 2", color: .systemGreen)
+menuSection.config(models: [
+    .init(dishName: "Grilled Salmon", price: 28.99, category: "Seafood", 
+          isVegetarian: false, isSpicy: false, rating: 4.8, 
+          description: "Fresh Atlantic salmon with herbs"),
+    .init(dishName: "Vegetable Curry", price: 18.50, category: "Vegetarian", 
+          isVegetarian: true, isSpicy: true, rating: 4.6, 
+          description: "Spicy mixed vegetables in coconut curry sauce")
 ])
 ```
 
-![01-Introduction](https://github.com/linhay/RepoImages/blob/main/SectionUI/01-Introduction.png?raw=true)
+### 2. Multiple Sections
 
-### 2. [Multiple Sections](./Example/02.01-MultipleSection.swift)
-
-Create complex lists with multiple different data sources:
+Create a fitness app with workout categories:
 
 ```swift
-struct MultipleSectionView: View {
-    @State var headerSection = HeaderCell.wrapperToSingleTypeSection()
-    @State var dataSection = DataCell.wrapperToSingleTypeSection()
-    @State var footerSection = FooterCell.wrapperToSingleTypeSection()
+// Workout Category Header Cell
+class WorkoutCategoryCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
+    struct Model {
+        let categoryName: String
+        let exerciseCount: Int
+        let difficulty: String
+        let estimatedTime: Int // in minutes
+    }
+    
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        .init(width: size.width, height: 55)
+    }
+    
+    func config(_ model: Model) {
+        categoryLabel.text = model.categoryName
+        exerciseCountLabel.text = "\(model.exerciseCount) exercises"
+        difficultyLabel.text = model.difficulty
+        timeLabel.text = "\(model.estimatedTime) min"
+        
+        // Difficulty color coding
+        difficultyLabel.textColor = getDifficultyColor(model.difficulty)
+    }
+    
+    private func getDifficultyColor(_ difficulty: String) -> UIColor {
+        switch difficulty.lowercased() {
+        case "beginner": return .systemGreen
+        case "intermediate": return .systemOrange
+        case "advanced": return .systemRed
+        default: return .label
+        }
+    }
+}
+
+// Exercise Item Cell
+class ExerciseItemCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
+    struct Model {
+        let exerciseName: String
+        let targetMuscle: String
+        let reps: String
+        let sets: Int
+        let restTime: Int // in seconds
+        let caloriesBurned: Int
+    }
+    
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        .init(width: size.width, height: 75)
+    }
+    
+    func config(_ model: Model) {
+        exerciseLabel.text = model.exerciseName
+        muscleLabel.text = "Target: \(model.targetMuscle)"
+        repsLabel.text = model.reps
+        setsLabel.text = "\(model.sets) sets"
+        restLabel.text = "Rest: \(model.restTime)s"
+        caloriesLabel.text = "\(model.caloriesBurned) cal"
+    }
+}
+
+struct WorkoutPlanView: View {
+    @State var strengthSection = WorkoutCategoryCell.wrapperToSingleTypeSection()
+    @State var strengthExercises = ExerciseItemCell.wrapperToSingleTypeSection()
+    @State var cardioSection = WorkoutCategoryCell.wrapperToSingleTypeSection()
+    @State var cardioExercises = ExerciseItemCell.wrapperToSingleTypeSection()
     
     var body: some View {
         SKPreview.sections {
-            headerSection
-            dataSection
-            footerSection
+            strengthSection
+            strengthExercises
+            cardioSection
+            cardioExercises
         }
         .task {
-            // Configure different data sources
-            headerSection.config(models: [.init(title: "Page Title")])
-            dataSection.config(models: generateDataItems())
-            footerSection.config(models: [.init(info: "Page Footer Info")])
+            // Configure strength training
+            strengthSection.config(models: [
+                .init(categoryName: "Strength Training", exerciseCount: 6, difficulty: "Intermediate", estimatedTime: 45)
+            ])
+            
+            strengthExercises.config(models: [
+                .init(exerciseName: "Push-ups", targetMuscle: "Chest", reps: "12-15", sets: 3, restTime: 60, caloriesBurned: 50),
+                .init(exerciseName: "Squats", targetMuscle: "Legs", reps: "15-20", sets: 3, restTime: 90, caloriesBurned: 65)
+            ])
+            
+            // Configure cardio training
+            cardioSection.config(models: [
+                .init(categoryName: "Cardio Workout", exerciseCount: 4, difficulty: "Beginner", estimatedTime: 30)
+            ])
+            
+            cardioExercises.config(models: [
+                .init(exerciseName: "Jumping Jacks", targetMuscle: "Full Body", reps: "30s", sets: 4, restTime: 45, caloriesBurned: 80)
+            ])
         }
     }
 }
 ```
-
-![02-MultipleSection](https://github.com/linhay/RepoImages/blob/main/SectionUI/02-MultipleSection.png?raw=true)
 
 ### 3. [Headers and Footers](./Example/01.03-FooterAndHeader.swift)
 

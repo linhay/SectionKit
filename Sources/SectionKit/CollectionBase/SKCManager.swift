@@ -1,6 +1,6 @@
 //
-//  File.swift
-//
+//  SKCManager.swift
+//  SectionKit
 //
 //  Created by linhey on 2022/8/11.
 //
@@ -9,21 +9,37 @@
 import UIKit
 import Combine
 
+/// 请求 ID 类，用于管理异步请求的生命周期
+/// Request ID class for managing asynchronous request lifecycle
 public class SKRequestID {
     
+    /// 请求的唯一标识符
+    /// Unique identifier for the request
     public let id: String
+    
+    /// 是否已取消
+    /// Whether cancelled
     var isCancelled: Bool = false
+    
+    /// 执行任务的闭包，返回 true 表示任务完成
+    /// Task closure, returns true when task is completed
     let task: () -> Bool
     
+    /// 初始化请求 ID
+    /// Initialize request ID
     init(id: String, task: @escaping () -> Bool) {
         self.id = id
         self.task = task
     }
     
+    /// 取消请求
+    /// Cancel request
     public func cancel() {
         isCancelled = true
     }
     
+    /// 执行请求任务
+    /// Perform request task
     public func perform() {
         if !isCancelled, task() {
             cancel()
@@ -32,21 +48,41 @@ public class SKRequestID {
     
 }
 
+/// 请求发布者结构体，包含布局相关的发布者
+/// Request publishers structure containing layout-related publishers
 public struct SKRequestPublishers {
+    /// 布局子视图的发布者
+    /// Publisher for layout subviews
     public let layoutSubviews = PassthroughSubject<Void, Never>()
     public init() {}
 }
 
+/// 请求视图协议，定义具有请求发布者的视图
+/// Request view protocol defining views with request publishers
 public protocol SKCRequestViewProtocol {
+    /// 请求发布者实例
+    /// Request publishers instance
     var requestPublishers: SKRequestPublishers { get }
 }
 
+/// SKC 管理器发布者类，管理 section 相关的发布者
+/// SKC manager publishers class managing section-related publishers
 public class SKCManagerPublishers {
     
+    /// section 数组的主题
+    /// Subject for sections array
     fileprivate lazy var sectionsSubject = CurrentValueSubject<[SKCBaseSectionProtocol], Never>([])
+    
+    /// 只读的 section 发布者
+    /// Read-only sections publisher
     public private(set) lazy var sectionsPublisher = sectionsSubject.eraseToAnyPublisher()
+    
+    /// 当前的 section 数组
+    /// Current sections array
     public var sections: [SKCBaseSectionProtocol] { sectionsSubject.value }
     
+    /// 安全获取指定索引的 section
+    /// Safely get section at specified index
     func safe<T>(section: Int) -> T? {
         guard sections.indices.contains(section) else {
             return nil
@@ -54,29 +90,55 @@ public class SKCManagerPublishers {
         return sections[section] as? T
     }
     
+    /// 获取指定类型的 section 集合
+    /// Get collection of sections of specified type
     func collection<T>(_ type: T.Type = T.self) -> any Collection<T> {
         sections.lazy.compactMap({ $0 as? T })
     }
 }
 
+/// SKC 管理器主类，负责管理集合视图的数据和行为
+/// Main SKC manager class responsible for managing collection view data and behavior
 public class SKCManager {
     
+    /// 转换器结构体，用于在处理过程中转换数据
+    /// Converters structure for transforming data during processing
     public struct Converts {
+        /// 转换器类型定义
+        /// Converter type definition
         public typealias Convert<T> = (_ manager: SKCManager, _ item: T) -> T
+        
+        /// section 注入转换器数组
+        /// Array of section injection converters
         public var sectionInjection = [Convert<SKCSectionInjection>]()
     }
     
+    /// 配置结构体，定义管理器的行为配置
+    /// Configuration structure defining manager behavior settings
     public struct Configuration {
         /// 将 reloadSections 操作替换为 reloadData 操作
+        /// Replace reloadSections operations with reloadData operations
         public var replaceReloadWithReloadData = false
-        /// 将 insertSections 操作替换为 reloadData 操作
+        
+        /// 将 insertSections 操作替换为 reloadData 操作  
+        /// Replace insertSections operations with reloadData operations
         public var replaceInsertWithReloadData = true
+        
         /// 将 deleteSections 操作替换为 reloadData 操作
+        /// Replace deleteSections operations with reloadData operations
         public var replaceDeleteWithReloadData = false
     }
     
+    /// 静态配置实例
+    /// Static configuration instance
     public static var configuration = Configuration()
+    
+    /// 实例配置
+    /// Instance configuration
     public var configuration = SKCManager.configuration
+    
+    /// 转换器实例
+    /// Converters instance
     public var converts = Converts()
     public private(set) lazy var publishers = SKCManagerPublishers()
     public private(set) weak var sectionView: UICollectionView?

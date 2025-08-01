@@ -1,6 +1,6 @@
 //
-//  File.swift
-//
+//  SKKVCache.swift
+//  SectionKit
 //
 //  Created by linhey on 2023/4/25.
 //
@@ -8,20 +8,38 @@
 #if canImport(ObjectiveC)
 import ObjectiveC
 import Foundation
-// MARK: - Cache
+
+// MARK: - 键值缓存 / Key-Value Cache
+
+/// 高性能键值缓存类，支持过期时间和自动清理
+/// High-performance key-value cache class with expiration time and automatic cleanup support
 public final class SKKVCache<Key: Hashable, Value> {
     
+    /// 底层 NSCache 包装器
+    /// Underlying NSCache wrapper
     public let wrapped = NSCache<WrappedKey, Entry>()
+    
+    /// 日期提供器，用于计算过期时间
+    /// Date provider for calculating expiration time
     public var dateProvider: (() -> Date)?
+    
+    /// 键跟踪器，用于跟踪缓存中的键
+    /// Key tracker for tracking keys in cache
     public let keyTracker = KeyTracker()
     
+    /// 缓存中的项目数量
+    /// Number of items in cache
     public var count: Int { keyTracker.keys.count }
     
+    /// 缓存数量限制
+    /// Cache count limit
     public var countLimit: Int {
         set { wrapped.countLimit = newValue }
         get { wrapped.countLimit }
     }
     
+    /// 初始化缓存
+    /// Initialize cache
     public init(countLimit: Int? = nil,
                 dateProvider: (() -> Date)? = nil) {
         wrapped.delegate = keyTracker
@@ -31,6 +49,8 @@ public final class SKKVCache<Key: Hashable, Value> {
         }
     }
     
+    /// 插入值到缓存，可指定生存时间
+    /// Insert value into cache with optional lifetime
     public func insert(_ value: Value, forKey key: Key, lifeTime: TimeInterval? = nil) {
         let date: Date?
         if let lifeTime = lifeTime {
@@ -41,10 +61,14 @@ public final class SKKVCache<Key: Hashable, Value> {
         self.insert(Entry(key: key, value: value, expirationDate: date))
     }
     
+    /// 移除指定键的值
+    /// Remove value for specified key
     public func remove(_ key: Key) {
         self[key] = nil
     }
     
+    /// 移除所有缓存项
+    /// Remove all cache items
     public func removeAll() {
         keyTracker.keys.removeAll()
         wrapped.removeAllObjects()

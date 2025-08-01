@@ -1,6 +1,6 @@
 //
-//  STVideoPublished.swift
-//  CoolUp
+//  SKPublished.swift
+//  SectionKit
 //
 //  Created by linhey on 12/5/24.
 //
@@ -8,17 +8,28 @@
 import Combine
 import Foundation
 
+/// 发布者类型枚举
+/// Publisher type enumeration
 public enum SKPublishedKind {
+    /// 透传主题，不保存最后的值
+    /// Pass-through subject, doesn't retain last value
     case passThrough
+    
+    /// 当前值主题，保存最后的值
+    /// Current value subject, retains last value
     case currentValue
 }
 
 public extension Publisher {
     
+    /// 忽略输出类型，将输出转换为 Void
+    /// Ignore output type, convert output to Void
     func ignoreOutputType() -> any Publisher<Void, Failure> {
         self.map { _ in () }
     }
     
+    /// 分配值到弱引用对象的属性
+    /// Assign value to property of weakly referenced object
     func assign<Root: AnyObject>(
         onWeak object: Root,
         to keyPath: ReferenceWritableKeyPath<Root, Output>
@@ -33,10 +44,16 @@ public extension Publisher {
     
 }
     
-
+/// SK 发布值类，提供灵活的发布者功能
+/// SK published value class providing flexible publisher functionality
 public final class SKPublishedValue<Output>: Publisher, Sendable {
     
+    /// 失败类型，永不失败
+    /// Failure type, never fails
     public typealias Failure = Never
+    
+    /// 变换发布者的闭包类型
+    /// Transform publisher closure type
     public typealias TransformPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> AnyPublisher<Output, Failure>
     public typealias TransformAnyPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> any Publisher<Output, Failure>
     public typealias TransformOnValueChanged = (_ old: Output, _ new: Output) -> Void

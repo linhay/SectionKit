@@ -22,29 +22,43 @@
 
 import Foundation
 
+/// 弱引用盒子，用于持有对象的弱引用，支持动态成员查找
+/// Weak reference box for holding weak references to objects with dynamic member lookup support
 @dynamicMemberLookup
 public final class SKWeakBox<Value: AnyObject>: Equatable, Hashable {
    
+    /// 弱引用的值
+    /// Weakly referenced value
     public weak var value: Value?
     
+    /// 初始化弱引用盒子
+    /// Initialize weak reference box
     public init(_ value: Value?) {
         self.value = value
     }
     
+    /// 动态成员查找，支持可写键路径
+    /// Dynamic member lookup supporting writable key paths
     public subscript<T>(dynamicMember keyPath: WritableKeyPath<Value, T?>) -> T? {
         get { value?[keyPath: keyPath] }
         set { value?[keyPath: keyPath] = newValue }
     }
     
+    /// 动态成员查找，支持引用可写键路径
+    /// Dynamic member lookup supporting reference writable key paths
     public subscript<T>(dynamicMember keyPath: ReferenceWritableKeyPath<Value, T?>) -> T? {
         get { value?[keyPath: keyPath] }
         set { value?[keyPath: keyPath] = newValue }
     }
     
+    /// 相等性比较，基于对象标识
+    /// Equality comparison based on object identity
     public static func == (lhs: SKWeakBox<Value>, rhs: SKWeakBox<Value>) -> Bool {
         lhs === rhs
     }
     
+    /// 哈希函数，基于对象标识符
+    /// Hash function based on object identifier
     public func hash(into hasher: inout Hasher) {
         hasher.combine(ObjectIdentifier(self))
     }

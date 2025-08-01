@@ -25,17 +25,32 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-/// SupplementaryView regist type
+/// 补充视图注册类型枚举
+/// Supplementary view registration type enumeration
 ///
-/// - header: header
-/// - footer: footer
-/// - custom: custom
+/// - header: 头部视图 / Header view
+/// - footer: 底部视图 / Footer view  
+/// - cell: 单元格视图 / Cell view
+/// - custom: 自定义视图 / Custom view
 public enum SKSupplementaryKind: Equatable, Hashable, RawRepresentable {
+    /// 头部补充视图
+    /// Header supplementary view
     case header
+    
+    /// 底部补充视图
+    /// Footer supplementary view
     case footer
+    
+    /// 单元格视图
+    /// Cell view
     case cell
+    
+    /// 自定义补充视图
+    /// Custom supplementary view
     case custom(_ value: String)
     
+    /// 从原始值初始化
+    /// Initialize from raw value
     public init(rawValue: String) {
         switch rawValue {
         case UICollectionView.elementKindSectionHeader: self = .header
@@ -45,6 +60,8 @@ public enum SKSupplementaryKind: Equatable, Hashable, RawRepresentable {
         }
     }
     
+    /// 获取原始值
+    /// Get raw value
     public var rawValue: String {
         switch self {
         case .header: return UICollectionView.elementKindSectionHeader

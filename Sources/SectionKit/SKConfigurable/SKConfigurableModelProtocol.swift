@@ -22,16 +22,32 @@
 
 import Foundation
 
+/// 存在模型协议，要求类型具有关联的模型类型并支持使用模型初始化
+/// Existing model protocol requiring types to have associated model type and support initialization with model
 public protocol SKExistModelProtocol {
+    /// 关联的模型类型
+    /// Associated model type
     associatedtype Model
+    
+    /// 使用模型初始化
+    /// Initialize with model
     init(model: Model)
 }
 
+/// 可配置模型协议，要求类型具有关联的模型类型并支持配置
+/// Configurable model protocol requiring types to have associated model type and support configuration
 public protocol SKConfigurableModelProtocol {
+    /// 关联的模型类型
+    /// Associated model type
     associatedtype Model
+    
+    /// 使用模型配置实例
+    /// Configure instance with model
     func config(_ model: Model)
 }
 
 public extension SKConfigurableModelProtocol where Model == Void {
+    /// 为 Void 模型类型提供默认空实现
+    /// Provide default empty implementation for Void model type
     func config(_: Model) {}
 }

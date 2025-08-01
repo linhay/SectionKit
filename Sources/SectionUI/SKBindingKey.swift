@@ -1,6 +1,6 @@
 //
-//  File.swift
-//
+//  SKBindingKey.swift
+//  SectionUI
 //
 //  Created by linhey on 2024/3/17.
 //
@@ -8,16 +8,21 @@
 import Foundation
 import UIKit
 
+/// 使用闭包绑定值的类型
 /// A type that binds a value using a closure.
 public struct SKBindingKey<Value> {
     
+    /// 获取值的闭包
+    /// Closure for getting value
     private let closure: () -> Value?
     
+    /// 从闭包获取的包装值
     /// The wrapped value obtained from the closure.
     public var wrappedValue: Value? { closure() }
 
+    /// 使用闭包初始化新的绑定键
     /// Initializes a new binding key with a closure.
-    /// - Parameter closure: A closure that returns the value to be bound.
+    /// - Parameter closure: 返回要绑定值的闭包 / A closure that returns the value to be bound.
     /// - Example:
     /// ```
     /// let bindingKey = SKBindingKey<Int> { return 5 }
@@ -27,8 +32,9 @@ public struct SKBindingKey<Value> {
         self.closure = closure
     }
     
+    /// 使用特定值初始化新的绑定键
     /// Initializes a new binding key with a specific value.
-    /// - Parameter value: The value to be bound.
+    /// - Parameter value: 要绑定的值 / The value to be bound.
     /// - Example:
     /// ```
     /// let bindingKey = SKBindingKey(5)
@@ -40,9 +46,10 @@ public struct SKBindingKey<Value> {
 }
 
 public extension SKBindingKey {
+    /// 创建具有特定值的常量绑定键
     /// Creates a constant binding key with a specific value.
-    /// - Parameter value: The constant value to be bound.
-    /// - Returns: A binding key that always returns the specified value.
+    /// - Parameter value: 要绑定的常量值 / The constant value to be bound.
+    /// - Returns: 始终返回指定值的绑定键 / A binding key that always returns the specified value.
     /// - Example:
     /// ```
     /// let constantKey = SKBindingKey.constant(10)
@@ -55,14 +62,16 @@ public extension SKBindingKey {
 
 public extension SKBindingKey where Value == Int {
     
+    /// 表示所有 section 的常量绑定键
     /// A constant binding key representing all sections.
     static let all = SKBindingKey.constant(-1000000)
 
+    /// 从集合视图和键路径创建相对绑定键
     /// Creates a relative binding key from a collection view and a key path.
     /// - Parameters:
-    ///   - view: The collection view.
-    ///   - path: The key path to get the relative value from the range of sections.
-    /// - Returns: A binding key that gets the relative section index.
+    ///   - view: 集合视图 / The collection view.
+    ///   - task: 从 section 范围获取相对值的键路径 / The key path to get the relative value from the range of sections.
+    /// - Returns: 获取相对 section 索引的绑定键 / A binding key that gets the relative section index.
     /// - Example:
     /// ```
     /// let collectionView: UICollectionView? = ...
@@ -78,11 +87,11 @@ public extension SKBindingKey where Value == Int {
         })
     }
     
-    
+    /// 使用 section 操作协议和偏移量初始化新的绑定键
     /// Initializes a new binding key with a section action protocol and an offset.
     /// - Parameters:
-    ///   - section: The section action protocol.
-    ///   - offset: The offset to be added to the section index. Defaults to 0.
+    ///   - section: section 操作协议 / The section action protocol.
+    ///   - offset: 要添加到 section 索引的偏移量，默认为 0 / The offset to be added to the section index. Defaults to 0.
     /// - Example:
     /// ```
     /// let section: SKCSectionActionProtocol = ...
@@ -101,11 +110,12 @@ public extension SKBindingKey where Value == Int {
 
 extension SKBindingKey: Equatable where Value: Equatable {
     
+    /// 检查两个绑定键是否相等
     /// Checks if two binding keys are equal.
     /// - Parameters:
-    ///   - lhs: The left-hand side binding key.
-    ///   - rhs: The right-hand side binding key.
-    /// - Returns: `true` if the wrapped values are equal, otherwise `false`.
+    ///   - lhs: 左侧绑定键 / The left-hand side binding key.
+    ///   - rhs: 右侧绑定键 / The right-hand side binding key.
+    /// - Returns: 如果包装值相等则返回 `true`，否则返回 `false` / `true` if the wrapped values are equal, otherwise `false`.
     /// - Example:
     /// ```
     /// let key1 = SKBindingKey(5)
@@ -121,8 +131,9 @@ extension SKBindingKey: Equatable where Value: Equatable {
 
 extension SKBindingKey: Hashable where Value: Hashable {
     
+    /// 将包装值哈希到提供的哈希器中
     /// Hashes the wrapped value into the provided hasher.
-    /// - Parameter hasher: The hasher to use when combining the components of this instance.
+    /// - Parameter hasher: 组合此实例组件时使用的哈希器 / The hasher to use when combining the components of this instance.
     /// - Example:
     /// ```
     /// let key = SKBindingKey(5)

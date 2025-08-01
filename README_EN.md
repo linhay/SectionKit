@@ -18,24 +18,24 @@
 
 ---
 
-一个功能强大、数据驱动的 `UICollectionView` 框架，专为构建快速、灵活、高性能的列表而设计。
+A powerful, data-driven `UICollectionView` framework designed for building fast, flexible, and high-performance lists.
 
-## ✨ 主要特性
+## ✨ Key Features
 
-|           | 特性描述                                  |
-| --------- | ----------------------------------------- |
-| 🏗️ | **架构优秀** - 可复用的 Cell 和组件体系结构 |
-| 📱 | **多数据类型** - 轻松创建具有多个数据类型的复杂列表 |
-| ⚡ | **高性能** - 高性能的数据处理和视图复用机制 |
-| 🔧 | **功能丰富** - 大量插件和扩展帮助构建完美列表 |
-| 🦉 | **现代化** - 纯 Swift 编写，完整支持 SwiftUI |
-| 🎨 | **布局灵活** - 支持网格、瀑布流等多种布局方式 |
+|           | Feature Description                                  |
+| --------- | --------------------------------------------------- |
+| 🏗️ | **Great Architecture** - Reusable Cell and component architecture |
+| 📱 | **Multi-Data Types** - Easily create complex lists with multiple data types |
+| ⚡ | **High Performance** - High-performance data processing and view reuse mechanisms |
+| 🔧 | **Feature Rich** - Tons of plugins and extensions to help build perfect lists |
+| 🦉 | **Modern** - Written in pure Swift with full SwiftUI support |
+| 🎨 | **Flexible Layout** - Support for grids, waterfall flows, and various layout methods |
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 基础示例
+### Basic Example
 
-创建一个简单的列表只需几行代码：
+Creating a simple list requires just a few lines of code:
 
 ```swift
 import SectionUI
@@ -52,20 +52,20 @@ struct BasicListView: View {
         }
         .task {
             section.config(models: [
-                .init(text: "第一行", color: .red),
-                .init(text: "第二行", color: .green),
-                .init(text: "第三行", color: .blue)
+                .init(text: "First Row", color: .red),
+                .init(text: "Second Row", color: .green),
+                .init(text: "Third Row", color: .blue)
             ])
         }
     }
 }
 ```
 
-## 📖 详细示例
+## 📖 Detailed Examples
 
-### 1. [单一类型列表](./Example/01-Introduction.swift)
+### 1. [Single Type List](./Example/01-Introduction.swift)
 
-创建最简单的单一数据类型列表：
+Create the simplest single data type list:
 
 ```swift
 class IntroductionCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
@@ -83,27 +83,27 @@ class IntroductionCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurable
         contentView.backgroundColor = model.color
     }
     
-    // UI 组件设置...
+    // UI component setup...
 }
 
-// 使用示例
+// Usage example
 let section = IntroductionCell
     .wrapperToSingleTypeSection()
     .onCellAction(.selected) { context in
-        print("选中了: \(context.model.text)")
+        print("Selected: \(context.model.text)")
     }
 
 section.config(models: [
-    .init(text: "项目 1", color: .systemBlue),
-    .init(text: "项目 2", color: .systemGreen)
+    .init(text: "Item 1", color: .systemBlue),
+    .init(text: "Item 2", color: .systemGreen)
 ])
 ```
 
 ![01-Introduction](https://github.com/linhay/RepoImages/blob/main/SectionUI/01-Introduction.png?raw=true)
 
-### 2. [多组列表](./Example/02.01-MultipleSection.swift)
+### 2. [Multiple Sections](./Example/02.01-MultipleSection.swift)
 
-创建包含多个不同数据源的复杂列表：
+Create complex lists with multiple different data sources:
 
 ```swift
 struct MultipleSectionView: View {
@@ -118,10 +118,10 @@ struct MultipleSectionView: View {
             footerSection
         }
         .task {
-            // 配置不同的数据源
-            headerSection.config(models: [.init(title: "页面标题")])
+            // Configure different data sources
+            headerSection.config(models: [.init(title: "Page Title")])
             dataSection.config(models: generateDataItems())
-            footerSection.config(models: [.init(info: "页面底部信息")])
+            footerSection.config(models: [.init(info: "Page Footer Info")])
         }
     }
 }
@@ -129,9 +129,9 @@ struct MultipleSectionView: View {
 
 ![02-MultipleSection](https://github.com/linhay/RepoImages/blob/main/SectionUI/02-MultipleSection.png?raw=true)
 
-### 3. [Header 和 Footer](./Example/01.03-FooterAndHeader.swift)
+### 3. [Headers and Footers](./Example/01.03-FooterAndHeader.swift)
 
-为列表添加页眉和页脚：
+Add headers and footers to your lists:
 
 ```swift
 let section = DataCell
@@ -140,18 +140,18 @@ let section = DataCell
         section.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
     .supplementaryView(HeaderView.self, for: .header) { context in
-        context.view().config(.init(title: "列表标题"))
+        context.view().config(.init(title: "List Title"))
     }
     .supplementaryView(FooterView.self, for: .footer) { context in
-        context.view().config(.init(text: "共 \(context.section.models.count) 项"))
+        context.view().config(.init(text: "Total \(context.section.models.count) items"))
     }
 ```
 
 ![03-FooterAndHeader](https://github.com/linhay/RepoImages/blob/main/SectionUI/03-FooterAndHeader.png?raw=true)
 
-### 4. [数据加载和刷新](./Example/04-LoadAndPull.swift)
+### 4. [Data Loading and Refresh](./Example/04-LoadAndPull.swift)
 
-实现下拉刷新和上拉加载更多：
+Implement pull-to-refresh and load more:
 
 ```swift
 struct LoadMoreView: View {
@@ -163,7 +163,7 @@ struct LoadMoreView: View {
             let controller = SKCollectionViewController()
             controller.reloadSections(section)
             
-            // 下拉刷新
+            // Pull to refresh
             controller.sectionView.refreshControl = UIRefreshControl()
             controller.sectionView.refreshControl?.addTarget(
                 self, action: #selector(refreshData), 
@@ -175,7 +175,7 @@ struct LoadMoreView: View {
     }
     
     @objc func refreshData() {
-        // 重新加载数据
+        // Reload data
         Task {
             let newData = await fetchFreshData()
             await MainActor.run {
@@ -189,16 +189,16 @@ struct LoadMoreView: View {
 
 ![04-LoadAndPull](https://github.com/linhay/RepoImages/blob/main/SectionUI/04-LoadAndPull.png?raw=true)
 
-### 5. [Combine 数据绑定](./Example/05-SubscribeDataWithCombine.swift)
+### 5. [Combine Data Binding](./Example/05-SubscribeDataWithCombine.swift)
 
-使用 Combine 响应式编程：
+Use Combine for reactive programming:
 
 ```swift
 class DataViewModel: ObservableObject {
     @Published var items: [DataModel] = []
     
     func loadData() {
-        // 模拟网络请求
+        // Simulate network request
         Timer.publish(every: 2.0, on: .main, in: .common)
             .autoconnect()
             .map { _ in self.generateRandomData() }
@@ -224,9 +224,9 @@ struct CombineDataView: View {
 
 ![05-SubscribeDataWithCombine](https://github.com/linhay/RepoImages/blob/main/SectionUI/05-SubscribeDataWithCombine.png?raw=true)
 
-### 6. [网格布局](./Example/06-Grid.swift)
+### 6. [Grid Layout](./Example/06-Grid.swift)
 
-创建自适应网格布局：
+Create adaptive grid layouts:
 
 ```swift
 struct GridView: View {
@@ -254,9 +254,9 @@ struct GridView: View {
 
 ![06-Grid](https://github.com/linhay/RepoImages/blob/main/SectionUI/06-Grid.png?raw=true)
 
-### 7. [装饰视图](./Example/07-Decoration.swift)
+### 7. [Decoration Views](./Example/07-Decoration.swift)
 
-添加背景装饰和分割线：
+Add background decorations and separators:
 
 ```swift
 struct DecorationView: View {
@@ -285,9 +285,9 @@ class BackgroundDecorationView: UICollectionReusableView {
 
 ![07-Decoration](https://github.com/linhay/RepoImages/blob/main/SectionUI/07-Decoration.png?raw=true)
 
-### 8. [索引标题](./Example/08-IndexTitles.swift)
+### 8. [Index Titles](./Example/08-IndexTitles.swift)
 
-为长列表添加侧边索引：
+Add sidebar index for long lists:
 
 ```swift
 struct IndexTitlesView: View {
@@ -296,16 +296,16 @@ struct IndexTitlesView: View {
             ContactCell
                 .wrapperToSingleTypeSection(contacts)
                 .setSectionStyle { section in
-                    section.indexTitle = "联系人"
+                    section.indexTitle = "Contacts"
                 }
         }
     }
 }
 ```
 
-### 9. [分页视图](./Example/10-Page.swift)
+### 9. [Page View](./Example/10-Page.swift)
 
-创建类似 PageViewController 的分页效果：
+Create PageViewController-like paging effects:
 
 ```swift
 struct PageView: View {
@@ -320,7 +320,7 @@ struct PageView: View {
             controller.sectionView.isPagingEnabled = true
             controller.sectionView.bounces = false
             
-            // 监听滚动事件
+            // Monitor scroll events
             controller.manager.scrollObserver.add { handle in
                 handle.onChanged { scrollView in
                     let page = Int(scrollView.contentOffset.x / scrollView.bounds.width)
@@ -339,16 +339,16 @@ struct PageView: View {
 }
 ```
 
-### 10. [选择管理](./Documentation/SKSelection.md)
+### 10. [Selection Management](./Documentation/SKSelection.md)
 
-高级选择功能支持：
+Advanced selection functionality support:
 
 ```swift
 class SelectableCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     typealias Model = SKSelectionWrapper<DataModel>
     
     func config(_ model: Model) {
-        // 监听选中状态变化
+        // Listen to selection state changes
         model.selectedPublisher.sink { [weak self] isSelected in
             self?.updateAppearance(selected: isSelected)
         }.store(in: &cancellables)
@@ -359,28 +359,28 @@ class SelectableSection: SKCSingleTypeSection<SelectableCell>, SKSelectionSequen
     var selectableElements: [SelectableCell.Model] { models }
     
     override func item(selected row: Int) {
-        // 单选模式
+        // Single selection mode
         self.select(at: row, isUnique: true, needInvert: false)
     }
     
     func toggleMultiSelection(at row: Int) {
-        // 多选模式
+        // Multi-selection mode
         self.select(at: row, isUnique: false, needInvert: true)
     }
 }
 ```
 
-## 🛠️ 安装
+## 🛠️ Installation
 
 ### Swift Package Manager
 
-在 Xcode 中添加包依赖：
+Add package dependency in Xcode:
 
 ```
 https://github.com/linhay/SectionKit
 ```
 
-或在 `Package.swift` 中添加：
+Or add to your `Package.swift`:
 
 ```swift
 dependencies: [
@@ -390,13 +390,13 @@ dependencies: [
 
 ### CocoaPods
 
-在 `Podfile` 中添加：
+Add to your `Podfile`:
 
 ```ruby
 pod 'SectionUI', '~> 2.4.0'
 ```
 
-然后运行：
+Then run:
 
 ```bash
 pod install
@@ -404,64 +404,64 @@ pod install
 
 ### Carthage
 
-在 `Cartfile` 中添加：
+Add to your `Cartfile`:
 
 ```
 github "linhay/SectionKit" ~> 2.4.0
 ```
 
-## 📋 系统要求
+## 📋 Requirements
 
 - iOS 13.0+
 - macOS 11.0+
 - Swift 5.8+
 - Xcode 14.0+
 
-## 🏗️ 核心架构
+## 🏗️ Core Architecture
 
-### 协议设计
+### Protocol Design
 
-SectionKit 基于协议驱动的架构设计：
+SectionKit is based on protocol-driven architecture:
 
-- `SKLoadViewProtocol`: 定义视图的加载和生命周期
-- `SKConfigurableView`: 定义数据配置接口
-- `SKCSectionProtocol`: 定义 Section 的行为规范
+- `SKLoadViewProtocol`: Defines view loading and lifecycle
+- `SKConfigurableView`: Defines data configuration interface
+- `SKCSectionProtocol`: Defines Section behavior specifications
 
-### 数据流
+### Data Flow
 
 ```
-数据模型 → Section → Cell配置 → 视图渲染
-    ↑                              ↓
-用户交互 ← 事件回调 ←── 用户操作 ←──┘
+Data Model → Section → Cell Configuration → View Rendering
+    ↑                                            ↓
+User Interaction ← Event Callbacks ←── User Actions ←──┘
 ```
 
-## 🔌 扩展功能
+## 🔌 Extensions
 
-### 自定义布局
+### Custom Layout
 
 ```swift
 class WaterfallLayout: UICollectionViewFlowLayout {
-    // 瀑布流布局实现
+    // Waterfall layout implementation
 }
 
-// 应用自定义布局
+// Apply custom layout
 controller.sectionView.collectionViewLayout = WaterfallLayout()
 ```
 
-### 预加载优化
+### Preloading Optimization
 
 ```swift
 section.onCellAction(.willDisplay) { context in
     if context.row >= context.section.models.count - 3 {
-        // 提前加载更多数据
+        // Preload more data
         loadMoreData()
     }
 }
 ```
 
-## 🧪 测试支持
+## 🧪 Testing Support
 
-SectionKit 提供了完整的测试工具：
+SectionKit provides complete testing tools:
 
 ```swift
 import XCTest
@@ -477,26 +477,26 @@ class SectionKitTests: XCTestCase {
 }
 ```
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome!
 
-### 开发环境设置
+### Development Environment Setup
 
-1. Fork 本项目
-2. 创建特性分支: `git checkout -b feature/amazing-feature`
-3. 提交更改: `git commit -m 'Add amazing feature'`
-4. 推送分支: `git push origin feature/amazing-feature`
-5. 创建 Pull Request
+1. Fork this project
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push branch: `git push origin feature/amazing-feature`
+5. Create Pull Request
 
-## 📄 许可证
+## 📄 License
 
-本项目基于 [Apache License 2.0](./LICENSE) 许可证开源。
+This project is licensed under the [Apache License 2.0](./LICENSE).
 
-## 🙏 致谢
+## 🙏 Acknowledgments
 
-感谢所有为 SectionKit 贡献代码和建议的开发者们！
+Thanks to all developers who contributed code and suggestions to SectionKit!
 
 ---
 
-如果觉得 SectionKit 对你有帮助，请给个 ⭐️ 支持一下！
+If SectionKit helps you, please give it a ⭐️ to show your support!

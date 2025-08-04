@@ -9,10 +9,11 @@
 import UIKit
 import Combine
 
-public class SKCSectionInjection {
+public class SKCSectionViewProvider {
+    
     public typealias ActionTask    = (_ injection: SKCSectionInjection,  _ action: Action) -> Void
     public typealias ActionConvert = (_ action: Action) -> Action
-
+    
     public struct Configuration {
         /// 转换类型
         /// 将 reloadSection 操作替换为 reloadData 操作:
@@ -64,66 +65,71 @@ public class SKCSectionInjection {
         }
     }
     
-    class SectionViewProvider {
-        
-        weak var sectionView: UICollectionView?
-        weak var manager: SKCManager?
-
-        init(_ sectionView: UICollectionView?, manager: SKCManager?) {
-            self.sectionView = sectionView
-            self.manager = manager
-        }
+    weak var sectionView: UICollectionView?
+    weak var manager: SKCManager?
+    private(set) var events: [ActionKind: ActionTask]
+    
+    public init(_ sectionView: UICollectionView?, manager: SKCManager?) {
+        self.sectionView = sectionView
+        self.manager = manager
+        self.events = [
+            .reloadData: { (injection, action) in
+                injection.sectionView?.reloadData()
+            },
+            .reload: { (injection, action) in
+                injection.sectionView?.reloadSections(IndexSet(integer: injection.index))
+            },
+            .delete: { (injection, action) in
+                injection.sectionView?.deleteSections(IndexSet(integer: injection.index))
+            },
+            .reloadItems: { injection, action in
+                switch action {
+                case .reloadItems(let idx):
+                    injection.sectionView?.reloadItems(at: injection.indexPath(from: idx))
+                default:
+                    break
+                }
+            },
+            .deleteItems: { injection, action in
+                switch action {
+                case .deleteItems(let idx):
+                    injection.sectionView?.deleteItems(at: injection.indexPath(from: idx))
+                default:
+                    break
+                }
+            },
+            .insertItems: { injection, action in
+                switch action {
+                case .insertItems(let idx):
+                    injection.sectionView?.insertItems(at: injection.indexPath(from: idx))
+                default:
+                    break
+                }
+            }
+            ]
     }
     
-    public static var configuration = Configuration()
+    @discardableResult
+    func add(kind: ActionKind, event: @escaping ActionTask) -> Self {
+        self.events[kind] = event
+        return self
+    }
+ }
+
+
+public class SKCSectionInjection {
+
+    public static var configuration = SKCSectionViewProvider.Configuration()
     public var configuration = SKCSectionInjection.configuration
     public internal(set) var index: Int
     public var sectionView: UICollectionView? { sectionViewProvider.sectionView }
     public var manager: SKCManager? { sectionViewProvider.manager }
 
-    var sectionViewProvider: SectionViewProvider
-    private var events: [ActionKind: ActionTask] = [:]
+    var sectionViewProvider: SKCSectionViewProvider
     
-    init(index: Int, sectionView: SectionViewProvider) {
+    public init(index: Int, sectionView: SKCSectionViewProvider) {
         self.sectionViewProvider = sectionView
         self.index = index
-        setupActions()
-    }
-    
-    func setupActions() {
-        add(kind: .reloadData, event: { (injection, action) in
-            injection.sectionView?.reloadData()
-        })
-        add(kind: .reload, event: { (injection, action) in
-            injection.sectionView?.reloadSections(IndexSet(integer: injection.index))
-        })
-        add(kind: .delete, event: { (injection, action) in
-            injection.sectionView?.deleteSections(IndexSet(integer: injection.index))
-        })
-        add(kind: .reloadItems, event: { injection, action in
-            switch action {
-            case .reloadItems(let idx):
-                injection.sectionView?.reloadItems(at: injection.indexPath(from: idx))
-            default:
-                break
-            }
-        })
-        add(kind: .deleteItems) { injection, action in
-            switch action {
-            case .deleteItems(let idx):
-                injection.sectionView?.deleteItems(at: injection.indexPath(from: idx))
-            default:
-                break
-            }
-        }
-        add(kind: .insertItems) { injection, action in
-            switch action {
-            case .insertItems(let idx):
-                injection.sectionView?.insertItems(at: injection.indexPath(from: idx))
-            default:
-                break
-            }
-        }
     }
     
 }
@@ -134,11 +140,11 @@ public extension SKCSectionInjection {
         sectionView?.performBatchUpdates(updates, completion: completion)
     }
     
-    func task(_ action: Action) {
+    func task(_ action: SKCSectionViewProvider.Action) {
         let convert = configuration.converts.reduce(into: action) { result, convert in
             result = convert(result)
         }
-        events[convert.kind]?(self, convert)
+        sectionViewProvider.events[convert.kind]?(self, convert)
     }
     
     func delete() {
@@ -166,12 +172,6 @@ public extension SKCSectionInjection {
             return
         }
         task(.reloadItems(rows))
-    }
-    
-    @discardableResult
-    func add(kind: ActionKind, event: @escaping ActionTask) -> Self {
-        self.events[kind] = event
-        return self
     }
     
     /**

@@ -67,6 +67,8 @@ public class SKCManager {
     }
     
     public struct Configuration {
+        /// 忽略完全刷新时的 display 事件发送
+        public var skipDisplayEventWhenFullyRefreshed = true
         /// 将 reloadSections 操作替换为 reloadData 操作
         public var replaceReloadWithReloadData = false
         /// 将 insertSections 操作替换为 reloadData 操作
@@ -94,7 +96,7 @@ public class SKCManager {
     public lazy var dataSource = SKCDataSource(dataSource: publishers)
     public lazy var prefetching = SKCDataSourcePrefetching(dataSource: publishers)
     
-    private lazy var context = SKCSectionInjection.SectionViewProvider(sectionView, manager: self)
+    private lazy var context = SKCSectionViewProvider(sectionView, manager: self)
     
     var afterLayoutSubviewsRequests: [SKRequestID] = []
     private var cancellables = Set<AnyCancellable>()
@@ -281,13 +283,21 @@ public extension SKCManager {
         context.sectionView = nil
         context = .init(sectionView, manager: self)
         self.endDisplaySections.removeAll()
-        self.sections
-            .enumerated()
-            .forEach({ item in
-                self.endDisplaySections[item.offset] = item.element
-            })
-        self.publishers.sectionsSubject.send(bind(sections: sections, start: 0))
-        security(check: sections)
+        if !configuration.skipDisplayEventWhenFullyRefreshed {
+            SKPerformance.shared.duration {
+                self.sections
+                    .enumerated()
+                    .forEach({ item in
+                        self.endDisplaySections[item.offset] = item.element
+                    })
+            }
+        }
+        SKPerformance.shared.duration {
+            self.publishers.sectionsSubject.send(bind(sections: sections, start: 0))
+        }
+        SKPerformance.shared.duration {
+            security(check: sections)
+        }
         sectionView.reloadData()
     }
     

@@ -9,11 +9,17 @@ public final class SKPageManager: NSObject {
     }
     
     public struct Child {
+        
         public let maker: (_ context: ChildContext) -> UIViewController
+        
+        public static func withController(_ maker: @escaping (_ context: ChildContext) -> UIViewController) -> Child {
+            self.init(maker: maker)
+        }
         
         public init(maker: @escaping (_ context: ChildContext) -> UIViewController) {
             self.maker = maker
         }
+        
         public init(maker: @escaping (_ context: ChildContext) -> UIView) {
             self.init { context in
                 SKPageViewBoxController(context: maker(context))
@@ -124,7 +130,7 @@ open class SKPageViewController: UIViewController {
     public private(set) var manager = SKPageManager()
     public var cancellables = Set<AnyCancellable>()
     
-    private lazy var pageController = manager.makePageController()
+    public private(set) lazy var pageController = manager.makePageController()
     private var reloadSubject = PassthroughSubject<Void, Never>()
     private var builtInCancellables = Set<AnyCancellable>()
     

@@ -54,9 +54,9 @@ public extension SKConfigurableAutoAdaptiveView {
 public class SKConfigurableAdaptiveAutoCache {
     
     public static let shared = SKConfigurableAdaptiveAutoCache()
-    var cache = [ObjectIdentifier: any SKAdaptiveProtocol]()
+    public var cache = [ObjectIdentifier: any SKAdaptiveProtocol]()
     
-    subscript<T>(_ type: T.Type) -> (any SKAdaptiveProtocol)? {
+    public subscript<T>(_ type: T.Type) -> (any SKAdaptiveProtocol)? {
         get { cache[ObjectIdentifier(type)] }
         set { cache[ObjectIdentifier(type)] = newValue }
     }

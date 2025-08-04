@@ -53,6 +53,17 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
     }
     
+    public struct Feature {
+        /// 忽略 apply 时记录删除数据, (大数据时可以提高性能)
+        public var skipDisplayEventWhenFullyRefreshed: Bool = false
+        /// 跳过计算, 直接赋值 (大数据时可以提高性能)
+        fileprivate var highestItemSize: CGSize?
+        /// 跳过计算, 直接赋值 (大数据时可以提高性能)
+        fileprivate var highestHeaderSize: CGSize?
+        /// 跳过计算, 直接赋值 (大数据时可以提高性能)
+        fileprivate var highestFooterSize: CGSize?
+    }
+        
     public struct ContextMenuContext: SKCSingleTypeCellActionContextProtocol {
         
         public let section: SKCSingleTypeSection<Cell>
@@ -182,7 +193,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     public var environmentObject: [ObjectIdentifier: Any] = [:]
-    
+    public var feature = Feature()
     /// 无数据时隐藏 footerView
     open lazy var hiddenFooterWhenNoItem = true
     /// 无数据时隐藏 headerView
@@ -220,8 +231,11 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
     
     open func apply(_ models: [Model]) {
-        self.models.enumerated().forEach { item in
-            deletedModels[item.offset] = item.element
+        if !feature.skipDisplayEventWhenFullyRefreshed {
+            /// 大数据时会卡, 但是记录会保证 displayed 的正确性
+            self.models.enumerated().forEach { item in
+                deletedModels[item.offset] = item.element
+            }
         }
         reload(models)
     }
@@ -257,7 +271,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         guard models.indices.contains(row) else {
             return .zero
         }
-        
+        if let size = feature.highestItemSize {
+            return size
+        }
         let limitSize = safeSizeProviders[.cell]?.size ?? safeSizeProvider.size
         let model = models[row]
         
@@ -295,6 +311,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         guard let supplementary = supplementaries[.header] else {
             return .zero
         }
+        if let size = feature.highestHeaderSize {
+            return size
+        }
         return supplementary.size(safeSizeProviders[.header]?.size ?? safeSizeProvider.size)
     }
     
@@ -311,6 +330,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         }
         guard let supplementary = supplementaries[.footer] else {
             return .zero
+        }
+        if let size = feature.highestFooterSize {
+            return size
         }
         return supplementary.size(safeSizeProviders[.footer]?.size ?? safeSizeProvider.size)
     }

@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct ExampleApp: App {
+    @State var store = GalleryReducer()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            GalleryView(store: store)
         }
     }
 }

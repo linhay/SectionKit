@@ -10,7 +10,10 @@ import SectionUI
 
 class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     
-    struct Model: Equatable {
+    class Model: Equatable {
+        static func == (lhs: ColorCell.Model, rhs: ColorCell.Model) -> Bool {
+            lhs === rhs
+        }
                 
         let text: String
         let color: UIColor?
@@ -20,6 +23,8 @@ class ColorCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
             self.color = color
             self.alignment = alignment
         }
+        
+        deinit { print("[deinit]", Self.self) }
         
     }
     

@@ -113,7 +113,6 @@ public struct SKCLayoutPlugins {
         var verticalAlignments  = [VerticalAlignmentPayload]()
         var horizontalAlignments = [HorizontalAlignmentPayload]()
         var decorations = [any SKCLayoutDecorationPlugin]()
-        var permanentAttributes = [SKCLayoutPlugins.FetchAttributes]()
         var layoutAttributesForElements = [SKCPluginLayoutAttributesForElementsForward]()
         /// 优先级冲突去重
         for mode in modes {

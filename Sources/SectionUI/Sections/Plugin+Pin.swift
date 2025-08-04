@@ -180,6 +180,8 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
                     } else {
                         maxZIndex = max(attribute.zIndex, maxZIndex)
                     }
+                @unknown default:
+                    break
                 }
             }
             
@@ -203,7 +205,7 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
                             context.attributes.append(attribute)
                         }
                     }
-                case .custom(let value):
+                case .custom:
                     break
                 }
             }

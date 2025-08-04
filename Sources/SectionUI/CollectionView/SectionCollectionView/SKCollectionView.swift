@@ -85,6 +85,7 @@ public extension SKCollectionView {
             }
         }
     }
+    
 }
 
 // MARK: - PluginModes

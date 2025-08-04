@@ -129,7 +129,6 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
     func applyMode(for attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
         guard let modes = fetchPlugins?().modes, !modes.isEmpty else { return attributes }
         var attributes = attributes
-        var attributesSet = Set(attributes)
         var fixSupplementaryViewInset: SKCLayoutPlugins.FixSupplementaryViewInset?
         
         for mode in modes {

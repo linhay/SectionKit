@@ -34,77 +34,88 @@ public extension Publisher {
 }
     
 
-public final class SKPublishedValue<Output>: Publisher, Sendable {
+public struct SKPublishedTransform<Output, Failure: Error> {
     
-    public typealias Failure = Never
     public typealias TransformPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> AnyPublisher<Output, Failure>
     public typealias TransformAnyPublisher = (_ publisher: AnyPublisher<Output, Failure>) -> any Publisher<Output, Failure>
     public typealias TransformOnValueChanged = (_ old: Output, _ new: Output) -> Void
     public typealias TransformOnChanged = (_ value: Output) -> Void
+            
+    public let publisher: TransformPublisher?
+    public let onChanged: TransformOnValueChanged?
 
-    public struct Transform {
-                
-        public let publisher: TransformPublisher?
-        public let onChanged: TransformOnValueChanged?
-
-        public init(publisher publisherTransform: TransformPublisher? = nil,
-                    onChanged: TransformOnValueChanged? = nil) {
-            self.publisher = publisherTransform
-            self.onChanged = onChanged
-        }
-        
-        public static func mapPublisher(_ transform: @escaping TransformAnyPublisher) -> Transform {
-            .init { publisher in
-                transform(publisher).eraseToAnyPublisher()
-            }
-        }
-        
-        public static func print(prefix: String = "") -> Transform {
-            .init(onChanged: { old, new in
-                if prefix.isEmpty {
-                    Swift.print("[SKPublished]", old, "=>", new)
-                } else {
-                    Swift.print("[SKPublished]", prefix, old, "=>", new)
-                }
-            })
-        }
-        
-        public static func onChanged(_ transhform: @escaping TransformOnChanged) -> Transform {
-            .init(onChanged: { old, new in
-                transhform(new)
-            })
-        }
-        
-        public static func onChanged(_ transhform: @escaping TransformOnChanged) -> Transform where Output: Equatable {
-            .init(onChanged: { old, new in
-                guard old != new else {
-                    return
-                }
-                transhform(new)
-            })
-        }
-
-        public static func receiveOnMainQueue() -> Transform {
-            .mapPublisher { $0.receive(on: DispatchQueue.main) }
-        }
-        
-        public static func removeDuplicates() -> Transform where Output: Equatable {
-            .mapPublisher { $0.removeDuplicates() }
-        }
-        
-        public static func dropFirst(count: Int = 1) -> Transform {
-            .mapPublisher { $0.dropFirst(count) }
-        }
-        
-        public static func drop(while predicate: @escaping (Output) -> Bool) -> Transform {
-            .mapPublisher { $0.drop(while: predicate) }
-        }
-        
-        public static func filter(_ isIncluded: @escaping (Output) -> Bool) -> Transform {
-            .mapPublisher { $0.filter(isIncluded) }
-        }
-        
+    public init(publisher publisherTransform: TransformPublisher? = nil,
+                onChanged: TransformOnValueChanged? = nil) {
+        self.publisher = publisherTransform
+        self.onChanged = onChanged
     }
+    
+    public static func mapPublisher(_ transform: @escaping TransformAnyPublisher) -> SKPublishedTransform {
+        .init { publisher in
+            transform(publisher).eraseToAnyPublisher()
+        }
+    }
+    
+    public static func print(prefix: String = "") -> SKPublishedTransform {
+        .init(onChanged: { old, new in
+            if prefix.isEmpty {
+                Swift.print("[SKPublished]", old, "=>", new)
+            } else {
+                Swift.print("[SKPublished]", prefix, old, "=>", new)
+            }
+        })
+    }
+    
+    public static func onChanged(_ transhform: @escaping TransformOnChanged) -> SKPublishedTransform {
+        .init(onChanged: { old, new in
+            transhform(new)
+        })
+    }
+    
+    public static func onChanged(_ transhform: @escaping TransformOnChanged) -> SKPublishedTransform where Output: Equatable {
+        .init(onChanged: { old, new in
+            guard old != new else {
+                return
+            }
+            transhform(new)
+        })
+    }
+
+    public static func receiveOnMainQueue() -> SKPublishedTransform {
+        .mapPublisher { $0.receive(on: DispatchQueue.main) }
+    }
+    
+    public static func removeDuplicates(by predicate: @escaping (Output, Output) -> Bool) -> SKPublishedTransform {
+        .mapPublisher { $0.removeDuplicates(by: predicate) }
+    }
+    
+    public static func removeDuplicates<ID: Equatable>(by keyPath: KeyPath<Output, ID>) -> SKPublishedTransform {
+        removeDuplicates { $0[keyPath: keyPath] == $1[keyPath: keyPath] }
+    }
+    
+    public static func removeDuplicates() -> SKPublishedTransform where Output: Equatable {
+        .mapPublisher { $0.removeDuplicates() }
+    }
+    
+    public static func dropFirst(count: Int = 1) -> SKPublishedTransform {
+        .mapPublisher { $0.dropFirst(count) }
+    }
+    
+    public static func drop(while predicate: @escaping (Output) -> Bool) -> SKPublishedTransform {
+        .mapPublisher { $0.drop(while: predicate) }
+    }
+    
+    public static func filter(_ isIncluded: @escaping (Output) -> Bool) -> SKPublishedTransform {
+        .mapPublisher { $0.filter(isIncluded) }
+    }
+    
+}
+
+
+public final class SKPublishedValue<Output>: Publisher, Sendable {
+    
+    public typealias Failure = Never
+    public typealias Transform = SKPublishedTransform<Output, Never>
     
     public var value: Output {
         didSet {
@@ -201,7 +212,7 @@ public extension SKPublishedValue {
 
     public init(wrappedValue: Value,
                 kind: SKPublishedKind = .currentValue,
-                transform: [SKPublishedValue<Value>.Transform] = []) {
+                transform: [SKPublishedTransform<Value, Never>] = []) {
         self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transform: transform)
     }
     
@@ -212,7 +223,7 @@ public extension SKPublishedValue {
     
     public init(wrappedValue: Value,
                 kind: SKPublishedKind = .currentValue,
-                transform: SKPublishedValue<Value>.Transform) {
+                transform: SKPublishedTransform<Value, Never>) {
         self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transform: [transform])
     }
     
@@ -225,26 +236,26 @@ public extension SKPublishedValue {
     @available(*, deprecated)
     public init(wrappedValue: Value,
                 kind: SKPublishedKind = .currentValue,
-                transhforms: [SKPublishedValue<Value>.Transform]) {
+                transhforms: [SKPublishedTransform<Value, Never>]) {
         self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transform: transhforms)
     }
     
     @available(*, deprecated)
     public init<V>(kind: SKPublishedKind = .currentValue,
-                   transhforms: [SKPublishedValue<Value>.Transform]) where Value == Optional<V> {
+                   transhforms: [SKPublishedTransform<Value, Never>]) where Value == Optional<V> {
         self.projectedValue = .init(wrappedValue: nil, kind: kind, transform: transhforms)
     }
     
     @available(*, deprecated)
     public init(wrappedValue: Value,
                 kind: SKPublishedKind = .currentValue,
-                transhforms: SKPublishedValue<Value>.Transform) {
+                transhforms: SKPublishedTransform<Value, Never>) {
         self.projectedValue = .init(wrappedValue: wrappedValue, kind: kind, transform: [transhforms])
     }
     
     @available(*, deprecated)
     public init<V>(kind: SKPublishedKind = .currentValue,
-                   transhforms: SKPublishedValue<Value>.Transform) where Value == Optional<V> {
+                   transhforms: SKPublishedTransform<Value, Never>) where Value == Optional<V> {
         self.projectedValue = .init(wrappedValue: nil, kind: kind, transform: [transhforms])
     }
     

@@ -303,6 +303,8 @@ public extension SKCSectionActionProtocol {
             switch direction {
             case .horizontal:
                 return .left
+            case .vertical:
+                return .top
             @unknown default:
                 return .top
             }

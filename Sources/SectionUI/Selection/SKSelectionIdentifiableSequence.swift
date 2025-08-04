@@ -74,6 +74,7 @@ public extension SKSelectionIdentifiableSequence {
         store.removeAll()
         cancelables.removeAll()
         update(items, by: idPath)
+        observer.send(self)
     }
     
     func update(_ element: Element, by id: ID) {

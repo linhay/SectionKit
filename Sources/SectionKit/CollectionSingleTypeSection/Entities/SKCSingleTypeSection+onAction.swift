@@ -19,8 +19,10 @@ public extension SKCSingleTypeSection {
     /// - Parameter item: 回调
     /// - Returns: self
     @discardableResult
-    func setSectionStyle(_ item: @escaping SectionStyleBlock) -> Self {
-        item(self)
+    func setSectionStyle(_ item: SectionStyleBlock?) -> Self {
+        if let item = item {
+            item(self)
+        }
         return self
     }
     

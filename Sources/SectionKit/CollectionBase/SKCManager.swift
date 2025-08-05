@@ -284,20 +284,14 @@ public extension SKCManager {
         context = .init(sectionView, manager: self)
         self.endDisplaySections.removeAll()
         if !configuration.skipDisplayEventWhenFullyRefreshed {
-            SKPerformance.shared.duration {
-                self.sections
-                    .enumerated()
-                    .forEach({ item in
-                        self.endDisplaySections[item.offset] = item.element
-                    })
-            }
+            self.sections
+                .enumerated()
+                .forEach({ item in
+                    self.endDisplaySections[item.offset] = item.element
+                })
         }
-        SKPerformance.shared.duration {
-            self.publishers.sectionsSubject.send(bind(sections: sections, start: 0))
-        }
-        SKPerformance.shared.duration {
-            security(check: sections)
-        }
+        self.publishers.sectionsSubject.send(bind(sections: sections, start: 0))
+        security(check: sections)
         sectionView.reloadData()
     }
     

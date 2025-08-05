@@ -65,6 +65,8 @@ public extension SKPerformance {
 #if DEBUG
         let prefix = "\(file):\(function):\(line)"
         return try duration(unit: 1e-9, prefix, closure)
+#else
+        return try closure()
 #endif
     }
     
@@ -78,6 +80,8 @@ public extension SKPerformance {
 #if DEBUG
         let prefix = "\(file):\(function):\(line)"
         return try await duration(unit: 1e-9, prefix, closure)
+#else
+        return try await closure()
 #endif
     }
     
@@ -97,7 +101,6 @@ public extension SKPerformance {
         let t0 = mach_absolute_time()
 #endif
         let value = try closure()
-        
 #if DEBUG
         // 获取结束时间
         let t1 = mach_absolute_time()

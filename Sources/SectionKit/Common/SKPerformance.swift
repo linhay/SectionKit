@@ -160,32 +160,33 @@ public extension SKPerformance {
 
 public extension SKPerformance {
     
-    func printRecords() async {
-        struct Result {
-            let key: String
-            let count: Int
-            let total: TimeInterval
-            var average: TimeInterval {
-                return count > 0 ? total / Double(count) : 0
-            }
+    struct PrintResult {
+        public let key: String
+        public let count: Int
+        public let total: TimeInterval
+        public var average: TimeInterval {
+            return count > 0 ? total / Double(count) : 0
         }
+    }
+    
+    func printRecords(sort: (_ lhs: PrintResult, _ rhs: PrintResult) -> Bool = { $0.average > $1.average }) async {
         
-        var allResults: [Result] = []
+        var allResults: [PrintResult] = []
         
         // 同步记录
         for (key, record) in records {
-            allResults.append(Result(key: key, count: record.count, total: record.total))
+            allResults.append(PrintResult(key: key, count: record.count, total: record.total))
         }
         
         // 异步记录
         for (key, record) in asyncRecords {
             let count = await record.count
             let total = await record.total
-            allResults.append(Result(key: key, count: count, total: total))
+            allResults.append(PrintResult(key: key, count: count, total: total))
         }
         
         // 排序（可选）
-        allResults.sort { $0.key < $1.key }
+        allResults.sorted(by: sort)
         let length = allResults.map { $0.key.count }.max() ?? 0
         let padding = max(min(length, 120), 5)
         let paddingStr = String(repeating: "─", count: padding)

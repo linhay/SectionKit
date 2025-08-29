@@ -30,6 +30,7 @@ open class SKCollectionView: UICollectionView, SKCRequestViewProtocol {
     public var requestPublishers: SKRequestPublishers = .init()
     public private(set) lazy var manager = SKCManager(sectionView: self)
     
+    public var collectionViewFlowLayout: UICollectionViewFlowLayout? { collectionViewLayout as? UICollectionViewFlowLayout }
     private var pluginsModes: [SKCLayoutPlugins.Mode] = []
     private var registeredCellIdentifiers: [String: AnyClass] = [:]
     

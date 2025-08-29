@@ -31,8 +31,9 @@ public protocol SKAdaptiveProtocol {
 }
 
 extension SKAdaptiveProtocol {
-    
-    func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+
+    @inline(__always)
+    private func _preferredSize(limit size: CGSize, model: Model?) -> CGSize {
         guard let model = model else { return .zero }
         var size = size
         config(view, size, model)
@@ -56,8 +57,18 @@ extension SKAdaptiveProtocol {
         if result.width == 0 || result.height == 0 {
             return .zero
         }
-        
         return result
+    }
+    
+    func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        guard let model = model else { return .zero }
+        #if DEBUG
+        return SKPerformance.shared.duration("[SKAdaptive] \(AdaptiveView.self)") {
+            _preferredSize(limit: size, model: model)
+        }
+        #else
+        return _preferredSize(limit: size, model: model)
+        #endif
     }
     
 }

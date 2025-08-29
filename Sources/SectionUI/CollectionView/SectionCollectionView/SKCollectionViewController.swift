@@ -64,7 +64,6 @@ open class SKCollectionViewController: UIViewController {
     public var manager: SKCManager { sectionView.manager }
     public let events: Events = .init()
     public let layoutConstraint: LayoutConstraints = .init()
-    
     public convenience init() {
         self.init(nibName: nil, bundle: nil)
     }

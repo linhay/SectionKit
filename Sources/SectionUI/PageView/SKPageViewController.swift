@@ -128,9 +128,9 @@ extension SKPageManager: UIPageViewControllerDataSource, UIPageViewControllerDel
 open class SKPageViewController: UIViewController {
     
     public private(set) var manager = SKPageManager()
+    public private(set) lazy var pageController = manager.makePageController()
     public var cancellables = Set<AnyCancellable>()
     
-    public private(set) lazy var pageController = manager.makePageController()
     private var reloadSubject = PassthroughSubject<Void, Never>()
     private var builtInCancellables = Set<AnyCancellable>()
     
@@ -153,20 +153,16 @@ open class SKPageViewController: UIViewController {
                     renderUI()
                 }
             }.store(in: &builtInCancellables)
-        manager.$scrollDirection.bind { [weak self] _ in
-            guard let self = self else { return }
-            reloadSubject.send(())
-        }.store(in: &builtInCancellables)
-        
-        manager.$spacing.bind { [weak self] _ in
-            guard let self = self else { return }
-            reloadSubject.send(())
-        }.store(in: &builtInCancellables)
-        
-        manager.$childs.bind { [weak self] _ in
-            guard let self = self else { return }
-            reloadSubject.send(())
-        }.store(in: &builtInCancellables)
+       
+       Publishers.MergeMany([manager.$scrollDirection.ignoreOutputType().eraseToAnyPublisher(),
+                             manager.$spacing.ignoreOutputType().eraseToAnyPublisher(),
+                             manager.$childs.ignoreOutputType().eraseToAnyPublisher()])
+       .debounce(for: .milliseconds(60), scheduler: RunLoop.main)
+       .sink { [weak self] _ in
+           guard let self = self else { return }
+           reloadSubject.send()
+       }
+       .store(in: &builtInCancellables)
     }
     
     open func renderUI() {

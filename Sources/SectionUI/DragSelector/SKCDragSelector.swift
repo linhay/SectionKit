@@ -79,7 +79,7 @@ public class SKCDragSelector: NSObject {
     // MARK: - Debug Helpers
     private func debugPrint(_ message: String) {
         #if DEBUG
-        print(message)
+        print("[skc-drag]", message)
         #endif
     }
 

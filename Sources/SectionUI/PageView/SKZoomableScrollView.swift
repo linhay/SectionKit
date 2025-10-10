@@ -11,8 +11,11 @@ import SectionKit
 import SwiftUI
 
 public class SKZoomableContext {
-    @SKPublished(transform: [.receiveOnMainQueue()]) public var size: CGSize = .zero
-    @SKPublished(transform: [.receiveOnMainQueue()]) public var zoomScale: CGFloat = 1
+    @Published public var size: CGSize = .zero
+    @Published public var zoomScale: CGFloat = 1
+    @Published public var doubleTapAction: ((_ gesture: UITapGestureRecognizer) -> Void)?
+    @Published public var longPressAction: ((_ gesture: UILongPressGestureRecognizer) -> Void)?
+    @Published public var singleTapAction: ((_ gesture: UITapGestureRecognizer) -> Void)?
     public init() {}
 }
 
@@ -54,11 +57,10 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
     }
     
     private var scrollDirection: Axis = .horizontal
-    private var contentView: UIView = PlaceholderContentView()
+    public private(set) var contentView: UIView = PlaceholderContentView()
     private var context: SKZoomableContext = .init()
     private var cancellables = Set<AnyCancellable>()
-    
-   public private(set) lazy var scrollView: UIScrollView = {
+    public private(set) lazy var scrollView: UIScrollView = {
         let view = UIScrollView()
         view.delegate = self
         view.maximumZoomScale = maximumZoomScale
@@ -72,6 +74,12 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         }
         return view
     }()
+
+    public private(set) lazy var longPressGesture: UILongPressGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(longPressAction(_:)))
+        gesture.minimumPressDuration = 0.5
+        return gesture
+    }()
     
     public private(set) lazy var doubleTapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
@@ -79,11 +87,18 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         return gesture
     }()
     
-    var minimumZoomScale: CGFloat = 1 {
+    public private(set) lazy var singleTapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap(_:)))
+        gesture.numberOfTapsRequired = 1
+        gesture.require(toFail: doubleTapGesture)
+        return gesture
+    }()
+    
+    public var minimumZoomScale: CGFloat = 1 {
         didSet { scrollView.minimumZoomScale = minimumZoomScale }
     }
     
-    var maximumZoomScale: CGFloat = 5 {
+    public var maximumZoomScale: CGFloat = 5 {
         didSet { scrollView.maximumZoomScale = maximumZoomScale }
     }
     
@@ -100,6 +115,8 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
     private func setupViews() {
         addSubview(scrollView)
         addGestureRecognizer(doubleTapGesture)
+        addGestureRecognizer(longPressGesture)
+        addGestureRecognizer(singleTapGesture)
     }
     
     /// 配置要缩放的内容视图
@@ -109,6 +126,16 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         content.removeFromSuperview()
         scrollView.addSubview(content)
         
+        context.$singleTapAction.sink { [weak self] block in
+            guard let self = self else { return }
+            singleTapGesture.isEnabled = block != nil
+        }.store(in: &cancellables)
+        
+        context.$longPressAction.sink { [weak self] block in
+            guard let self = self else { return }
+            longPressGesture.isEnabled = block != nil
+        }.store(in: &cancellables)
+        
         context.$size.removeDuplicates().sink { [weak self] size in
             guard let self = self else { return }
             layoutSubviews()
@@ -116,6 +143,7 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         
         contentView = content
         self.context = context
+        layoutSubviews()
     }
     
     open override func layoutSubviews() {
@@ -126,6 +154,7 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         let origin = computeImageLayoutOrigin(for: size, in: scrollView)
         contentView.frame = CGRect(origin: origin, size: size)
         scrollView.setZoomScale(1.0, animated: false)
+        context.zoomScale = scrollView.zoomScale
     }
     
     open func computeImageLayoutSize(for contentSize: CGSize, in scrollView: UIScrollView) -> CGSize {
@@ -180,22 +209,7 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         }
         return CGPoint(x: x, y: y)
     }
-    
-    @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
-        // 如果当前没有任何缩放，则放大到目标比例，否则重置到原比例
-        if scrollView.zoomScale < 1.1 {
-            // 以点击的位置为中心，放大
-            let pointInView = gesture.location(in: contentView)
-            let width = scrollView.bounds.size.width / scrollView.maximumZoomScale
-            let height = scrollView.bounds.size.height / scrollView.maximumZoomScale
-            let x = pointInView.x - (width / 2.0)
-            let y = pointInView.y - (height / 2.0)
-            scrollView.zoom(to: CGRect(x: x, y: y, width: width, height: height), animated: true)
-        } else {
-            scrollView.setZoomScale(1.0, animated: true)
-        }
-    }
-    
+        
     private var beganFrame = CGRect.zero
     private var beganTouch = CGPoint.zero
     private var panToDismiss: PanToDismiss?
@@ -283,22 +297,56 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         guard let pan = gestureRecognizer as? UIPanGestureRecognizer else {
             return true
         }
+        
         let velocity = pan.velocity(in: self)
+        
         // 向上滑动时，不响应手势
         if velocity.y < 0 {
             return false
         }
+        
         // 横向滑动时，不响应pan手势
         if abs(Int(velocity.x)) > Int(velocity.y) {
             return false
         }
+        
         // 向下滑动，如果图片顶部超出可视区域，不响应手势
         if scrollView.contentOffset.y > 0 {
             return false
         }
+        
         // 响应允许范围内的下滑手势
         return true
     }
+}
+
+extension SKZoomableScrollView {
+    
+    @objc private func handleSingleTap(_ gesture: UITapGestureRecognizer) {
+        context.singleTapAction?(gesture)
+    }
+
+    @objc private func longPressAction(_ gesture: UILongPressGestureRecognizer) {
+        context.longPressAction?(gesture)
+    }
+    
+    @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
+        if let block = context.doubleTapAction {
+            block(gesture)
+        } else if scrollView.zoomScale < 1.1 {
+            // 如果当前没有任何缩放，则放大到目标比例，否则重置到原比例
+            // 以点击的位置为中心，放大
+            let pointInView = gesture.location(in: contentView)
+            let width = scrollView.bounds.size.width / scrollView.maximumZoomScale
+            let height = scrollView.bounds.size.height / scrollView.maximumZoomScale
+            let x = pointInView.x - (width / 2.0)
+            let y = pointInView.y - (height / 2.0)
+            scrollView.zoom(to: CGRect(x: x, y: y, width: width, height: height), animated: true)
+        } else {
+            scrollView.setZoomScale(1.0, animated: true)
+        }
+    }
+    
 }
 
 extension SKZoomableScrollView: UIScrollViewDelegate {
@@ -311,4 +359,5 @@ extension SKZoomableScrollView: UIScrollViewDelegate {
         contentView.center = computeImageLayoutCenter(in: scrollView)
         context.zoomScale = scrollView.zoomScale
     }
+    
 }

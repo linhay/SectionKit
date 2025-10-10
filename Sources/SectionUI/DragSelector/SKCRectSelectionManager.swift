@@ -103,6 +103,8 @@ public class SKCRectSelectionManager {
         let attributes = collectionView.collectionViewLayout.layoutAttributesForElements(in: rect) ?? []
         let currentIndexPathsInRect = Set(attributes.map(\.indexPath))
         
+        print("当前选择区域内的 cells: \(currentIndexPathsInRect)")
+        
         // 只有当选择区域发生变化时才处理
         guard currentIndexPathsInRect != previousSelectedIndexPaths else { return }
         

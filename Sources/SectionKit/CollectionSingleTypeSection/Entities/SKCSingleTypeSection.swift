@@ -86,6 +86,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         public let type: SKCCellActionType
         public let model: Cell.Model
         public let row: Int
+        public var indexPath: IndexPath { section.indexPath(from: row) }
         fileprivate let _view: SKWeakBox<Cell>?
         
         public func view() -> Cell {

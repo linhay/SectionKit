@@ -1,4 +1,5 @@
 import UIKit
+import SectionKit
 import Combine
 
 public final class SKPageManager: NSObject {
@@ -12,7 +13,7 @@ public final class SKPageManager: NSObject {
         
         public let maker: (_ context: ChildContext) -> UIViewController
         
-        public static func withController(_ maker: @escaping (_ context: ChildContext) -> UIViewController) -> Child {
+        public static func withController(_ maker: @MainActor @escaping (_ context: ChildContext) -> UIViewController) -> Child {
             self.init(maker: maker)
         }
         
@@ -38,35 +39,54 @@ public final class SKPageManager: NSObject {
     }
     
     @SKPublished public var selection = 0
-    @SKPublished public var scrollDirection: UICollectionView.ScrollDirection = .vertical
+    @SKPublished public var scrollDirection: UICollectionView.ScrollDirection = .horizontal
     @SKPublished public var spacing: CGFloat = 0
     @SKPublished public var childs = [Child]()
+    var controllers: [Int: SKWeakBox<SKPageChildController>] = [:]
     @SKPublished var trackSelection = Trackable<Int>(source: .user, value: 0)
-    
+    @Published public var current: ChildContext?
+    public weak var container: UIPageViewController?
     private var cancellables = Set<AnyCancellable>()
     public override init() {}
 }
 
-extension SKPageManager {
+public extension SKPageManager {
     
-    func child(at index: Int, parent: UIViewController) -> UIViewController? {
+     var currentModel: ChildContext? {
+        (container?.viewControllers?.first as? SKPageChildController)?.model.map {
+            .init(index: $0.index, controller: $0.controller)
+        }
+    }
+    
+}
+
+extension SKPageManager {
+
+    private func child(at index: Int, parent: UIViewController) -> UIViewController? {
         guard index >= 0 && index < childs.count else {
             return nil
         }
+        
+        if let box = controllers[index], let controller = box.value {
+            return controller
+        }
+        
         let controller = childs[index].maker(.init(index: index, controller: parent))
         let container = SKPageChildController()
         container.config(.init(index: index, controller: controller))
+        controllers[index] = .init(container)
         return container
     }
     
     func makePageController() -> UIPageViewController {
+        if let container {
+            return container
+        }
         cancellables.removeAll()
-        
         let orientation: UIPageViewController.NavigationOrientation = (scrollDirection == .vertical) ? .vertical : .horizontal
         let controller = UIPageViewController(transitionStyle: .scroll, navigationOrientation: orientation, options: [
             .interPageSpacing: spacing,
         ])
-        
         controller.dataSource = self
         controller.delegate = self
         trackSelection = .init(source: .user, value: selection)
@@ -79,15 +99,17 @@ extension SKPageManager {
         
         $trackSelection.bind { [weak self, weak controller] item in
             guard let self = self, let controller = controller else { return }
-            self.selection = item.value
-            if item.source == .user, let child = child(at: item.value, parent: controller) {
+            let child = child(at: item.value, parent: controller)
+            if item.source == .user, let child = child {
                 controller.setViewControllers([child],
                                               direction: .forward,
                                               animated: false,
                                               completion: nil)
             }
+            self.selection = item.value
+            self.current = .init(index: item.value, controller: (child as? SKPageChildController)?.model?.controller)
         }.store(in: &cancellables)
-        
+        container = controller
         return controller
     }
     
@@ -149,7 +171,7 @@ open class SKPageViewController: UIViewController {
             .throttle(for: .milliseconds(60), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] in
                 guard let self else { return }
-                if !manager.childs.isEmpty {
+                if !manager.childs.isEmpty, pageController != manager.container {
                     renderUI()
                 }
             }.store(in: &builtInCancellables)
@@ -168,10 +190,10 @@ open class SKPageViewController: UIViewController {
     open func renderUI() {
         pageController.removeFromParent()
         pageController.view.removeFromSuperview()
+        pageController = manager.makePageController()
         addChild(pageController)
         view.addSubview(pageController.view)
         pageController.didMove(toParent: self)
-        
         pageController.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             pageController.view.topAnchor.constraint(equalTo: view.topAnchor),
@@ -210,14 +232,14 @@ private class SKPageViewBoxController: UIViewController {
 }
 
 
-private class SKPageChildController: UIViewController {
+public class SKPageChildController: UIViewController {
     
-    struct Model {
-        let index: Int
-        var controller: UIViewController
+    public struct Model {
+        public let index: Int
+        public var controller: UIViewController
     }
     
-    var model: Model?
+    public var model: Model?
     
     func config(_ model: Model) {
         if isViewLoaded {
@@ -241,7 +263,7 @@ private class SKPageChildController: UIViewController {
         }
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         if let model = model {
             config(model)

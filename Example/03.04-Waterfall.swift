@@ -51,11 +51,13 @@ final class WaterfallCell: UICollectionViewCell, SKConfigurableView, SKLoadViewP
 @Observable
 class WaterfallReducer {
     
-    @ObservationIgnored var sectionController = SKCollectionViewController()
-        .sectionViewStyle { view in
-            let layout = SKWaterfallLayout()
-            layout.columnWidthRatios = [0.5, 0.5]
-            view.setCollectionViewLayout(layout, animated: false)
+    @ObservationIgnored lazy var layout = SKWaterfallLayout()
+        .columnWidth(equalParts: 2)
+    
+    @ObservationIgnored lazy var sectionController = SKCollectionViewController()
+        .sectionViewStyle { [weak self] view in
+            guard let self = self else { return }
+            view.setCollectionViewLayout(self.layout, animated: false)
         }
     
     @ObservationIgnored lazy var section1 = WaterfallCell

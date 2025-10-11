@@ -14,12 +14,73 @@ public protocol SKSafeSizeProviderProtocol: AnyObject {
 }
 
 public struct SKSafeSizeProvider {
+    
+    public typealias Block = (_ context: Context) -> CGSize
 
-    public var size: CGSize { block() }
-    private let block: () -> CGSize
+    public struct Context {
+        public let kind: SKSupplementaryKind
+        public let indexPath: IndexPath
+    }
+    
+    private let block: Block
+    
+    @available(*, deprecated, renamed: "size(context:)")
+    public var size: CGSize {
+        block(.init(kind: .cell, indexPath: .init(row: 0, section: 0)))
+    }
+    
+    @available(*, deprecated)
+    public init(block: @escaping Block) {
+        self.block = block
+    }
+    
+    public func size(context: Context) -> CGSize {
+        block(context)
+    }
+    
     
     public init(block: @escaping () -> CGSize) {
-        self.block = block
+        self.block = { _ in
+            block()
+        }
+    }
+    
+    public static func `default`(sectionView: @escaping () -> UICollectionView?,
+                          sectionInset: @escaping () -> UIEdgeInsets?) -> SKSafeSizeProvider {
+        SKSafeSizeProvider { context in
+            guard let sectionView = sectionView() else { return .zero }
+            let sectionInset = sectionInset() ?? .zero
+            guard let flowLayout = sectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
+                return sectionView.bounds.size
+            }
+            
+            let size: CGSize
+            switch flowLayout.scrollDirection {
+            case .horizontal:
+                size = .init(width: sectionView.bounds.width,
+                             height: sectionView.bounds.height
+                             - sectionView.contentInset.top
+                             - sectionView.contentInset.bottom
+                             - sectionInset.top
+                             - sectionInset.bottom)
+            case .vertical:
+                size = .init(width: sectionView.bounds.width
+                             - sectionView.contentInset.left
+                             - sectionView.contentInset.right
+                             - sectionInset.left
+                             - sectionInset.right,
+                             height: sectionView.bounds.height)
+            @unknown default:
+                size = sectionView.bounds.size
+            }
+            
+            guard min(size.width, size.height) > 0 else {
+                return CGSize(width: max(size.width, 0), height: max(size.height, 0))
+            }
+            
+            return size
+        }
+
     }
     
 }
@@ -74,40 +135,11 @@ public struct SKSafeSizeTransform {
 public extension SKCViewDelegateFlowLayoutProtocol where Self: SKCSectionActionProtocol {
     
     var defaultSafeSizeProvider: SKSafeSizeProvider {
-        SKSafeSizeProvider { [weak self] in
-            guard let self = self else { return .zero }
-            let sectionView = self.sectionView
-            let sectionInset = self.sectionInset
-            guard let flowLayout = sectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
-                return sectionView.bounds.size
-            }
-            
-            let size: CGSize
-            switch flowLayout.scrollDirection {
-            case .horizontal:
-                size = .init(width: sectionView.bounds.width,
-                             height: sectionView.bounds.height
-                             - sectionView.contentInset.top
-                             - sectionView.contentInset.bottom
-                             - sectionInset.top
-                             - sectionInset.bottom)
-            case .vertical:
-                size = .init(width: sectionView.bounds.width
-                             - sectionView.contentInset.left
-                             - sectionView.contentInset.right
-                             - sectionInset.left
-                             - sectionInset.right,
-                             height: sectionView.bounds.height)
-            @unknown default:
-                size = sectionView.bounds.size
-            }
-            
-            guard min(size.width, size.height) > 0 else {
-                return CGSize(width: max(size.width, 0), height: max(size.height, 0))
-            }
-            
-            return size
-        }
+        SKSafeSizeProvider.default(sectionView: { [weak self] in
+            return self?.sectionView
+        }, sectionInset: { [weak self] in
+            return self?.sectionInset
+        })
     }
     
 }

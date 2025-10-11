@@ -275,7 +275,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         if let size = feature.highestItemSize {
             return size
         }
-        let limitSize = safeSizeProviders[.cell]?.size ?? safeSizeProvider.size
+        let sizeContext = SKSafeSizeProvider.Context(kind: .cell, indexPath: indexPath(from: row))
+        let limitSize = fetchSafeSize(with: sizeContext)
         let model = models[row]
         
         if let highPerformance = highPerformance,
@@ -315,7 +316,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         if let size = feature.highestHeaderSize {
             return size
         }
-        return supplementary.size(safeSizeProviders[.header]?.size ?? safeSizeProvider.size)
+        let context = SKSafeSizeProvider.Context(kind: .header, indexPath: indexPath(from: 0))
+        return supplementary.size(fetchSafeSize(with: context))
     }
     
     open var headerView: UICollectionReusableView? {
@@ -335,9 +337,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         if let size = feature.highestFooterSize {
             return size
         }
-        return supplementary.size(safeSizeProviders[.footer]?.size ?? safeSizeProvider.size)
+        let context = SKSafeSizeProvider.Context(kind: .footer, indexPath: indexPath(from: 0))
+        return supplementary.size(fetchSafeSize(with: context))
     }
-    
+        
     open var footerView: UICollectionReusableView? {
         guard let supplementary = supplementaries[.footer] else {
             return nil
@@ -897,6 +900,14 @@ public extension SKCSingleTypeSection {
         } else {
             loadedTasks.append(task)
         }
+    }
+    
+}
+
+private extension SKCSingleTypeSection {
+    
+    func fetchSafeSize(with context: SKSafeSizeProvider.Context) -> CGSize {
+        safeSizeProviders[context.kind]?.size(context: context) ?? safeSizeProvider.size(context: context)
     }
     
 }

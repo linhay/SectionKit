@@ -63,7 +63,7 @@ public extension SKCSingleTypeSection {
         for kind in kinds {
             switch providerKind {
             case .apple:
-                safeSize(kind, .init(block: { [weak self] in
+                safeSize(kind, .init(block: { [weak self] context in
                     guard let sectionView = self?.sectionView else { return .zero }
                     return sectionView.bounds.size
                 }))
@@ -96,24 +96,24 @@ public extension SKCSingleTypeSection {
         
         switch kind {
         case .fixed(let size):
-            return self.cellSafeSize(.init(block: {
+            return self.cellSafeSize(.init(block: { context in
                 return transform(size: size)
             }))
         case .router(let router):
             return self.cellSafeSize(router(), transforms: transforms)
         case .default:
-            return self.cellSafeSize(.init(block: { [weak self] in
+            return self.cellSafeSize(.init(block: { [weak self] context in
                 guard let self = self else { return .zero }
-                let size = self.safeSizeProvider.size
+                let size = self.safeSizeProvider.size(context: context)
                 return transform(size: size)
             }))
         case .fraction(let block):
-            return self.cellSafeSize(.init(block: { [weak self] in
+            return self.cellSafeSize(.init(block: { [weak self] context in
                 guard let self = self else { return .zero }
-                let context = SKCCellFractionLayoutContext(limitSize: safeSizeProvider.size,
-                                                           minimumInteritemSpacing: minimumInteritemSpacing)
-                let value = block(context)
-                let newSize = context.size(of: value)
+                let layoutContext = SKCCellFractionLayoutContext(limitSize: safeSizeProvider.size(context: context),
+                                                                 minimumInteritemSpacing: minimumInteritemSpacing)
+                let value = block(layoutContext)
+                let newSize = layoutContext.size(of: value)
                 return transform(size: newSize)
             }))
         }

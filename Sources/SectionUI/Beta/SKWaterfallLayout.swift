@@ -172,7 +172,6 @@ public class SKWaterfallLayout: UICollectionViewLayout {
     }
 }
 
-
 public extension SKWaterfallLayout {
     
     /// 链式设置列宽比例

@@ -12,7 +12,7 @@ struct ExampleApp: App {
     @State var store = GalleryReducer()
     var body: some Scene {
         WindowGroup {
-            GalleryView(store: store)
+            WaterfallView()
         }
     }
 }

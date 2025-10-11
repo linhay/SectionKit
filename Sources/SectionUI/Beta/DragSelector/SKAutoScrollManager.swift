@@ -12,6 +12,7 @@ public protocol SKAutoScrollManagerDelegate: AnyObject {
     func autoScrollManager(_ manager: SKAutoScrollManager, didScrollToPoint point: CGPoint)
 }
 
+@available(*, deprecated, message: "[beta] 测试版，功能未完善")
 public class SKAutoScrollManager {
     
     public struct Configuration {

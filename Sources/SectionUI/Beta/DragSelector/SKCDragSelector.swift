@@ -7,6 +7,7 @@
 
 import UIKit
 
+@available(*, deprecated, message: "[beta] 测试版，功能未完善")
 @MainActor
 public class SKCDragSelector: NSObject {
     

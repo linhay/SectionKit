@@ -15,6 +15,7 @@ public protocol SKCRectSelectionDelegate: AnyObject {
     func rectSelectionManager(_ manager: SKCRectSelectionManager, willDisplay overlayView: SKSelectionOverlayView)
 }
 
+@available(*, deprecated, message: "[beta] 测试版，功能未完善")
 @MainActor
 public class SKCRectSelectionManager {
     

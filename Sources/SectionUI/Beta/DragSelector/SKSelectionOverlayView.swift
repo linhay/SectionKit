@@ -8,6 +8,7 @@
 import UIKit
 
 // MARK: - 选择覆盖层
+@available(*, deprecated, message: "[beta] 测试版，功能未完善")
 public class SKSelectionOverlayView: UIView {
     
     public let shapeLayer: CAShapeLayer = {

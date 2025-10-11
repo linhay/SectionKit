@@ -10,6 +10,8 @@
 		CDAF8A1B2D2641FE006E907E /* SectionKit in Frameworks */ = {isa = PBXBuildFile; productRef = CDAF8A1A2D2641FE006E907E /* SectionKit */; };
 		CDAF8A1D2D2641FE006E907E /* SectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = CDAF8A1C2D2641FE006E907E /* SectionUI */; };
 		CDAF8A222D26436E006E907E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = CDAF8A212D26436E006E907E /* SnapKit */; };
+		CDB5D9682E99F8520005B048 /* SectionKit in Frameworks */ = {isa = PBXBuildFile; productRef = CDB5D9672E99F8520005B048 /* SectionKit */; };
+		CDB5D96A2E99F8520005B048 /* SectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = CDB5D9692E99F8520005B048 /* SectionUI */; };
 		CDC736C42D34BD2D001FE271 /* SectionUI.podspec in Resources */ = {isa = PBXBuildFile; fileRef = CDC736C32D34BD2D001FE271 /* SectionUI.podspec */; };
 		CDC736C52D34BD2D001FE271 /* SectionKit2.podspec in Resources */ = {isa = PBXBuildFile; fileRef = CDC736C22D34BD2D001FE271 /* SectionKit2.podspec */; };
 /* End PBXBuildFile section */
@@ -36,7 +38,9 @@
 			files = (
 				CDAF8A222D26436E006E907E /* SnapKit in Frameworks */,
 				CDAF8A1D2D2641FE006E907E /* SectionUI in Frameworks */,
+				CDB5D96A2E99F8520005B048 /* SectionUI in Frameworks */,
 				CDAF8A1B2D2641FE006E907E /* SectionKit in Frameworks */,
+				CDB5D9682E99F8520005B048 /* SectionKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +89,8 @@
 				CDAF8A1A2D2641FE006E907E /* SectionKit */,
 				CDAF8A1C2D2641FE006E907E /* SectionUI */,
 				CDAF8A212D26436E006E907E /* SnapKit */,
+				CDB5D9672E99F8520005B048 /* SectionKit */,
+				CDB5D9692E99F8520005B048 /* SectionUI */,
 			);
 			productName = Example;
 			productReference = CDA6DF9A2D263FE500FF82D5 /* Example.app */;
@@ -115,8 +121,8 @@
 			mainGroup = CDA6DF912D263FE500FF82D5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				CDAF8A192D2641FE006E907E /* XCLocalSwiftPackageReference "Sources" */,
 				CDAF8A202D26436E006E907E /* XCRemoteSwiftPackageReference "SnapKit" */,
+				CDB5D9662E99F8520005B048 /* XCLocalSwiftPackageReference "../SectionKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CDA6DF9B2D263FE500FF82D5 /* Products */;
@@ -352,9 +358,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		CDAF8A192D2641FE006E907E /* XCLocalSwiftPackageReference "Sources" */ = {
+		CDB5D9662E99F8520005B048 /* XCLocalSwiftPackageReference "../SectionKit" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = Sources;
+			relativePath = ../SectionKit;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -382,6 +388,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CDAF8A202D26436E006E907E /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		CDB5D9672E99F8520005B048 /* SectionKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SectionKit;
+		};
+		CDB5D9692E99F8520005B048 /* SectionUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SectionUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

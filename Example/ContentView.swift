@@ -70,6 +70,9 @@ struct ContentView: View {
                 Link("03.01 - 视差交互示例", desc: "") {
                     ParallaxView()
                 }
+                Link("03.04 - 瀑布流布局", desc: "") {
+                    WaterfallView()
+                }
             }
             .font(.title3)
             .fontWeight(.medium)

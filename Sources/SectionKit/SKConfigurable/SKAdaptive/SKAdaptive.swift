@@ -30,7 +30,7 @@ public protocol SKAdaptiveProtocol {
     var content: (_ view: AdaptiveView) -> UIView? { get }
 }
 
-extension SKAdaptiveProtocol {
+public extension SKAdaptiveProtocol {
 
     @inline(__always)
     private func _preferredSize(limit size: CGSize, model: Model?) -> CGSize {

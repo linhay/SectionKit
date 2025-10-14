@@ -8,6 +8,16 @@
 import UIKit
 import SwiftUI
 
+public extension SKWrapper where Base: UIViewController {
+    
+    static func toSwiftUI(make: @escaping SKUIController<Base>.MakeAction,
+                          update: @escaping SKUIController<Base>.UpdateAction = { _, _ in }) -> SKUIController<Base> {
+        SKUIController(make: make, update: update)
+    }
+    
+}
+
+
 public struct SKUIController<Controller: UIViewController>: UIViewControllerRepresentable {
     
     public typealias UIViewControllerType = Controller

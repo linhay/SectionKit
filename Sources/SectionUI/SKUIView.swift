@@ -8,6 +8,15 @@
 import UIKit
 import SwiftUI
 
+public extension SKWrapper where Base: UIView {
+    
+    static func toSwiftUI(make: @escaping SKUIView<Base>.MakeAction,
+                          update: @escaping SKUIView<Base>.UpdateAction = { _, _ in }) -> SKUIView<Base> {
+        SKUIView(make: make, update: update)
+    }
+    
+}
+
 public struct SKUIView<View: UIView>: UIViewRepresentable {
     
     public typealias UIViewType = View

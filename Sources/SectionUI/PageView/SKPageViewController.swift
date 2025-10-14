@@ -52,10 +52,15 @@ public final class SKPageManager: NSObject {
 
 public extension SKPageManager {
     
-     var currentModel: ChildContext? {
-        (container?.viewControllers?.first as? SKPageChildController)?.model.map {
-            .init(index: $0.index, controller: $0.controller)
+    var currentModel: ChildContext? {
+        guard let container,
+              let model = container.viewControllers?
+            .lazy
+            .compactMap({ $0 as? SKPageChildController })
+            .first(where: { $0.model?.index == selection })?.model else {
+            return nil
         }
+        return ChildContext(index: model.index, controller: model.controller)
     }
     
 }
@@ -84,7 +89,7 @@ extension SKPageManager {
         }
         cancellables.removeAll()
         let orientation: UIPageViewController.NavigationOrientation = (scrollDirection == .vertical) ? .vertical : .horizontal
-        let controller = UIPageViewController(transitionStyle: .scroll, navigationOrientation: orientation, options: [
+        let controller = SKPageContainerViewController(transitionStyle: .scroll, navigationOrientation: orientation, options: [
             .interPageSpacing: spacing,
         ])
         controller.dataSource = self
@@ -243,6 +248,7 @@ public class SKPageChildController: UIViewController {
     
     func config(_ model: Model) {
         if isViewLoaded {
+            self.model = model
             let controller = model.controller
             controller.removeFromParent()
             controller.view.removeFromSuperview()
@@ -270,3 +276,6 @@ public class SKPageChildController: UIViewController {
         }
     }
 }
+
+
+class SKPageContainerViewController: UIPageViewController {}

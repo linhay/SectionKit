@@ -184,12 +184,14 @@ public extension SKCManager {
         for item in self.sections.enumerated() {
             let object = ObjectIdentifier(item.element)
             if inputs.contains(object) {
-                inputs.remove(object)
                 indexs.update(with: item.offset)
             } else {
                 sections.append(item.element)
             }
         }
+        
+        unBind(sections: input)
+        
         if let sectionView = sectionView,
            !configuration.replaceDeleteWithReloadData,
            !sections.isEmpty {
@@ -290,6 +292,7 @@ public extension SKCManager {
                     self.endDisplaySections[item.offset] = item.element
                 })
         }
+        unBind(sections: self.sections)
         self.publishers.sectionsSubject.send(bind(sections: sections, start: 0))
         security(check: sections)
         sectionView.reloadData()
@@ -328,6 +331,13 @@ private extension SKCManager {
             let offset = element.offset
             section.sectionInjection?.index = start + offset
             return section
+        }
+    }
+    
+    /// 解绑
+    func unBind(sections: [SKCBaseSectionProtocol]) {
+        for section in sections {
+            section.sectionInjection = nil
         }
     }
     

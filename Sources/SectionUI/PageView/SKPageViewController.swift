@@ -41,7 +41,11 @@ public final class SKPageManager: NSObject {
     @SKPublished public var selection = 0
     @SKPublished public var scrollDirection: UICollectionView.ScrollDirection = .horizontal
     @SKPublished public var spacing: CGFloat = 0
-    @SKPublished public var childs = [Child]()
+    @SKPublished public var childs = [Child]() {
+        didSet {
+            controllers.removeAll()
+        }
+    }
     var controllers: [Int: SKWeakBox<SKPageChildController>] = [:]
     @SKPublished var trackSelection = Trackable<Int>(source: .user, value: 0)
     @Published public var current: ChildContext?
@@ -84,9 +88,6 @@ extension SKPageManager {
     }
     
     func makePageController() -> UIPageViewController {
-        if let container {
-            return container
-        }
         cancellables.removeAll()
         let orientation: UIPageViewController.NavigationOrientation = (scrollDirection == .vertical) ? .vertical : .horizontal
         let controller = SKPageContainerViewController(transitionStyle: .scroll, navigationOrientation: orientation, options: [
@@ -176,7 +177,7 @@ open class SKPageViewController: UIViewController {
             .throttle(for: .milliseconds(60), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] in
                 guard let self else { return }
-                if !manager.childs.isEmpty, pageController != manager.container {
+                if !manager.childs.isEmpty {
                     renderUI()
                 }
             }.store(in: &builtInCancellables)

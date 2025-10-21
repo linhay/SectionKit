@@ -71,6 +71,23 @@ public extension SKCSectionActionProtocol {
         sectionInjection?.delete(cell: row)
     }
     
+    /// 插入指定行
+    /// - Parameters:
+    ///   - row: 指定行
+    ///   - before: 移除数据
+    func insert(at row: Int, before: (() -> Void)?) {
+        insert(at: [row], before: before)
+    }
+    
+    /// 插入指定行
+    /// - Parameters:
+    ///   - row: 指定行
+    ///   - before: 移除数据
+    func insert(at row: [Int], before: (() -> Void)?) {
+        before?()
+        sectionInjection?.insert(cell: row)
+    }
+    
 }
 
 public extension SKCSectionActionProtocol {
@@ -107,7 +124,7 @@ public extension SKCSectionActionProtocol {
     /// - Returns: cell
     func cellForItem(at row: Int) -> UICollectionViewCell? {
         guard isBindSectionView else { return nil }
-       return sectionView.cellForItem(at: indexPath(from: row))
+        return sectionView.cellForItem(at: indexPath(from: row))
     }
     
     func visibleSupplementaryViews(of kind: SKSupplementaryKind) -> [UICollectionReusableView] {
@@ -243,11 +260,11 @@ public extension SKCSectionActionProtocol {
         case .cell:
             attributes = sectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath(from: 0))
         }
-            
+        
         guard let attributes, attributes.frame != .zero else {
             return false
         }
-            
+        
         scrollWithOffset(sectionView: sectionView,
                          position: scrollPosition ?? defaultPosition(),
                          frame: attributes.frame,

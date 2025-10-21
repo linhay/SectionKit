@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2022/8/12.
 //
@@ -51,9 +51,17 @@ public struct SKSafeSizeProvider {
             guard let sectionView = sectionView() else { return .zero }
             let sectionInset = sectionInset() ?? .zero
             guard let flowLayout = sectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
-                return sectionView.bounds.size
+                return  .init(width: sectionView.bounds.width
+                              - sectionView.contentInset.left
+                              - sectionView.contentInset.right
+                              - sectionInset.left
+                              - sectionInset.right,
+                              height: sectionView.bounds.height
+                              - sectionView.contentInset.top
+                              - sectionView.contentInset.bottom
+                              - sectionInset.top
+                              - sectionInset.bottom)
             }
-            
             let size: CGSize
             switch flowLayout.scrollDirection {
             case .horizontal:

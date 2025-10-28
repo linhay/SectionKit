@@ -17,6 +17,12 @@ public struct SKAdaptiveFittingPriority {
         self.horizontal = horizontal
         self.vertical = vertical
     }
+    
+    public init(_ priority: UILayoutPriority) {
+        self.horizontal = priority
+        self.vertical = priority
+    }
+    
 }
 
 public protocol SKAdaptiveProtocol {
@@ -31,6 +37,28 @@ public protocol SKAdaptiveProtocol {
 }
 
 public extension SKAdaptiveProtocol {
+    
+    @available(*, deprecated, message: "beta feature, may be removed in future versions")
+    @inline(__always)
+    func adaptiveWidthFittingSize(limit size: CGSize, model: Model?) -> CGSize {
+        guard let model = model else { return .zero }
+        let limitedSize = size
+        config(view, size, model)
+        let targetSize = CGSize(width: limitedSize.width, height: UIView.layoutFittingCompressedSize.height)
+        var size = view.systemLayoutSizeFitting(
+            targetSize,
+            withHorizontalFittingPriority: .fittingSizeLevel,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        if size.width > limitedSize.width {
+            size = view.systemLayoutSizeFitting(
+                targetSize,
+                withHorizontalFittingPriority: .required,
+                verticalFittingPriority: .fittingSizeLevel
+            )
+        }
+        return size
+    }
 
     @inline(__always)
     private func _preferredSize(limit size: CGSize, model: Model?) -> CGSize {
@@ -140,7 +168,7 @@ public struct SKAdaptive<AdaptiveView: UIView, Model>: SKAdaptiveProtocol {
                            insets: UIEdgeInsets = .zero,
                            fittingPriority: SKAdaptiveFittingPriority? = nil,
                            afterConfig: ((_ view: AdaptiveView, _ model: Model) -> Void)? = nil) where AdaptiveView: SKConfigurableView, AdaptiveView.Model == Model {
-        self.init(view: view, direction: direction, content: content, insets: insets) { view, size, model in
+        self.init(view: view, direction: direction, content: content, insets: insets, fittingPriority: fittingPriority) { view, size, model in
             switch direction {
             case .horizontal:
                 view.bounds.size = .init(width: 0, height: size.height)

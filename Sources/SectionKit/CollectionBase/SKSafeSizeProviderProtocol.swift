@@ -20,6 +20,23 @@ public struct SKSafeSizeProvider {
     public struct Context {
         public let kind: SKSupplementaryKind
         public let indexPath: IndexPath
+        public init(kind: SKSupplementaryKind, indexPath: IndexPath) {
+            self.kind = kind
+            self.indexPath = indexPath
+        }
+        
+        public static func cell(at row: Int, in section: SKCSectionProtocol) -> Context {
+            return .init(kind: .cell, indexPath: section.indexPath(from: row))
+        }
+        
+        public static func header(in section: SKCSectionProtocol) -> Context {
+            return .init(kind: .header, indexPath: section.indexPath(from: 0))
+        }
+        
+        public static func footer(in section: SKCSectionProtocol) -> Context {
+            return .init(kind: .footer, indexPath: section.indexPath(from: 0))
+        }
+        
     }
     
     private let block: Block

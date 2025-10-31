@@ -75,6 +75,8 @@ public class SKCManager {
         public var replaceInsertWithReloadData = true
         /// 将 deleteSections 操作替换为 reloadData 操作
         public var replaceDeleteWithReloadData = false
+        /// 是否支持解绑 Section 操作, 在 删除 Section 时会调用 unBind 方法解绑 Section
+        public var supportUnbindSection = true
     }
     
     public static var configuration = Configuration()
@@ -292,7 +294,13 @@ public extension SKCManager {
                     self.endDisplaySections[item.offset] = item.element
                 })
         }
-        unBind(sections: self.sections)
+        
+        if configuration.supportUnbindSection {
+            let ids = Set<ObjectIdentifier>(sections.map(ObjectIdentifier.init))
+            let diffSections = self.sections.filter { !ids.contains(ObjectIdentifier($0)) }
+            unBind(sections: diffSections)
+        }
+        
         self.publishers.sectionsSubject.send(bind(sections: sections, start: 0))
         security(check: sections)
         sectionView.reloadData()
@@ -336,8 +344,10 @@ private extension SKCManager {
     
     /// 解绑
     func unBind(sections: [SKCBaseSectionProtocol]) {
-        for section in sections {
-            section.sectionInjection = nil
+        if configuration.supportUnbindSection {
+            for section in sections {
+                section.sectionInjection = nil
+            }
         }
     }
     
@@ -354,6 +364,8 @@ private extension SKCManager {
             
             if let sectionView = context.sectionView {
                 section.config(sectionView: sectionView)
+            } else {
+                assertionFailure("sectionView不存在，无法配置section")
             }
             return section
         })

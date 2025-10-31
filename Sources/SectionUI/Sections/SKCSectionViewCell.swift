@@ -11,17 +11,21 @@ import SectionKit
 
 public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SKCDelegateProtocol {
     
-    func wrapperToHorizontalSection(_ model: SKCSectionViewCell.Model) -> SKCSingleTypeSection<SKCSectionViewCell> {
-        SKCSectionViewCell.wrapperToSingleTypeSection(model)
+    func wrapperToHorizontalSection(_ model: SKCSectionViewCell.Model) -> SKCSingleTypeSection<SKCSingleSectionViewCell<Self>> {
+        SKCSingleSectionViewCell<Self>.wrapperToSingleTypeSection(model)
     }
     
-    func wrapperToHorizontalSection(_ model: [SKCSectionViewCell.Model]) -> SKCSingleTypeSection<SKCSectionViewCell> {
-        SKCSectionViewCell.wrapperToSingleTypeSection(model)
+    func wrapperToHorizontalSection(_ model: [SKCSectionViewCell.Model]) -> SKCSingleTypeSection<SKCSingleSectionViewCell<Self>> {
+        SKCSingleSectionViewCell<Self>.wrapperToSingleTypeSection(model)
+    }
+    
+    func wrapperToHorizontalSectionCellType() -> SKCSingleSectionViewCell<Self>.Type {
+        SKCSingleSectionViewCell<Self>.self
     }
     
     func wrapperToHorizontalSection(height: CGFloat,
                                     insets: UIEdgeInsets = .zero,
-                                    style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
+                                    style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSingleSectionViewCell<Self>> {
         wrapperToHorizontalSection(.init(section: .normal([self]),
                                          height: height,
                                          insets: insets,
@@ -35,13 +39,17 @@ public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SK
     @available(*, deprecated, renamed: "wrapperToHorizontalSection", message: "调整命名")
     func wrapperToHorizontalSectionViewCell(height: CGFloat? = nil,
                                             insets: UIEdgeInsets = .zero,
-                                            style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSectionViewCell> {
+                                            style: ((_ sectionView: SKCollectionView, _ section: Self) -> Void)? = nil) -> SKCSingleTypeSection<SKCSingleSectionViewCell<Self>> {
         self.wrapperToHorizontalSection(height: height ?? .zero, insets: insets, style: style)
     }
     
 }
 
-public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
+public class SKCSingleSectionViewCell<Section: SKCBaseSectionProtocol>: SKCSectionViewCell {
+    
+}
+
+public class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
     
     public struct Model {
         
@@ -149,7 +157,7 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
     public private(set) lazy var sectionView = SKCollectionView()
     private lazy var edgeConstraint = EdgeConstraint(sectionView, superView: contentView)
     
-    override init(frame _: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: .zero)
         initialize()
     }
@@ -162,10 +170,13 @@ public final class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView,
     private func initialize() {
         sectionView.translatesAutoresizingMaskIntoConstraints = false
         sectionView.backgroundColor = .clear
+        /// 避免快速复用时的解绑崩溃
+        sectionView.manager.configuration.supportUnbindSection = false
         contentView.addSubview(sectionView)
         sectionView.scrollDirection = .horizontal
         edgeConstraint.activate()
     }
+    
 }
 
 #endif

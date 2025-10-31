@@ -10,6 +10,7 @@
 		CDAF8A1B2D2641FE006E907E /* SectionKit in Frameworks */ = {isa = PBXBuildFile; productRef = CDAF8A1A2D2641FE006E907E /* SectionKit */; };
 		CDAF8A1D2D2641FE006E907E /* SectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = CDAF8A1C2D2641FE006E907E /* SectionUI */; };
 		CDAF8A222D26436E006E907E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = CDAF8A212D26436E006E907E /* SnapKit */; };
+		CDB462FC2EB0741A002EA1B9 /* LookinServer in Frameworks */ = {isa = PBXBuildFile; productRef = CDB462FB2EB0741A002EA1B9 /* LookinServer */; };
 		CDB5D9682E99F8520005B048 /* SectionKit in Frameworks */ = {isa = PBXBuildFile; productRef = CDB5D9672E99F8520005B048 /* SectionKit */; };
 		CDB5D96A2E99F8520005B048 /* SectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = CDB5D9692E99F8520005B048 /* SectionUI */; };
 		CDC736C42D34BD2D001FE271 /* SectionUI.podspec in Resources */ = {isa = PBXBuildFile; fileRef = CDC736C32D34BD2D001FE271 /* SectionUI.podspec */; };
@@ -37,6 +38,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CDAF8A222D26436E006E907E /* SnapKit in Frameworks */,
+				CDB462FC2EB0741A002EA1B9 /* LookinServer in Frameworks */,
 				CDAF8A1D2D2641FE006E907E /* SectionUI in Frameworks */,
 				CDB5D96A2E99F8520005B048 /* SectionUI in Frameworks */,
 				CDAF8A1B2D2641FE006E907E /* SectionKit in Frameworks */,
@@ -91,6 +93,7 @@
 				CDAF8A212D26436E006E907E /* SnapKit */,
 				CDB5D9672E99F8520005B048 /* SectionKit */,
 				CDB5D9692E99F8520005B048 /* SectionUI */,
+				CDB462FB2EB0741A002EA1B9 /* LookinServer */,
 			);
 			productName = Example;
 			productReference = CDA6DF9A2D263FE500FF82D5 /* Example.app */;
@@ -123,6 +126,7 @@
 			packageReferences = (
 				CDAF8A202D26436E006E907E /* XCRemoteSwiftPackageReference "SnapKit" */,
 				CDB5D9662E99F8520005B048 /* XCLocalSwiftPackageReference "../SectionKit" */,
+				CDB462FA2EB0741A002EA1B9 /* XCRemoteSwiftPackageReference "LookinServer" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CDA6DF9B2D263FE500FF82D5 /* Products */;
@@ -373,6 +377,14 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		CDB462FA2EB0741A002EA1B9 /* XCRemoteSwiftPackageReference "LookinServer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/QMUI/LookinServer/";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.8;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -388,6 +400,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CDAF8A202D26436E006E907E /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		CDB462FB2EB0741A002EA1B9 /* LookinServer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDB462FA2EB0741A002EA1B9 /* XCRemoteSwiftPackageReference "LookinServer" */;
+			productName = LookinServer;
 		};
 		CDB5D9672E99F8520005B048 /* SectionKit */ = {
 			isa = XCSwiftPackageProductDependency;

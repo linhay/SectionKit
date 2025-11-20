@@ -107,7 +107,6 @@ public extension SKCSectionLayoutPluginProtocol {
 
 public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
     
-    @discardableResult
     func pin(options: SKCSectionPinOptions) -> AnyCancellable {
         let forward = SKCPluginLayoutAttributesForElementsForward(userInfo: ["options": options]) { [weak options] context in
             

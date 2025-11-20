@@ -134,16 +134,19 @@ public extension SKSelectionSequence {
     }
     
     func select(at index: Int) {
-        guard store.indices.contains(index),
-              store[index].select(true) else { return }
+        guard let item = item(at: index) else { return }
+        item.select(true)
         maintainUniqueIfNeed(at: index)
     }
     
     func deselect(at index: Int) {
-        guard store.indices.contains(index),
-              store[index].select(false) else { return }
+        item(at: index)?.select(false)
     }
     
+    func toggle(at index: Int) {
+        item(at: index)?.toggle()
+    }
+
     func selectAll() {
         store
             .filter { !$0.isSelected }
@@ -236,12 +239,33 @@ public extension SKSelectionSequence where Element: Equatable {
         select(at: index)
     }
     
+    func deselectFirst(_ element: Element?) {
+        guard let element = element,
+              let index = store.firstIndex(where: { $0 == element }) else {
+            return
+        }
+        deselect(at: index)
+    }
+
+    func toggle(_ element: Element?) {
+        guard let element = element else { return }
+        element.toggle()
+    }
+    
     func selectLast(_ element: Element?) {
         guard let element = element,
               let index = store.lastIndex(where: { $0 == element }) else {
             return
         }
         select(at: index)
+    }
+        
+    func deselectLast(_ element: Element?) {
+        guard let element = element,
+              let index = store.lastIndex(where: { $0 == element }) else {
+            return
+        }
+        deselect(at: index)
     }
     
     func selectAll(_ element: Element?) {
@@ -257,22 +281,6 @@ public extension SKSelectionSequence where Element: Equatable {
             .forEach { index in
                 select(at: index)
             }
-    }
-    
-    func deselectFirst(_ element: Element?) {
-        guard let element = element,
-              let index = store.firstIndex(where: { $0 == element }) else {
-            return
-        }
-        deselect(at: index)
-    }
-    
-    func deselectLast(_ element: Element?) {
-        guard let element = element,
-              let index = store.lastIndex(where: { $0 == element }) else {
-            return
-        }
-        deselect(at: index)
     }
     
     func deselectAll(_ element: Element?) {

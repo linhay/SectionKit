@@ -160,7 +160,7 @@ public final class SKPublishedValue<Output>: Publisher, Sendable {
             self.subject = subject.eraseToAnyPublisher()
         }
     }
-
+    
 }
 
 public extension SKPublishedValue {

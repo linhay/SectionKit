@@ -30,12 +30,14 @@ public class SKSelectionIdentifiableSequence<Element: SKSelectionProtocol, ID: H
     ///   - items: 数据组
     ///   - id: 标识数据的ID
     ///   - isUnique: 是否保证选中在当前序列中是否唯一 | default: true
-    public init(items: [Element] = [],
-                id: KeyPath<Element, ID>,
-                isUnique: Bool = true) {
+    public init(items: [Element] = [], id: KeyPath<Element, ID>, isUnique: Bool = true) {
         self.isUnique = isUnique
         self.idPath = id
         self.update(items, by: id)
+    }
+    
+    public convenience init(_ type: Element.Type, id: KeyPath<Element, ID>, isUnique: Bool = true) {
+        self.init(items: [], id: id, isUnique: isUnique)
     }
     
 }

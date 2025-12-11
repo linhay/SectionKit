@@ -27,7 +27,7 @@ public class SKCSectionPinOptions {
     @SKPublished public var distance: CGFloat?
     /// 是否到达目标位置监听
     @SKPublished(transform: .removeDuplicates()) public var isPinned: Bool = false
-
+    
     public init(kind: SKSupplementaryKind,
                 row: Int = 0,
                 section: SKBindingKey<Int?>,
@@ -124,12 +124,12 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
                 return
             }
             
-            #if DEBUG
+#if DEBUG
             if let layout = sectionView.collectionViewLayout as? UICollectionViewFlowLayout,
                layout.sectionHeadersPinToVisibleBounds == true || layout.sectionFootersPinToVisibleBounds == true {
                 assertionFailure("SKCSectionPinOptions is not compatible with UICollectionViewFlowLayout's pinning feature. Please disable pinning in UICollectionViewFlowLayout.")
             }
-            #endif
+#endif
             
             var maxZIndex = 0
             var stickyAttribute: UICollectionViewLayoutAttributes?
@@ -187,9 +187,10 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
             if !isFinded {
                 switch options.kind {
                 case .header, .footer:
-                    if let attribute = context.layout.layoutAttributesForSupplementaryView(ofKind: options.kind.rawValue,
-                                                                                           at: .init(row: options.row,
-                                                                                                     section: section)) {
+                    if let attribute = context.layout.layoutAttributesForSupplementaryView(
+                        ofKind: options.kind.rawValue,
+                        at: .init(row: options.row, section: section)
+                    ) {
                         sticky(attribute: attribute)
                         if options.isEnabled {
                             stickyAttribute = attribute
@@ -211,7 +212,7 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
             
             stickyAttribute?.zIndex = maxZIndex + 1
         }
-    
+        
         self.addLayoutPlugins(.layoutAttributesForElements(forward))
         return .init(forward)
     }

@@ -210,7 +210,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     var highPerformanceID: HighPerformanceIDBlock?
     
     lazy var deletedModels: [Int: Model] = [:]
-    lazy var cellStyles: [SKCSingleCellStyle<Cell>] = []
+    lazy var cellStyles: [SKCCellStyle<Cell>] = []
     lazy var cellContextMenus: [ContextMenuBlock] = []
     
     lazy var supplementaryActions = SKEventGroup<SKCSupplementaryActionType, SupplementaryActionBlock>()

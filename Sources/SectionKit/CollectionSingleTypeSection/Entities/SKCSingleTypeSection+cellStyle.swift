@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class SKCSingleCellStyle<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: Identifiable {
+public class SKCCellStyle<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: Identifiable {
     
     public typealias Block = (_ context: SKCCellStyleContext<Cell>) -> Void
     
@@ -25,13 +25,13 @@ public class SKCSingleCellStyle<Cell: UICollectionViewCell & SKConfigurableView 
 public extension SKCSingleTypeSection {
     
     @discardableResult
-    func setCellStyle(_ style: SKCSingleCellStyle<Cell>) -> Self {
+    func setCellStyle(_ style: SKCCellStyle<Cell>) -> Self {
         cellStyles.append(style)
         return self
     }
 
     @discardableResult
-    func setCellStyle(_ style: @escaping SKCSingleCellStyle<Cell>.Block) -> Self {
+    func setCellStyle(_ style: @escaping SKCCellStyle<Cell>.Block) -> Self {
         return setCellStyle(.init(style))
     }
     

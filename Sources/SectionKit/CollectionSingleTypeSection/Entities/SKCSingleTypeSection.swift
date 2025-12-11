@@ -14,9 +14,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     public typealias SectionBlock<Return>               = (_ section: SKCSingleTypeSection<Cell>) -> Return
     public typealias ContextBlock<Context, Return>      = (_ context: Context) -> Return
     public typealias AsyncContextBlock<Context, Return> = @MainActor (_ context: Context) async throws -> Return
-    
-    public typealias CellStyleBox = SKIDBox<UUID, CellStyleBlock>
-    
+        
     public typealias LoadedBlock       = SectionBlock<Void>
     public typealias SectionStyleBlock = SectionBlock<Void>
     public typealias CellStyleBlock    = ContextBlock<SKCCellStyleContext<Cell>, Void>
@@ -212,7 +210,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     var highPerformanceID: HighPerformanceIDBlock?
     
     lazy var deletedModels: [Int: Model] = [:]
-    lazy var cellStyles: [CellStyleBox] = []
+    lazy var cellStyles: [SKCSingleCellStyle<Cell>] = []
     lazy var cellContextMenus: [ContextMenuBlock] = []
     
     lazy var supplementaryActions = SKEventGroup<SKCSupplementaryActionType, SupplementaryActionBlock>()
@@ -260,8 +258,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         cell.config(model)
         if !cellStyles.isEmpty {
             let result = SKCCellStyleContext(section: self, model: model, row: row, view: cell)
-            cellStyles.forEach { style in
-                style.value(result)
+            for style in cellStyles {
+                style.style?(result)
             }
         }
         sendAction(.config, view: cell, row: row)
@@ -751,14 +749,6 @@ public extension SKCSingleTypeSection {
     }
     
     func delete(_ items: [Model]) where Model: Equatable {
-        remove(items)
-    }
-    
-    func delete(_ item: Model) where Model: AnyObject {
-        remove(item)
-    }
-    
-    func delete(_ items: [Model]) where Model: AnyObject {
         remove(items)
     }
     

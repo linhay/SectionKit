@@ -23,7 +23,7 @@
 import Combine
 import Foundation
 
-public class SKSelectionState: Equatable, Hashable, Identifiable {
+public class SKSelectionState: Equatable, Hashable, Identifiable, Sendable {
     
     public let id: UUID = .init()
     // 返回一个 AnyPublisher，用于订阅选中状态、选择能力、可用性的变化

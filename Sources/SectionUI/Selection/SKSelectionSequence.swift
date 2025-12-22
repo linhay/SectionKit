@@ -211,6 +211,12 @@ private extension SKSelectionSequence {
     
 }
 
+extension SKSelectionSequence: Sequence {
+    public func makeIterator() -> Array<Element>.Iterator {
+        return store.makeIterator()
+    }
+}
+
 public extension SKSelectionSequence where Element: Equatable {
     
     func removeAll(_ item: Element) {

@@ -1,70 +1,167 @@
 import UIKit
-import SectionKit
 import Combine
 
 public final class SKPageManager: NSObject {
     
-    public struct ChildContext {
+    public struct ChildContext: Identifiable {
+        public let id: String
         public let index: Int
         public weak var controller: UIViewController?
+        
+        public init(id: String, index: Int, controller: UIViewController?) {
+            self.id = id
+            self.index = index
+            self.controller = controller
+        }
     }
     
-    public struct Child {
+    public struct Child: Identifiable {
         
+        public let id: String
         public let maker: (_ context: ChildContext) -> UIViewController
         
-        public static func withController(_ maker: @MainActor @escaping (_ context: ChildContext) -> UIViewController) -> Child {
-            self.init(maker: maker)
+        public static func withController(id: String, _ maker: @MainActor @escaping (_ context: ChildContext) -> UIViewController) -> Child {
+            self.init(id: id, maker: maker)
         }
         
-        public init(maker: @escaping (_ context: ChildContext) -> UIViewController) {
+        public init(id: String, maker: @escaping (_ context: ChildContext) -> UIViewController) {
+            self.id = id
             self.maker = maker
         }
         
-        public init(maker: @escaping (_ context: ChildContext) -> UIView) {
-            self.init { context in
+        public init(id: String, maker: @escaping (_ context: ChildContext) -> UIView) {
+            self.id = id
+            self.maker = { context in
                 SKPageViewBoxController(context: maker(context))
             }
         }
     }
     
-    enum EventSource {
-        case system
-        case user
-    }
-    
-    struct Trackable<Value> {
-        var source: EventSource
-        var value: Value
-    }
-    
-    @SKPublished public var selection = 0
     @SKPublished public var scrollDirection: UICollectionView.ScrollDirection = .horizontal
     @SKPublished public var spacing: CGFloat = 0
-    @SKPublished public var childs = [Child]() {
-        didSet {
-            controllers.removeAll()
-        }
-    }
-    var controllers: [Int: SKWeakBox<SKPageChildController>] = [:]
-    @SKPublished var trackSelection = Trackable<Int>(source: .user, value: 0)
+    @SKPublished public private(set) var childs = [Child]()
+    var controllers: [String: SKWeakBox<SKPageChildController>] = [:]
+    @SKPublished public var selection = 0
     @Published public var current: ChildContext?
-    public weak var container: UIPageViewController?
+    private weak var container: UIPageViewController?
+    
+    /// 是否已经绑定到 UI，只有在 makePageController() 后才为 true
+    public private(set) var isBound: Bool = false
+    private var isUpdatingSelection = false
     private var cancellables = Set<AnyCancellable>()
-    public override init() {}
+    /// 用于在 init 阶段就监听 selection 变化的订阅
+    private var selectionCancellables = Set<AnyCancellable>()
+    
+    public override init() {
+        super.init()
+        setupCurrentBinding()
+    }
+    
+    /// 设置 current 与 selection/childs 的绑定
+    private func setupCurrentBinding() {
+        // 监听 selection 或 childs 变化，更新 current（不依赖 controller）
+        Publishers.CombineLatest($selection.eraseToAnyPublisher(), $childs.eraseToAnyPublisher())
+            .sink { [weak self] selection, childs in
+                guard let self = self else { return }
+                self.updateCurrentFromSelection(selection, childs: childs)
+            }
+            .store(in: &selectionCancellables)
+    }
+    
+    /// 根据 selection 更新 current，controller 可以为 nil
+    private func updateCurrentFromSelection(_ selection: Int, childs: [Child]) {
+        guard selection >= 0 && selection < childs.count else {
+            current = nil
+            return
+        }
+        let child = childs[selection]
+        // 尝试获取已缓存的 controller（如果有的话）
+        let cachedController = controllers[child.id]?.value?.model?.controller
+        current = ChildContext(id: child.id, index: selection, controller: cachedController)
+    }
 }
 
 public extension SKPageManager {
     
-    var currentModel: ChildContext? {
-        guard let container,
-              let model = container.viewControllers?
-            .lazy
-            .compactMap({ $0 as? SKPageChildController })
-            .first(where: { $0.model?.index == selection })?.model else {
-            return nil
-        }
-        return ChildContext(index: model.index, controller: model.controller)
+    /// 清理所有缓存的控制器
+    func clearCache() {
+        controllers.removeAll()
+    }
+    
+    /// 解除 UI 绑定，清理所有订阅和缓存
+    func unbind() {
+        cancellables.removeAll()
+        container = nil
+        isBound = false
+        clearCache()
+    }
+    
+    /// 配置块，在绑定 UI 之前批量设置属性，避免多次触发更新
+    @discardableResult
+    func configure(_ block: (SKPageManager) -> Void) -> Self {
+        block(self)
+        return self
+    }
+    
+    // MARK: - Childs Management
+    
+    /// 设置所有子页面
+    @discardableResult
+    func setChilds(_ childs: [Child]) -> Self {
+        self.childs = childs
+        return self
+    }
+    
+    /// 添加单个子页面
+    @discardableResult
+    func addChild(_ child: Child) -> Self {
+        childs.append(child)
+        return self
+    }
+    
+    /// 添加多个子页面
+    @discardableResult
+    func addChilds(_ childs: [Child]) -> Self {
+        self.childs.append(contentsOf: childs)
+        return self
+    }
+    
+    /// 移除指定 id 的子页面
+    @discardableResult
+    func removeChild(id: String) -> Self {
+        childs.removeAll { $0.id == id }
+        return self
+    }
+    
+    /// 移除指定索引的子页面
+    @discardableResult
+    func removeChild(at index: Int) -> Self {
+        guard index >= 0 && index < childs.count else { return self }
+        childs.remove(at: index)
+        return self
+    }
+    
+    /// 清空所有子页面
+    @discardableResult
+    func removeAllChilds() -> Self {
+        childs.removeAll()
+        return self
+    }
+    
+    /// 替换指定索引的子页面
+    @discardableResult
+    func replaceChild(at index: Int, with child: Child) -> Self {
+        guard index >= 0 && index < childs.count else { return self }
+        childs[index] = child
+        return self
+    }
+    
+    /// 插入子页面到指定位置
+    @discardableResult
+    func insertChild(_ child: Child, at index: Int) -> Self {
+        guard index >= 0 && index <= childs.count else { return self }
+        childs.insert(child, at: index)
+        return self
     }
     
 }
@@ -76,46 +173,78 @@ extension SKPageManager {
             return nil
         }
         
-        if let box = controllers[index], let controller = box.value {
+        let childModel = childs[index]
+        if let box = controllers[childModel.id], let controller = box.value {
             return controller
         }
         
-        let controller = childs[index].maker(.init(index: index, controller: parent))
+        let controller = childModel.maker(.init(id: childModel.id, index: index, controller: parent))
         let container = SKPageChildController()
-        container.config(.init(index: index, controller: controller))
-        controllers[index] = .init(container)
+        container.config(.init(id: childModel.id, index: index, controller: controller))
+        controllers[childModel.id] = .init(container)
         return container
     }
     
     func makePageController() -> UIPageViewController {
+        if let container {
+            return container
+        }
+        
         cancellables.removeAll()
+        isBound = false  // 重置状态
+        
         let orientation: UIPageViewController.NavigationOrientation = (scrollDirection == .vertical) ? .vertical : .horizontal
-        let controller = SKPageContainerViewController(transitionStyle: .scroll, navigationOrientation: orientation, options: [
+        let controller = UIPageViewController(transitionStyle: .scroll, navigationOrientation: orientation, options: [
             .interPageSpacing: spacing,
         ])
         controller.dataSource = self
         controller.delegate = self
-        trackSelection = .init(source: .user, value: selection)
-        $selection.bind { [weak self] selection in
+        
+        // 设置初始页面
+        if let initialChild = child(at: selection, parent: controller) {
+            controller.setViewControllers([initialChild],
+                                         direction: .forward,
+                                         animated: false,
+                                         completion: nil)
+            // 更新 current 以包含新创建的 controller
+            updateCurrentFromSelection(selection, childs: childs)
+        }
+        
+        // 清理失效的缓存
+        $childs.sink { [weak self] newChilds in
             guard let self = self else { return }
-            if selection != trackSelection.value {
-                trackSelection = .init(source: .user, value: selection)
+            let validIds = Set(newChilds.map(\.id))
+            self.controllers = self.controllers.filter { validIds.contains($0.key) }
+        }.store(in: &cancellables)
+        
+        // 监听 selection 变化，用户主动切换
+        $selection.bind { [weak self, weak controller] newSelection in
+            guard let self = self, let controller = controller else { return }
+            guard !isUpdatingSelection else { return }
+            
+            // 检查是否需要切换
+            let currentIndex = (controller.viewControllers?.first as? SKPageChildController)?.model?.index
+            guard currentIndex != newSelection else { return }
+            
+            isUpdatingSelection = true
+            defer { isUpdatingSelection = false }
+            
+            if let child = child(at: newSelection, parent: controller) {
+                // 根据索引差判断滑动方向
+                let direction: UIPageViewController.NavigationDirection = 
+                    (currentIndex ?? 0) < newSelection ? .forward : .reverse
+                
+                controller.setViewControllers([child],
+                                              direction: direction,
+                                              animated: false,
+                                              completion: nil)
+                // 更新 current 以包含新创建的 controller
+                self.updateCurrentFromSelection(newSelection, childs: self.childs)
             }
         }.store(in: &cancellables)
         
-        $trackSelection.bind { [weak self, weak controller] item in
-            guard let self = self, let controller = controller else { return }
-            let child = child(at: item.value, parent: controller)
-            if item.source == .user, let child = child {
-                controller.setViewControllers([child],
-                                              direction: .forward,
-                                              animated: false,
-                                              completion: nil)
-            }
-            self.selection = item.value
-            self.current = .init(index: item.value, controller: (child as? SKPageChildController)?.model?.controller)
-        }.store(in: &cancellables)
         container = controller
+        isBound = true  // 标记为已经绑定
         return controller
     }
     
@@ -145,11 +274,17 @@ extension SKPageManager: UIPageViewControllerDataSource, UIPageViewControllerDel
                                    didFinishAnimating finished: Bool,
                                    previousViewControllers: [UIViewController],
                                    transitionCompleted completed: Bool) {
-        if completed,
-           let controller = pageViewController.viewControllers?.first as? SKPageChildController,
-           let index = controller.model?.index {
-            trackSelection = .init(source: .system, value: index)
-        }
+        guard completed,
+              let controller = pageViewController.viewControllers?.first as? SKPageChildController,
+              let model = controller.model else { return }
+        
+        guard !isUpdatingSelection else { return }
+        
+        isUpdatingSelection = true
+        defer { isUpdatingSelection = false }
+        
+        // 设置 selection，current 会通过 setupCurrentBinding 自动更新
+        selection = model.index
     }
 }
 
@@ -241,6 +376,7 @@ private class SKPageViewBoxController: UIViewController {
 public class SKPageChildController: UIViewController {
     
     public struct Model {
+        public let id: String
         public let index: Int
         public var controller: UIViewController
     }
@@ -248,12 +384,17 @@ public class SKPageChildController: UIViewController {
     public var model: Model?
     
     func config(_ model: Model) {
+        // 清理旧的 controller
+        if let oldController = self.model?.controller {
+            oldController.willMove(toParent: nil)
+            oldController.view.removeFromSuperview()
+            oldController.removeFromParent()
+        }
+        
+        self.model = model
+        
         if isViewLoaded {
-            self.model = model
             let controller = model.controller
-            controller.removeFromParent()
-            controller.view.removeFromSuperview()
-            
             addChild(controller)
             view.addSubview(controller.view)
             controller.didMove(toParent: self)
@@ -265,8 +406,6 @@ public class SKPageChildController: UIViewController {
                 controller.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 controller.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
             ])
-        } else {
-            self.model = model
         }
     }
     
@@ -277,6 +416,3 @@ public class SKPageChildController: UIViewController {
         }
     }
 }
-
-
-class SKPageContainerViewController: UIPageViewController {}

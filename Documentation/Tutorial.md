@@ -1,3 +1,7 @@
+---
+description: SectionKit 使用教程，从快速开始到专家技巧的完整指南。
+---
+
 # SectionKit 使用教程
 
 SectionKit 是一个数据驱动的 `UICollectionView` 框架，旨在提供快速、灵活且高度可复用的列表构建方式。
@@ -139,11 +143,17 @@ let section = TextCell.wrapperToSingleTypeSection(items)
 | `.didEndDisplaying` | Cell 离开屏幕 |
 
 ## 3.2 添加 Header / Footer
-
 ```swift
-section.set(supplementary: MyHeaderView.self) { context in
-    context.view.config("标题")
+// 添加 Header
+section.setHeader(MyHeaderView.self, model: "标题")
+
+// 自定义配置
+section.setHeader(MyHeaderView.self, model: "标题") { view in
+    view.backgroundColor = .red
 }
+
+// 添加 Footer
+section.setFooter(MyFooterView.self, model: "结尾")
 ```
 
 ## 3.3 配置 Section 样式
@@ -197,7 +207,7 @@ SKCollectionViewController()
 
 ```swift
 section.set(decoration: BackgroundView.self, model: .white) { decoration in
-    decoration.sectionInset = UIEdgeInsets(top: -8, left: -8, bottom: -8, right: -8)
+    decoration.insets = UIEdgeInsets(top: -8, left: -8, bottom: -8, right: -8)
     decoration.zIndex = -1
 }
 ```

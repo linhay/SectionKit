@@ -1,4 +1,9 @@
+---
+description: 一个基于 UIPageViewController 的强大页面管理组件，提供了声明式 API 和响应式数据绑定能力。
+---
+
 # SKPageViewController
+
 
 一个基于 `UIPageViewController` 的强大页面管理组件，提供了声明式 API 和响应式数据绑定能力。
 

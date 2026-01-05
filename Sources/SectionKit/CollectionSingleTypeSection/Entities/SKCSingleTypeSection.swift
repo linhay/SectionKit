@@ -711,9 +711,23 @@ public extension SKCSingleTypeSection {
         let rows = try? models.enumerated().filter { try predicate($0.element) }.map(\.offset)
         remove(rows ?? [])
     }
-    
+
     func remove(_ item: Model) where Model: Equatable {
         remove(rows(with: item))
+    }
+
+    func remove(_ item: Model, where areEquivalent: (Model, Model) -> Bool) {
+        remove([item], where: areEquivalent)
+    }
+    
+    func remove(_ items: [Model], where areEquivalent: (Model, Model) -> Bool) {
+        let rows = models
+            .enumerated()
+            .filter { (offset, item) in
+                items.contains(where: { areEquivalent($0, item) })
+            }
+            .map(\.offset)
+        remove(rows ?? [])
     }
     
     func remove(_ items: [Model]) where Model: Equatable {

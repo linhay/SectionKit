@@ -65,6 +65,14 @@ public extension SKHighPerformanceStore {
         sizeCached[.init(id: id, size: limit)] = nil
     }
     
+    func remove(by id: ID) {
+        sizeCached.keyTracker.keys.filter { key in
+            key.id == id
+        }.forEach { key in
+            sizeCached.remove(key)
+        }
+    }
+    
     func removeAll() {
         sizeCached.removeAll()
     }

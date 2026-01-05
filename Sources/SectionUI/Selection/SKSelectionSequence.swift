@@ -147,20 +147,16 @@ public extension SKSelectionSequence {
         item(at: index)?.toggle()
     }
 
-    func selectAll() {
+    func selectAll(_ flag: Bool = true) {
         store
-            .filter { !$0.isSelected }
+            .filter { $0.isSelected != flag }
             .forEach { item in
-                item.select(true)
+                item.select(flag)
             }
     }
     
     func deselectAll() {
-        store
-            .filter { $0.isSelected }
-            .forEach { item in
-                item.select(false)
-            }
+        selectAll(false)
     }
     
 }

@@ -1,7 +1,7 @@
 import UIKit
 import Combine
 
-public final class SKPageManager: NSObject {
+public final class SKPageManager: NSObject, @unchecked Sendable {
     
     public struct ChildContext: Identifiable {
         public let id: String

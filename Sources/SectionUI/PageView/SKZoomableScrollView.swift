@@ -138,7 +138,7 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         
         context.$size.removeDuplicates().sink { [weak self] size in
             guard let self = self else { return }
-            layoutSubviews()
+            layoutSubviews(for: size)
         }.store(in: &cancellables)
         
         contentView = content
@@ -146,15 +146,20 @@ public class SKZoomableScrollView: UIView, UIGestureRecognizerDelegate {
         layoutSubviews()
     }
     
-    open override func layoutSubviews() {
+    func layoutSubviews(for size: CGSize) {
         super.layoutSubviews()
         scrollView.frame = bounds
         scrollView.setZoomScale(1.0, animated: false)
-        let size = computeImageLayoutSize(for: context.size, in: scrollView)
+        let size = computeImageLayoutSize(for: size, in: scrollView)
         let origin = computeImageLayoutOrigin(for: size, in: scrollView)
         contentView.frame = CGRect(origin: origin, size: size)
         scrollView.setZoomScale(1.0, animated: false)
         context.zoomScale = scrollView.zoomScale
+    }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        layoutSubviews(for: context.size)
     }
     
     open func computeImageLayoutSize(for contentSize: CGSize, in scrollView: UIScrollView) -> CGSize {

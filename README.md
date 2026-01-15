@@ -67,6 +67,43 @@
   pod 'SectionUI', '2.4.0'
   ```
 
+## Antigravity Skills
+
+This project includes a set of "Skills" designed for AI coding assistants (like Antigravity). These skills provide context, patterns, and best practices for working with SectionKit.
+
+You can find them in the `.agent/skills` directory:
+
+- **sectionkit-section**: Master skill for creating and configuring `SKCSingleTypeSection`.
+- **sectionkit-cell**: Master skill for creating robust `UICollectionViewCell`s.
+- **sectionkit-common**: Universal utilities, including wrappers and reactive bindings.
+- **sectionkit-page**: Memory-efficient pagination.
+- **sectionkit-selection**: Selection state management.
+- **sectionkit-preview**: SwiftUI Previews support.
+
+To use these skills, simply ask your AI assistant to read the relevant skill file (e.g., "Read the sectionkit-section skill").
+
+### Quick Integration
+
+You can easily enable these skills for other AI coding assistants by creating symbolic links:
+
+**GitHub Copilot**:
+```bash
+mkdir -p .github
+ln -s ../.agent/skills .github/skills
+```
+
+**Claude Desktop**:
+```bash
+mkdir -p .claude
+ln -s ../.agent/skills .claude/skills
+```
+
+### References
+
+- [Antigravity Skills Documentation](https://antigravity.google/docs/skills)
+- [Claude Skills](https://claude.com/skills)
+- [GitHub Copilot Agent Skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills?utm_source=docs&utm_medium=&utm_campaign=skills-25)
+
 ## License
 
 `SectionUI` 遵循[Apache License](./LICENSE)。

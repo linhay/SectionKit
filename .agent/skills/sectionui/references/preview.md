@@ -1,6 +1,6 @@
 ---
-name: sectionkit-preview
-description: Generate SwiftUI Previews for SectionKit components.
+name: sectionui-preview
+description: Generate SwiftUI Previews for SectionUI components.
 ---
 
 # sectionkit-preview

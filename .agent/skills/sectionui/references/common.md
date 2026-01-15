@@ -1,11 +1,11 @@
 ---
-name: sectionkit-common
-description: Master skill for universal utilities in SectionKit, covering View Wrapping, Reactive Bindings, and Conditional Logic.
+name: sectionui-common
+description: Master skill for universal utilities in SectionUI, covering View Wrapping, Reactive Bindings, and Conditional Logic.
 ---
 
 # sectionkit-common (Master)
 
-Use this skill for general-purpose SectionKit utilities that apply across all section types.
+Use this skill for general-purpose SectionUI utilities that apply across all section types.
 
 ## 1. Universal View Wrapper (SKWrapperView)
 Turn **any** `UIView` into a `SKConfigurableView` (Cell/Header/Footer compatible) without subclassing or creating new files.

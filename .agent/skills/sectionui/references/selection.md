@@ -1,5 +1,5 @@
 ---
-name: sectionkit-selection
+name: sectionui-selection
 description: Master skill for selection management, covering single/multiple selection, drag-to-select, and reactive state binding.
 ---
 

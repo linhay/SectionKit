@@ -30,7 +30,7 @@ class HostingViewController: SKCollectionViewController {
 }
 
 // 2. SwiftUI Integration Example
-struct SectionKitHostView: View {
+struct SectionUIHostView: View {
     var body: some View {
         // Bridge SKCollectionViewController to SwiftUI
         UIViewController.sk.toSwiftUI {
@@ -41,5 +41,5 @@ struct SectionKitHostView: View {
 }
 
 #Preview {
-    SectionKitHostView()
+    SectionUIHostView()
 }

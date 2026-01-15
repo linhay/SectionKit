@@ -1,5 +1,5 @@
 ---
-name: sectionkit-cell
+name: sectionui-cell
 description: Master skill for scaffolding and configuring UICollectionViewCell with robust protocols (SKLoadViewProtocol, SKConfigurableView, SKLoadNibProtocol, SKAdaptive).
 ---
 

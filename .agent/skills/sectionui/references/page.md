@@ -1,5 +1,5 @@
 ---
-name: sectionkit-page
+name: sectionui-page
 description: Master skill for memory-efficient paginated view management using SKPageViewController and SKPageManager.
 ---
 

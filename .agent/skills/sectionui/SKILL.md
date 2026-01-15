@@ -11,13 +11,13 @@ SectionUI is a highly modularized framework designed to simplify the creation of
 
 SectionUI is organized into several key modules, each focusing on a specific aspect of collection view management:
 
-- **[Cell Configuration](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/references/cell.md)**: Master protocols and utilities for UICollectionViewCells (`SKLoadViewProtocol`, `SKConfigurableView`, `SKLoadNibProtocol`, `SKAdaptive`).
-- **[Common Utilities](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/references/common.md)**: Universal helpers for View Wrapping, Reactive Bindings, and Conditional Logic.
-- **[Page Management](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/references/page.md)**: Memory-efficient paginated view management using `SKPageViewController` and `SKPageManager`.
-- **[SwiftUI Previews](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/references/preview.md)**: Tools for generating SwiftUI Previews for SectionUI components.
-- **[SKCSingleTypeSection](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/references/single-type-section.md)**: Detailed documentation for the most frequently used section type (Diff, Pagination, Actions, etc.).
-- **[Section Orchestration](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/references/section.md)**: Advanced features for `SKCManager`, `SKCollectionViewController`, and Layout Plugins.
-- **[Selection Management](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/references/selection.md)**: Comprehensive selection logic (single/multiple, drag-to-select, reactive state).
+- **[Cell Configuration](./references/cell.md)**: Master protocols and utilities for UICollectionViewCells (`SKLoadViewProtocol`, `SKConfigurableView`, `SKLoadNibProtocol`, `SKAdaptive`).
+- **[Common Utilities](./references/common.md)**: Universal helpers for View Wrapping, Reactive Bindings, and Conditional Logic.
+- **[Page Management](./references/page.md)**: Memory-efficient paginated view management using `SKPageViewController` and `SKPageManager`.
+- **[SwiftUI Previews](./references/preview.md)**: Tools for generating SwiftUI Previews for SectionUI components.
+- **[SKCSingleTypeSection](./references/single-type-section.md)**: Detailed documentation for the most frequently used section type (Diff, Pagination, Actions, etc.).
+- **[Section Orchestration](./references/section.md)**: Advanced features for `SKCManager`, `SKCollectionViewController`, and Layout Plugins.
+- **[Selection Management](./references/selection.md)**: Comprehensive selection logic (single/multiple, drag-to-select, reactive state).
 
 ## Usage
 
@@ -25,7 +25,7 @@ When working with SectionUI, you can refer to the specific documentation above b
 
 ### Quick Start Example
 
-You can find numerous examples of these components in the [examples/](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/examples) directory.
+You can find numerous examples of these components in the [examples/](./examples) directory.
 
 ### Key Protocols
 

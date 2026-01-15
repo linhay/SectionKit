@@ -81,4 +81,4 @@ manager.scrollObserver.add(scroll: "id") { handle in
 ---
 
 ## See Also
-- **[SKCSingleTypeSection](file:///Users/linhey/Desktop/丁香园/SectionKit/.agent/skills/sectionui/references/single-type-section.md)**: Documentation for the most common section type.
+- **[SKCSingleTypeSection](./single-type-section.md)**: Documentation for the most common section type.

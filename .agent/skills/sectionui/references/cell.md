@@ -1,77 +1,174 @@
----
-name: sectionui-cell
-description: Master skill for scaffolding and configuring UICollectionViewCell with robust protocols (SKLoadViewProtocol, SKConfigurableView, SKLoadNibProtocol, SKAdaptive).
----
+# Cell Creation & Configuration (Cell 创建与配置)
 
-# sectionkit-cell (Master)
+在 `SectionUI` 中，Cell 是构建列表的基本单元。要使 `UICollectionViewCell` 兼容框架的自动化功能，需遵循相关协议。
 
-Use this skill to create production-ready cells that are highly compatible and performance-optimized across standard and adaptive layouts.
+## 协议体系
 
-## 1. Scaffolding
+### 核心协议
 
-### Programmatic View (Standard)
+| 协议 | 功能 | 必需 |
+|------|------|:----:|
+| `SKConfigurableModelProtocol` | 定义 `config(_ model:)` 方法，用于绑定数据 | ✅ |
+| `SKConfigurableLayoutProtocol` | 定义 `preferredSize(limit:model:)` 方法，用于计算尺寸 | ✅ |
+| `SKConfigurableView` | 组合上述两个协议 | ✅ |
+| `SKLoadViewProtocol` | 包含 `preferredSize`，用于 Cell 注册 | ✅ |
+
+### 组合协议
+
+```swift
+// SKConfigurableView = SKConfigurableModelProtocol + SKConfigurableLayoutProtocol
+public protocol SKConfigurableView: SKConfigurableModelProtocol & SKConfigurableLayoutProtocol {}
+```
+
+## 基础用法
+
+### 标准 Cell 实现
+
 ```swift
 class MyCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
-    typealias Model = <#ModelType#>
+    
+    struct Model {
+        let title: String
+    }
+
+    // 1. 计算尺寸
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        return CGSize(width: size.width, height: 50)
+    }
+
+    // 2. 配置视图
+    func config(_ model: Model) {
+        label.text = model.title
+    }
+    
+    private lazy var label = UILabel()
+}
+```
+
+### 无 Model 的 Cell
+
+当 Cell 不需要外部数据时，可以将 `Model` 设为 `Void`：
+
+```swift
+class SpacerCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
+    
+    typealias Model = Void
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
-        return .init(width: size.width, height: 44)
+        return CGSize(width: size.width, height: 20)
     }
-
-    func config(_ model: Model) {
-        // Update UI
-    }
+    
+    // config 方法会自动提供空实现
 }
 ```
 
-### Adaptive SwiftUI (Professional)
+## 进阶用法：自适应布局
+
+对于使用 Auto Layout 的复杂 Cell，手动计算尺寸可能很繁琐。`SKAdaptive` 系列协议可以自动计算基于约束的尺寸。
+
+### SKConfigurableAutoAdaptiveView（推荐）
+
+最简单的自适应方式，自动缓存计算实例：
+
 ```swift
-final class MySwiftUICell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableAdaptiveMainView {
-    typealias Model = <#ModelType#>
+class AutoSizeCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableAutoAdaptiveView {
+    
+    struct Model {
+        let text: String
+    }
     
     func config(_ model: Model) {
-        contentConfiguration = UIHostingConfiguration {
-             <#SwiftUIView#>(model: model)
-        }.margins(.all, 0)
+        label.text = model.text
+    }
+    
+    // preferredSize 会自动基于 Auto Layout 约束计算
+    // 无需手动实现
+    
+    private lazy var label: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(16)
+        }
     }
 }
 ```
 
-## 2. Advanced Techniques
+### SKConfigurableAdaptiveView
 
-### SKAdaptive (Auto-Sizing)
-Use `SKAdaptive` to calculate height based on cell constraints or content.
+需要自定义适配配置时使用：
 
 ```swift
-static let adaptive = SKAdaptive(view: MyCell())
-
-static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
-    return adaptive.adaptiveHeightFittingSize(limit: size, model: model)
+class CustomAdaptiveCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableAdaptiveView {
+    
+    struct Model {
+        let text: String
+    }
+    
+    // 定义适配器
+    static var adaptive: SKAdaptive<CustomAdaptiveCell, Model> {
+        SKAdaptive(
+            view: CustomAdaptiveCell(),
+            direction: .vertical,  // 垂直方向自适应
+            insets: .init(top: 8, left: 16, bottom: 8, right: 16)
+        )
+    }
+    
+    func config(_ model: Model) {
+        label.text = model.text
+    }
+    
+    private lazy var label = UILabel()
 }
 ```
 
-### Multi-View Protocol Support
-Implement both code-based and NIB-based protocols for maximum flexibility.
+### SKAdaptive 配置选项
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `direction` | `SKLayoutDirection` | `.vertical`（固定宽度算高度）或 `.horizontal`（固定高度算宽度） |
+| `insets` | `UIEdgeInsets` | 额外的边距 |
+| `fittingPriority` | `SKAdaptiveFittingPriority` | 布局优先级（horizontal/vertical） |
+| `content` | `KeyPath` | 指定内容视图（用于精确计算） |
 
 ```swift
-class HybridCell: UICollectionViewCell, SKLoadNibProtocol, SKConfigurableView {
-    // Falls back to class-based if XIB is missing
+// 水平方向自适应（固定高度，计算宽度）
+static var adaptive: SKAdaptive<TagCell, Model> {
+    SKAdaptive(
+        direction: .horizontal,
+        insets: .init(top: 4, left: 8, bottom: 4, right: 8)
+    )
 }
 ```
 
-### View Wrapper (SKCWrapperCell)
-Turn any `UIView` into a Cell without subclassing `UICollectionViewCell`.
+## 其他协议
+
+### SKExistModelView
+
+当视图需要在初始化时就传入 Model：
 
 ```swift
-// 1. View conforms to SKConfigurableView
-class MyView: UIView, SKConfigurableView { ... }
+public protocol SKExistModelView: SKExistModelProtocol & SKConfigurableLayoutProtocol { }
 
-// 2. Use SKCWrapperCell to wrap it
-let section = SKCWrapperCell<MyView>.wrapperToSingleTypeSection(models)
+// 需要实现 init(model:)
+init(model: Model)
 ```
 
-## Professional Tips
-- **Reuse Identifier**: Protocols automatically generate `static var identifier` from class name.
-- **Layout Caching**: For complex cells, wrap size calculation in `sectionkit-section`'s `highPerformance.cache`.
-- **SwiftUI Performance**: Always use `final` class for `SKConfigurableAdaptiveMainView` cells to optimize Swift dispatch.
-- **Auto Layout**: Ensure your `contentView` constraints are robust if using `adaptiveHeightFittingSize`.
+### RawRepresentable 支持
+
+`SKConfigurableView` 自动支持 `RawRepresentable` 类型的配置：
+
+```swift
+enum CellType: String {
+    case primary, secondary
+}
+
+// 如果 Model 是 String，可以直接传 CellType
+cell.config(CellType.primary)  // 自动转换为 "primary"
+```

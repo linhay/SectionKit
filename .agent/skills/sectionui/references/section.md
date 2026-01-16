@@ -1,84 +1,101 @@
----
-name: sectionui-container-layout
-description: Documentation for SectionUI containers, managers, and advanced layout orchestration.
----
+# Section Management (SKCSingleTypeSection)
 
-# Section Management & Orchestration
+`SKCSingleTypeSection` is the most commonly used section type. It manages a homogenous list of data driven by a specific Cell type.
 
-While `SKCSingleTypeSection` defines individual sections, SectionUI provides several tools for managing these sections within a container and controlling the overall layout behavior.
+## Creation
 
-## 1. Manager Capabilities (SKCManager)
+Use the fluent API extension on your Cell type to create a section instance:
 
-The `SKCManager` is the brain of your collection view. It manages the lifecycle, section order, and updates.
-
-### Section Updates
 ```swift
-// Full Reload
-manager.reload([sectionA, sectionB])
-
-// Batch Updates
-manager.insert(newSection, after: existingSection)
-manager.append(footerSection)
+let section = MyCell.wrapperToSingleTypeSection()
 ```
 
-### Safe Scrolling
+## Configuration
+
+### Setting Data
 ```swift
-manager.scroll(to: section, row: 0, at: .top, animated: true)
+let models = [MyCell.Model(title: "A"), MyCell.Model(title: "B")]
+section.config(models: models)
 ```
 
-## 2. Advanced Layout Orchestration
-
-### SKCollectionFlowLayout
-Access the underlying flow layout for granular control.
+### Handling Actions (Event Subscription)
+You can subscribe to cell lifecycle and interaction events directly on the section.
 
 ```swift
-if let layout = sectionView.collectionViewLayout as? SKCollectionFlowLayout {
-    layout.sectionHeadersPinToVisibleBounds = true
-}
-```
-
-### Layout Plugins (SKCLayoutPlugins)
-Extend layout logic without subclassing.
-
-```swift
-// Apply a background view to all sections
-SKCLayoutPlugins.layout.add(decoration: MyBackgroundView.self, insets: .zero)
-
-// Align items
-section.addLayoutPlugins(.left)
-```
-
-## 3. Containers & Hosting
-
-### SKCollectionViewController
-The standard UIViewController subclass for SectionUI.
-
-```swift
-class MyViewController: SKCollectionViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        manager.reload([section])
+section
+    // Selection
+    .onCellAction(.selected) { context in
+        print("Selected index: \(context.indexPath.item)")
+        print("Model: \(context.model)")
     }
-}
+    // Display
+    .onCellAction(.willDisplay) { context in
+        // Track impression
+    }
 ```
 
-### SwiftUI Integration
-```swift
-UIViewController.sk.toSwiftUI {
-    SKCollectionViewController()
-}
-```
+## Advanced Usage
 
-### Scroll Observers
-Intercept scroll events safely.
+### 1. Headers & Footers
+You can easily add headers and footers to your section.
 
 ```swift
-manager.scrollObserver.add(scroll: "id") { handle in
-    handle.scrollViewDidScroll = { _ in ... }
+class MyHeader: UICollectionReusableView, SKLoadViewProtocol, SKConfigurableView { ... }
+
+section
+    .setHeader(MyHeader.self, model: "Header Title")
+    .setFooter(MyFooter.self, model: "Footer Text")
+```
+
+### 2. Cell Styling
+You can apply global styles to all cells in the section without modifying the cell code itself.
+
+```swift
+section.setCellStyle { context in
+    context.view.backgroundColor = .red
+    context.view.layer.cornerRadius = 8
 }
 ```
 
----
+### 3. Reactive Data Binding (Combine)
+If you are using Combine, you can bind a publisher directly to the section.
 
-## See Also
-- **[SKCSingleTypeSection](./single-type-section.md)**: Documentation for the most common section type.
+```swift
+// Assuming specific Model type
+let publisher: AnyPublisher<[Model], Never> = ...
+
+section.subscribe(models: publisher)
+```
+
+### 4. Drag & Drop
+Enable drag and drop with a simple closure.
+
+```swift
+section.onCellShould(.canMove) { context in
+    return true
+}
+```
+
+### 5. Context Menu
+Add context menus (long-press actions) easily.
+
+```swift
+section.onCellAction(.contextMenuConfiguration) { context in
+    // Return UIContextMenuConfiguration
+}
+```
+
+### 6. Decorations & Insets
+
+#### Section Insets
+Configure the padding around the section content.
+
+```swift
+section.setSectionInset(.init(top: 10, left: 10, bottom: 10, right: 10))
+```
+
+#### Decoration Views
+
+Add background views or other visual elements to the section using the simplified API.
+
+See **[Decorations](decorations.md)** for detailed documentation.

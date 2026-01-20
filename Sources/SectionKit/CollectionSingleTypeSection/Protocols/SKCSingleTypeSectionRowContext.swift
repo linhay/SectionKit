@@ -18,4 +18,16 @@ public extension SKCSingleTypeSectionRowContext {
     var isFirstRow: Bool { row == 0 }
     var isLastRow: Bool { row >= section.models.count - 1 }
     
+    func reload() {
+        section.refresh(at: row)
+    }
+    
+    func remove() {
+        section.remove(row)
+    }
+    
+    func delete() {
+        section.delete(row)
+    }
+    
 }

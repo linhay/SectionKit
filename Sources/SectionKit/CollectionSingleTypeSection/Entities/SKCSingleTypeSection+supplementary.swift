@@ -8,7 +8,7 @@
 import UIKit
 
 public extension SKCSingleTypeSection {
-    typealias AsyncSupplementaryActionBlock = AsyncContextBlock<SupplementaryActionContext, Void>
+    typealias AsyncSupplementaryActionBlock = AsyncContextBlock<SKCSupplementaryActionContext<Cell>, Void>
 }
 
 public extension SKCSingleTypeSection {

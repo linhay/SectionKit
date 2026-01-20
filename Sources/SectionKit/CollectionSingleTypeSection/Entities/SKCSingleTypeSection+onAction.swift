@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 public extension SKCSingleTypeSection {
-    typealias AsyncCellActionBlock = AsyncContextBlock<CellActionContext, Void>
+    typealias AsyncCellActionBlock = AsyncContextBlock<SKCCellActionContext<Cell>, Void>
 }
 
 /// 配置当前 section 样式
@@ -69,7 +69,7 @@ public extension SKCSingleTypeSection {
         return self
     }
     
-    func onContextMenu(where predicate: @escaping (_ context: ContextMenuContext) -> Bool,
+    func onContextMenu(where predicate: @escaping (_ context: SKCContextMenuContext<Cell>) -> Bool,
                        block: @escaping ContextMenuBlock) -> Self {
         return onContextMenu { context in
             guard predicate(context) else {

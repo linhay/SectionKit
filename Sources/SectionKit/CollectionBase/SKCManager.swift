@@ -179,7 +179,7 @@ public extension SKCManager {
     func remove(_ input: [SKCBaseSectionProtocol]) {
         guard !input.isEmpty else { return }
         
-        var inputs   = Set(input.map(ObjectIdentifier.init))
+        let inputs   = Set(input.map(ObjectIdentifier.init))
         var indexs   = IndexSet()
         var sections = [SKCBaseSectionProtocol]()
         

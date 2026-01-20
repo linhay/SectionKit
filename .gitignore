@@ -8,3 +8,6 @@ DerivedData/
 .netrc
 Example/Pods
 Sources/.build
+
+# Release artifacts
+sectionui-skills.zip

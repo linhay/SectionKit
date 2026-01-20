@@ -21,12 +21,12 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     public typealias SectionStyleWeakBlock<T: AnyObject> = (_ self: T, _ section: SKCSingleTypeSection<Cell>) -> Void
     public typealias CellStyleWeakBlock<T: AnyObject>    = (_ self: T, _ context: SKCCellStyleContext<Cell>) -> Void
-    public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: CellActionContext) -> Void
+    public typealias CellActionWeakBlock<T: AnyObject>   = (_ self: T, _ context: SKCCellActionContext<Cell>) -> Void
     
-    public typealias SupplementaryActionBlock = ContextBlock<SupplementaryActionContext, Void>
-    public typealias CellActionBlock          = ContextBlock<CellActionContext, Void>
-    public typealias ContextMenuBlock         = ContextBlock<ContextMenuContext, SKUIContextMenuResult?>
-    public typealias CellShouldBlock          = ContextBlock<ContextMenuContext, Bool?>
+    public typealias SupplementaryActionBlock = ContextBlock<SKCSupplementaryActionContext<Cell>, Void>
+    public typealias CellActionBlock          = ContextBlock<SKCCellActionContext<Cell>, Void>
+    public typealias ContextMenuBlock         = ContextBlock<SKCContextMenuContext<Cell>, SKUIContextMenuResult?>
+    public typealias CellShouldBlock          = ContextBlock<SKCContextMenuContext<Cell>, Bool?>
     
     public enum LifeCycleKind {
         case loadedToSectionView(UICollectionView)
@@ -61,79 +61,6 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         /// 跳过计算, 直接赋值 (大数据时可以提高性能)
         fileprivate var highestFooterSize: CGSize?
     }
-        
-    public struct ContextMenuContext: SKCSingleTypeCellActionContextProtocol {
-        
-        public let section: SKCSingleTypeSection<Cell>
-        public let model: Cell.Model
-        public let row: Int
-        
-        init(section: SKCSingleTypeSection<Cell>,
-             model: Cell.Model,
-             row: Int) {
-            self.section = section
-            self.model = model
-            self.row = row
-        }
-        
-    }
-    
-    public struct CellActionContext: SKCSingleTypeSectionRowContext, SKCSingleTypeCellActionContextProtocol {
-        
-        public let section: SKCSingleTypeSection<Cell>
-        public let type: SKCCellActionType
-        public let model: Cell.Model
-        public let row: Int
-        public var indexPath: IndexPath { section.indexPath(from: row) }
-        fileprivate let _view: SKWeakBox<Cell>?
-        
-        public func view() -> Cell {
-            guard let cell = _view?.value ?? section.cellForItem(at: row) else {
-                assertionFailure()
-                return .init(frame: .zero)
-            }
-            return cell
-        }
-        
-        fileprivate init(section: SKCSingleTypeSection<Cell>,
-                         type: SKCCellActionType,
-                         model: Cell.Model, row: Int,
-                         _view: Cell?) {
-            self.section = section
-            self.type = type
-            self.model = model
-            self.row = row
-            self._view = .init(_view)
-        }
-    }
-    
-    public struct SupplementaryActionContext {
-        public let section: SKCSingleTypeSection<Cell>
-        public let type: SKCSupplementaryActionType
-        public let kind: SKSupplementaryKind
-        public let row: Int
-        let _view: SKWeakBox<UICollectionReusableView>?
-        
-        public func view() -> UICollectionReusableView {
-            guard let cell = _view?.value ?? section.supplementary(kind: kind, at: row) else {
-                assertionFailure()
-                return .init(frame: .zero)
-            }
-            return cell
-        }
-        
-        init(section: SKCSingleTypeSection<Cell>,
-             type: SKCSupplementaryActionType,
-             kind: SKSupplementaryKind,
-             row: Int,
-             view: UICollectionReusableView?) {
-            self.section = section
-            self.type = type
-            self.kind = kind
-            self.row = row
-            self._view = .init(view)
-        }
-    }
     
     public final class SKCSingleTypePublishers {
         
@@ -152,8 +79,8 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         
         fileprivate lazy var modelsSubject = CurrentValueSubject<[Model], Never>([])
         fileprivate var lifeCycleSubject: PassthroughSubject<LifeCycleKind, Never>?
-        fileprivate var cellActionSubject: PassthroughSubject<CellActionContext, Never>?
-        fileprivate var supplementaryActionSubject: PassthroughSubject<SupplementaryActionContext, Never>?
+        fileprivate var cellActionSubject: PassthroughSubject<SKCCellActionContext<Cell>, Never>?
+        fileprivate var supplementaryActionSubject: PassthroughSubject<SKCSupplementaryActionContext<Cell>, Never>?
         
         func deferred<Output, Failure: Error>(bind: WritableKeyPath<SKCSingleTypePublishers, PassthroughSubject<Output, Failure>?>) -> AnyPublisher<Output, Failure> {
             return Deferred { [weak self] in
@@ -405,7 +332,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     
     open func item(canMove row: Int) -> Bool {
         let items = cellShoulds[.move]
-        let context = ContextMenuContext(section: self, model: models[row], row: row)
+        let context = SKCContextMenuContext(section: self, model: models[row], row: row)
         for item in items {
             if let result = item(context) {
                 return result
@@ -727,7 +654,7 @@ public extension SKCSingleTypeSection {
                 items.contains(where: { areEquivalent($0, item) })
             }
             .map(\.offset)
-        remove(rows ?? [])
+        remove(rows)
     }
     
     func remove(_ items: [Model]) where Model: Equatable {
@@ -853,7 +780,7 @@ public extension SKCSingleTypeSection {
             return nil
         }
         let model = models[row]
-        let context = ContextMenuContext(section: self, model: model, row: row)
+        let context = SKCContextMenuContext(section: self, model: model, row: row)
         for cellContextMenu in cellContextMenus {
             if let result = cellContextMenu(context) {
                 return result
@@ -866,7 +793,7 @@ public extension SKCSingleTypeSection {
         guard deletedModels[row] != nil || models.indices.contains(row) else {
             return
         }
-        let result = CellActionContext(section: self,
+        let result = SKCCellActionContext<Cell>(section: self,
                                        type: type,
                                        model: deletedModels[row] ?? models[row],
                                        row: row, _view: view)
@@ -876,11 +803,11 @@ public extension SKCSingleTypeSection {
     
     func sendAction(_ type: SKCCellActionType, view: Cell?, row: Int) {
         guard models.indices.contains(row) else { return }
-        let result = CellActionContext(section: self, type: type, model: models[row], row: row, _view: view)
+        let result = SKCCellActionContext<Cell>(section: self, type: type, model: models[row], row: row, _view: view)
         sendAction(result)
     }
     
-    func sendAction(_ result: CellActionContext) {
+    func sendAction(_ result: SKCCellActionContext<Cell>) {
         for block in cellActions[result.type] {
             block(result)
         }
@@ -891,7 +818,7 @@ public extension SKCSingleTypeSection {
                                  kind: SKSupplementaryKind,
                                  row: Int,
                                  view: UICollectionReusableView) {
-        let result = SupplementaryActionContext(section: self, type: type, kind: kind, row: row, view: view)
+        let result = SKCSupplementaryActionContext(section: self, type: type, kind: kind, row: row, view: view)
         for block in supplementaryActions[type] {
             block(result)
         }

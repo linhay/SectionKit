@@ -13,6 +13,11 @@ public struct SKCContextMenuContext<Cell: UICollectionViewCell & SKConfigurableV
     public let model: Cell.Model
     public let row: Int
     
+    public func view(version: SKCActionContextVersion) -> UIView {
+        assertionFailure("ContextMenu 不支持获取 View")
+        return .init()
+    }
+    
     init(section: SKCSingleTypeSection<Cell>,
          model: Cell.Model,
          row: Int) {
@@ -23,7 +28,7 @@ public struct SKCContextMenuContext<Cell: UICollectionViewCell & SKConfigurableV
     
 }
 
-public struct CellActionContext<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionRowContext, SKCSingleTypeCellActionContextProtocol {
+public struct SKCCellActionContext<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionRowContext, SKCSingleTypeCellActionContextProtocol {
     
     public let section: SKCSingleTypeSection<Cell>
     public let type: SKCCellActionType
@@ -32,7 +37,7 @@ public struct CellActionContext<Cell: UICollectionViewCell & SKConfigurableView 
     public var indexPath: IndexPath { section.indexPath(from: row) }
     fileprivate let _view: SKWeakBox<Cell>?
     
-    public func view() -> Cell {
+    public func view(version: SKCActionContextVersion) -> Cell {
         guard let cell = _view?.value ?? section.cellForItem(at: row) else {
             assertionFailure()
             return .init(frame: .zero)
@@ -40,10 +45,12 @@ public struct CellActionContext<Cell: UICollectionViewCell & SKConfigurableView 
         return cell
     }
     
-    init(section: SKCSingleTypeSection<Cell>,
-                     type: SKCCellActionType,
-                     model: Cell.Model, row: Int,
-                     _view: Cell?) {
+    init(
+        section: SKCSingleTypeSection<Cell>,
+        type: SKCCellActionType,
+        model: Cell.Model, row: Int,
+        _view: Cell?
+    ) {
         self.section = section
         self.type = type
         self.model = model
@@ -52,14 +59,14 @@ public struct CellActionContext<Cell: UICollectionViewCell & SKConfigurableView 
     }
 }
 
-public struct SupplementaryActionContext<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol> {
+public struct SKCSupplementaryActionContext<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionRowContext, SKCSingleAssociatedViewContextProtocol {
     public let section: SKCSingleTypeSection<Cell>
     public let type: SKCSupplementaryActionType
     public let kind: SKSupplementaryKind
     public let row: Int
     let _view: SKWeakBox<UICollectionReusableView>?
     
-    public func view() -> UICollectionReusableView {
+    public func view(version: SKCActionContextVersion) -> UICollectionReusableView {
         guard let cell = _view?.value ?? section.supplementary(kind: kind, at: row) else {
             assertionFailure()
             return .init(frame: .zero)
@@ -67,11 +74,13 @@ public struct SupplementaryActionContext<Cell: UICollectionViewCell & SKConfigur
         return cell
     }
     
-    init(section: SKCSingleTypeSection<Cell>,
-         type: SKCSupplementaryActionType,
-         kind: SKSupplementaryKind,
-         row: Int,
-         view: UICollectionReusableView?) {
+    init(
+        section: SKCSingleTypeSection<Cell>,
+        type: SKCSupplementaryActionType,
+        kind: SKSupplementaryKind,
+        row: Int,
+        view: UICollectionReusableView?
+    ) {
         self.section = section
         self.type = type
         self.kind = kind

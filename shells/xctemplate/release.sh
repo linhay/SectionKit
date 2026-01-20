@@ -133,14 +133,16 @@ check_version_consistency() {
         return
     fi
     
-    local sectionkit2_version=$(grep "s\.version" "$SECTIONKIT2_PODSPEC" | sed -E "s/.*'([0-9.]+)'.*/\1/")
-    local sectionui_version=$(grep "s\.version" "$SECTIONUI_PODSPEC" | sed -E "s/.*'([0-9.]+)'.*/\1/")
+    
+    local sectionkit2_version=$(grep "s\.version[[:space:]]*=" "$SECTIONKIT2_PODSPEC" | head -1 | sed -E "s/.*'([0-9.]+)'.*/\1/")
+    local sectionui_version=$(grep "s\.version[[:space:]]*=" "$SECTIONUI_PODSPEC" | head -1 | sed -E "s/.*'([0-9.]+)'.*/\1/")
     local dependency_version=$(grep "s\.dependency 'SectionKit2'" "$SECTIONUI_PODSPEC" | sed -E "s/.*'>= ([0-9.]+)'.*/\1/")
     
     log_info "版本一致性检查："
     echo "  SectionKit2: $sectionkit2_version"
     echo "  SectionUI: $sectionui_version"
     echo "  SectionUI 依赖: >= $dependency_version"
+
     
     if [[ "$sectionkit2_version" != "$sectionui_version" ]]; then
         log_error "SectionKit2 和 SectionUI 版本号不一致！"
@@ -158,16 +160,29 @@ check_version_consistency() {
 # 提交更改
 commit_changes() {
     local version=$1
+    local commit_message="chore: bump version to $version"
     
     log_info "提交 podspec 版本更新..."
     
     if [[ "$DRY_RUN" == true ]]; then
-        log_warning "[DRY RUN] 将提交更改：Bump version to $version"
+        log_warning "[DRY RUN] 将提交更改：$commit_message"
         return
     fi
     
+    # 检查是否已经有这个版本的提交
+    if git log -1 --pretty=%B | grep -q "$commit_message"; then
+        log_warning "版本 $version 的更改已经提交，跳过此步骤"
+        return
+    fi
+    
+    # 检查是否有更改需要提交
     git add "$SECTIONKIT2_PODSPEC" "$SECTIONUI_PODSPEC"
-    git commit -m "chore: bump version to $version"
+    if git diff --cached --quiet; then
+        log_warning "没有更改需要提交（可能已经提交过）"
+        return
+    fi
+    
+    git commit -m "$commit_message"
     
     log_success "已提交更改"
 }
@@ -175,7 +190,7 @@ commit_changes() {
 # 创建并推送标签
 create_and_push_tag() {
     local version=$1
-    local tag="v$version"
+    local tag="$version"
     
     log_info "创建标签 $tag..."
     
@@ -184,15 +199,31 @@ create_and_push_tag() {
         return
     fi
     
-    # 检查标签是否已存在
+    # 检查远程是否已有此标签
+    if git ls-remote --tags origin | grep -q "refs/tags/$tag$"; then
+        log_warning "标签 $tag 已存在于远程仓库，跳过创建和推送"
+        # 确保本地也有此标签
+        if ! git rev-parse "$tag" >/dev/null 2>&1; then
+            git fetch origin "refs/tags/$tag:refs/tags/$tag"
+        fi
+        return
+    fi
+    
+    # 检查本地标签是否已存在
     if git rev-parse "$tag" >/dev/null 2>&1; then
-        log_warning "标签 $tag 已存在，删除旧标签..."
+        log_warning "本地标签 $tag 已存在，删除后重新创建..."
         git tag -d "$tag"
-        git push origin ":refs/tags/$tag" 2>/dev/null || true
     fi
     
     git tag -a "$tag" -m "Release version $version"
-    git push origin main
+    
+    # 推送 main 分支（如果有更改）
+    if ! git diff origin/main --quiet 2>/dev/null; then
+        git push origin main
+    else
+        log_info "main 分支无更改，跳过推送"
+    fi
+    
     git push origin "$tag"
     
     log_success "已创建并推送标签 $tag"
@@ -227,12 +258,18 @@ package_skills() {
 # 创建 GitHub Release
 create_github_release() {
     local version=$1
-    local tag="v$version"
+    local tag="$version"
     
     log_info "创建 GitHub Release $tag..."
     
     if [[ "$DRY_RUN" == true ]]; then
         log_warning "[DRY RUN] 将创建 GitHub Release $tag 并上传 $SKILLS_ZIP"
+        return
+    fi
+    
+    # 检查 Release 是否已存在
+    if gh release view "$tag" >/dev/null 2>&1; then
+        log_warning "GitHub Release $tag 已存在，跳过创建"
         return
     fi
     
@@ -276,12 +313,12 @@ publish_to_cocoapods() {
     log_info "发布 $pod_name 到 CocoaPods..."
     
     if [[ "$DRY_RUN" == true ]]; then
-        log_warning "[DRY RUN] 将执行：bundle exec pod trunk push $podspec --allow-warnings"
+        log_warning "[DRY RUN] 将执行：pod trunk push $podspec --allow-warnings"
         return
     fi
     
-    # 使用 bundle exec 确保使用项目的 Gemfile 依赖
-    bundle exec pod trunk push "$podspec" --allow-warnings
+    # 使用确保使用项目的 Gemfile 依赖
+    pod trunk push "$podspec" --allow-warnings
     
     log_success "已发布 $pod_name"
 }

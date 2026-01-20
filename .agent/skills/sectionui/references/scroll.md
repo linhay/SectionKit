@@ -271,7 +271,7 @@ override func viewDidLoad() {
 }
 
 @objc private func scrollToTop() {
-    collectionView.setContentOffset(.zero, animated: true)
+    sectionView.setContentOffset(.zero, animated: true)
 }
 ```
 

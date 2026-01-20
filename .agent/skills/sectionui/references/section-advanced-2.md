@@ -481,7 +481,7 @@ if models.count > 10000 {
 section.feature.highestItemSize = CGSize(width: 100, height: 100)
 
 // Static header
-section.feature.highestHeaderSize = CGSize(width: collectionView.bounds.width, height: 44)
+section.feature.highestHeaderSize = CGSize(width: sectionView.bounds.width, height: 44)
 ```
 
 ## Summary

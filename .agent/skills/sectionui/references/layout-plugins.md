@@ -154,7 +154,7 @@ let layout = SKWaterfallLayout()
     .columnWidth(equalParts: 2)  // 两列等宽
     .heightCalculationMode(.aspectRatio)  // 根据宽高比计算高度
 
-collectionView.collectionViewLayout = layout
+sectionView.collectionViewLayout = layout
 ```
 
 ### 列宽配置

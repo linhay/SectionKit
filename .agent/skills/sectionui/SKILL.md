@@ -144,3 +144,4 @@ let section = SKCHostingSection(
 - **Use Reactive Binding**: Leverage Combine and `SKPublished` for automatic UI updates.
 - **Cache Sizes**: Use `SKHighPerformanceStore` for complex Auto Layout calculations.
 - **Weak References**: Always use `[weak self]` in closures to avoid retain cycles.
+- **Naming Convention**: When declaring a `UICollectionView` variable, use `sectionView` as the variable name instead of `collectionView`.

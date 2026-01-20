@@ -158,7 +158,7 @@ section.prefetch.loadMorePublisher
     .store(in: &cancellables)
 
 // 下拉刷新
-collectionView.refreshControl = UIRefreshControl()
+sectionView.refreshControl = UIRefreshControl()
 ```
 
 ### 网格布局

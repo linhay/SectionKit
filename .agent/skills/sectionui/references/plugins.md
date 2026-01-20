@@ -10,7 +10,7 @@ You can apply plugins globally to the `SKCollectionView` or locally to a specifi
 Apply plugins to the collection view to affect all sections or specific ones globally.
 
 ```swift
-collectionView.set(pluginModes: .left, .fixSupplementaryViewInset(.all))
+sectionView.set(pluginModes: .left, .fixSupplementaryViewInset(.all))
 ```
 
 ### Section Plugins (Recommended)
@@ -42,7 +42,7 @@ Control the horizontal alignment of cells. Useful for "Tag" or "Chip" layouts th
 - **`.centerX`**: Center cells horizontally.
 
 ```swift
-collectionView.set(pluginModes: .left)
+sectionView.set(pluginModes: .left)
 ```
 
 ### 2. Supplementary View Fixes

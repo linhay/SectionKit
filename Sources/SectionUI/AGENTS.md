@@ -38,6 +38,6 @@ The core of `SectionUI` is `SKCollectionFlowLayout`, which extends `UICollection
 | `SKCHostingCell` | Generic cell wrapper for SwiftUI `View`. |
 
 ## USAGE TIPS
-- **Plugins**: Enable plugins via `collectionView.set(pluginModes: ...)` or per-section via `SKCSectionLayoutPluginProtocol`.
+- **Plugins**: Enable plugins via `sectionView.set(pluginModes: ...)` or per-section via `SKCSectionLayoutPluginProtocol`.
 - **Sizing**: Use `SKLoadViewProtocol.preferredSize(limit:model:)` for accurate self-sizing calculations.
 - **Decoration**: Prefer `SKCLayoutDecoration` over manual background views for performance and flexibility.

@@ -163,7 +163,7 @@ class LoadMoreViewController: SKCollectionViewController {
         // 下拉刷新
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
-        collectionView.refreshControl = refreshControl
+        sectionView.refreshControl = refreshControl
         
         loadPage(1)
     }
@@ -193,7 +193,7 @@ class LoadMoreViewController: SKCollectionViewController {
             
             self.currentPage = page
             self.isLoading = false
-            self.collectionView.refreshControl?.endRefreshing()
+            self.sectionView.refreshControl?.endRefreshing()
         }
     }
 }

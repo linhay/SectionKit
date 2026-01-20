@@ -55,11 +55,19 @@ section.set(decoration: MyBackgroundView.self) { decoration in
 
 #### Mode（边界计算模式）
 
-`modes` 属性控制装饰视图边界的计算方式：
+`modes` 属性控制装饰视图边界的计算方式，**默认值为 `.visibleView`**。
 
-- **`.visibleView`**：边界匹配当前可见的 Cells/Headers/Footers 的并集（动态，适合粘性 Header）。
-- **`.section`**：边界匹配整个逻辑 Section 区域。
+- **`.visibleView`** (默认)：边界匹配当前可见的 Cells/Headers/Footers 的并集（动态，适合粘性 Header）。
+- **`.section`**：边界匹配整个逻辑 Section 区域。**如果需要包含 `sectionInset` 区域，必须切换为此模式**。
 - **`.useSectionInsetWhenNotExist([.header, .footer, .cells])`**：如果指定的元素不存在，使用 `sectionInset` 来填充边界。
+
+#### 使用场景 (Usage Scenarios)
+
+| 场景 | 推荐 Mode | 说明 |
+|------|-----------|------|
+| **常规背景** | `.visibleView` | 默认模式，性能较优，背景紧贴可见内容。 |
+| **包含 Section Insets** | `.section` | 如果 Section 设置了 `insets` 且希望背景覆盖这些留白区域，必须使用 `.section`。 |
+| **Sticky Header** | `.visibleView` | 背景会正确跟随吸顶 Header 移动。 |
 
 ```swift
 section.set(decoration: MyBackgroundView.self, model: myModel) { decoration in

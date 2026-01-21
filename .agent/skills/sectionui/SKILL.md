@@ -36,6 +36,11 @@ description: Master skill for SectionUI (SectionKit), a powerful data-driven fra
 - [Basic List](examples/BasicListViewController.swift)
 - [Decorations](examples/DecorationExampleViewController.swift)
 
+### Templates
+- [Adaptive Cell](examples/AdaptiveCellTemplate.swift) - Template for a cell with self-sizing capabilities.
+- [Mixed Cells Section](examples/MixedCellsSectionTemplate.swift) - Template for a section managing multiple cell types.
+- [Section Cell](examples/SectionCellTemplate.swift) - Template for a standard configurable cell.
+
 ## Quick Start Guide
 
 ### 1. Basic Setup

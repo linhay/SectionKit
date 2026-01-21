@@ -2,147 +2,22 @@
 
 SectionUI 提供完整的选择状态管理系统，支持单选、多选和状态同步。
 
-## 核心协议：SKSelectionProtocol
+## 核心组件
 
-选择状态的基础协议：
+### 1. 基础协议与状态
 
-```swift
-public protocol SKSelectionProtocol {
-    var isSelected: Bool { get set }
-    var canSelect: Bool { get set }
-    var isEnabled: Bool { get set }
-    
-    var selectedPublisher: AnyPublisher<Bool, Never> { get }
-    var canSelectPublisher: AnyPublisher<Bool, Never> { get }
-    var enabledPublisher: AnyPublisher<Bool, Never> { get }
-    var changedPublisher: AnyPublisher<Self, Never> { get }
-    
-    func toggle()
-    func select()
-}
-```
+- **[SKSelectionState](selection-state.md)**: 核心状态容器，管理 `isSelected`, `canSelect`, `isEnabled` 及其 Publisher。
+- **[SKSelectionProtocol](selection-protocol.md)**: 基础协议，定义了通过 `SKSelectionState` 代理实现选择能力的标准接口。
 
-## SKSelectionWrapper - 选择包装器
+### 2. 包装器与序列
 
-将任何类型包装为可选择对象：
+- **[SKSelectionWrapper](selection-wrapper.md)**: 通用包装器，将任意类型包装为可选择对象。
+- **[SKSelectionSequence](selection-sequence.md)**: 管理一组对象（数组）的选择状态。
+- **[SKSelectionIdentifiableSequence](selection-identifiable-sequence.md)**: 基于 ID 管理对象选择状态。
 
-### 基础用法
+### 3. 高级交互
 
-```swift
-struct Item {
-    let id: String
-    let title: String
-}
-
-// 包装为可选择对象
-let wrapper = SKSelectionWrapper(value: Item(id: "1", title: "Item 1"))
-
-// 切换选择状态
-wrapper.toggle()
-
-// 直接选中
-wrapper.select()
-
-// 检查状态
-if wrapper.isSelected {
-    print("已选中")
-}
-```
-
-### 监听状态变化
-
-```swift
-let wrapper = SKSelectionWrapper(value: item)
-
-// 监听选择状态
-wrapper.selectedPublisher
-    .sink { isSelected in
-        updateUI(isSelected)
-    }
-    .store(in: &cancellables)
-
-// 监听任何属性变化
-wrapper.changedPublisher
-    .sink { wrapper in
-        print("状态变化：\(wrapper)")
-    }
-    .store(in: &cancellables)
-```
-
-### 控制选择能力
-
-```swift
-// 禁用选择
-wrapper.canSelect = false  // 无法被选中
-
-// 禁用整个项
-wrapper.isEnabled = false  // 完全禁用
-```
-
-## SKSelectionSequence - 选择集合
-
-管理一组可选择对象：
-
-### 创建集合
-
-```swift
-let items = [Item1, Item2, Item3]
-let sequence = SKSelectionSequence(items.map { SKSelectionWrapper(value: $0) })
-```
-
-### 批量操作
-
-```swift
-// 全选
-sequence.selectAll()
-
-// 取消全选
-sequence.deselectAll()
-
-// 反选
-sequence.toggleAll()
-
-// 获取已选中的项
-let selected = sequence.selectedItems  // [SKSelectionWrapper]
-```
-
-### 单选模式
-
-```swift
-let sequence = SKSelectionSequence<SKSelectionWrapper<Item>>()
-
-// 设置为单选
-sequence.maxSelectableCount = 1
-
-// 当选择新项时，自动取消其他项的选中状态
-```
-
-## SKSelectionIdentifiableSequence - Identifiable 集合
-
-基于 Identifiable 的选择管理：
-
-```swift
-struct Item: Identifiable {
-    let id: String
-    let title: String
-}
-
-let sequence = SKSelectionIdentifiableSequence<Item>()
-
-// 按 ID 选择
-sequence.select(id: "item-1")
-
-// 按 ID 取消选择
-sequence.deselect(id: "item-2")
-
-// 检查是否选中
-if sequence.isSelected(id: "item-1") {
-    print("已选中")
-}
-
-// 获取所有选中的 ID
-let selectedIDs = sequence.selectedIDs  // [String]
-```
+- **[SKCDragSelector](selection-drag-selector.md)**: 提供拖拽多选、自动滚动等交互功能。
 
 ## 在 Section 中使用选择
 
@@ -157,11 +32,17 @@ class SelectableCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableVi
     
     typealias Model = SKSelectionWrapper<Item>
     
+    // 1. 存储 cancellable
+    private var cancellable: AnyCancellable?
+    
     func config(_ model: Model) {
         label.text = model.value.title
         
-        // 更新选中状态 UI
-        contentView.backgroundColor = model.isSelected ? .systemBlue : .white
+        // 2. 响应式更新 UI
+        cancellable = model.selectedPublisher.sink { [weak self] isSelected in
+            guard let self = self else { return }
+            self.contentView.backgroundColor = isSelected ? .systemBlue : .white
+        }
     }
     
     static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
@@ -171,7 +52,7 @@ class SelectableCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableVi
 
 // 创建可选择数据
 let items = [Item(title: "A"), Item(title: "B")]
-let selectableItems = items.map { SKSelectionWrapper(value: $0) }
+let selectableItems = items.map { SKSelectionWrapper($0) }
 
 // 配置 Section
 let section = SelectableCell.wrapperToSingleTypeSection()
@@ -181,7 +62,7 @@ let section = SelectableCell.wrapperToSingleTypeSection()
         context.model.toggle()
         
         // 刷新 Cell
-        context.section.reload(rows: [context.indexPath.item])
+        context.section.reload(cell: context.cell)
     }
 ```
 
@@ -190,187 +71,15 @@ let section = SelectableCell.wrapperToSingleTypeSection()
 ```swift
 class SelectableItem: SKSelectionProtocol {
     let title: String
-    var isSelected: Bool = false
-    var canSelect: Bool = true
-    var isEnabled: Bool = true
-    
-    // Publishers...
-    private let selectedSubject = CurrentValueSubject<Bool, Never>(false)
-    var selectedPublisher: AnyPublisher<Bool, Never> {
-        selectedSubject.eraseToAnyPublisher()
-    }
-    // ... 其他 publishers
+    // 必须实现 selection 属性
+    let selection = SKSelectionState()
     
     init(title: String) {
         self.title = title
     }
     
     func toggle() {
-        isSelected.toggle()
-        selectedSubject.send(isSelected)
-    }
-    
-    func select() {
-        isSelected = true
-        selectedSubject.send(isSelected)
-    }
-}
-```
-
-## 拖拽多选：SKCDragSelector (Beta)
-
-高级拖拽选择功能，类似桌面文件选择。
-
-### 功能特性
-
-- 智能意图分析（区分滚动和选择）
-- 边缘自动滚动
-- 可视化选择覆盖层
-- 触觉反馈
-- 可配置的手势阈值
-
-### 设置
-
-```swift
-import SectionUI
-
-class SelectViewController: SKCollectionViewController {
-    
-    private let dragSelector = SKCDragSelector()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // 设置拖拽选择
-        try? dragSelector.setup(
-            collectionView: collectionView,
-            rectSelectionDelegate: self
-        )
-        
-        // 配置选项
-        dragSelector.isEnabled = true
-        dragSelector.minimumPressDuration = 0.2  // 长按时长
-        dragSelector.movementThreshold = 5.0     // 移动阈值
-    }
-}
-
-// 实现代理
-extension SelectViewController: SKCRectSelectionDelegate {
-    
-    func rectSelectionManager(
-        _ manager: SKCRectSelectionManager,
-        didUpdateSelection isSelected: Bool,
-        for indexPath: IndexPath
-    ) {
-        // 更新模型选择状态
-        models[indexPath.item].isSelected = isSelected
-        
-        // 刷新 Cell UI
-        section.reload(rows: [indexPath.item])
-    }
-    
-    func rectSelectionManager(
-        _ manager: SKCRectSelectionManager,
-        shouldSelectItemAt indexPath: IndexPath
-    ) -> Bool {
-        // 返回是否允许选择该项
-        return models[indexPath.item].canSelect
-    }
-}
-```
-
-### 配置选项
-
-```swift
-// 调整手势灵敏度
-dragSelector.movementThreshold = 10.0  // 默认 5.0
-
-// 调整长按时长
-dragSelector.minimumPressDuration = 0.5  // 默认 0.2
-
-// 禁用/启用
-dragSelector.isEnabled = false
-
-// 调整自动滚动速度
-dragSelector.autoScrollManager.scrollSpeed = 200  // 默认 150
-```
-
-### 完整示例
-
-参考 `Example/Data/SelectTextViewController.swift`：
-
-```swift
-class SelectTextViewController: SKCollectionViewController {
-    
-    private var items: [SelectableItem] = []
-    private let dragSelector = SKCDragSelector()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // 初始化数据
-        items = (0..<100).map { SelectableItem(title: "Item \($0)") }
-        
-        // 配置 Section
-        section.config(models: items.map { SKSelectionWrapper(value: $0) })
-        manager.reload(section)
-        
-        // 启用拖拽选择
-        try? dragSelector.setup(
-            collectionView: collectionView,
-            rectSelectionDelegate: self
-        )
-        
-        // 添加工具栏按钮
-        setupToolbar()
-    }
-    
-    private func setupToolbar() {
-        let selectAllButton = UIBarButtonItem(
-            title: "全选",
-            style: .plain,
-            target: self,
-            action: #selector(selectAll)
-        )
-        
-        let deselectAllButton = UIBarButtonItem(
-            title: "取消全选",
-            style: .plain,
-            target: self,
-            action: #selector(deselectAll)
-        )
-        
-        toolbarItems = [selectAllButton, deselectAllButton]
-        navigationController?.setToolbarHidden(false, animated: false)
-    }
-    
-    @objc private func selectAll() {
-        items.forEach { $0.select() }
-        section.reload()
-    }
-    
-    @objc private func deselectAll() {
-        items.forEach { $0.isSelected = false }
-        section.reload()
-    }
-}
-
-extension SelectTextViewController: SKCRectSelectionDelegate {
-    
-    func rectSelectionManager(
-        _ manager: SKCRectSelectionManager,
-        didUpdateSelection isSelected: Bool,
-        for indexPath: IndexPath
-    ) {
-        items[indexPath.item].isSelected = isSelected
-        section.reload(rows: [indexPath.item])
-    }
-    
-    func rectSelectionManager(
-        _ manager: SKCRectSelectionManager,
-        shouldSelectItemAt indexPath: IndexPath
-    ) -> Bool {
-        return items[indexPath.item].canSelect
+        selection.isSelected.toggle()
     }
 }
 ```

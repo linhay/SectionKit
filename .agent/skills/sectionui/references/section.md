@@ -13,11 +13,19 @@ A section represents a group of cells in a collection view. Each section:
 
 ## Creation
 
-Use the fluent API extension on your Cell type to create a section instance:
+It is recommended to use the **`wrapperToSingleTypeSection()`** static method to create Section instances. This approach leverages Swift's type inference, resulting in cleaner code and easier method chaining.
 
 ```swift
+// ✅ Recommended: Create directly from the Cell type
 let section = MyCell.wrapperToSingleTypeSection()
 ```
+
+> [!TIP]
+> **When to Create a Custom Section Class?**
+> 
+> You only need to define a custom, independent Section class adhering to `SKCSectionProtocol` when **a single Section needs to contain multiple different types of Cells**. See [./examples/MixedCellsSectionTemplate.swift](MixedCellsSectionTemplate.swift) for reference.
+> For the vast majority of list scenarios (homogenous lists driven by the same Cell type), using `wrapperToSingleTypeSection()` is sufficient and avoids extra boilerplate.
+
 
 ## Basic Configuration
 
@@ -54,7 +62,7 @@ Sections are strongly typed to their cell type:
 
 ```swift
 // This section only works with ProductCell
-let section: SKCSingleTypeSection<ProductCell> = ProductCell.wrapperToSingleTypeSection()
+let section = ProductCell.wrapperToSingleTypeSection()
 ```
 
 ### Fluent API

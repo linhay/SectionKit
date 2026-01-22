@@ -26,9 +26,44 @@ public class SKCDisplayTracker: SKScrollViewDelegateObserverProtocol {
     @Published public var displayedHeaderIndexPaths = [IndexPath]()
     @Published public var displayedFooterIndexPaths = [IndexPath]()
 
-    public func topCellIndexPathForVisibleArea() -> AnyPublisher<[IndexPath], Never> {
+    public func topCellIndexPathForVisibleArea(_ sections: [TopSectionForVisibleAreaItem])
+        -> AnyPublisher<[IndexPath], Never>
+    {
         $displayedCellIndexPaths
-            .map { $0.sorted() }
+            .removeDuplicates()
+            .map { cells in
+                let indexForSection: [Int: TopSectionForVisibleAreaItem] =
+                    sections
+                    .filter { $0.section != nil && $0.section?.isBindSectionView == true }
+                    .reduce(into: [:]) { result, box in
+                        if let index = box.section?.sectionIndex {
+                            result[index] = box
+                        }
+                    }
+
+                var _y: CGFloat?
+                var results = [IndexPath]()
+                for cell in cells {
+                    guard let section = indexForSection[cell.section]?.section,
+                        let frame = section.layoutAttributesForItem(at: cell.row)?.frame
+                    else {
+                        continue
+                    }
+
+                    if let y = _y {
+                        if y > frame.origin.y {
+                            _y = frame.origin.y
+                            results = [cell]
+                        } else if y == frame.origin.y {
+                            results.append(cell)
+                        }
+                    } else {
+                        _y = frame.origin.y
+                        results = [cell]
+                    }
+                }
+                return results
+            }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -65,13 +100,29 @@ public class SKCDisplayTracker: SKScrollViewDelegateObserverProtocol {
             .eraseToAnyPublisher()
     }
 
-    public func scrollViewDidScroll(_ scrollView: UIScrollView, value: Void) {
+    private func updateVisibleItems(_ scrollView: UIScrollView) {
         guard let sectionView = scrollView as? UICollectionView else { return }
         displayedCellIndexPaths = sectionView.indexPathsForVisibleItems
         displayedHeaderIndexPaths = sectionView.indexPathsForVisibleSupplementaryElements(
             ofKind: SKSupplementaryKind.header.rawValue)
         displayedFooterIndexPaths = sectionView.indexPathsForVisibleSupplementaryElements(
             ofKind: SKSupplementaryKind.footer.rawValue)
+    }
+
+    public func scrollViewDidScroll(_ scrollView: UIScrollView, value: Void) {
+        updateVisibleItems(scrollView)
+    }
+
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView, value: Void) {
+        updateVisibleItems(scrollView)
+    }
+
+    public func scrollViewDidEndDragging(
+        _ scrollView: UIScrollView, willDecelerate decelerate: Bool, value: Void
+    ) {
+        if !decelerate {
+            updateVisibleItems(scrollView)
+        }
     }
 
 }

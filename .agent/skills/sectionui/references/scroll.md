@@ -82,7 +82,28 @@ manager.scrollObserver.removeAll()
 
 ## SKCDisplayTracker - 可见性追踪
 
-追踪当前可见的 Cell、Header、Footer。
+追踪当前可见的 Cell、Header、Footer，支持 Combine 响应式数据流。
+
+### 核心属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `displayedCellIndexPaths` | `@Published [IndexPath]` | 当前可见的 Cell 索引 |
+| `displayedHeaderIndexPaths` | `@Published [IndexPath]` | 当前可见的 Header 索引 |
+| `displayedFooterIndexPaths` | `@Published [IndexPath]` | 当前可见的 Footer 索引 |
+
+### TopSectionForVisibleAreaItem
+
+用于标记 Section 的辅助结构：
+
+```swift
+public struct TopSectionForVisibleAreaItem {
+    public weak var section: (any SKCSectionProtocol)?
+    public let tag: Int
+    
+    public init(section: any SKCSectionProtocol, tag: Int)
+}
+```
 
 ### 基础用法
 
@@ -98,20 +119,53 @@ tracker.$displayedCellIndexPaths
     .store(in: &cancellables)
 
 // 监听可见 Header
-tracker.$displayedSupplementaryIndexPaths
+tracker.$displayedHeaderIndexPaths
     .sink { indexPaths in
-        print("可见 Header/Footer: \(indexPaths)")
+        print("可见 Header: \(indexPaths)")
+    }
+    .store(in: &cancellables)
+
+// 监听可见 Footer
+tracker.$displayedFooterIndexPaths
+    .sink { indexPaths in
+        print("可见 Footer: \(indexPaths)")
     }
     .store(in: &cancellables)
 ```
 
-### 获取顶部 Section
+### 获取顶部可见 Cell
+
+返回排序后的可见 Cell IndexPath 流：
 
 ```swift
-if let topSection = tracker.topSectionForVisibleArea() {
-    print("顶部 Section 索引: \(topSection)")
-    updateNavigationTitle(forSection: topSection)
+tracker.topCellIndexPathForVisibleArea()
+    .sink { sortedIndexPaths in
+        if let topIndexPath = sortedIndexPaths.first {
+            print("顶部 Cell: \(topIndexPath)")
+        }
+    }
+    .store(in: &cancellables)
+```
+
+### 获取顶部可见 Section
+
+根据预定义的 Section 列表，返回当前可见区域最顶部的 Section：
+
+```swift
+// 准备 Section 标记列表
+let sectionItems = sections.enumerated().map { index, section in
+    SKCDisplayTracker.TopSectionForVisibleAreaItem(section: section, tag: index)
 }
+
+// 订阅顶部 Section 变化
+tracker.topSectionForVisibleArea(sectionItems)
+    .sink { topItem in
+        if let item = topItem {
+            print("顶部 Section tag: \(item.tag)")
+            updateNavigationTitle(forTag: item.tag)
+        }
+    }
+    .store(in: &cancellables)
 ```
 
 ### 实战示例：滚动监控
@@ -130,14 +184,12 @@ class ScrollObserverViewController: SKCollectionViewController {
         // 添加追踪器
         manager.scrollObserver.add(tracker)
         
-        // 监听顶部 Section 变化
-        tracker.$displayedCellIndexPaths
-            .compactMap { [weak self] _ in
-                self?.tracker.topSectionForVisibleArea()
-            }
+        // 监听顶部 Cell 变化
+        tracker.topCellIndexPathForVisibleArea()
+            .compactMap(\.first)
             .removeDuplicates()
-            .sink { [weak self] sectionIndex in
-                self?.updateTitle(forSection: sectionIndex)
+            .sink { [weak self] topIndexPath in
+                self?.updateTitle(forSection: topIndexPath.section)
             }
             .store(in: &cancellables)
         

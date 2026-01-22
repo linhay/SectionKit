@@ -18,7 +18,7 @@ let package = Package(
         .target(name: "SectionUI", dependencies: ["SectionKit"]),
         .testTarget(
             name: "SectionKitTests",
-            dependencies: ["SectionUI"]
+            dependencies: ["SectionKit", "SectionUI"]
         ),
     ]
 )

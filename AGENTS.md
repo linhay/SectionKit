@@ -47,11 +47,28 @@ Data-driven `UICollectionView` framework for building flexible, reusable lists.
 
 ## COMMANDS
 ```bash
-# Build
+# Build (SwiftPM)
+# NOTE: `swift build` / `swift test` on macOS may fail because `SectionKit` imports UIKit.
+# Prefer building/testing via Xcode + iOS Simulator.
 swift build
 
-# Test (Manual)
-swift test
+# Build (iOS Simulator, recommended)
+xcodebuild \
+  -workspace ".swiftpm/xcode/package.xcworkspace" \
+  -scheme "SectionKit-Package" \
+  -destination 'generic/platform=iOS Simulator'
+
+# Test (iOS Simulator, recommended)
+# NOTE: Unit tests MUST run on a concrete simulator device (generic destination will fail).
+# 1) Find an available simulator id:
+xcrun simctl list devices available
+
+# 2) Run tests using the device id:
+xcodebuild test \
+  -workspace ".swiftpm/xcode/package.xcworkspace" \
+  -scheme "SectionKit-Package" \
+  -destination "platform=iOS Simulator,id=<SIMULATOR_UDID>" \
+  -quiet 2>&1 | tail -30
 
 # Lint (Manual)
 pod lib lint SectionUI.podspec

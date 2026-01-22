@@ -6,11 +6,11 @@
 //  Copyright © 2025 dxy.cn. All rights reserved.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 public class SKCDisplayTracker: SKScrollViewDelegateObserverProtocol {
-    
+
     public struct TopSectionForVisibleAreaItem {
         public weak var section: (any SKCSectionProtocol)?
         public let tag: Int
@@ -19,27 +19,42 @@ public class SKCDisplayTracker: SKScrollViewDelegateObserverProtocol {
             self.tag = tag
         }
     }
-    
+
     public init() {}
-    
+
     @Published public var displayedCellIndexPaths = [IndexPath]()
     @Published public var displayedHeaderIndexPaths = [IndexPath]()
     @Published public var displayedFooterIndexPaths = [IndexPath]()
-    
-    public func topSectionForVisibleArea(_ sections: [TopSectionForVisibleAreaItem]) -> AnyPublisher<TopSectionForVisibleAreaItem?, Never> {
-       return Publishers
-            .CombineLatest3($displayedCellIndexPaths.removeDuplicates(),
-                            $displayedHeaderIndexPaths.removeDuplicates(),
-                            $displayedFooterIndexPaths.removeDuplicates())
+
+    public func topCellIndexPathForVisibleArea() -> AnyPublisher<[IndexPath], Never> {
+        $displayedCellIndexPaths
+            .map { $0.sorted() }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    public func topSectionForVisibleArea(_ sections: [TopSectionForVisibleAreaItem])
+        -> AnyPublisher<TopSectionForVisibleAreaItem?, Never>
+    {
+        return
+            Publishers
+            .CombineLatest3(
+                $displayedCellIndexPaths.removeDuplicates(),
+                $displayedHeaderIndexPaths.removeDuplicates(),
+                $displayedFooterIndexPaths.removeDuplicates()
+            )
             .map { cells, headers, footers -> TopSectionForVisibleAreaItem? in
-                let visibles = Set(cells.map(\.section) + headers.map(\.section) + footers.map(\.section)).sorted()
-                let indexForSection: [Int: TopSectionForVisibleAreaItem] = sections
+                let visibles = Set(
+                    cells.map(\.section) + headers.map(\.section) + footers.map(\.section)
+                ).sorted()
+                let indexForSection: [Int: TopSectionForVisibleAreaItem] =
+                    sections
                     .filter { $0.section != nil && $0.section?.isBindSectionView == true }
                     .reduce(into: [:]) { result, box in
                         if let index = box.section?.sectionIndex {
-                        result[index] = box
+                            result[index] = box
+                        }
                     }
-                }
                 for sectionIndex in visibles {
                     if let box = indexForSection[sectionIndex] {
                         return box
@@ -49,12 +64,14 @@ public class SKCDisplayTracker: SKScrollViewDelegateObserverProtocol {
             }
             .eraseToAnyPublisher()
     }
-    
+
     public func scrollViewDidScroll(_ scrollView: UIScrollView, value: Void) {
         guard let sectionView = scrollView as? UICollectionView else { return }
-        displayedCellIndexPaths   = sectionView.indexPathsForVisibleItems
-        displayedHeaderIndexPaths = sectionView.indexPathsForVisibleSupplementaryElements(ofKind: SKSupplementaryKind.header.rawValue)
-        displayedFooterIndexPaths = sectionView.indexPathsForVisibleSupplementaryElements(ofKind: SKSupplementaryKind.footer.rawValue)
+        displayedCellIndexPaths = sectionView.indexPathsForVisibleItems
+        displayedHeaderIndexPaths = sectionView.indexPathsForVisibleSupplementaryElements(
+            ofKind: SKSupplementaryKind.header.rawValue)
+        displayedFooterIndexPaths = sectionView.indexPathsForVisibleSupplementaryElements(
+            ofKind: SKSupplementaryKind.footer.rawValue)
     }
-    
+
 }

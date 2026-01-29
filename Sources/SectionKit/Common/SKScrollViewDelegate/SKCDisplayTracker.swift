@@ -68,6 +68,39 @@ public class SKCDisplayTracker: SKScrollViewDelegateObserverProtocol {
             .eraseToAnyPublisher()
     }
 
+    public func sectionsForVisibleArea(_ sections: [TopSectionForVisibleAreaItem])
+        -> AnyPublisher<[TopSectionForVisibleAreaItem], Never>
+    {
+        return
+            Publishers
+            .CombineLatest3(
+                $displayedCellIndexPaths.removeDuplicates(),
+                $displayedHeaderIndexPaths.removeDuplicates(),
+                $displayedFooterIndexPaths.removeDuplicates()
+            )
+            .map { cells, headers, footers -> [TopSectionForVisibleAreaItem] in
+                let visibles = Set(
+                    cells.map(\.section) + headers.map(\.section) + footers.map(\.section)
+                ).sorted()
+                let indexForSection: [Int: TopSectionForVisibleAreaItem] =
+                    sections
+                    .filter { $0.section != nil && $0.section?.isBindSectionView == true }
+                    .reduce(into: [:]) { result, box in
+                        if let index = box.section?.sectionIndex {
+                            result[index] = box
+                        }
+                    }
+                var results = [TopSectionForVisibleAreaItem]()
+                for sectionIndex in visibles {
+                    if let box = indexForSection[sectionIndex] {
+                        results.append(box)
+                    }
+                }
+                return results
+            }
+            .eraseToAnyPublisher()
+    }
+    
     public func topSectionForVisibleArea(_ sections: [TopSectionForVisibleAreaItem])
         -> AnyPublisher<TopSectionForVisibleAreaItem?, Never>
     {

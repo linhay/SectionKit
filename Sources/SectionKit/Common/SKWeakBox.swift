@@ -50,3 +50,41 @@ public final class SKWeakBox<Value: AnyObject>: Equatable, Hashable {
     }
     
 }
+
+
+@dynamicMemberLookup
+public struct SKWeakWrapped<Value: AnyObject>: Identifiable, Equatable, Hashable {
+   
+   private class Placeholder {}
+    
+    public private(set) weak var value: Value?
+    public var id: ObjectIdentifier
+    
+    public init(_ value: Value?) {
+        self.value = value
+        if let value {
+            self.id = .init(value)
+        } else {
+            self.id = .init(Placeholder())
+        }
+    }
+    
+    public subscript<T>(dynamicMember keyPath: WritableKeyPath<Value, T?>) -> T? {
+        get { value?[keyPath: keyPath] }
+        set { value?[keyPath: keyPath] = newValue }
+    }
+    
+    public subscript<T>(dynamicMember keyPath: ReferenceWritableKeyPath<Value, T?>) -> T? {
+        get { value?[keyPath: keyPath] }
+        set { value?[keyPath: keyPath] = newValue }
+    }
+    
+    public static func == (lhs: SKWeakWrapped, rhs: SKWeakWrapped) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+}

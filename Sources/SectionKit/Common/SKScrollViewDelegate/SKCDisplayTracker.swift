@@ -114,7 +114,6 @@ public func indexPathsForVisibleArea(
                         return (first.section?.sectionIndex ?? 0) < (second.section?.sectionIndex ?? 0)
                     }
                 }
-                print("[IndexPathResult]: \(results.map { "\($0.tag)-\($0.kind)-\($0.section?.indexPath(from: $0.row) ?? .init(item: -1, section: -1))" })")
                 return results
             }
             .eraseToAnyPublisher()

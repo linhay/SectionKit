@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 public class SKCSectionCollector {
     
     public var sections: [SKCSectionProtocol] = []
@@ -34,11 +35,11 @@ public extension SKCSectionCollector {
     }
     
     func append<Object: SKCAnySectionProtocol>(_ item: Object?, when: When<Object>? = nil) {
-        append(item, section: \.section, when: when)
+        append(item, section: { $0.section }, when: when)
     }
     
     func append<Object: SKCAnySectionProtocol>(_ list: [Object?], when: When<Object>? = nil) {
-        append(list, section: \.section, when: when)
+        append(list, section: { $0.section }, when: when)
     }
     
     @discardableResult
@@ -58,4 +59,3 @@ public extension SKCSectionCollector {
     }
     
 }
-

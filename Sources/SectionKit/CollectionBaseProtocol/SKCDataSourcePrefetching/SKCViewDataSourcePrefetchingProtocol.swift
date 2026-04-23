@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public protocol SKCViewDataSourcePrefetchingProtocol {
     /// 预测加载 rows
     /// - Parameter rows: rows

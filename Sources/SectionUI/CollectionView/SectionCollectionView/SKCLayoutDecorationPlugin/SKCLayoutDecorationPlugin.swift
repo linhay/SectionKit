@@ -23,6 +23,7 @@ public protocol SKCLayoutDecorationPlugin: AnyObject {
 
 public extension SKCLayoutDecorationPlugin {
     
+    @MainActor
     func indexRange(_ view: UICollectionView) -> ClosedRange<Int>? {
         if let from = from.index.wrappedValue, let to = to?.index.wrappedValue {
             return min(from, to)...max(to, to)
@@ -33,6 +34,7 @@ public extension SKCLayoutDecorationPlugin {
         }
     }
     
+    @MainActor
     func apply(to layout: UICollectionViewFlowLayout) {
         if let nib = viewType.nib {
             layout.register(nib, forDecorationViewOfKind: viewType.identifier)
@@ -59,6 +61,7 @@ public extension SKCLayoutDecorationPlugin {
         return self
     }
     
+    @MainActor
     func apply(kind: SKCSupplementaryActionType,
                identifier: String,
                at indexPath: IndexPath,

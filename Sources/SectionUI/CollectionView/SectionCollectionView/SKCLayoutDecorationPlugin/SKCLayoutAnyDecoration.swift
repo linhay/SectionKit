@@ -12,6 +12,7 @@ public struct SKCLayoutAnyDecoration {
     
     public let wrapperValue: any SKCLayoutDecorationPlugin
     
+    @MainActor
     public init<View: SKCDecorationView>(_ section: SKCSectionActionProtocol,
                                          viewType: View.Type,
                                          zIndex: Int = -1,
@@ -24,6 +25,7 @@ public struct SKCLayoutAnyDecoration {
                   insets: insets)
     }
     
+    @MainActor
     public init<View: SKCDecorationView>(section: SKCSectionProtocol,
                                          viewType: View.Type,
                                          mode: [SKCLayoutDecoration.Mode] = [.visibleView],

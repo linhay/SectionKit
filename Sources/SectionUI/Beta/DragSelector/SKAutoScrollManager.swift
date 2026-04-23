@@ -36,6 +36,7 @@ import UIKit
  */
 @available(iOS 13.0, *)
 @available(*, deprecated, message: "[beta] 测试版，API 可能会变化")
+@MainActor
 public class SKAutoScrollManager {
     
     // MARK: - Types
@@ -156,7 +157,10 @@ public class SKAutoScrollManager {
     }
     
     deinit {
-        stop()
+        MainActor.assumeIsolated {
+            displayLink?.invalidate()
+            displayLink = nil
+        }
     }
     
     // MARK: - Public Methods
@@ -429,6 +433,7 @@ public class SKAutoScrollManager {
 // MARK: - Delegate Protocol
 
 /// 自动滚动管理器代理协议
+@MainActor
 public protocol SKAutoScrollManagerDelegate: AnyObject {
     /// 滚动到新位置时调用
     /// - Parameters:

@@ -69,7 +69,7 @@ public extension SKCSingleTypeSection {
     /// - Parameters:
     ///   - models: An array of new models to refresh the section with.
     ///   - predicate: A closure that takes two models and returns a Boolean value indicating whether they match.
-    func refresh(_ models: [Model], predicate: (_ lhs: Model, _ rhs: Model) -> Bool) {
+    func refresh(_ models: [Model], predicate: @MainActor (_ lhs: Model, _ rhs: Model) -> Bool) {
         var store = [Int: RefreshPayload]()
         for (index, old) in self.models.enumerated() {
             if store[index] != nil { continue }
@@ -91,7 +91,9 @@ public extension SKCSingleTypeSection {
     /// Refreshes the section with an array of equatable models.
     /// - Parameter models: An array of models to refresh the section with.
     func refresh(_ models: [Model]) where Model: Equatable {
-        refresh(models, predicate: ==)
+        refresh(models) { lhs, rhs in
+            lhs == rhs
+        }
     }
     
     /// Refreshes the section with a single equatable model.
@@ -103,7 +105,9 @@ public extension SKCSingleTypeSection {
     /// Refreshes the section with an array of equatable models.
     /// - Parameter models: An array of models to refresh the section with.
     func refresh(_ models: [Model]) where Model: Equatable & AnyObject {
-        refresh(models, predicate: ==)
+        refresh(models) { lhs, rhs in
+            lhs == rhs
+        }
     }
     
     /// Refreshes the section with a single model conforming to AnyObject.
@@ -115,7 +119,9 @@ public extension SKCSingleTypeSection {
     /// Refreshes the section with an array of models conforming to AnyObject.
     /// - Parameter models: An array of models to refresh the section with.
     func refresh(_ models: [Model]) where Model: AnyObject {
-        refresh(models, predicate: ===)
+        refresh(models) { lhs, rhs in
+            lhs === rhs
+        }
     }
     
 }

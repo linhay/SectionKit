@@ -65,6 +65,7 @@ public struct SKCLayoutDecoration {
             #endif
         }
 
+        @MainActor
         public init(
             _ section: SKCSectionProtocol,
             modes: [Mode] = [.visibleView],

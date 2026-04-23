@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public struct SKCDelegate: SKCDelegateForwardProtocol {
     
     struct ContextMenuConfiguration {

@@ -28,6 +28,7 @@ extension SKCLayoutPlugins {
                 self.insets = insets
             }
             
+            @MainActor
             public init(section: SKCSectionProtocol, kind: SKSupplementaryKind, insets: UIEdgeInsets = .zero) {
                 self.section = .init(section)
                 self.kind = kind
@@ -77,5 +78,4 @@ extension SKCLayoutPlugins {
     }
     
 }
-
 

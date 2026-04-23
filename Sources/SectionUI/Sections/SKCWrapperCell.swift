@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public extension SKWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
     
     static func wrapperToCollectionCell() -> SKCWrapperCell<Base>.Type {
@@ -16,6 +17,7 @@ public extension SKWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
     
 }
 
+@MainActor
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
     static func wrapperToCollectionCell() -> SKCWrapperCell<Self>.Type {
@@ -24,6 +26,7 @@ public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
 }
 
+@MainActor
 open class SKCWrapperCell<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
     
     public static func preferredSize(limit size: CGSize, model: View.Model?) -> CGSize {

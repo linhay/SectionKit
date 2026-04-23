@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public extension SKWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
     
     static func wrapperToCollectionReusableView() -> SKCWrapperReusableView<Base>.Type {
@@ -15,6 +16,7 @@ public extension SKWrapper where Base: SKConfigurableView & SKLoadViewProtocol {
     
 }
 
+@MainActor
 public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
     static func wrapperToCollectionReusableView() -> SKCWrapperReusableView<Self>.Type {
@@ -23,6 +25,7 @@ public extension SKConfigurableView where Self: SKLoadViewProtocol {
     
 }
 
+@MainActor
 public class SKCWrapperReusableView<View: SKConfigurableView & SKLoadViewProtocol>: UICollectionReusableView, SKConfigurableView, SKLoadViewProtocol {
     
     public static func preferredSize(limit size: CGSize, model: View.Model?) -> CGSize {

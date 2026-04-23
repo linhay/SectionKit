@@ -271,10 +271,9 @@ public class SKCDragSelector: NSObject {
     deinit {
         MainActor.assumeIsolated {
             reset()
-        }
-
-        if let observer = orientationObserver {
-            NotificationCenter.default.removeObserver(observer)
+            if let observer = orientationObserver {
+                NotificationCenter.default.removeObserver(observer)
+            }
         }
         debugPrint("SKCDragSelector 已释放")
     }
@@ -363,7 +362,9 @@ public class SKCDragSelector: NSObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.handleOrientationChange()
+            Task { @MainActor [weak self] in
+                self?.handleOrientationChange()
+            }
         }
     }
     
@@ -712,6 +713,7 @@ extension SKCDragSelector: UIGestureRecognizerDelegate {
 
 // MARK: - SKAutoScrollManagerDelegate
 
+@MainActor
 extension SKCDragSelector: SKAutoScrollManagerDelegate {
     
     public func autoScrollManager(_ manager: SKAutoScrollManager, didScrollToPoint point: CGPoint) {
@@ -722,4 +724,3 @@ extension SKCDragSelector: SKAutoScrollManagerDelegate {
         }
     }
 }
-

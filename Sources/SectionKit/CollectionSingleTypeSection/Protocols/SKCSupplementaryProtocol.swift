@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public protocol SKCSupplementaryProtocol {
     associatedtype View: SKLoadViewProtocol & SKConfigurableView & UICollectionReusableView
     var kind: SKSupplementaryKind { get }

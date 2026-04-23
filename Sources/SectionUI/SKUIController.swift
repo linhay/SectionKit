@@ -8,6 +8,7 @@
 import UIKit
 import SwiftUI
 
+@MainActor
 public extension SKWrapper where Base: UIViewController {
     
     static func toSwiftUI(make: @escaping SKUIController<Base>.MakeAction,
@@ -18,6 +19,7 @@ public extension SKWrapper where Base: UIViewController {
 }
 
 
+@MainActor
 public struct SKUIController<Controller: UIViewController>: UIViewControllerRepresentable {
     
     public typealias UIViewControllerType = Controller

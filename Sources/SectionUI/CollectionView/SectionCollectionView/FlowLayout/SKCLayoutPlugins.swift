@@ -10,8 +10,9 @@ import Combine
 
 public class SKCPluginLayoutAttributesForElementsForward: Cancellable {
     
-    public typealias Fetch = (_ context: Context) -> Void?
+    public typealias Fetch = @MainActor (_ context: Context) -> Void?
     
+    @MainActor
     public class Context {
         public let layout: UICollectionViewLayout
         public var alwaysInvalidate: Bool?
@@ -26,6 +27,7 @@ public class SKCPluginLayoutAttributesForElementsForward: Cancellable {
     public let fetch: Fetch
     public var userInfo: [String: Any]?
    
+    @MainActor
     init(userInfo: [String: Any]? = nil, _ fetch: @escaping Fetch) {
         self.fetch = fetch
         self.userInfo = userInfo

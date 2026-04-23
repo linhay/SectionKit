@@ -25,6 +25,7 @@ public struct SKAdaptiveFittingPriority {
     
 }
 
+@MainActor
 public protocol SKAdaptiveProtocol {
     associatedtype AdaptiveView: UIView
     associatedtype Model
@@ -101,6 +102,7 @@ public extension SKAdaptiveProtocol {
     
 }
 
+@MainActor
 public struct SKAdaptive<AdaptiveView: UIView, Model>: SKAdaptiveProtocol {
     
     // 适配方向

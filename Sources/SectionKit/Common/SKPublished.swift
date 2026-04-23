@@ -132,7 +132,7 @@ public struct SKPublishedTransform<Output, Failure: Error> {
 
 }
 
-public final class SKPublishedValue<Output>: Publisher, Sendable {
+public final class SKPublishedValue<Output>: Publisher {
 
     public typealias Failure = Never
     public typealias Transform = SKPublishedTransform<Output, Never>
@@ -247,14 +247,9 @@ extension SKPublishedValue {
             .sink(receiveValue: receiveValue)
     }
 
+    @MainActor
     public func bind(_ receiveValue: @escaping (Output) -> Void) -> AnyCancellable {
-        if Thread.isMainThread {
-            receiveValue(value)
-        } else {
-            DispatchQueue.main.sync {
-                receiveValue(value)
-            }
-        }
+        receiveValue(value)
         return sink(receiveValue: receiveValue)
     }
 

@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public protocol SKCViewDelegateFlowLayoutProtocol {
     
     func itemSize(at row: Int) -> CGSize

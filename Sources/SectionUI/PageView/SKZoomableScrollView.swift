@@ -19,6 +19,7 @@ public class SKZoomableContext {
     public init() {}
 }
 
+@MainActor
 public protocol SKZoomableContentView {
     var zoomableContext: SKZoomableContext { get }
 }

@@ -8,6 +8,7 @@
 import UIKit
 import SectionKit
 
+@MainActor
 public protocol SKCLayoutPlugin {
     var layoutWeakBox: SKWeakBox<SKCollectionFlowLayout> { get }
 }

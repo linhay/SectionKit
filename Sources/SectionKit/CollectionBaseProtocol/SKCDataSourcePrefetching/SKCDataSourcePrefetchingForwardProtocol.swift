@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol SKCDataSourcePrefetchingForwardProtocol {
     // indexPaths are ordered ascending by geometric distance from the collection view
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) -> SKHandleResult<Void>

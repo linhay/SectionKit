@@ -40,6 +40,7 @@ public enum SKCSectionLayoutPlugin {
     ///
     /// - Parameter section: 需要转换的节。
     /// - Returns: 对应的布局插件模式。
+    @MainActor
     public func convert(_ section: SKCSectionActionProtocol) -> SKCLayoutPlugins.Mode? {
         switch self {
         case .layoutAttributesForElements(let array):
@@ -58,6 +59,7 @@ public enum SKCSectionLayoutPlugin {
 }
 
 /// 协议，表示节布局插件协议。
+@MainActor
 public protocol SKCSectionLayoutPluginProtocol: AnyObject {
     var sectionInjection: SKCSectionInjection? { get set }
     var plugins: [SKCSectionLayoutPlugin] { get set }

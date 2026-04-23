@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol SKCSingleTypeSectionRowContext {
     associatedtype Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol
     var section: SKCSingleTypeSection<Cell> { get }

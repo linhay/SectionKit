@@ -10,6 +10,7 @@ import Foundation
 import SectionKit
 import Testing
 
+@MainActor
 @Suite("SKPublished")
 class SKPublishedTests {
 
@@ -326,7 +327,7 @@ class SKPublishedTests {
         }
 
         var target: Target? = Target()
-        weak var weakTarget = target
+        weak let weakTarget = target
 
         let subject = PassthroughSubject<Int, Never>()
         let cancellable = subject.assign(onWeak: target!, to: \.value)
@@ -380,7 +381,8 @@ class SKPublishedTests {
         let isMainThreadRecorder = ActorRecorder<Bool>()
         await MainActor.run {
             pub.sink { _ in
-                Task { await isMainThreadRecorder.append(Thread.isMainThread) }
+                let isMainThread = Thread.isMainThread
+                Task { await isMainThreadRecorder.append(isMainThread) }
             }.store(in: &cancellables)
         }
 
@@ -435,7 +437,8 @@ class SKPublishedTests {
         let voidPublisher = subject.ignoreOutputType()
 
         var receivedCount = 0
-        let cancellable = (voidPublisher as! AnyPublisher<Void, Never>)
+        let cancellable = voidPublisher
+            .eraseToAnyPublisher()
             .sink { _ in receivedCount += 1 }
 
         subject.send(1)

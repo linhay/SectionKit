@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public protocol SKCSectionActionProtocol: AnyObject {
     
     var itemCount: Int { get }

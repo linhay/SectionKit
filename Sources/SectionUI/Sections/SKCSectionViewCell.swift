@@ -9,6 +9,7 @@
 import UIKit
 import SectionKit
 
+@MainActor
 public extension SKCSectionActionProtocol where Self: SKCDataSourceProtocol & SKCDelegateProtocol {
     
     func wrapperToHorizontalSection(_ model: SKCSectionViewCell.Model) -> SKCSingleTypeSection<SKCSingleSectionViewCell<Self>> {
@@ -51,6 +52,7 @@ public class SKCSingleSectionViewCell<Section: SKCBaseSectionProtocol>: SKCSecti
 
 public class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView, SKLoadViewProtocol {
     
+    @MainActor
     public struct Model {
         
         public enum SectionType {
@@ -122,6 +124,7 @@ public class SKCSectionViewCell: UICollectionViewCell, SKConfigurableView, SKLoa
         }
     }
     
+    @MainActor
     private struct EdgeConstraint {
         
         var all: [NSLayoutConstraint] { [top, left, right, bottom] }

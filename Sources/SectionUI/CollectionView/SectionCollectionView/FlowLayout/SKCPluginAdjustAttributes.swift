@@ -39,6 +39,7 @@ public struct SKCPluginAdjustAttributes {
     
 }
 
+@MainActor
 public extension SKInout where Object == SKCPluginAdjustAttributes.Context {
     
     static func updating<Value>(_ state: Binding<Value>, from keyPath: KeyPath<Object, Value>) -> SKInout<Object> {

@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public struct SKCDataSource: SKCDataSourceForwardableProtocol {
     
     let dataSource: SKCManagerPublishers

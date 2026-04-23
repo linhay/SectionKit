@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 public protocol SKCRawSectionProtocol: SKCAnySectionProtocol {
     associatedtype RawSection
     typealias RawSectionStyleBlock = (_ section: RawSection) -> Void

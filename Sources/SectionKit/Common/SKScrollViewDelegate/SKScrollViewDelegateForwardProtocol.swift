@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol SKScrollViewDelegateForwardProtocol {
     // any offset changes
     @available(iOS 2.0, *)
@@ -95,4 +96,3 @@ public extension SKScrollViewDelegateForwardProtocol {
     func scrollViewDidChangeAdjustedContentInset(_ scrollView: UIScrollView) -> SKHandleResult<Void> { .next }
     
 }
-

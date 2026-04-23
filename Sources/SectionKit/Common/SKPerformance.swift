@@ -7,7 +7,8 @@
 
 import Foundation
 
-public final class SKPerformance: Sendable {
+@MainActor
+public final class SKPerformance {
     
     public class Record {
         
@@ -186,7 +187,7 @@ public extension SKPerformance {
         }
         
         // 排序（可选）
-        allResults.sorted(by: sort)
+        allResults.sort(by: sort)
         let length = allResults.map { $0.key.count }.max() ?? 0
         let padding = max(min(length, 120), 5)
         let paddingStr = String(repeating: "─", count: padding)

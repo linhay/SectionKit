@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public protocol SKCDelegateProtocol {
     
     // 用于通知选择/取消选择和高亮/非高亮事件的方法。

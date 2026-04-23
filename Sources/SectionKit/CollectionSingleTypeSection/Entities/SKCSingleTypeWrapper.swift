@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public extension SKWrapper where Base: UICollectionViewCell & SKLoadViewProtocol & SKConfigurableView {
     static func wrapperToSingleTypeSection(@SectionArrayResultBuilder<Base.Model> builder: () -> [Base.Model]) -> SKCSingleTypeSection<Base> {
         .init(builder())
@@ -42,6 +43,7 @@ public extension SKWrapper where Base: UICollectionViewCell & SKLoadViewProtocol
     }
 }
 
+@MainActor
 public extension SKConfigurableView where Self: UICollectionViewCell & SKLoadViewProtocol {
     
     static func wrapperToSingleTypeSection(@SectionArrayResultBuilder<Model> builder: () -> [Model]) -> SKCSingleTypeSection<Self> {

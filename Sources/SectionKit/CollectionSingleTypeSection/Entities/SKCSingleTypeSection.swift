@@ -9,6 +9,7 @@
 import UIKit
 import Combine
 
+@MainActor
 open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView & SKLoadViewProtocol>: SKCSingleTypeSectionProtocol, SKDisplayedTimesProtocol, SKEnvironmentConfiguration {
     
     public typealias SectionBlock<Return>               = (_ section: SKCSingleTypeSection<Cell>) -> Return

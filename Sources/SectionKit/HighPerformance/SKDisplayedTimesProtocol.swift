@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 public protocol SKDisplayedTimesProtocol {
     var displayedTimes: SKCountedStore { get }
 }

@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol SKCDelegateForwardProtocol {
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> SKHandleResult<Bool>
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) -> SKHandleResult<Void>

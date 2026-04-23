@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 public class SKCDelegateFlowLayoutForward: SKCDelegateForward, UICollectionViewDelegateFlowLayout {
     
     var flowLayoutForwards: [SKCDelegateFlowLayoutForwardProtocol] = []

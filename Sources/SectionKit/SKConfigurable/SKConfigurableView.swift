@@ -8,7 +8,9 @@
 import Foundation
 
 // 定义了可配置视图协议,组合可配置模型,布局和UIView协议
+@MainActor
 public protocol SKExistModelView: SKExistModelProtocol & SKConfigurableLayoutProtocol { }
+@MainActor
 public protocol SKConfigurableView: SKConfigurableModelProtocol & SKConfigurableLayoutProtocol {}
 
 public extension SKConfigurableView where Model == Void {

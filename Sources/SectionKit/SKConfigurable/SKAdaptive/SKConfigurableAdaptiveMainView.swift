@@ -16,6 +16,7 @@ import UIKit
  }
  
  */
+@MainActor
 public protocol SKConfigurableAdaptiveMainView: SKConfigurableAdaptiveView where AdaptiveView == Self {
     // 关联类型别名,用于适配视图结构体
     typealias SpecializedAdaptive = SKAdaptive<AdaptiveView, Model>
@@ -24,6 +25,7 @@ public protocol SKConfigurableAdaptiveMainView: SKConfigurableAdaptiveView where
 }
 
 
+@MainActor
 public protocol SKConfigurableAutoAdaptiveView: UIView, SKConfigurableView {
     static func adaptive() -> SKAdaptive<Self, Model>
 }
@@ -51,6 +53,7 @@ public extension SKConfigurableAutoAdaptiveView {
     
 }
 
+@MainActor
 public class SKConfigurableAdaptiveAutoCache {
     
     public static let shared = SKConfigurableAdaptiveAutoCache()
@@ -65,5 +68,4 @@ public class SKConfigurableAdaptiveAutoCache {
 
 
 #endif
-
 

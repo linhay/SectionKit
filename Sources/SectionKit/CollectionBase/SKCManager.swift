@@ -37,10 +37,12 @@ public struct SKRequestPublishers {
     public init() {}
 }
 
+@MainActor
 public protocol SKCRequestViewProtocol {
     var requestPublishers: SKRequestPublishers { get }
 }
 
+@MainActor
 public class SKCManagerPublishers {
     
     fileprivate lazy var sectionsSubject = CurrentValueSubject<[SKCBaseSectionProtocol], Never>([])
@@ -59,6 +61,7 @@ public class SKCManagerPublishers {
     }
 }
 
+@MainActor
 public class SKCManager {
     
     public struct Converts {

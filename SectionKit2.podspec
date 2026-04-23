@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
     s.license          = { :type => 'Apache', :file => 'LICENSE' }
     s.author           = { "linhay" => "is.linhey@outlook.com"}
     s.source       = { :git => "https://github.com/linhay/SectionKit.git", :tag => "#{s.version}" }
-    s.swift_version = "5.7"
+    s.swift_version = "6.2"
     s.module_name = 'SectionKit'
 
     s.platform = :ios

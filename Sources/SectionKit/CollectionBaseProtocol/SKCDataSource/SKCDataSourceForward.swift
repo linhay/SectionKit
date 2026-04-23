@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol SKCDataSourceForwardableProtocol {
     func numberOfSections(in collectionView: UICollectionView) -> SKHandleResult<Int>
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> SKHandleResult<Int>
@@ -35,6 +36,7 @@ public extension SKCDataSourceForwardableProtocol {
     
 }
 
+@MainActor
 public protocol SKCDataSourceObserverProtocol {
     func numberOfSections(in collectionView: UICollectionView, value: Int)
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int, value: Int)
@@ -63,6 +65,7 @@ public extension SKCDataSourceObserverProtocol {
     
 }
 
+@MainActor
 public class SKCDataSourceForward: NSObject, UICollectionViewDataSource {
     
     class SKDebugReusableCell: UICollectionViewCell, SKLoadViewProtocol {

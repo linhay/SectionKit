@@ -12,6 +12,7 @@ import Combine
 struct Test {
     
     @available(iOS 16.0, *)
+    @MainActor
     @Test func SKPublish_Fatal_access_conflict_detected() async throws {
         
         class Value {
@@ -23,7 +24,7 @@ struct Test {
         
         var cancellables = Set<AnyCancellable>()
         @SKPublished var test: Value = .init(value: 0)
-        $test.bind { newValue in
+        $test.bind { _ in
             print("test changed to \(test.value)")
             test = Value(value: 1)
         }.store(in: &cancellables)

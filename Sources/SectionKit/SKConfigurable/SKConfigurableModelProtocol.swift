@@ -22,11 +22,13 @@
 
 import Foundation
 
+@MainActor
 public protocol SKExistModelProtocol {
     associatedtype Model
     init(model: Model)
 }
 
+@MainActor
 public protocol SKConfigurableModelProtocol {
     associatedtype Model
     func config(_ model: Model)

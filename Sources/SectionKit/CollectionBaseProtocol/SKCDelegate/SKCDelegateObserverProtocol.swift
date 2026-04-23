@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol SKCDelegateObserverProtocol {
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath, value: Bool)
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath, value: Void)

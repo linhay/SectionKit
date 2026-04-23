@@ -13,7 +13,7 @@ public struct SKPrint {
         case highPerformance
     }
     
-    public static var kinds = Set<Kind>([])
+    nonisolated(unsafe) public static var kinds = Set<Kind>([])
     static let logo = "[SectionKit]"
     
     public static func highPerformance(_ items: Any...) {

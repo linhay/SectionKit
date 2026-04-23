@@ -7,11 +7,11 @@
 
 import Foundation
 
-public struct SKModelDisplayedAt: ExpressibleByIntegerLiteral, ExpressibleByArrayLiteral {
+public struct SKModelDisplayedAt: ExpressibleByIntegerLiteral, ExpressibleByArrayLiteral, Sendable {
     
     public static let first: SKModelDisplayedAt = 1
     
-    public let predicate: (_ count: Int) -> Bool
+    public let predicate: @Sendable (_ count: Int) -> Bool
     
     public init(arrayLiteral elements: Int...) {
         self.init { count in
@@ -25,7 +25,7 @@ public struct SKModelDisplayedAt: ExpressibleByIntegerLiteral, ExpressibleByArra
         }
     }
 
-    public init(_ predicate: @escaping (_ count: Int) -> Bool) {
+    public init(_ predicate: @Sendable @escaping (_ count: Int) -> Bool) {
         self.predicate = predicate
     }
     

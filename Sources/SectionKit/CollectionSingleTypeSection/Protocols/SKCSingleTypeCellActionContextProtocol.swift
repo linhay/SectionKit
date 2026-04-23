@@ -12,6 +12,7 @@ public enum SKCActionContextVersion {
     case current
 }
 
+@MainActor
 public protocol SKCSingleAssociatedViewContextProtocol {
     associatedtype AssociatedView: UIView
     func view(version: SKCActionContextVersion) -> AssociatedView
@@ -33,6 +34,7 @@ public extension SKCSingleAssociatedViewContextProtocol {
     
 }
 
+@MainActor
 public protocol SKCSingleTypeCellActionContextProtocol: SKCSingleTypeSectionRowContext, SKCSingleAssociatedViewContextProtocol {
     var model: Cell.Model { get }
 }

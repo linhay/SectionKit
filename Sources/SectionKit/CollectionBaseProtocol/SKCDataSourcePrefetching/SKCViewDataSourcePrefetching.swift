@@ -9,6 +9,7 @@
 import UIKit
 import Combine
 
+@MainActor
 public struct SKCDataSourcePrefetching: SKCDataSourcePrefetchingForwardProtocol {
 
     struct PrefetchPublishers {

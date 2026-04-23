@@ -9,13 +9,14 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public protocol SKSafeSizeProviderProtocol: AnyObject {
     var safeSizeProvider: SKSafeSizeProvider { get }
 }
 
 public struct SKSafeSizeProvider {
     
-    public typealias Block = (_ context: Context) -> CGSize
+    public typealias Block = @MainActor (_ context: Context) -> CGSize
 
     public struct Context {
         public let kind: SKSupplementaryKind
@@ -25,14 +26,17 @@ public struct SKSafeSizeProvider {
             self.indexPath = indexPath
         }
         
+        @MainActor
         public static func cell(at row: Int, in section: SKCSectionProtocol) -> Context {
             return .init(kind: .cell, indexPath: section.indexPath(from: row))
         }
         
+        @MainActor
         public static func header(in section: SKCSectionProtocol) -> Context {
             return .init(kind: .header, indexPath: section.indexPath(from: 0))
         }
         
+        @MainActor
         public static func footer(in section: SKCSectionProtocol) -> Context {
             return .init(kind: .footer, indexPath: section.indexPath(from: 0))
         }
@@ -42,26 +46,30 @@ public struct SKSafeSizeProvider {
     private let block: Block
     
     @available(*, deprecated, renamed: "size(context:)")
+    @MainActor
     public var size: CGSize {
         block(.init(kind: .cell, indexPath: .init(row: 0, section: 0)))
     }
     
-    @available(*, deprecated)
+    @MainActor
     public init(block: @escaping Block) {
         self.block = block
     }
     
+    @MainActor
     public func size(context: Context) -> CGSize {
         block(context)
     }
     
     
+    @MainActor
     public init(block: @escaping () -> CGSize) {
         self.block = { _ in
             block()
         }
     }
     
+    @MainActor
     public static func `default`(sectionView: @escaping () -> UICollectionView?,
                           sectionInset: @escaping () -> UIEdgeInsets?) -> SKSafeSizeProvider {
         SKSafeSizeProvider { context in
@@ -159,6 +167,7 @@ public struct SKSafeSizeTransform {
 
 public extension SKCViewDelegateFlowLayoutProtocol where Self: SKCSectionActionProtocol {
     
+    @MainActor
     var defaultSafeSizeProvider: SKSafeSizeProvider {
         SKSafeSizeProvider.default(sectionView: { [weak self] in
             return self?.sectionView

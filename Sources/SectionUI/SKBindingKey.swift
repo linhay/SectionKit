@@ -56,7 +56,7 @@ public extension SKBindingKey {
 public extension SKBindingKey where Value == Int {
     
     /// A constant binding key representing all sections.
-    static let all = SKBindingKey.constant(-1000000)
+    nonisolated(unsafe) static let all = SKBindingKey.constant(-1000000)
 
     /// Creates a relative binding key from a collection view and a key path.
     /// - Parameters:
@@ -74,7 +74,10 @@ public extension SKBindingKey where Value == Int {
             guard let view = view else {
                 return nil
             }
-            return task(0..<view.numberOfSections)
+            let numberOfSections = MainActor.assumeIsolated {
+                view.numberOfSections
+            }
+            return task(0..<numberOfSections)
         })
     }
     
@@ -89,12 +92,15 @@ public extension SKBindingKey where Value == Int {
     /// let sectionKey = SKBindingKey(section, offset: 1)
     /// print(sectionKey.wrappedValue)
     /// ```
+    @MainActor
     init(_ section: SKCSectionActionProtocol, offset: Int = 0) {
         self.init(get: { [weak section] in
-            guard let section = section, let injection = section.sectionInjection else {
-                return nil
+            MainActor.assumeIsolated {
+                guard let section = section, let injection = section.sectionInjection else {
+                    return nil
+                }
+                return injection.index + offset
             }
-            return injection.index + offset
         })
     }
 }

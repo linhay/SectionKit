@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public protocol SKConfigurableAdaptiveView: SKConfigurableView {
     associatedtype AdaptiveView: UIView
     static var adaptive: SKAdaptive<AdaptiveView, Model> { get }

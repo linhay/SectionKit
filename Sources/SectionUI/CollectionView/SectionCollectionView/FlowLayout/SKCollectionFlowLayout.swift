@@ -24,6 +24,7 @@
 import UIKit
 import SectionKit
 
+@MainActor
 open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserverProtocol {
     
     public typealias DecorationView = UICollectionReusableView & SKLoadViewProtocol
@@ -33,6 +34,7 @@ open class SKCollectionFlowLayout: UICollectionViewFlowLayout, SKCDelegateObserv
     public typealias BindingKey = SKBindingKey
     public typealias PluginMode = SKCLayoutPlugins.Mode
     
+    @MainActor
     class LayoutStore {
         
         lazy var cells: [IndexPath: UICollectionViewLayoutAttributes] = [:]

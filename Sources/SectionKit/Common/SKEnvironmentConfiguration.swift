@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 public protocol SKEnvironmentConfiguration: AnyObject {
     var environmentObject: [ObjectIdentifier: Any] { get set }
 }

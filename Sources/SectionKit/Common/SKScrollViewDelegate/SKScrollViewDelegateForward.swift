@@ -23,6 +23,7 @@
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 public class SKScrollViewDelegateForward: NSObject, UIScrollViewDelegate {
     
     var scrollForwards: [SKScrollViewDelegateForwardProtocol] = []

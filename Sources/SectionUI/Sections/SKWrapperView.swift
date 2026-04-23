@@ -9,6 +9,7 @@
 import UIKit
 
 
+@MainActor
 public extension SKWrapper where Base: UIView {
     
     static func wrapperToConfigurableView() -> SKWrapperView<Base, Void>.Type {
@@ -22,8 +23,10 @@ public extension SKWrapper where Base: UIView {
 }
 
 
+@MainActor
 open class SKWrapperView<Content: UIView, UserInfo>: UIView, SKLoadViewProtocol, SKConfigurableView {
     
+    @MainActor
     public struct Model {
         
         public let userInfo: UserInfo

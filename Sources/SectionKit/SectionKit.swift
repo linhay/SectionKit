@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 public class SKSectionKit {
     
     public static var shared = SKSectionKit()

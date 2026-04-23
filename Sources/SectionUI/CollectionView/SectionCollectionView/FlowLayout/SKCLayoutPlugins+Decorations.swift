@@ -34,7 +34,7 @@ public extension SKCLayoutPlugins {
         }
         
         func run(with attributes: [UICollectionViewLayoutAttributes]) -> [UICollectionViewLayoutAttributes]? {
-            let current_sections = attributes.map(\.indexPath.section).sorted()
+            let current_sections = attributes.map { $0.indexPath.section }.sorted()
             var section_offset = [Int: Int]()
             var section_zIndex = [Int: Set<Int>]()
             var attributes = attributes

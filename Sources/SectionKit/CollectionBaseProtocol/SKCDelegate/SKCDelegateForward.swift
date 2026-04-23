@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public class SKCDelegateForward: SKScrollViewDelegateForward, UICollectionViewDelegate {
    
     public var shouldBeginMultipleSelectionInteraction: Bool?

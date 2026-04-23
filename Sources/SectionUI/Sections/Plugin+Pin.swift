@@ -133,6 +133,7 @@ public extension SKCSectionLayoutPluginProtocol where Self: SKCSectionProtocol {
             
             var maxZIndex = 0
             var stickyAttribute: UICollectionViewLayoutAttributes?
+            @MainActor
             func sticky(attribute: UICollectionViewLayoutAttributes) {
                 let distance = attribute.frame.origin.y - (contentOffset.y + options.padding)
                 context.alwaysInvalidate = true

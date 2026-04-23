@@ -1,6 +1,7 @@
 import UIKit
 import Combine
 
+@MainActor
 public final class SKPageManager: NSObject, @unchecked Sendable {
     
     public struct ChildContext: Identifiable {
@@ -18,18 +19,18 @@ public final class SKPageManager: NSObject, @unchecked Sendable {
     public struct Child: Identifiable {
         
         public let id: String
-        public let maker: (_ context: ChildContext) -> UIViewController
+        public let maker: @MainActor (_ context: ChildContext) -> UIViewController
         
         public static func withController(id: String, _ maker: @MainActor @escaping (_ context: ChildContext) -> UIViewController) -> Child {
             self.init(id: id, maker: maker)
         }
         
-        public init(id: String, maker: @escaping (_ context: ChildContext) -> UIViewController) {
+        public init(id: String, maker: @MainActor @escaping (_ context: ChildContext) -> UIViewController) {
             self.id = id
             self.maker = maker
         }
         
-        public init(id: String, maker: @escaping (_ context: ChildContext) -> UIView) {
+        public init(id: String, maker: @MainActor @escaping (_ context: ChildContext) -> UIView) {
             self.id = id
             self.maker = { context in
                 SKPageViewBoxController(context: maker(context))

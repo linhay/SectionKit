@@ -24,6 +24,7 @@
 import CoreGraphics
 
 // 定义了可配置布局协议,要求提供计算首选大小的方法
+@MainActor
 public protocol SKConfigurableLayoutProtocol {
     // 关联类型,表示模型
     associatedtype Model

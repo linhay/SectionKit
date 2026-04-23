@@ -13,9 +13,9 @@ public final class SKCAnyViewCell: UICollectionViewCell, SKLoadViewProtocol, SKC
     
     public struct Layout {
         
-        public let value: (_ view: UIView, _ contentView: UIView) -> Void
+        public let value: @MainActor (_ view: UIView, _ contentView: UIView) -> Void
         
-        public init(value: @escaping (_: UIView, _: UIView) -> Void) {
+        public init(value: @escaping @MainActor (_: UIView, _: UIView) -> Void) {
             self.value = value
         }
         
@@ -34,9 +34,9 @@ public final class SKCAnyViewCell: UICollectionViewCell, SKLoadViewProtocol, SKC
     
     public struct PreferredSize {
         
-        public let value: (_ limit: CGSize, _ model: Model?) -> CGSize
+        public let value: @MainActor (_ limit: CGSize, _ model: Model?) -> CGSize
         
-        public init(value: @escaping (_: CGSize, _: Model?) -> CGSize) {
+        public init(value: @escaping @MainActor (_: CGSize, _: Model?) -> CGSize) {
             self.value = value
         }
         

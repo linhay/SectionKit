@@ -8,6 +8,7 @@
 import UIKit
 import Foundation
 
+@MainActor
 public protocol SKCAnySectionProtocol: SKCSectionActionProtocol {
     var section: SKCSectionProtocol { get }
     var objectIdentifier: ObjectIdentifier { get }

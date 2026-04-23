@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public class SKScrollViewDelegateHandler: SKScrollViewDelegateObserverProtocol {
     
     // MARK: - Typealiases

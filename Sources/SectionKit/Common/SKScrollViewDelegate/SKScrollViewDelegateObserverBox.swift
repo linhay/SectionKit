@@ -8,6 +8,7 @@
 import UIKit
 
 /// 对 2.1.0 以下版本兼容处理
+@MainActor
 struct SKScrollViewDelegateObserverBox: SKScrollViewDelegateObserverProtocol {
    
     let box: SKWeakBox<UIScrollViewDelegate>

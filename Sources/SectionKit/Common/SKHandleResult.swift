@@ -12,6 +12,8 @@ public enum SKHandleResult<Success> {
     case next
 }
 
+extension SKHandleResult: Sendable where Success: Sendable {}
+
 public extension SKHandleResult {
 
     static func handleable(_ value: Success?) -> SKHandleResult {

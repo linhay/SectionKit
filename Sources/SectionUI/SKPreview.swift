@@ -9,6 +9,7 @@ import UIKit
 import SectionKit
 import SwiftUI
 
+@MainActor
 public struct SKPreview {
     
     public static func sections(_ model: @escaping () -> [SKCSectionProtocol]) -> some View {

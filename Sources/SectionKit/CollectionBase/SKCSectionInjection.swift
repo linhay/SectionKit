@@ -9,6 +9,7 @@
 import UIKit
 import Combine
 
+@MainActor
 public class SKCSectionViewProvider {
     
     public typealias ActionTask    = (_ injection: SKCSectionInjection,  _ action: Action) -> Void
@@ -117,6 +118,7 @@ public class SKCSectionViewProvider {
  }
 
 
+@MainActor
 public class SKCSectionInjection {
 
     public static var configuration = SKCSectionViewProvider.Configuration()

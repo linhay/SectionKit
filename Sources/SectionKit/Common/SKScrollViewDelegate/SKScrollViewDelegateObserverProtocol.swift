@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol SKScrollViewDelegateObserverProtocol {
     // any offset changes
     @available(iOS 2.0, *)

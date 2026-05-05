@@ -25,7 +25,7 @@
 1. ✏️ 更新 `SectionKit2.podspec` 和 `SectionUI.podspec` 版本号
 2. 📝 提交版本更改到 Git
 3. 🏷️ 创建并推送 Git 标签
-4. 📦 打包 skills 文档为 zip
+4. 📦 打包 `SectionUI.skills` 文档为 zip
 5. 🚀 创建 GitHub Release 并上传 skills 包
 6. 📤 发布 SectionKit2 到 CocoaPods
 7. ⏳ 等待 20 分钟（CDN 同步时间）

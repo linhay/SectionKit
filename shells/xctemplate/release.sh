@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 # 配置
 SECTIONKIT2_PODSPEC="SectionKit2.podspec"
 SECTIONUI_PODSPEC="SectionUI.podspec"
-SKILLS_DIR=".agent/skills/sectionui"
+SKILLS_DIR="SectionUI.skills"
 SKILLS_ZIP="sectionui-skills.zip"
 CDN_WAIT_TIME=1200  # 20 分钟 = 1200 秒
 
@@ -463,7 +463,7 @@ main() {
     log_success "🎉 发布完成！版本 $NEW_VERSION 已成功发布"
     echo ""
     log_info "验证发布："
-    echo "  - GitHub Release: https://github.com/linhay/SectionKit/releases/tag/v$NEW_VERSION"
+    echo "  - GitHub Release: https://github.com/linhay/SectionKit/releases/tag/$NEW_VERSION"
     echo "  - CocoaPods: pod search SectionKit2"
     echo "  - CocoaPods: pod search SectionUI"
     echo ""

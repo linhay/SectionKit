@@ -14,10 +14,15 @@ struct Item {
 // items: 初始数据
 // id: 标识唯一 ID 的 KeyPath
 // isUnique: 是否单选
-let sequence = SKSelectionIdentifiableSequence(items: [], id: \.id, isUnique: true)
+let sequence = SKSelectionIdentifiableSequence(
+    SKSelectionWrapper<Item>.self,
+    id: \.id,
+    isUnique: true
+)
 
-// 方式 2: 类型推断初始化
-let sequence = SKSelectionIdentifiableSequence(Item.self, id: \.id, isUnique: true)
+let item = Item(id: "item-1", title: "Title")
+let wrapper = SKSelectionWrapper(item, id: item.id)
+sequence.update(wrapper, by: \.id)
 ```
 
 ## 数据操作
@@ -28,7 +33,7 @@ let sequence = SKSelectionIdentifiableSequence(Item.self, id: \.id, isUnique: tr
 
 ```swift
 let item = Item(id: "item-1", title: "Title")
-let wrapper = SKSelectionWrapper(item)
+let wrapper = SKSelectionWrapper(item, id: item.id)
 
 // 更新单个元素
 sequence.update(wrapper, by: \.id)

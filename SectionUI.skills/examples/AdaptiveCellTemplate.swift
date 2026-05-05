@@ -6,9 +6,9 @@ import SectionUI
 import UIKit
 
 /// A template for creating adaptive (self-sizing) cells.
-/// Conforms to `SKConfigurableAdaptiveView` for automatic size calculation.
+/// Conforms to `SKConfigurableAutoAdaptiveView` for automatic size calculation.
 final class AdaptiveCellTemplate: UICollectionViewCell, SKLoadViewProtocol,
-    SKConfigurableAdaptiveView
+    SKConfigurableAutoAdaptiveView
 {
 
     // MARK: - Model
@@ -30,14 +30,18 @@ final class AdaptiveCellTemplate: UICollectionViewCell, SKLoadViewProtocol,
         subtitleLabel.isHidden = model.subtitle == nil
     }
 
-    // MARK: - SKConfigurableAdaptiveView
+    // MARK: - SKConfigurableAutoAdaptiveView
 
     /// Configures the adaptive sizing behavior.
     /// - `direction`: The primary axis for sizing (`.vertical` for dynamic height, `.horizontal` for dynamic width).
     /// - `content`: Optional key path to a subview that drives the sizing (e.g., a UILabel or UIStackView).
-    static var adaptive: SKAdaptive<AdaptiveCellTemplate> = .init(direction: .vertical)
+    static func adaptive() -> SKAdaptive<AdaptiveCellTemplate, Model> {
+        .init(direction: .vertical, content: \.titleLabel)
+    }
     // Example with content key path:
-    // static var adaptive: SKAdaptive<AdaptiveCellTemplate> = .init(direction: .vertical, content: \.titleLabel)
+    // static func adaptive() -> SKAdaptive<AdaptiveCellTemplate, Model> {
+    //     .init(direction: .vertical, content: \.subtitleLabel)
+    // }
 
     // MARK: - UI Components
 

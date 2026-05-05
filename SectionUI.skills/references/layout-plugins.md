@@ -15,16 +15,16 @@ section.addLayoutPlugins(.left)
 ### Center - 居中对齐
 
 ```swift
-section.addLayoutPlugins(.verticalAlignment(.center))
+section.addLayoutPlugins(.centerX)
 
-// 指定应用到哪些 Section
-section.addLayoutPlugins(.verticalAlignment(.center, sections: [.all]))
+// 应用到整个 collection
+sectionView.set(pluginModes: .centerX)
 ```
 
 ### Right - 右对齐
 
 ```swift
-section.addLayoutPlugins(.verticalAlignment(.right))
+section.addLayoutPlugins(.right)
 ```
 
 ### 实战示例：标签云
@@ -73,25 +73,22 @@ section.addLayoutPlugins(.horizontalAlignment(.equalSpacing))
 ### Fix Inset - 修复边距
 
 ```swift
-section.addLayoutPlugins(.fixSupplementaryViewInset(.horizontal))
-section.addLayoutPlugins(.fixSupplementaryViewInset(.vertical))
+sectionView.set(pluginModes: .fixSupplementaryViewInset(.horizontal))
+sectionView.set(pluginModes: .fixSupplementaryViewInset(.vertical))
 ```
 
 ### Fix Size - 确保尺寸生效
 
 ```swift
-section.addLayoutPlugins(.fixSupplementaryViewSize)
+sectionView.set(pluginModes: .fixSupplementaryViewSize)
 ```
 
 ### Adjust Size - 条件调整
 
 ```swift
-section.addLayoutPlugins(.adjustSupplementaryViewSize { attributes in
-    // 自定义调整逻辑
-    if attributes.representedElementKind == UICollectionView.elementKindSectionHeader {
-        attributes.size.height = 60
-    }
-})
+sectionView.set(pluginModes: .adjustSupplementaryViewSize(.including([
+    .init(section: SKBindingKey(headerSection), kind: .header)
+])))
 ```
 
 ## 自定义属性插件
@@ -101,46 +98,32 @@ section.addLayoutPlugins(.adjustSupplementaryViewSize { attributes in
 ### 基础用法
 
 ```swift
-struct MyAttributePlugin: SKCPluginAdjustAttributesProtocol {
-    
-    func adjustAttributes(
-        _ attributes: UICollectionViewLayoutAttributes,
-        in collectionView: UICollectionView
-    ) {
-        // 修改属性
-        attributes.alpha = 0.8
-        attributes.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+section.setAttributes(.set { context in
+    guard context.attributes.representedElementCategory == .cell else {
+        return context
     }
-}
-
-section.addLayoutPlugins(.attributes([MyAttributePlugin()]))
+    context.attributes.alpha = 0.8
+    context.attributes.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+    return context
+})
 ```
 
 ### 实战示例：卡片堆叠效果
 
 ```swift
-struct StackPlugin: SKCPluginAdjustAttributesProtocol {
-    
-    func adjustAttributes(
-        _ attributes: UICollectionViewLayoutAttributes,
-        in collectionView: UICollectionView
-    ) {
-        let offsetY = attributes.frame.origin.y
-        let scrollOffset = collectionView.contentOffset.y
-        
-        // 计算距离顶部的距离
-        let distance = offsetY - scrollOffset
-        
-        if distance < 100 {
-            // 越接近顶部，缩放越小
-            let scale = 1 - (100 - distance) / 1000
-            attributes.transform = CGAffineTransform(scaleX: scale, y: scale)
-            attributes.zIndex = -Int(distance)
-        }
-    }
-}
+section.setAttributes(.set { context in
+    let offsetY = context.attributes.frame.origin.y
+    let scrollOffset = context.plugin.collectionView.contentOffset.y
+    let distance = offsetY - scrollOffset
 
-section.addLayoutPlugins(.attributes([StackPlugin()]))
+    if distance < 100 {
+        let scale = 1 - (100 - distance) / 1000
+        context.attributes.transform = CGAffineTransform(scaleX: scale, y: scale)
+        context.attributes.zIndex = -Int(distance)
+    }
+
+    return context
+})
 ```
 
 ## SKWaterfallLayout - 瀑布流布局 (Beta)
@@ -167,7 +150,7 @@ layout.columnWidth(equalParts: 3)  // 三列
 layout.columnWidth(ratios: [0.3, 0.7])  // 30% 和 70%
 
 // 混合
-layout.columnWidth(ratios: [1, 1, 2])  // 1:1:2
+layout.columnWidth(ratios: [0.25, 0.25, 0.5])  // 1:1:2, ratios must sum to 1.0
 ```
 
 ### 高度计算模式
@@ -252,19 +235,24 @@ class WaterfallViewController: UIViewController {
 ```swift
 section
     .addLayoutPlugins(.left)
-    .addLayoutPlugins(.fixSupplementaryViewSize)
-    .addLayoutPlugins(.attributes([CustomPlugin()]))
+    .setAttributes(.fixSupplementaryViewSize)
+    .setAttributes(.set { context in
+        context.attributes.alpha = 0.95
+        return context
+    })
 ```
 
 ## 插件优先级
 
-插件按添加顺序执行：
+插件按 mode priority 执行，不按添加顺序执行；多个 attribute 调整会合并到同一个 priority 中：
 
 ```swift
-// 先执行 Plugin A，再执行 Plugin B
 section
-    .addLayoutPlugins(.attributes([PluginA()]))
-    .addLayoutPlugins(.attributes([PluginB()]))
+    .setAttributes(.set { context in
+        context.attributes.alpha = 0.95
+        return context
+    })
+    .setAttributes(.fixSupplementaryViewSize)
 ```
 
 ## 最佳实践
@@ -283,20 +271,17 @@ section.addLayoutPlugins(.left)  // 单列列表
 
 ```swift
 // ✅ 轻量级插件
-struct SimplePlugin: SKCPluginAdjustAttributesProtocol {
-    func adjustAttributes(_ attributes: UICollectionViewLayoutAttributes, in collectionView: UICollectionView) {
-        attributes.alpha = 0.9  // 简单属性修改
-    }
-}
+section.setAttributes(.set { context in
+    context.attributes.alpha = 0.9
+    return context
+})
 
 // ❌ 重量级计算
-struct HeavyPlugin: SKCPluginAdjustAttributesProtocol {
-    func adjustAttributes(_ attributes: UICollectionViewLayoutAttributes, in collectionView: UICollectionView) {
-        // 避免复杂计算
-        let complex = performExpensiveCalculation()
-        attributes.transform = complex
-    }
-}
+section.setAttributes(.set { context in
+    let complex = performExpensiveCalculation()
+    context.attributes.transform = complex
+    return context
+})
 ```
 
 ### 3. 瀑布流优化
@@ -304,12 +289,12 @@ struct HeavyPlugin: SKCPluginAdjustAttributesProtocol {
 ```swift
 let section = WaterfallCell.wrapperToSingleTypeSection()
     .setHighPerformance(.init())  // 缓存尺寸计算
-    .highPerformanceID { $0.model.id }
+    .highPerformanceID(by: { $0.model.id })
 
 // 预加载图片
 section.prefetch.prefetchPublisher
-    .sink { indexPaths in
-        indexPaths.forEach { preloadImage(at: $0) }
+    .sink { rows in
+        rows.forEach { preloadImage(at: $0) }
     }
     .store(in: &cancellables)
 ```

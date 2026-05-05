@@ -51,7 +51,7 @@ let section = ProductCell.wrapperToSingleTypeSection()
     }
 
 // Add to manager
-manager.update([section])
+manager.reload([section])
 ```
 
 ## Key Concepts

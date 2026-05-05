@@ -58,9 +58,9 @@ manager.scrollObserver.add(scroll: "fullCycle") { handler in
             print("缩放结束")
         })
         
-        // 动画结束
+        // 当前实现中 onAnimation 会随普通滚动回调触发，不要依赖它作为动画结束回调
         .onAnimation { scrollView in
-            print("动画结束")
+            print("滚动变化")
         }
         
         // 任何变化
@@ -70,14 +70,15 @@ manager.scrollObserver.add(scroll: "fullCycle") { handler in
 }
 ```
 
-### 移除监听
+### 替换监听
 
 ```swift
-// 按名称移除
-manager.scrollObserver.remove(scroll: "myObserver")
-
-// 移除所有
-manager.scrollObserver.removeAll()
+// 使用同一个 id 重新 add，会替换之前的 observer block
+manager.scrollObserver.add(scroll: "myObserver") { handler in
+    handler.onChanged { scrollView in
+        print(scrollView.contentOffset)
+    }
+}
 ```
 
 ## SKCDisplayTracker - 可见性追踪
@@ -138,7 +139,11 @@ tracker.$displayedFooterIndexPaths
 返回排序后的可见 Cell IndexPath 流：
 
 ```swift
-tracker.topCellIndexPathForVisibleArea()
+let sectionItems = sections.enumerated().map { index, section in
+    SKCDisplayTracker.TopSectionForVisibleAreaItem(section: section, tag: index)
+}
+
+tracker.topCellIndexPathForVisibleArea(sectionItems)
     .sink { sortedIndexPaths in
         if let topIndexPath = sortedIndexPaths.first {
             print("顶部 Cell: \(topIndexPath)")
@@ -185,7 +190,11 @@ class ScrollObserverViewController: SKCollectionViewController {
         manager.scrollObserver.add(tracker)
         
         // 监听顶部 Cell 变化
-        tracker.topCellIndexPathForVisibleArea()
+        let sectionItems = manager.sections.enumerated().map { index, section in
+            SKCDisplayTracker.TopSectionForVisibleAreaItem(section: section, tag: index)
+        }
+
+        tracker.topCellIndexPathForVisibleArea(sectionItems)
             .compactMap(\.first)
             .removeDuplicates()
             .sink { [weak self] topIndexPath in
@@ -400,16 +409,27 @@ manager.scrollObserver.add(scroll: "safe") { [weak self] handler in
 }
 ```
 
-### 3. 及时移除监听
+### 3. 及时管理监听
 
 ```swift
 class MyViewController: SKCollectionViewController {
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
-        // 移除不需要的监听
-        manager.scrollObserver.remove(scroll: "myObserver")
+        manager.scrollObserver.add(scroll: "myObserver") { handler in
+            handler.onChanged { scrollView in
+                print(scrollView.contentOffset)
+            }
+        }
+    }
+
+    func replaceObserverForNewState() {
+        manager.scrollObserver.add(scroll: "myObserver") { handler in
+            handler.onChanged { scrollView in
+                print("new state", scrollView.contentOffset)
+            }
+        }
     }
 }
 ```
@@ -422,5 +442,5 @@ manager.scrollObserver.add(scroll: "navBar") { ... }
 manager.scrollObserver.add(scroll: "analytics") { ... }
 manager.scrollObserver.add(scroll: "loadMore") { ... }
 
-// 便于管理和移除
+// 便于按职责替换
 ```

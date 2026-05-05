@@ -94,7 +94,7 @@ var sections: [SKCSectionProtocol] = [
     footerSection
 ]
 
-manager.update(sections)
+manager.reload(sections)
 ```
 
 ### Maintaining Type Safety
@@ -114,7 +114,7 @@ class ViewController: UIViewController {
         }
         
         // Pass to manager as type-erased
-        manager.update([headerSection, contentSection])
+        manager.reload([headerSection, contentSection])
     }
     
     func updateContent(_ newItems: [ContentCell.Model]) {
@@ -360,7 +360,7 @@ class ProductListViewController: UIViewController {
     private var products: [Product] = []
     
     // MARK: - Setup
-    func setupSection() {
+    func configureProductSection() {
         section
             .config(models: products)
             .applyStyling()
@@ -425,21 +425,21 @@ class MockProductSectionFactory: ProductSectionFactory {
 
 ## Common Pitfalls
 
-### 1. Forgetting to Update Manager
+### 1. Adding Extra Manager Reloads
 
 ```swift
-// ❌ Manager doesn't know about changes
+// ❌ Extra full reload after a bound row mutation
 section.append(newItem)
+manager.reload()
 
-// ✅ Tell manager to refresh if needed
+// ✅ Let the row mutation API perform the item update
 section.append(newItem)
-manager.reload() // If necessary
 ```
 
 ### 2. Modifying Models Directly
 
 ```swift
-// ❌ Don't modify section.models directly
+// ❌ Don't modify section.models directly without a matching UI update
 section.models.append(newItem) // This won't trigger UI update!
 
 // ✅ Use section methods
@@ -461,7 +461,7 @@ func refresh() {
 }
 
 // ✅ Set once during initialization
-func setupSection() {
+func configureReloadStrategy() {
     section.reloadKind = .difference(by: \.id)
 }
 ```

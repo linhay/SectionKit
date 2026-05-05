@@ -54,5 +54,5 @@ class SelectableItem: SKSelectionProtocol {
 
 // 使用
 let item = SelectableItem(title: "Test")
-item.isSelected = true
+item.select(true)
 ```

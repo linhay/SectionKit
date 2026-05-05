@@ -108,10 +108,10 @@ Enable interactive drag and drop reordering.
 
 ```swift
 // Allow all cells to be moved
-section.onCellShould(.canMove, true)
+section.onCellShould(.move, true)
 
 // Or use a closure for conditional logic
-section.onCellShould(.canMove) { context in
+section.onCellShould(.move) { context in
     return context.model.isDraggable
 }
 ```
@@ -121,10 +121,10 @@ section.onCellShould(.canMove) { context in
 The section automatically updates its models when items are moved:
 
 ```swift
-section.onCellShould(.canMove, true)
+section.onCellShould(.move, true)
 
-// Models are automatically reordered
-// Access updated order via section.models
+// Same-section moves swap source and destination models.
+// Persist the updated order from section.models before the next full render.
 ```
 
 ### Programmatic Swap
@@ -143,18 +143,18 @@ if section.sectionInjection?.sectionView != nil {
 
 ### Cross-Section Moves
 
-When moving between sections, the framework handles data updates automatically:
+The default single-type section does not perform a full cross-section transfer. Handle cross-section moves explicitly when needed:
 
 ```swift
-// No additional code needed
-// Just ensure both sections have .canMove enabled
+// Use a custom section or data-source forwarding when movement crosses sections.
+// The source section removes its model; a destination single-type section asserts by default.
 ```
 
 ### Drag & Drop with Persistence
 
 ```swift
 section
-    .onCellShould(.canMove, true)
+    .onCellShould(.move, true)
     .onCellAction(.didEndDisplay) { context in
         // Save reordered data
         UserDefaults.save(context.section.models)

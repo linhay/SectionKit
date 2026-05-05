@@ -1,6 +1,6 @@
 # Section Data Operations
 
-This guide covers all data manipulation operations for `SKCSingleTypeSection`.
+This guide covers data manipulation operations for `SKCSingleTypeSection`. For exact row-refresh validation, predicate refresh, action-context mutation, and `reloadKind` edge cases, read `row-mutation-recipes.md`.
 
 ## Adding Items
 
@@ -125,8 +125,8 @@ section.reloadKind = .difference { lhs, rhs in
 
 **Reload Strategy Guide:**
 - **`.normal`**: Use for complete data changes (default)
-- **`.configAndDelete`**: Best when data sizes are similar, avoids full reload
-- **`.difference()`**: Provides smooth animations for insertions/deletions
+- **`.configAndDelete`**: Narrow optimization when visible cell reconfiguration is enough
+- **`.difference()`**: Provides smooth animations for insertions/deletions; unchanged identities with changed content need explicit refresh
 
 ### Strategy Selection Examples
 
@@ -393,7 +393,7 @@ func updateSection(with newData: [Model]) {
 
 ## Performance Tips
 
-1. **Use appropriate reload strategies** - `.difference()` for smooth animations, `.normal` for bulk changes
+1. **Use appropriate reload strategies** - `.difference()` for smooth insert/delete animations, `.normal` for bulk changes
 2. **Batch operations** - Combine multiple changes into single apply call
 3. **Avoid frequent full reloads** - Use targeted updates when possible
 4. **Set skipDisplayEventWhenFullyRefreshed** for very large datasets

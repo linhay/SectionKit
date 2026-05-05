@@ -24,7 +24,7 @@ class SelectViewController: SKCollectionViewController {
         
         // 设置拖拽选择
         try? dragSelector.setup(
-            collectionView: collectionView,
+            collectionView: sectionView,
             rectSelectionDelegate: self
         )
     }
@@ -51,9 +51,9 @@ extension SelectViewController: SKCRectSelectionDelegate {
         // 1. 更新数据模型
         let wrapper = models[indexPath.item]
         if wrapper.isSelected != isSelected {
-            wrapper.isSelected = isSelected
+            wrapper.select(isSelected)
             // 2. 刷新 UI
-            section.reload(rows: [indexPath.item])
+            section.refresh(at: indexPath.item)
         }
     }
     
@@ -70,9 +70,12 @@ extension SelectViewController: SKCRectSelectionDelegate {
         _ manager: SKCRectSelectionManager,
         willDisplay overlayView: SKSelectionOverlayView
     ) {
-        overlayView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
-        overlayView.layer.borderColor = UIColor.systemBlue.cgColor
-        overlayView.layer.borderWidth = 1
+        overlayView.style = .init(
+            fillColor: UIColor.systemBlue.withAlphaComponent(0.16),
+            strokeColor: UIColor.systemBlue.withAlphaComponent(0.7),
+            lineWidth: 1.5,
+            cornerRadius: 4
+        )
     }
 }
 ```

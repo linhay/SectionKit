@@ -104,7 +104,7 @@ section.cellSafeSize(.fraction { context in
 // 尺寸变换
 section.cellSafeSize(
     .default,
-    transforms: .inset(UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
+    transforms: .offset(width: -32)
 )
 
 // Supplementary 尺寸
@@ -126,16 +126,19 @@ section.supplementarySafeSize(.header, .apple)
 
 ```swift
 // 启用高性能模式
-section.highPerformanceID { context in
-    return context.model.id
-}
+let sizeStore = SKHighPerformanceStore<String>()
 
-// 或使用 KeyPath
-section.highPerformanceID(by: \.model.id)
+section
+    .setHighPerformance(sizeStore)
+    .highPerformanceID(by: { context in
+    return context.model.id
+})
+
+// Int ID can use the KeyPath helper
+section.highPerformanceID(by: \.row)
 
 // 手动控制缓存
-section.setHighPerformance(.init())
-section.highPerformance?.clear()
+sizeStore.removeAll()
 ```
 
 **工作原理**:
@@ -154,7 +157,7 @@ section.highPerformance?.clear()
 
 **属性**: `section.indexTitle`
 
-**功能**: 添加字母索引，实现类似通讯录的快速滚动。
+**功能**: 为 iOS 14+ `UICollectionViewDataSource` index-title 路由提供 section 级标题元数据。完整契约见 `index-title-recipes.md`。
 
 ```swift
 section.indexTitle = "A"
@@ -171,7 +174,7 @@ let sectionsWithIndex = [
         .setHeader(SectionHeaderCell.self, model: letter)
 }
 
-manager.update(sectionsWithIndex)
+manager.reload(sectionsWithIndex)
 ```
 
 **用途**:

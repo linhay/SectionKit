@@ -80,8 +80,8 @@ Add header and footer views to your section with automatic size calculation.
 class MyHeader: UICollectionReusableView, SKLoadViewProtocol, SKConfigurableView {
     typealias Model = String
     
-    static func preferredSize(limit: CGSize, model: Model) -> CGSize {
-        return CGSize(width: limit.width, height: 44)
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        return CGSize(width: size.width, height: 44)
     }
     
     func config(_ model: Model) {
@@ -130,7 +130,7 @@ section
 
 ```swift
 section.remove(supplementary: .header)
-section.remove(supplementary: MyHeader.self)
+section.remove(supplementary: .footer)
 ```
 
 ### Auto-hiding Empty Sections
@@ -225,8 +225,8 @@ class SectionTitleHeader: UICollectionReusableView, SKLoadViewProtocol, SKConfig
     
     private let titleLabel = UILabel()
     
-    static func preferredSize(limit: CGSize, model: Model) -> CGSize {
-        return CGSize(width: limit.width, height: 44)
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        return CGSize(width: size.width, height: 44)
     }
     
     func config(_ model: Model) {
@@ -246,8 +246,8 @@ class ItemCountFooter: UICollectionReusableView, SKLoadViewProtocol, SKConfigura
     
     private let countLabel = UILabel()
     
-    static func preferredSize(limit: CGSize, model: Model) -> CGSize {
-        return CGSize(width: limit.width, height: 30)
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        return CGSize(width: size.width, height: 30)
     }
     
     func config(_ model: Model) {
@@ -268,8 +268,8 @@ For headers that don't need data:
 class DividerHeader: UICollectionReusableView, SKLoadViewProtocol, SKConfigurableView {
     typealias Model = Void
     
-    static func preferredSize(limit: CGSize, model: Model) -> CGSize {
-        return CGSize(width: limit.width, height: 1)
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        return CGSize(width: size.width, height: 1)
     }
     
     func config(_ model: Model) {

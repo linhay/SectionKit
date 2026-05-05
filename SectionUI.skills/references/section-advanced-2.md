@@ -71,12 +71,7 @@ section.model(displayedAt: .first) { context in
 ```swift
 section.model(displayedAt: [1, 3, 5]) { context in
     // Show different hints at different times
-    switch context.displayCount {
-    case 1: showBasicHint()
-    case 3: showIntermediateHint()
-    case 5: showAdvancedHint()
-    default: break
-    }
+    showProgressiveHint(for: context.model, row: context.row)
 }
 ```
 
@@ -84,10 +79,10 @@ section.model(displayedAt: [1, 3, 5]) { context in
 
 ```swift
 // Reset all display counts
-section.displayedTimes.reset()
+section.displayedTimes.resetAll()
 
 // Reset specific row
-section.displayedTimes.reset(row: 3)
+section.displayedTimes.reset(by: 3)
 ```
 
 ## Cell Refresh (Partial Updates)
@@ -218,19 +213,31 @@ Apply transformations to limit sizes:
 // Reduce width by padding
 section.cellSafeSize(
     .default,
-    transforms: .inset(UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
+    transforms: .offset(width: -32)
 )
 
-// Subtract fixed value
+// Subtract fixed value from height
 section.cellSafeSize(
     .default,
-    transforms: .subtract(width: 32, height: 0)
+    transforms: .offset(height: -20)
 )
 
 // Multiple transforms
 section.cellSafeSize(.default, transforms: [
-    .inset(UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)),
-    .subtract(width: 0, height: 20)
+    .offset(width: -32),
+    .offset(height: -20)
+])
+
+// For custom inset math, make the transform explicit
+let insets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+
+section.cellSafeSize(.default, transforms: [
+    SKSafeSizeTransform { size in
+        CGSize(
+            width: max(0, size.width - insets.left - insets.right),
+            height: max(0, size.height - insets.top - insets.bottom)
+        )
+    }
 ])
 ```
 
@@ -264,9 +271,16 @@ section.cellSafeSize(.fraction { context in
 #### Accounting for Safe Area
 
 ```swift
+let safeAreaInsets = view.safeAreaInsets
+
 section.cellSafeSize(
     .default,
-    transforms: .inset(view.safeAreaInsets)
+    transforms: SKSafeSizeTransform { size in
+        CGSize(
+            width: max(0, size.width - safeAreaInsets.left - safeAreaInsets.right),
+            height: max(0, size.height - safeAreaInsets.top - safeAreaInsets.bottom)
+        )
+    }
 )
 ```
 
@@ -278,9 +292,9 @@ Cache calculated cell sizes for improved scrolling performance.
 
 ```swift
 // Enable with ID block
-section.highPerformanceID { context in
+section.highPerformanceID(by: { context in
     return context.model.id
-}
+})
 
 // Or use KeyPath
 section.highPerformanceID(by: \.model.id)
@@ -290,18 +304,19 @@ section.highPerformanceID(by: \.model.id)
 
 ```swift
 // Set custom cache
-section.setHighPerformance(.init())
+let sizeStore = SKHighPerformanceStore<String>()
+section.setHighPerformance(sizeStore)
 
 // Clear cache when needed
-section.highPerformance?.clear()
+sizeStore.removeAll()
 ```
 
 ### How It Works
 
 When enabled, `preferredSize` results are cached by ID:
 1. First calculation is performed and cached
-2. Subsequent calls with same ID return cached size
-3. No recalculation until cache is cleared
+2. Subsequent calls with same ID and same limit size return cached size
+3. Width or safe-size changes create a different cache key
 
 ### Use Cases
 
@@ -310,7 +325,7 @@ When enabled, `preferredSize` results are cached by ID:
 ```swift
 // Cache sizes for 10,000+ items
 section
-    .highPerformanceID(by: \.model.id)
+    .highPerformanceID(by: { $0.model.id })
     .config(models: largeDataset)
 ```
 
@@ -323,25 +338,25 @@ struct Message: Identifiable {
     var isRead: Bool
 }
 
-section.highPerformanceID { context in
+section.highPerformanceID(by: { context in
     // Cache by message ID
     // Size doesn't change even if isRead changes
     return context.model.id
-}
+})
 ```
 
 #### Clear Cache on Data Change
 
 ```swift
 func updateData(_ newData: [Model]) {
-    section.highPerformance?.clear()
+    sizeStore.removeAll()
     section.apply(newData)
 }
 ```
 
 ## Index Titles
 
-Add alphabet index for quick scrolling (like Contacts app).
+Add iOS 14+ collection index-title metadata for section navigation. For exact lookup and forwarding rules, read `index-title-recipes.md`.
 
 ### Set Index Title
 
@@ -364,8 +379,7 @@ let sectionsWithIndex = [
         .setHeader(SectionHeaderCell.self, model: letter)
 }
 
-manager.update(sectionsWithIndex)
-// Index appears on right side of collection view
+manager.reload(sectionsWithIndex)
 ```
 
 ## Prefetching Support

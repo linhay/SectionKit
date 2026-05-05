@@ -36,12 +36,13 @@ class SelectableCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableVi
     private var cancellable: AnyCancellable?
     
     func config(_ model: Model) {
-        label.text = model.value.title
+        cancellable?.cancel()
+        label.text = model.title
+        updateSelectionUI(model.isSelected)
         
         // 2. 响应式更新 UI
         cancellable = model.selectedPublisher.sink { [weak self] isSelected in
-            guard let self = self else { return }
-            self.contentView.backgroundColor = isSelected ? .systemBlue : .white
+            self?.updateSelectionUI(isSelected)
         }
     }
     
@@ -62,7 +63,7 @@ let section = SelectableCell.wrapperToSingleTypeSection()
         context.model.toggle()
         
         // 刷新 Cell
-        context.section.reload(cell: context.cell)
+        context.reload()
     }
 ```
 
@@ -128,21 +129,12 @@ class SelectableCell: UICollectionViewCell {
 ### 3. 单选限制
 
 ```swift
-let selectableItems = items.map { SKSelectionWrapper(value: $0) }
+let selectableItems = items.map { SKSelectionWrapper($0) }
+let sequence = SKSelectionSequence(items: selectableItems, isUnique: true)
 
 section.onCellAction(.selected) { context in
-    // 取消其他项的选中
-    selectableItems.forEach { wrapper in
-        if wrapper !== context.model {
-            wrapper.isSelected = false
-        }
-    }
-    
-    // 选中当前项
-    context.model.select()
-    
-    // 刷新所有 Cell
-    context.section.reload()
+    sequence.select(at: context.row)
+    context.section.refresh(at: sequence.selectedIndexs)
 }
 ```
 

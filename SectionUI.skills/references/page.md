@@ -39,12 +39,6 @@ pageManager.configure { manager in
     
     // 页面间距
     manager.spacing = 20
-    
-    // 是否启用滚动
-    manager.isScrollEnabled = true
-    
-    // 是否启用分页
-    manager.isPagingEnabled = true
 }
 ```
 
@@ -93,13 +87,13 @@ if let current = pageManager.current {
 }
 
 // 动态添加页面
-pageManager.append(.init(id: "newPage") { _ in NewViewController() })
+pageManager.addChild(.init(id: "newPage") { _ in NewViewController() })
 
 // 插入页面
-pageManager.insert(.init(id: "insertedPage") { _ in InsertedVC() }, at: 1)
+pageManager.insertChild(.init(id: "insertedPage") { _ in InsertedVC() }, at: 1)
 
 // 移除页面
-pageManager.remove(at: 2)
+pageManager.removeChild(at: 2)
 ```
 
 ## SKPageViewController - 页面容器
@@ -109,7 +103,8 @@ pageManager.remove(at: 2)
 ### 基础用法
 
 ```swift
-let pageVC = SKPageViewController(manager: pageManager)
+let pageVC = SKPageViewController()
+pageVC.set(manager: pageManager)
 
 // 添加到视图层级
 addChild(pageVC)
@@ -123,7 +118,8 @@ pageVC.didMove(toParent: self)
 override func viewDidLoad() {
     super.viewDidLoad()
     
-    let pageVC = SKPageViewController(manager: pageManager)
+    let pageVC = SKPageViewController()
+    pageVC.set(manager: pageManager)
     addChild(pageVC)
     view.addSubview(pageVC.view)
     
@@ -171,7 +167,8 @@ class TabPageViewController: UIViewController {
         navigationItem.titleView = segmentedControl
         
         // 添加页面容器
-        let pageVC = SKPageViewController(manager: pageManager)
+        let pageVC = SKPageViewController()
+        pageVC.set(manager: pageManager)
         addChild(pageVC)
         view.addSubview(pageVC.view)
         pageVC.view.frame = view.bounds
@@ -206,7 +203,6 @@ class OnboardingViewController: UIViewController {
         ])
         manager.configure { manager in
             manager.scrollDirection = .horizontal
-            manager.isPagingEnabled = true
         }
         return manager
     }()
@@ -222,7 +218,8 @@ class OnboardingViewController: UIViewController {
         super.viewDidLoad()
         
         // 添加页面
-        let pageVC = SKPageViewController(manager: pageManager)
+        let pageVC = SKPageViewController()
+        pageVC.set(manager: pageManager)
         addChild(pageVC)
         view.addSubview(pageVC.view)
         pageVC.view.frame = view.bounds
@@ -284,7 +281,8 @@ class NestedScrollViewController: UIViewController {
         outerScrollView.addSubview(headerView)
         
         // 添加页面容器
-        let pageVC = SKPageViewController(manager: pageManager)
+        let pageVC = SKPageViewController()
+        pageVC.set(manager: pageManager)
         addChild(pageVC)
         outerScrollView.addSubview(pageVC.view)
         
@@ -317,51 +315,52 @@ class NestedScrollViewController: UIViewController {
 
 可缩放的滚动视图，常与 PageViewController 配合使用。
 
+更精确的 sizing、tap、pan-to-dismiss 与 gesture 语义见 `page-zoom-recipes.md`。
+
 ### 基础用法
 
 ```swift
-let zoomableView = SKZoomableScrollView()
-zoomableView.contentView = imageView
+final class ImageContentView: UIImageView, SKZoomableContentView {
+    let zoomableContext = SKZoomableContext()
+}
+
+let imageView = ImageContentView()
+imageView.zoomableContext.size = image.size
+imageView.image = image
+
+let zoomableView = imageView.wrapperToZoomableView()
 
 // 配置缩放
 zoomableView.minimumZoomScale = 1.0
-zoomableView.maximumZoomScale = 3.0
+zoomableView.maximumZoomScale = 5.0
 ```
 
 ### 图片查看器示例
 
 ```swift
+final class ImageContentView: UIImageView, SKZoomableContentView {
+    let zoomableContext = SKZoomableContext()
+}
+
 class ImageViewerController: UIViewController {
     
-    private lazy var zoomableView: SKZoomableScrollView = {
-        let view = SKZoomableScrollView()
-        view.minimumZoomScale = 1.0
-        view.maximumZoomScale = 5.0
-        view.contentView = imageView
-        return view
-    }()
+    private lazy var imageView = ImageContentView()
     
-    private lazy var imageView = UIImageView()
+    private lazy var zoomableView: SKZoomableScrollView = {
+        imageView.wrapperToZoomableView()
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        imageView.image = image
+        imageView.zoomableContext.size = image.size
+        imageView.zoomableContext.singleTapAction = { [weak self] _ in
+            self?.toggleChrome()
+        }
+        
         view.addSubview(zoomableView)
         zoomableView.frame = view.bounds
-        
-        // 双击缩放
-        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap))
-        doubleTap.numberOfTapsRequired = 2
-        zoomableView.addGestureRecognizer(doubleTap)
-    }
-    
-    @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
-        if zoomableView.zoomScale > zoomableView.minimumZoomScale {
-            zoomableView.setZoomScale(zoomableView.minimumZoomScale, animated: true)
-        } else {
-            let point = gesture.location(in: imageView)
-            zoomableView.zoom(to: CGRect(x: point.x, y: point.y, width: 1, height: 1), animated: true)
-        }
     }
 }
 ```

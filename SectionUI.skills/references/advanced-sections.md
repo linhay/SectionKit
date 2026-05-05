@@ -172,31 +172,44 @@ manager.reload(section)
 ### 基础用法
 
 ```swift
-// 1. 创建内部 Section
+// 1. 创建内部 section
 class InnerCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
     struct Model { let text: String }
     // ...
 }
 
-let innerSection = InnerCell.wrapperToSingleTypeSection()
-innerSection.config(models: innerModels)
+let childSection = InnerCell.wrapperToSingleTypeSection()
+childSection.config(models: innerModels)
 
-// 2. 创建包装 Cell
-class SectionCell: SKCSectionViewCell {
-    override func setupSection() -> any SKCSectionProtocol {
-        return innerSection
-    }
+// 2. 包装为水平嵌套 row
+let outerSection = childSection.wrapperToHorizontalSection(
+    height: 120,
+    insets: .init(top: 8, left: 16, bottom: 8, right: 16)
+) { sectionView, section in
+    sectionView.showsHorizontalScrollIndicator = false
 }
-
-// 3. 使用
-let outerSection = SectionCell.wrapperToSingleTypeSection()
-outerSection.config(models: [/* models for each nested section */])
 ```
 
-### 泛型版本
+### Model 版本
 
 ```swift
-// 使用泛型明确 Section 类型
+let childSection = InnerCell.wrapperToSingleTypeSection()
+childSection.config(models: innerModels)
+
+let model = SKCSectionViewCell.Model.horizontal(
+    section: childSection,
+    heightModel: innerModels.first,
+    insets: .init(top: 8, left: 16, bottom: 8, right: 16)
+) { sectionView in
+    sectionView.showsHorizontalScrollIndicator = false
+}
+
+let outerSection = SKCSectionViewCell.wrapperToSingleTypeSection(model)
+```
+
+### 泛型包装 Cell
+
+```swift
 typealias MySectionCell = SKCSingleSectionViewCell<
     SKCSingleTypeSection<InnerCell>
 >
@@ -204,48 +217,28 @@ typealias MySectionCell = SKCSingleSectionViewCell<
 let section = MySectionCell.wrapperToSingleTypeSection()
 ```
 
-### 实战示例：分组列表
+### 多子 Section
 
 ```swift
-struct Group {
-    let title: String
-    let items: [Item]
-}
+let titleSection = TitleCell.wrapperToSingleTypeSection(titleModels)
+let itemSection = ItemCell.wrapperToSingleTypeSection(itemModels)
 
-class GroupSectionCell: SKCSectionViewCell {
-    
-    var group: Group?
-    
-    override func setupSection() -> any SKCSectionProtocol {
-        let section = ItemCell.wrapperToSingleTypeSection()
-        
-        if let group = group {
-            section.config(models: group.items)
-        }
-        
-        return section
+let model = SKCSectionViewCell.Model(
+    section: .normal([titleSection, itemSection]),
+    insets: .init(top: 12, left: 0, bottom: 12, right: 0),
+    scrollDirection: .horizontal,
+    style: .set { sectionView in
+        sectionView.showsHorizontalScrollIndicator = false
+    },
+    size: { limit, model in
+        CGSize(width: limit.width, height: 160 + model.insets.top + model.insets.bottom)
     }
-    
-    static func preferredSize(limit size: CGSize, model: Group?) -> CGSize {
-        guard let model = model else { return .zero }
-        
-        // 计算内部 Section 的总高度
-        let itemHeight: CGFloat = 44
-        let totalHeight = CGFloat(model.items.count) * itemHeight
-        
-        return CGSize(width: size.width, height: totalHeight)
-    }
-}
+)
 
-// 使用
-let groups = [
-    Group(title: "Group 1", items: [item1, item2]),
-    Group(title: "Group 2", items: [item3, item4])
-]
-
-let section = GroupSectionCell.wrapperToSingleTypeSection()
-section.config(models: groups)
+let section = SKCSectionViewCell.wrapperToSingleTypeSection(model)
 ```
+
+`SKCSectionViewCell` 当前通过 model 传入 child sections，并在 `config(_:)` 中 reload 内部 `sectionView.manager`。不要按旧示例假设存在可覆盖的 section-setup hook。更多生命周期、尺寸和状态重置细节见 `nested-section-cell-recipes.md`。
 
 ## 对比与选择
 
@@ -308,14 +301,11 @@ class ViewPool {
 ### 3. 嵌套 Section 性能
 
 ```swift
-// ✅ 使用 HighPerformanceStore
-class SectionCell: SKCSectionViewCell {
-    override func setupSection() -> any SKCSectionProtocol {
-        let section = InnerCell.wrapperToSingleTypeSection()
-            .setHighPerformance(.init())  // 缓存尺寸
-            .highPerformanceID { $0.model.id }
-        
-        return section
-    }
-}
+let childSection = InnerCell.wrapperToSingleTypeSection()
+    .setHighPerformance(.init())
+    .highPerformanceID { $0.model.id }
+
+childSection.config(models: innerModels)
+
+let section = childSection.wrapperToHorizontalSection(height: 120)
 ```

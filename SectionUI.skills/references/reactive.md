@@ -24,7 +24,7 @@ class ViewModel {
 ### 两种模式
 
 ```swift
-// PassThrough 模式 - 不保存当前值
+// PassThrough 模式 - publisher 只发未来事件；wrappedValue 仍保存最新值
 @SKPublished(kind: .passThrough) var event: Event?
 
 // CurrentValue 模式 - 保存当前值（默认）
@@ -48,11 +48,13 @@ var items: [Model] = []
 @SKPublished(transform: .filter { $0.isNotEmpty })
 var validItems: [Model] = []
 
-// 组合多个转换
+// 组合多个转换：使用数组，SKPublishedTransform 不是链式 API
 @SKPublished(
-    transform: .dropFirst()
-        .removeDuplicates()
+    transform: [
+        .dropFirst(),
+        .removeDuplicates(),
         .receiveOnMainQueue()
+    ]
 )
 var networkData: Data?
 ```
@@ -78,7 +80,7 @@ $state.bind { newState in
     updateUI(newState)
 }.store(in: &cancellables)
 
-// 方式 2: sink() - 仅后续变化
+// 方式 2: sink() - 订阅 publisher；passThrough 不会回放当前值
 $state.sink { newState in
     logChange(newState)
 }.store(in: &cancellables)
@@ -174,13 +176,13 @@ section.prefetch.loadMorePublisher
 
 ### prefetchPublisher - 即将显示的行
 
-获取即将显示的 IndexPath 列表：
+获取即将显示的 section-local row 列表：
 
 ```swift
 section.prefetch.prefetchPublisher
-    .sink { indexPaths in
+    .sink { rows in
         // 预加载图片等资源
-        preloadImages(at: indexPaths)
+        preloadImages(at: rows)
     }
     .store(in: &cancellables)
 ```
@@ -191,8 +193,8 @@ section.prefetch.prefetchPublisher
 
 ```swift
 section.prefetch.cancelPrefetchingPublisher
-    .sink { indexPaths in
-        cancelImageLoading(at: indexPaths)
+    .sink { rows in
+        cancelImageLoading(at: rows)
     }
     .store(in: &cancellables)
 ```

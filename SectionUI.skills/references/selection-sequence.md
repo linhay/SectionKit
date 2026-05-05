@@ -33,6 +33,8 @@ sequence.reload(newItems)
 sequence.append(moreItems)
 ```
 
+`append` 只追加内部 store；如果依赖 `itemChangedPublisher` 的 per-item 回调，优先使用 `section.selectionSequence(isUnique:)` 跟随 section models，或在结构变化后用 `reload(_:)` 重建观察。
+
 ### 状态获取
 
 ```swift

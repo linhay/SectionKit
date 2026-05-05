@@ -11,7 +11,7 @@
 | `SKConfigurableModelProtocol` | 定义 `config(_ model:)` 方法，用于绑定数据 | ✅ |
 | `SKConfigurableLayoutProtocol` | 定义 `preferredSize(limit:model:)` 方法，用于计算尺寸 | ✅ |
 | `SKConfigurableView` | 组合上述两个协议 | ✅ |
-| `SKLoadViewProtocol` | 包含 `preferredSize`，用于 Cell 注册 | ✅ |
+| `SKLoadViewProtocol` | 提供 `identifier` 和可选 `nib`，用于 Cell 注册/出队 | ✅ |
 
 ### 组合协议
 

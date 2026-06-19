@@ -1,0 +1,34 @@
+name: SectionUI example / template issue
+description: Report outdated sample code, compile failures, or missing templates.
+title: "[SectionUI example] "
+labels: ["docs", "example", "sectionui-skill"]
+body:
+  - type: input
+    id: path
+    attributes:
+      label: Example or template path
+      placeholder: "SectionUI.skills/examples/BasicListViewController.swift"
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue
+      description: What is wrong or missing?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected modern pattern
+      description: What should the example show?
+  - type: textarea
+    id: error
+    attributes:
+      label: Compile/runtime output
+      render: text
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification commands
+      render: shell

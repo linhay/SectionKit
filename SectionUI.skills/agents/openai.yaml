@@ -1,0 +1,7 @@
+interface:
+  display_name: "SectionUI"
+  short_description: "Data-driven UICollectionView architecture"
+  default_prompt: "Use $sectionui to design or debug a data-driven UICollectionView screen with sections, state ownership, and row updates."
+
+policy:
+  allow_implicit_invocation: true

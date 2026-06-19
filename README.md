@@ -116,7 +116,7 @@ var sections: [SKCSectionProtocol] = [
     footerSection
 ]
 
-manager.update(sections)
+manager.reload(sections)
 ```
 
 ### Combine 响应式绑定
@@ -259,8 +259,11 @@ section.model(displayedAt: .first) { context in
 
 ## 最佳实践
 
+核心宗旨：绑定完成后，业务只管理数据和状态，UI 变化由 SectionUI 从模型、选择状态、publisher 与 section mutation 自然派生。
+
 | 规则 | 说明 |
 |------|------|
+| **绑定后只管理数据** | 完成 section / manager / view 绑定后，通过模型、publisher、selection state 和 section mutation 驱动 UI，避免直接操作可见 cell |
 | **使用 SKCManager** | 始终通过 `manager` 操作 Section (reload, insert, delete) |
 | **链式配置** | 使用流畅 API (`.onCellAction`, `.setHeader`) 替代子类化 |
 | **分解复杂列表** | 将复杂列表拆分为多个小型 Section |
@@ -270,50 +273,51 @@ section.model(displayedAt: .first) { context in
 
 ---
 
-## AI Skills 文档包
+## AI Skill 包
 
-我们为 AI 编码助手（如 Antigravity、Copilot、Claude）提供了详细的技能文档包。
+我们为 AI 编码助手（如 Codex、Claude Code、Gemini CLI）提供了 SectionUI skill。它不是普通文档 zip，而是按 `SKILL.md -> TASK_MAP/API_MAP -> INDEX -> reference` 组织的检索层，适合 agent 按需读取最小上下文。
 
 ### 下载
 
-在 [GitHub Releases](https://github.com/linhay/SectionKit/releases) 页面下载 `sectionui-skills.zip`。
+在 [GitHub Releases](https://github.com/linhay/SectionKit/releases) 页面下载 `sectionui.skill.zip`。包内包含 `BUILD_INFO.json`，记录 skill 版本、release tag 和 git commit。
 
 ### 包含内容
 
-| 文档 | 说明 |
+| 入口 | 说明 |
 |------|------|
-| `cell.md` | Cell 创建与配置 |
-| `section.md` | Section 管理与事件处理 |
-| `reactive.md` | 响应式编程与 Combine 集成 |
-| `performance.md` | 性能优化技巧 |
-| `selection.md` | 选择状态管理 |
-| `pin.md` | 固定 Header/Footer |
-| `decorations.md` | 装饰视图 |
-| `layout-plugins.md` | 布局插件 |
-| `page.md` | 分页视图控制器 |
+| `SKILL.md` | Agent 使用规则、版本、边界和路由入口 |
+| `references/TASK_MAP.md` | 按任务选择最小 reference |
+| `references/API_MAP.md` | 按具体 API / 类型名定位 reference |
+| `references/INDEX.md` | 全部 reference 路径索引 |
+| `references/*-recipes.md` | 生产使用 recipe，覆盖数据、布局、选择、性能、SwiftUI hosting 等 |
+| `examples/*.swift` | 可复制的基础模板和示例 |
+| `ISSUE_GUIDE.md` | 反馈流程、场景表单、复现字段和脱敏规则 |
+| `BUILD_INFO.json` | 打包元数据 |
 
 ### 集成到项目
 
 ```bash
-# 解压到项目目录
-unzip sectionui-skills.zip -d .agent/skills/
+# Codex 项目级安装
+mkdir -p .agents/skills/sectionui
+unzip sectionui.skill.zip -d .agents/skills/sectionui
 
-# 或者直接从仓库克隆
+# 或者从仓库软链
 git clone https://github.com/linhay/SectionKit.git
-cp -r SectionKit/.agent/skills/sectionui .agent/skills/
+mkdir -p "$HOME/.agents/skills"
+ln -s "$(pwd)/SectionKit/SectionUI.skills" "$HOME/.agents/skills/sectionui"
 ```
 
-### 快速链接 (其他 AI 助手)
+### 维护命令
 
-**GitHub Copilot:**
 ```bash
-mkdir -p .github && ln -s ../.agent/skills .github/skills
+python3 SectionUI.skills/scripts/package_skill.py --output sectionui.skill.zip --json
+python3 SectionUI.skills/scripts/sync_release_version.py --version 2.5.4
+python3 -m unittest discover -s SectionUI.skills/tests
 ```
 
-**Claude Desktop:**
-```bash
-mkdir -p .claude && ln -s ../.agent/skills .claude/skills
-```
+### 反馈流程
+
+当 skill 输出存在 API 过期、示例失效、recipe 缺口、打包安装问题或真实框架行为异常时，先按 `SectionUI.skills/ISSUE_GUIDE.md` 复现和脱敏，再选择 `.github/ISSUE_TEMPLATE/` 下对应的 GitHub Issue 表单提交。反馈中应保留 API 名、reference/source 路径、版本、最小复现代码和验证命令；不要提交私有业务代码、用户数据、内部路径、完整生产日志或未脱敏截图。
 
 ---
 

@@ -1,239 +1,132 @@
 ---
-name: SectionUI
-description: Master skill for SectionUI (SectionKit), a powerful data-driven framework for building complex UICollectionView layouts in Swift. Use when working with UICollectionView, building list interfaces, implementing reactive data binding with Combine, optimizing collection view performance, managing selection state, implementing sticky headers/footers, creating waterfall layouts, integrating SwiftUI views, handling scroll events, implementing page-based navigation, or applying production-tested SectionUI patterns. Covers cells, sections, managers, layout plugins, decorations, performance optimization, reactive programming, selection management, scroll observation, page view controllers, and reusable list architecture patterns.
+name: sectionui
+description: Use for SectionUI and SectionKit iOS development. Covers data-driven UICollectionView architecture in Swift, SKCManager, SKCollectionView, SKCSingleTypeSection, section builders, row mutation, reactive bindings, selection ownership, safe-size measurement, layout plugins, decorations, supplementary views, scroll/page behavior, SwiftUI hosting, nested sections, forwarding hooks, performance caches, and production list/feed/grid patterns.
+metadata:
+  version: "2.5.4"
 ---
 
-# SectionUI Skill
+# SectionUI Agent Guide
 
-`SectionUI` (formerly SectionKit) is a powerful, data-driven framework for building complex `UICollectionView` layouts in Swift. It abstracts away the complexity of `UICollectionViewDataSource` and `UICollectionViewDelegate`, allowing you to focus on composable **Sections** and **Cells**.
+Use this skill to design, implement, review, or debug SectionUI screens. Keep context small: route the task first, open only the matching reference files, then answer with code that follows the framework's data-driven model.
 
-## Core Components
+Paths like `references/...` are relative to this skill directory (`SectionUI.skills/`). If your current working directory is the repository root, prefix paths with `SectionUI.skills/`.
 
-1.  **SKCManager**: The central coordinator that manages sections and binds them to the `UICollectionView`.
-2.  **SKCollectionView**: A subclass of `UICollectionView` optimized for use with `SectionUI`.
-3.  **SKCSingleTypeSection**: A generic section type for displaying a list of identical cells (homogenous data).
-4.  **SKLoadViewProtocol & SKConfigurableView**: Protocols that Cells must conform to for automatic registration and configuration.
+## Version
 
-## Production-Tested Defaults
+Current local skill version: `v2.5.4`.
 
-When changing SectionUI or teaching someone how to use it, prefer the patterns that survive in large app surfaces:
+Reference snapshot: bundled `references/` describe the local SectionUI / SectionKit APIs in this repository, not live remote docs. For "latest", compare with the repository source files and the current podspec version before answering.
 
-- Favor small, composable sections over monolithic collection-view controllers.
-- Prefer `wrapperToSingleTypeSection`, `setSectionStyle`, `onCellAction`, supplementary views, decorations, exposure tracking, and nested horizontal sections before custom collection plumbing.
-- Treat `@SKPublished`, `SKPublishedValue`, and selection state as first-class UI state tools when they reduce reload scope.
-- Put reusable behavior such as selection, diff application, grid/action sheets, settings rows, and common spacer/divider views into integration-level abstractions instead of bloating the core framework.
+Install/update entrypoints:
 
-For the distilled rules, read [Production Usage Patterns](references/production-usage.md).
-For concrete field-tested tricks, read [Production Tips](references/production-tips.md).
-For lower-frequency production APIs and edge cases, read [Advanced Production Tips](references/advanced-production-tips.md).
-For lifecycle, state, reload, and binding guidance, read [Production Lifecycle And State Tips](references/production-lifecycle-state.md).
-For heterogeneous rows and custom section contracts, read [Custom Section Patterns](references/custom-section-patterns.md).
-For layout plugin, supplementary sizing/inset, and decoration recipes, read [Layout And Decoration Recipes](references/layout-decoration-recipes.md).
-For layout plugin execution order, collection-vs-section scope, `setAttributes`, `layoutAttributesForElements`, invalidation, and cancellation semantics, read [Layout Plugin Execution Recipes](references/layout-plugin-execution-recipes.md).
-For cell events, selection, exposure, prefetch, context menus, and reorder recipes, read [Interaction And State Recipes](references/interaction-state-recipes.md).
-For `refresh(at:)`, `refresh(with:)`, predicate refresh, `append`, `insert`, `remove`, `apply`, and `reloadKind` semantics, read [Row Mutation Recipes](references/row-mutation-recipes.md).
-For exact prefetch row semantics, load-more gating, context menu result routing, `SKUIAction`, and reorder defaults, read [Prefetch Menu Reorder Recipes](references/prefetch-menu-reorder-recipes.md).
-For selection state ownership, wrapper identity, cell reuse binding, sequence observation, ID-based selection, and single/multi-select rules, read [Selection Ownership Recipes](references/selection-ownership-recipes.md).
-For sizing, performance cache, wrapper views, hosting, nested sections, and waterfall guidance, read [Rendering And Performance Recipes](references/rendering-performance-recipes.md).
-For exact safe-size measurement semantics, `cellSafeSize`, fraction grids, transforms, supplementary providers, and cache-limit debugging, read [Safe Size Measurement Recipes](references/safe-size-measurement-recipes.md).
-For `SKAdaptive`, Auto Layout fitting priorities, adaptive protocol choice, content key paths, auto-cache behavior, and dynamic-size debugging, read [Adaptive Sizing Recipes](references/adaptive-sizing-recipes.md).
-For size cache identity, `SKHighPerformanceStore`, `SKKVCache`, display count tracking, and exposure reset timing, read [Cache Exposure Recipes](references/cache-exposure-recipes.md).
-For `SKCAnyViewCell`, `SKWrapperView`, `SKCWrapperCell`, runtime view ownership, wrapper sizing, nib behavior, and reusable wrapper debugging, read [Runtime View Wrapper Recipes](references/runtime-view-wrapper-recipes.md).
-For `SKCSectionViewCell`, `SKCSingleSectionViewCell`, `wrapperToHorizontalSection`, nested sizing, inner collection lifecycle, and nested state reset rules, read [Nested Section Cell Recipes](references/nested-section-cell-recipes.md).
-For section assembly, manager binding, render states, supplementary views, and styling recipes, read [Composition And Styling Recipes](references/composition-styling-recipes.md).
-For exact header/footer setup, dynamic supplementary models, hiding rules, removal semantics, lifecycle actions, and custom kind boundaries, read [Supplementary Recipes](references/supplementary-recipes.md).
-For `indexTitle`, `indexTitleRow`, section index lookup, iOS 14+ collection index titles, and data-source forwarding boundaries, read [Index Title Recipes](references/index-title-recipes.md).
-For scroll observation, display tracking, pending scroll requests, pinning, paging, and zoomable content, read [Navigation And Scroll Recipes](references/navigation-scroll-recipes.md).
-For exact `SKPageManager`, `SKPageViewController`, child identity/cache, selection/current binding, `SKZoomableScrollView`, tap actions, and pan-to-dismiss behavior, read [Page And Zoom Recipes](references/page-zoom-recipes.md).
-For `SKPublished`, `SKBinding`, section publishers, binding keys, result builders, and feedback-loop control, read [Reactive Binding Recipes](references/reactive-binding-recipes.md).
-For load protocols, configurable views, adaptive sizing, wrappers, collection containers, and SwiftUI bridges, read [View Cell And Container Recipes](references/view-cell-container-recipes.md).
-For exact `SKCollectionView` / `SKCollectionViewController` lifecycle, queued reloads, safe-area behavior, refreshable, layout invalidation, scroll direction, and plugin modes, read [Container Lifecycle Recipes](references/container-lifecycle-recipes.md).
-For manager forwarding chains, `SKHandleResult`, delegate/data-source/flow-layout/prefetch extension points, and section injection hooks, read [Forwarding And Extension Recipes](references/forwarding-extension-recipes.md).
-For `SKCRawSectionProtocol`, `SKCAnySectionProtocol`, `SKCAnySingleTypeSectionProtocol`, raw-section wrapper identity, forwarded style/plugins, and wrapper lifecycle rules, read [Raw Section Wrapper Recipes](references/raw-section-wrapper-recipes.md).
-For beta drag selection, rectangular multi-select, auto-scroll, overlay styling, gesture conflicts, and selection-state ownership, read [Drag Selection Recipes](references/drag-selection-recipes.md).
-For debug output, performance timing, caches, counted stores, weak wrappers, identity boxes, environment objects, and utility boundaries, read [Diagnostics And Utility Recipes](references/diagnostics-utility-recipes.md).
-For manager binding, section identity, transaction boundaries, row mutations, injection actions, pending requests, and reload configuration, read [Manager Transaction Recipes](references/manager-transaction-recipes.md).
-For UIKit delegate interactions such as highlight, selection gates, primary action, focus, editing, spring-load, multiple selection, context menus, and reorder gates, read [Delegate Interaction Recipes](references/delegate-interaction-recipes.md).
-For SwiftUI bridges, hosting cells, hosting sections, `SKCHostingCollectionView`, previews, sizing, and SwiftUI/SectionUI state ownership, read [SwiftUI Hosting Recipes](references/swiftui-hosting-recipes.md).
-For conditional section assembly, `SectionArrayResultBuilder`, `SKCSectionCollector`, `SKWhen`, `SKBindingKey`, and SwiftUI builder identity, read [Render Builder Recipes](references/render-builder-recipes.md).
-For exact builder flattening, collector append/unwrapping semantics, `SKWhen`, dynamic `SKBindingKey` equality/hash, and SwiftUI hosted collection reload identity, read [Section Assembly Identity Recipes](references/section-assembly-identity-recipes.md).
+- Release asset: download `sectionui.skill.zip` from GitHub Releases.
+- Local Codex: put or symlink `SectionUI.skills/` into `$REPO_ROOT/.agents/skills/sectionui`, `$HOME/.agents/skills/sectionui`, or another official Codex scan location.
+- Repository use: when this repository is the workspace, use `SectionUI.skills/` in place.
 
-## Reference Documentation
+## Operating Principle
 
-### Core Components
-- **[Cell Creation & Configuration](references/cell.md)** - SKLoadViewProtocol, SKConfigurableView, Auto Layout integration, adaptive cells
-- **[Section Management](references/section.md)** - SKCSingleTypeSection basics, event handling, headers/footers, styling
-- **[Manager & CollectionView](references/manager.md)** - SKCManager, SKCollectionView, SKCollectionViewController
+SectionUI's default model: after section / manager / view binding, business code manages data and state; cell registration, rendering, sizing, refresh, animation, exposure, selection, and scroll effects should derive from SectionUI sections, models, publishers, and section mutations.
 
-### Advanced Features
-- **[Advanced Sections](references/advanced-sections.md)** - SKCHostingSection (SwiftUI), SKCAnyViewCell, SKCSectionViewCell (nested sections)
-- **[Reactive Programming](references/reactive.md)** - SKPublished, data subscription, prefetch publishers, selection publishers
-- **[Performance Optimization](references/performance.md)** - SKHighPerformanceStore (size caching), prefetching, display times tracking, safe size providers
-- **[Selection Management](references/selection.md)** - SKSelectionProtocol, SKSelectionWrapper, SKCDragSelector (multi-select)
-- **[Pin Functionality](references/pin.md)** - Sticky headers/footers/cells, distance tracking, custom animations
-- **[Scroll Management](references/scroll.md)** - SKScrollViewDelegateHandler, SKCDisplayTracker, scroll control
-- **[Layout Plugins](references/layout-plugins.md)** - Vertical/horizontal alignment, SKWaterfallLayout, custom attribute plugins
-- **[Decorations](references/decorations.md)** - Background decorations, custom decoration views
-- **[Page View Controller](references/page.md)** - SKPageManager, SKPageViewController, nested scrolling
-- **[Production Usage Patterns](references/production-usage.md)** - Distilled rules from large SectionUI app surfaces.
-- **[Production Tips](references/production-tips.md)** - Practical tips distilled from repeated real-world SectionUI usage.
-- **[Advanced Production Tips](references/advanced-production-tips.md)** - Lower-frequency APIs, layout attribute fixes, pinning, scroll tracking, prefetch, context menus, and reorder guidance.
-- **[Production Lifecycle And State Tips](references/production-lifecycle-state.md)** - Binding lifecycle, section collectors, reload strategy, section publishers, selection state, high-performance cache, and scroll requests.
-- **[Custom Section Patterns](references/custom-section-patterns.md)** - Heterogeneous row enums, direct `SKCSectionProtocol` implementation, custom sizing, events, and snapshot-style sections.
-- **[Layout And Decoration Recipes](references/layout-decoration-recipes.md)** - Plugin ordering, alignment, supplementary size/inset fixes, background decoration frames, cross-section decoration, z-index, and debug checklists.
-- **[Layout Plugin Execution Recipes](references/layout-plugin-execution-recipes.md)** - `SKCollectionFlowLayout` mode priority, collection-level modes, section-level plugins, `setAttributes`, full-attribute forwards, invalidation, and cancellation.
-- **[Interaction And State Recipes](references/interaction-state-recipes.md)** - Cell action ownership, exposure counting, reload/diff transactions, selection sequences, prefetch/load-more, context menus, reorder, and interaction debug checklists.
-- **[Row Mutation Recipes](references/row-mutation-recipes.md)** - `refresh(at:)`, `refresh(with:)`, predicate refresh, `append`, `insert`, `remove`, `delete`, `apply`, `config(models:)`, action-context row edits, and `reloadKind`.
-- **[Prefetch Menu Reorder Recipes](references/prefetch-menu-reorder-recipes.md)** - Section-local prefetch rows, pagination gates, context menus, `SKUIContextMenuResult`, async `SKUIAction`, reorder move gates, and persistence boundaries.
-- **[Selection Ownership Recipes](references/selection-ownership-recipes.md)** - `SKSelectionState`, `SKSelectionWrapper`, `SKSelectionSequence`, `SKSelectionIdentifiableSequence`, publisher lifecycle, reuse binding, and identity rules.
-- **[Rendering And Performance Recipes](references/rendering-performance-recipes.md)** - Safe-size providers, high-performance size cache, wrapper views, `SKCAnyViewCell`, SwiftUI hosting, nested `SKCSectionViewCell`, waterfall layout, and rendering debug checklists.
-- **[Safe Size Measurement Recipes](references/safe-size-measurement-recipes.md)** - `safeSize`, `cellSafeSize`, default provider rules, fraction grid math, public transforms, supplementary providers, custom providers, and measurement debug checklists.
-- **[Adaptive Sizing Recipes](references/adaptive-sizing-recipes.md)** - `SKAdaptive`, adaptive protocol choice, Auto Layout fitting priorities, content key paths, insets, auto-cache behavior, size-cache pairing, and stale-size debugging.
-- **[Cache Exposure Recipes](references/cache-exposure-recipes.md)** - `SKHighPerformanceStore`, `SKKVCache`, cache invalidation ownership, `displayedTimes`, `SKCountedStore`, and row-based exposure reset strategy.
-- **[Runtime View Wrapper Recipes](references/runtime-view-wrapper-recipes.md)** - `SKCAnyViewCell`, `SKWrapperView`, `SKCWrapperCell`, runtime view ownership, wrapper sizing, nib behavior, and reusable wrapper debugging.
-- **[Nested Section Cell Recipes](references/nested-section-cell-recipes.md)** - `SKCSectionViewCell`, `SKCSingleSectionViewCell`, `wrapperToHorizontalSection`, nested sizing, inner collection lifecycle, and state reset rules.
-- **[Composition And Styling Recipes](references/composition-styling-recipes.md)** - Section assembly, `SKCSectionCollector`, manager reload/insert/remove semantics, render states, supplementary views, section styles, cell styles, and composition debug checklists.
-- **[Supplementary Recipes](references/supplementary-recipes.md)** - `setHeader`, `setFooter`, dynamic supplementary models, visibility flags, removal by kind, lifecycle actions, supplementary sizing, and custom-kind limits.
-- **[Index Title Recipes](references/index-title-recipes.md)** - `indexTitle`, `indexTitleRow`, section index lookup, iOS 14+ collection index titles, reload timing, and data-source forwarding boundaries.
-- **[Navigation And Scroll Recipes](references/navigation-scroll-recipes.md)** - Scroll observers, delegate forwarding, display tracker, manager scroll requests, pin options, page manager, zoomable content, and synchronization debug checklists.
-- **[Page And Zoom Recipes](references/page-zoom-recipes.md)** - `SKPageManager`, `SKPageViewController`, child identity/cache, selection/current binding, `SKZoomableScrollView`, tap actions, and pan-to-dismiss behavior.
-- **[Reactive Binding Recipes](references/reactive-binding-recipes.md)** - `SKPublished`, transforms, section model subscriptions, section publishers, `SKBinding`, `SKBindingKey`, result builders, async actions, and feedback-loop control.
-- **[View Cell And Container Recipes](references/view-cell-container-recipes.md)** - Load protocols, nib identifiers, configurable view contracts, adaptive sizing, wrapper cells/views, supplementary wrappers, `SKCollectionView`, `SKCollectionViewController`, and SwiftUI bridges.
-- **[Container Lifecycle Recipes](references/container-lifecycle-recipes.md)** - `SKCollectionView`, `SKCollectionViewController`, queued `reloadSections`, style hooks, safe-area constraints, refreshable, layout invalidation, scroll direction, and plugin modes.
-- **[Forwarding And Extension Recipes](references/forwarding-extension-recipes.md)** - Manager forwarding chains, `SKHandleResult`, data source, delegate, flow layout, prefetch, section injection, raw section wrappers, and integration boundaries.
-- **[Raw Section Wrapper Recipes](references/raw-section-wrapper-recipes.md)** - `SKCRawSectionProtocol`, `SKCAnySectionProtocol`, `SKCAnySingleTypeSectionProtocol`, wrapper identity, forwarded style/plugins, and lifecycle rules.
-- **[Drag Selection Recipes](references/drag-selection-recipes.md)** - Beta drag selector setup/reset, rectangular multi-select, selection-state ownership, auto-scroll, overlay styling, gesture conflicts, haptics, and debug checklists.
-- **[Diagnostics And Utility Recipes](references/diagnostics-utility-recipes.md)** - `SKPrint`, `SKPerformance`, `SKHighPerformanceStore`, `SKKVCache`, `SKCountedStore`, `SKEnvironmentConfiguration`, `SKAnimationBox`, weak wrappers, identity boxes, inout builders, actor boxes, and event groups.
-- **[Manager Transaction Recipes](references/manager-transaction-recipes.md)** - Manager binding, section identity, reload/insert/remove semantics, row refresh/insert/delete, section injection, pending requests, bound-section access, and transaction debug checklists.
-- **[Delegate Interaction Recipes](references/delegate-interaction-recipes.md)** - UIKit delegate routing, highlight/select gates, primary action, display lifecycle, focus, editing, spring-load, multiple selection, context menus, reorder gates, and subclassing boundaries.
-- **[SwiftUI Hosting Recipes](references/swiftui-hosting-recipes.md)** - `SKUIView`, `SKUIController`, `STCHostingCell`, `SKCHostingSection`, `SKCHostingCollectionView`, `SKPreview`, hosting sizing, identity, and state ownership.
-- **[Render Builder Recipes](references/render-builder-recipes.md)** - Conditional section assembly, `SectionArrayResultBuilder`, `SKCSectionCollector`, `SKWhen`, `SKBindingKey`, dynamic section indexes, and SwiftUI builder identity.
-- **[Section Assembly Identity Recipes](references/section-assembly-identity-recipes.md)** - Builder flattening, collector append/unwrapping semantics, `SKWhen`, dynamic `SKBindingKey` equality/hash, and SwiftUI hosted collection reload identity.
+Prefer these defaults:
 
-### Examples
-- [Basic List](examples/BasicListViewController.swift)
-- [Decorations](examples/DecorationExampleViewController.swift)
+- Bind through `SKCManager` or `SKCollectionViewController`, then mutate source state, section models, selection state, or cache ownership.
+- Use many focused sections instead of one monolithic collection-view controller.
+- Prefer `wrapperToSingleTypeSection`, result builders, supplementary views, decoration plugins, selection state, publisher bindings, and nested sections before writing custom collection plumbing.
+- Keep repeated product patterns in app-level wrappers; keep framework usage generic and reusable.
+- Name `UICollectionView` variables `sectionView` in examples unless matching existing project style requires another name.
 
-### Templates
-- [Adaptive Cell](examples/AdaptiveCellTemplate.swift) - Template for a cell with self-sizing capabilities.
-- [Mixed Cells Section](examples/MixedCellsSectionTemplate.swift) - Template for a section managing multiple cell types.
-- [Section Cell](examples/SectionCellTemplate.swift) - Template for a standard configurable cell.
+## Routing
 
-## Quick Start Guide
+1. Classify the request.
+   - Architecture, screen decomposition, source of truth, or anti-patterns: use `references/TASK_MAP.md`, then `references/data-driven-best-practices.md`.
+   - Concrete API, method, protocol, or type: search `references/API_MAP.md`, then open the mapped file.
+   - Broad behavior such as selection, sizing, scrolling, layout, or SwiftUI hosting: use `references/TASK_MAP.md`.
+   - Unknown domain: start with `references/INDEX.md`, then refine with `rg`.
 
-### 1. Basic Setup
-Use `SKCollectionViewController` or `SKCollectionView` to get started quickly.
+2. Choose the smallest useful reference.
+   - Primary task router: `references/TASK_MAP.md`
+   - API keyword router: `references/API_MAP.md`
+   - Full reference index: `references/INDEX.md`
 
-```swift
-class MyViewController: SKCollectionViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Setup sections here
-        manager.reload(mySection)
-    }
-}
-```
+3. Open only target references.
+   - For one topic, open one reference.
+   - For cross-domain issues, open at most one adjacent reference unless the code proves more context is needed.
+   - Prefer `*-recipes.md` files for production guidance. Use older broad files like `section.md`, `reactive.md`, or `performance.md` for API overview only.
 
-### 2. Creating a Cell
-Cells must conform to `SKLoadViewProtocol` and `SKConfigurableView`:
+4. Route actionable feedback.
+   - If a reference is stale, an API signature is wrong, an example is broken, a packaging asset is missing, or a useful workflow is absent, use `ISSUE_GUIDE.md`.
+   - Preserve structured fields such as `apiName`, `referencePath`, `sourcePath`, `sectionuiVersion`, `buildInfo`, `reproductionSteps`, and `verificationCommands`.
+   - Redact private app names, local user paths, business module names, private models, screenshots with sensitive UI, logs, and payloads before filing.
 
-```swift
-class MyCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
-    struct Model {
-        let title: String
-    }
+## Lookup Commands
 
-    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
-        return CGSize(width: size.width, height: 50)
-    }
+From the repository root:
 
-    func config(_ model: Model) {
-        label.text = model.title
-    }
-    
-    private lazy var label = UILabel()
-}
-```
+- Find a concrete API route: `rg -n "SKCManager|refresh\\(|SKSelectionState" SectionUI.skills/references/API_MAP.md`
+- Search all references by keyword: `rg -n "safeSize|reloadKind|pinHeader" SectionUI.skills/references`
+- List topic files: `sed -n '1,220p' SectionUI.skills/references/INDEX.md`
+- Prepare feedback: `sed -n '1,220p' SectionUI.skills/ISSUE_GUIDE.md`
 
-### 3. Creating a Section
-The most common pattern is using `wrapperToSingleTypeSection` on your Cell type.
+From inside `SectionUI.skills/`, omit the `SectionUI.skills/` prefix.
 
-```swift
-let section = MyCell.wrapperToSingleTypeSection()
-    .onCellAction(.selected) { context in
-        print("Selected: \(context.model)")
-    }
+## Task Map Summary
 
-section.config(models: [Model1, Model2, ...])
-manager.reload(section)
-```
+| User intent | Read first | Adjacent reference |
+| --- | --- | --- |
+| Data-driven architecture, source of truth, screen structure | `references/data-driven-best-practices.md` | `references/production-usage.md` |
+| Section assembly, optional states, render builders | `references/composition-styling-recipes.md` | `references/render-builder-recipes.md` |
+| Manager binding, reload/insert/remove, section identity | `references/manager-transaction-recipes.md` | `references/container-lifecycle-recipes.md` |
+| Row refresh, append, insert, delete, `reloadKind` | `references/row-mutation-recipes.md` | `references/reactive-binding-recipes.md` |
+| Publishers, `@SKPublished`, subscriptions, feedback loops | `references/reactive-binding-recipes.md` | `references/data-driven-best-practices.md` |
+| Cell creation, wrappers, UIKit/SwiftUI containers | `references/view-cell-container-recipes.md` | `references/runtime-view-wrapper-recipes.md` |
+| Dynamic size, Auto Layout fitting, stale cached size | `references/safe-size-measurement-recipes.md` | `references/adaptive-sizing-recipes.md` |
+| Size cache, exposure counts, display tracking | `references/cache-exposure-recipes.md` | `references/rendering-performance-recipes.md` |
+| Layout plugins, decoration, pinning, alignment | `references/layout-plugin-execution-recipes.md` | `references/layout-decoration-recipes.md` |
+| Selection state, single/multi-select, reload-safe selection | `references/selection-ownership-recipes.md` | `references/interaction-state-recipes.md` |
+| Cell actions, exposure, context menu, prefetch, reorder | `references/interaction-state-recipes.md` | `references/delegate-interaction-recipes.md` |
+| Scroll observation, pending scroll, page/zoom | `references/navigation-scroll-recipes.md` | `references/page-zoom-recipes.md` |
+| Nested horizontal sections or section-in-cell | `references/nested-section-cell-recipes.md` | `references/container-lifecycle-recipes.md` |
+| Custom heterogeneous/raw section | `references/custom-section-patterns.md` | `references/raw-section-wrapper-recipes.md` |
+| Debug helpers, cache stores, environment utilities | `references/diagnostics-utility-recipes.md` | `references/advanced-production-tips.md` |
 
-### 4. Reactive Updates
-`SectionUI` works seamlessly with Combine:
+## Code Defaults
 
-```swift
-@SKPublished var items: [Model] = []
+Use these patterns unless an existing codebase has a stronger convention:
 
-$items.bind { [weak self] newItems in
-    self?.section.config(models: newItems)
-}.store(in: &cancellables)
+- Cell: conform to `SKLoadViewProtocol` and `SKConfigurableView`.
+- Common section: `MyCell.wrapperToSingleTypeSection()` plus `config(models:)`.
+- Manager: call `manager.reload(sections)` for section replacement and section-local APIs for row mutations.
+- Reactive data: bind source state with `@SKPublished`, `SKPublishedValue`, or section subscriptions.
+- Selection: store selection in `SKSelectionState`, `SKSelectionWrapper`, or `SKSelectionSequence`, not visible cells.
+- Sizing: prefer `safeSize`, `cellSafeSize`, adaptive sizing, and high-performance cache where applicable.
+- Closures: use `[weak self]` when capturing view controllers or long-lived owners.
 
-// Or subscribe directly
-section.subscribe(models: $items.eraseToAnyPublisher())
-```
+## Boundaries
 
-## Common Usage Patterns
+- Do not invent API signatures. Confirm concrete methods in references or source files.
+- Do not answer from downstream project paths, product names, business modules, page names, or scan indexes.
+- Do not recommend direct visible-cell mutation as the normal update path.
+- Do not force custom `UICollectionViewDataSource` / `UICollectionViewDelegate` plumbing when SectionUI wrappers, forwarding hooks, or plugins cover the behavior.
+- If a reference and source disagree, trust source for signature and mention the reference may be stale.
 
-### Choose the Right Section Shape
-- Simple homogeneous list: `Cell.wrapperToSingleTypeSection(models)`.
-- One-off label/image/spacer/action: `SKWrapperView<UIView, Model>.wrapperToCollectionCell().wrapperToSingleTypeSection(...)` instead of creating a throwaway cell.
-- Mixed vertical feed: compose `[SKCBaseSectionProtocol]` and reload through `manager.reload(sections)`.
-- Embedded horizontal row: wrap a child section with `wrapperToHorizontalSection(height:insets:style:)` or use `SKCSectionViewCell.Model` when the row owns multiple nested sections or custom sizing.
-- Reusable selected list: model conforms to `SKSelectionProtocol`; use `SKSelectionSequence` / `SKSelectionIdentifiableSequence`, or a local selectable-section wrapper.
+## Feedback Workflow
 
-### Performance Optimization
-```swift
-section
-    .setHighPerformance(.init())
-    .highPerformanceID { $0.model.id }
-```
+Use `ISSUE_GUIDE.md` when the user reports a requirement, bug, missing recipe, confusing behavior, stale docs, broken example, or packaging/install issue that should become a repository issue.
 
-### Sticky Headers
-```swift
-section.pinHeader { options in
-    options.padding = 16
-}
-```
+Feedback defaults:
 
-### Selection Management
-```swift
-let selectableItems = items.map { SKSelectionWrapper(value: $0) }
-section.config(models: selectableItems)
-```
+- Reproduce locally when practical with `rg`, unit tests, package build, SwiftPM tests, or Xcode/simulator evidence.
+- Prefer scenario-specific GitHub issue forms under `.github/ISSUE_TEMPLATE/`.
+- Keep reproducibility-critical public facts: API names, versions, sanitized stack traces, minimal code, and command output.
+- Remove private app source, product names, patient/user data, analytics keys, internal URLs, screenshots with sensitive UI, and full production logs.
+- If using `gh`, create issues with `gh issue create --repo linhay/SectionKit --template <form>`.
 
-### Waterfall Layout
-```swift
-let layout = SKWaterfallLayout()
-    .columnWidth(equalParts: 2)
-    .heightCalculationMode(.aspectRatio)
-```
+## Maintenance
 
-### SwiftUI Integration
-```swift
-@available(iOS 16.0, *)
-let section = SKCHostingSection(
-    cell: MySwiftUIView.self,
-    models: viewModels
-)
-```
+Use script-backed workflows for distribution and validation:
 
-## Best Practices
-- **Prefer `SKCManager`**: Always use `SKCManager` to manipulate sections (reload, insert, delete).
-- **Fluent Configuration**: Use the chainable generic methods on `SKCSingleTypeSection` (`onCellAction`, `setSectionSeparators`, etc.) instead of subclassing whenever possible.
-- **Decomposition**: Break complex lists into multiple small Sections.
-- **Use Reactive Binding**: Leverage Combine and `SKPublished` for automatic UI updates.
-- **Prefer Integration Abstractions**: Before adding a new framework API, check whether the behavior belongs in a project-level wrapper such as selectable sections, diff sections, grid views, or settings rows.
-- **Keep Business Events Near Sections**: Production code commonly attaches navigation, logging, exposure, and separator styling through `onCellAction`, `model(displayedAt:)`, `willDisplay`, and `setCellStyle`.
-- **Cache Sizes**: Use `SKHighPerformanceStore` for complex Auto Layout calculations.
-- **Weak References**: Always use `[weak self]` in closures to avoid retain cycles.
-- **Naming Convention**: When declaring a `UICollectionView` variable, use `sectionView` as the variable name instead of `collectionView`.
+- Package skill: `python3 SectionUI.skills/scripts/package_skill.py --output sectionui.skill.zip --json`
+- Sync release version: `python3 SectionUI.skills/scripts/sync_release_version.py --version 2.5.4`
+- Validate metadata: `python3 -m unittest discover -s SectionUI.skills/tests`
+
+<!-- version: 2.5.4 -->

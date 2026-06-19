@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 SECTIONKIT2_PODSPEC="SectionKit2.podspec"
 SECTIONUI_PODSPEC="SectionUI.podspec"
 SKILLS_DIR="SectionUI.skills"
-SKILLS_ZIP="sectionui-skills.zip"
+SKILLS_ZIP="sectionui.skill.zip"
 CDN_WAIT_TIME=1200  # 20 分钟 = 1200 秒
 
 # 全局变量
@@ -61,6 +61,7 @@ check_dependencies() {
     check_command "bundle" "gem install bundler"
     check_command "pod" "gem install cocoapods"
     check_command "zip" "系统自带"
+    check_command "python3" "系统自带或 brew install python"
     
     # 检查 gh 是否已认证
     if ! gh auth status &> /dev/null; then
@@ -125,6 +126,22 @@ update_dependency_version() {
     log_success "已更新依赖版本"
 }
 
+# 更新 SectionUI skill 元数据版本
+update_skill_version() {
+    local version=$1
+
+    log_info "更新 SectionUI skill 版本为 $version..."
+
+    if [[ "$DRY_RUN" == true ]]; then
+        log_warning "[DRY RUN] 将更新 SectionUI.skills/SKILL.md 中的版本号"
+        return
+    fi
+
+    python3 "$SKILLS_DIR/scripts/sync_release_version.py" --version "$version"
+
+    log_success "已更新 SectionUI skill 版本"
+}
+
 # 检查版本号一致性
 check_version_consistency() {
     # 在 dry-run 模式下，由于文件未实际更新，跳过检查
@@ -176,7 +193,7 @@ commit_changes() {
     fi
     
     # 检查是否有更改需要提交
-    git add "$SECTIONKIT2_PODSPEC" "$SECTIONUI_PODSPEC"
+    git add "$SECTIONKIT2_PODSPEC" "$SECTIONUI_PODSPEC" "$SKILLS_DIR/SKILL.md"
     if git diff --cached --quiet; then
         log_warning "没有更改需要提交（可能已经提交过）"
         return
@@ -229,9 +246,9 @@ create_and_push_tag() {
     log_success "已创建并推送标签 $tag"
 }
 
-# 打包 skills 文档
+# 打包 skill
 package_skills() {
-    log_info "打包 skills 文档..."
+    log_info "打包 SectionUI skill..."
     
     if [[ ! -d "$SKILLS_DIR" ]]; then
         log_error "Skills 目录不存在：$SKILLS_DIR"
@@ -249,8 +266,9 @@ package_skills() {
         rm -f "$SKILLS_ZIP"
     fi
     
-    # 使用相对路径打包，避免包含完整目录结构
-    (cd "$(dirname "$SKILLS_DIR")" && zip -r - "$(basename "$SKILLS_DIR")") > "$SKILLS_ZIP"
+    python3 "$SKILLS_DIR/scripts/package_skill.py" \
+        --output "$SKILLS_ZIP" \
+        --release-tag "$NEW_VERSION"
     
     log_success "已创建 $SKILLS_ZIP ($(du -h "$SKILLS_ZIP" | cut -f1))"
 }
@@ -280,7 +298,7 @@ create_github_release() {
 自动发布版本 $version
 
 ### 附件
-- \`sectionui-skills.zip\`: SectionUI 技能文档包
+- \`sectionui.skill.zip\`: SectionUI skill 包，包含 BUILD_INFO.json
 
 ---
 发布时间: $(date '+%Y-%m-%d %H:%M:%S')
@@ -366,7 +384,7 @@ usage() {
 流程说明：
   1. 更新 SectionKit2.podspec 和 SectionUI.podspec 版本号
   2. 提交更改并创建 Git 标签
-  3. 打包 skills 文档
+  3. 打包 SectionUI skill
   4. 创建 GitHub Release 并上传 skills 包
   5. 发布 SectionKit2 到 CocoaPods
   6. 等待 20 分钟 (CDN 延时)
@@ -417,6 +435,7 @@ main() {
     update_podspec_version "$SECTIONKIT2_PODSPEC" "$NEW_VERSION"
     update_podspec_version "$SECTIONUI_PODSPEC" "$NEW_VERSION"
     update_dependency_version "$NEW_VERSION"
+    update_skill_version "$NEW_VERSION"
     check_version_consistency
     echo ""
     

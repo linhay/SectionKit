@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # 配置
 SECTIONUI_PODSPEC="SectionUI.podspec"
-SKILLS_ZIP="sectionui-skills.zip"
+SKILLS_ZIP="sectionui.skill.zip"
 CDN_WAIT_TIME=1200  # 20 分钟 = 1200 秒
 
 # 全局变量

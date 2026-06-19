@@ -1,0 +1,41 @@
+name: SectionUI framework behavior
+description: Report runtime behavior, layout, selection, performance, or regression issues.
+title: "[SectionUI behavior] "
+labels: ["bug", "sectionui"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: SectionUI / SectionKit version
+      placeholder: "2.5.4"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Xcode 16.x, iOS 18.x simulator/device"
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected vs actual behavior
+      description: Describe the expected and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include the smallest sanitized section/cell/manager setup.
+      render: swift
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Stack traces, layout logs, test output, or sanitized screenshots.
+      render: text
+  - type: textarea
+    id: redaction
+    attributes:
+      label: Redaction notes
+      placeholder: "Private data, app names, and business payloads were removed."

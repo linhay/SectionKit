@@ -1,0 +1,49 @@
+name: SectionUI API / reference feedback
+description: Report stale API docs, wrong signatures, missing routing, or reference gaps.
+title: "[SectionUI reference] "
+labels: ["docs", "sectionui-skill"]
+body:
+  - type: textarea
+    id: query
+    attributes:
+      label: User query or API
+      description: What did you ask or search for?
+      placeholder: "Example: How should I use refresh(with:) with reloadKind?"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected guidance
+      description: What should the skill or reference say?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual guidance
+      description: What did the current skill/reference say instead?
+    validations:
+      required: true
+  - type: input
+    id: reference-path
+    attributes:
+      label: Reference path
+      placeholder: "SectionUI.skills/references/API_MAP.md"
+  - type: input
+    id: source-path
+    attributes:
+      label: Source path checked
+      placeholder: "Sources/SectionUI/..."
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification commands
+      render: shell
+      placeholder: "rg -n \"refresh\\(|reloadKind\" Sources SectionUI.skills/references"
+  - type: textarea
+    id: redaction
+    attributes:
+      label: Redaction notes
+      description: Confirm private app names, local paths, and business data were removed.
+      placeholder: "Private paths and product names replaced with placeholders."

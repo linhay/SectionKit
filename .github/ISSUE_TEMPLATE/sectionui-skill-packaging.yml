@@ -1,0 +1,39 @@
+name: SectionUI skill packaging / release
+description: Report packaging, release asset, install path, BUILD_INFO, or versioning problems.
+title: "[SectionUI skill packaging] "
+labels: ["release", "sectionui-skill"]
+body:
+  - type: input
+    id: release-tag
+    attributes:
+      label: Release tag or local build
+      placeholder: "2.5.4"
+  - type: textarea
+    id: build-info
+    attributes:
+      label: BUILD_INFO.json
+      render: json
+  - type: textarea
+    id: install-path
+    attributes:
+      label: Install path and command
+      render: shell
+      placeholder: "unzip sectionui.skill.zip -d .agents/skills/sectionui"
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Validation output
+      render: text
+      placeholder: "python3 -m unittest discover -s SectionUI.skills/tests"

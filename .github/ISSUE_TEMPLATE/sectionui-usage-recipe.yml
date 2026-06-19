@@ -1,0 +1,50 @@
+name: SectionUI usage recipe request
+description: Request or refine a production recipe, architecture rule, or best-practice pattern.
+title: "[SectionUI recipe] "
+labels: ["docs", "enhancement", "sectionui-skill"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Data-driven architecture
+        - Manager transactions
+        - Row mutation
+        - Reactive binding
+        - Selection
+        - Layout / decoration
+        - Safe size / performance
+        - SwiftUI hosting
+        - Nested sections
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or missing recipe
+      description: Describe the use case and why existing guidance is insufficient.
+    validations:
+      required: true
+  - type: textarea
+    id: current-pattern
+    attributes:
+      label: Current pattern
+      description: Include a minimal sanitized code sketch if useful.
+      render: swift
+  - type: textarea
+    id: expected-guidance
+    attributes:
+      label: Expected guidance
+      description: What rule, recipe, or decision table should be added?
+  - type: textarea
+    id: references
+    attributes:
+      label: Related references
+      placeholder: "SectionUI.skills/references/data-driven-best-practices.md"
+  - type: textarea
+    id: redaction
+    attributes:
+      label: Redaction notes
+      placeholder: "Business module names and private models were removed."

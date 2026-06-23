@@ -107,7 +107,7 @@ jobs:
               echo "prepare_only=false" >> "$GITHUB_OUTPUT"
             fi
           elif [[ "${GITHUB_REF_TYPE}" == "branch" ]]; then
-            if git log -1 --pretty=%B | grep -q '^Release SectionUI '; then
+            if git log -1 --pretty=%B | grep -q '\[skip-release\]'; then
               echo "Release version commit detected; skipping auto-increment to avoid a release loop."
               echo "prepare_only=skip" >> "$GITHUB_OUTPUT"
               echo "release_tag=0.0.0" >> "$GITHUB_OUTPUT"
@@ -156,14 +156,14 @@ jobs:
         shell: bash
         run: |
           python3 SectionUI.skills/scripts/sync_release_version.py --version "$VERSION"
-          perl -0pi -e "s/s\.version\s*=\s*'[^']+'/s.version          = '$ENV{VERSION}'/g" SectionKit2.podspec SectionUI.podspec
-          perl -0pi -e "s/s\.dependency 'SectionKit2', '>= [^']+'/s.dependency 'SectionKit2', '>= $ENV{VERSION}'/" SectionUI.podspec
+          ruby -i -pe "gsub(/s\.version\s*=\s*'[^']+'/, \"s.version          = '#{ENV.fetch('VERSION')}'\")" SectionKit2.podspec SectionUI.podspec
+          ruby -i -pe "gsub(/s\.dependency 'SectionKit2', '>= [^']+'/, \"s.dependency 'SectionKit2', '>= #{ENV.fetch('VERSION')}'\")" SectionUI.podspec
 
           git diff --check
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add SectionKit2.podspec SectionUI.podspec SectionUI.skills/SKILL.md SectionUI.skills/UPDATE.md SectionUI.skills/VERSION.md
-          git commit -m "Release SectionUI $VERSION"
+          git commit -m "Release SectionUI $VERSION [skip-release]"
           git tag "$RELEASE_TAG"
           git push origin "HEAD:${GITHUB_REF_NAME}" "$RELEASE_TAG"
 
@@ -186,11 +186,9 @@ jobs:
         shell: bash
         run: |
           version="${{ steps.release.outputs.version }}"
-          sectionkit2_version=$(ruby -rcocoapods -e "spec = eval(File.read('SectionKit2.podspec')); puts spec.version" 2>/dev/null || true)
-          sectionui_version=$(ruby -rcocoapods -e "spec = eval(File.read('SectionUI.podspec')); puts spec.version" 2>/dev/null || true)
-          sectionui_dependency=$(ruby -rcocoapods -e "spec = eval(File.read('SectionUI.podspec')); puts spec.dependencies.find { |d| d.name == 'SectionKit2' }.requirement" 2>/dev/null || true)
-          sectionkit2_source_tag=$(ruby -rcocoapods -e "spec = eval(File.read('SectionKit2.podspec')); puts spec.source[:tag]" 2>/dev/null || true)
-          sectionui_source_tag=$(ruby -rcocoapods -e "spec = eval(File.read('SectionUI.podspec')); puts spec.source[:tag]" 2>/dev/null || true)
+          sectionkit2_version=$(ruby -ne "puts \$1 if /s\.version\s*=\s*'([^']+)'/" SectionKit2.podspec)
+          sectionui_version=$(ruby -ne "puts \$1 if /s\.version\s*=\s*'([^']+)'/" SectionUI.podspec)
+          sectionui_dependency=$(ruby -ne "puts \$1 if /s\.dependency 'SectionKit2', '([^']+)'/" SectionUI.podspec)
 
           if [[ "$sectionkit2_version" != "$version" ]]; then
             echo "::error::SectionKit2.podspec version '$sectionkit2_version' does not match tag version '$version'"
@@ -204,8 +202,8 @@ jobs:
             echo "::error::SectionUI dependency on SectionKit2 is '$sectionui_dependency', expected '>= $version'"
             exit 1
           fi
-          if [[ "$sectionkit2_source_tag" != "$version" || "$sectionui_source_tag" != "$version" ]]; then
-            echo "::error::Podspec source tags must match bare version '$version' because CocoaPods fetches s.source[:tag]. Got SectionKit2='$sectionkit2_source_tag', SectionUI='$sectionui_source_tag'."
+          if ! grep -q ':tag => "#{s.version}"' SectionKit2.podspec || ! grep -q ':tag => "#{s.version}"' SectionUI.podspec; then
+            echo "::error::Podspec source tags must use #{s.version} so CocoaPods fetches the release tag."
             exit 1
           fi
           if ! git rev-parse "$version^{commit}" >/dev/null 2>&1; then

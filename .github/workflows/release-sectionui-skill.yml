@@ -301,7 +301,7 @@ jobs:
 
           publish_pod() {
             local podspec="$1"
-            pod trunk push "$podspec" --allow-warnings
+            pod trunk push "$podspec" --allow-warnings --synchronous
           }
 
           wait_for_cdn() {

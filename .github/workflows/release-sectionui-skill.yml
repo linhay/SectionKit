@@ -168,11 +168,11 @@ jobs:
           git push origin "HEAD:${GITHUB_REF_NAME}" "$RELEASE_TAG"
 
       - name: Install CocoaPods
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         run: sudo gem install cocoapods --no-document
 
       - name: Verify version metadata matches tag
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         shell: bash
         run: |
           python3 SectionUI.skills/scripts/sync_release_version.py --version "${{ steps.release.outputs.release_tag }}"
@@ -182,7 +182,7 @@ jobs:
           fi
 
       - name: Verify podspec versions match tag
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         shell: bash
         run: |
           version="${{ steps.release.outputs.version }}"
@@ -214,15 +214,15 @@ jobs:
           fi
 
       - name: Validate references
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         run: python3 SectionUI.skills/scripts/reference_compat.py --json
 
       - name: Run skill tests
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         run: python3 -m unittest discover -s SectionUI.skills/tests
 
       - name: Verify release package
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         run: |
           mkdir -p dist
           python3 SectionUI.skills/scripts/verify_skill_package.py \
@@ -231,7 +231,7 @@ jobs:
             --json
 
       - name: Write release notes
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         shell: bash
         run: |
           cat > dist/release-notes.md <<'EOF'
@@ -247,7 +247,7 @@ jobs:
           EOF
 
       - name: Upload workflow artifact
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         uses: actions/upload-artifact@v4
         with:
           name: sectionui.skill.zip
@@ -255,7 +255,7 @@ jobs:
           if-no-files-found: error
 
       - name: Publish GitHub Release
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release.outputs.release_tag }}
@@ -279,7 +279,7 @@ jobs:
           fi
 
       - name: Publish CocoaPods
-        if: steps.release.outputs.prepare_only == 'false'
+        if: steps.release.outputs.prepare_only != 'skip'
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         shell: bash

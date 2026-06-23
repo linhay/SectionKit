@@ -1,6 +1,6 @@
 # Composition And Styling Recipes
 
-This reference captures production recipes for SectionUI section assembly, manager binding, render states, supplementary views, and styling. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves section assembly, `SKCSectionCollector`, manager binding, render states, empty/loading/error/content sections, supplementary views, section style, cell style, or composition debugging. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

@@ -1,6 +1,6 @@
 # Page And Zoom Recipes
 
-This reference captures recipes for `SKPageManager`, `SKPageViewController`, `SKPageChildController`, `SKZoomableScrollView`, and `SKZoomableContext`. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
+Use this reference when a SectionUI task involves `SKPageManager`, `SKPageViewController`, `SKPageChildController`, child identity/cache, page selection/current binding, `SKZoomableScrollView`, `SKZoomableContext`, tap actions, or pan-to-dismiss behavior. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
 
 ## Contents
 
@@ -165,4 +165,3 @@ This reference captures recipes for `SKPageManager`, `SKPageViewController`, `SK
 66. Keep generic page and zoom primitives in SectionUI: child identity, selection/current binding, controller lifecycle, zoom sizing, tap actions, and pan-to-dismiss mechanics.
 
 67. Keep product page names, route handling, analytics payloads, image loading, and feature-specific chrome in integration layers.
-

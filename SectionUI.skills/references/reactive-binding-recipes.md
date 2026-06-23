@@ -1,10 +1,11 @@
 # Reactive Binding Recipes
 
-This reference captures production recipes for SectionUI reactive state, `SKPublished`, `SKBinding`, publisher-driven sections, binding keys, event groups, result builders, and async UI actions. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves `@SKPublished`, `SKPublishedValue`, transforms, `subscribe(models:)`, section publishers, `SKBinding`, `SKBindingKey`, result builders, event groups, async UI actions, or feedback-loop control. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 
 - [SKPublished Semantics](#skpublished-semantics)
+- [Stable Cell View Models](#stable-cell-view-models)
 - [SKPublished Transforms](#skpublished-transforms)
 - [Section Model Subscription](#section-model-subscription)
 - [Section Publishers](#section-publishers)
@@ -47,6 +48,74 @@ This reference captures production recipes for SectionUI reactive state, `SKPubl
 14. Store cancellables with the state owner, not with reusable cells unless the cell explicitly owns that subscription lifecycle.
 
 15. `assign(onWeak:to:)` is useful for simple view-model-to-view assignments without strongly retaining the target object.
+
+## Stable Cell View Models
+
+Use a stable reference-type cell model when frequent row updates only affect visible state and do not affect height or section structure:
+
+```swift
+final class RowViewModel {
+    let id: String
+    let title: String
+
+    @SKPublished var detail = ""
+    @SKPublished var status: String?
+    @SKPublished var isEnabled = true
+
+    init(id: String, title: String) {
+        self.id = id
+        self.title = title
+    }
+}
+```
+
+Pass the same model instances to the section once, then mutate their published fields:
+
+```swift
+let section = RowCell.wrapperToSingleTypeSection()
+section.config(models: rows)
+manager.reload(section)
+
+row.detail = progressText
+row.status = statusText
+row.isEnabled = isEnabled
+```
+
+Let the reusable cell own and reset subscriptions:
+
+```swift
+import Combine
+
+final class RowCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
+    typealias Model = RowViewModel
+
+    private var cancellables = Set<AnyCancellable>()
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cancellables.removeAll()
+    }
+
+    func config(_ model: RowViewModel) {
+        cancellables.removeAll()
+
+        model.$detail.bind { [weak self] value in
+            self?.detailLabel.text = value
+        }.store(in: &cancellables)
+
+        model.$status.bind { [weak self] value in
+            self?.statusLabel.text = value
+            self?.statusLabel.isHidden = value == nil
+        }.store(in: &cancellables)
+
+        model.$isEnabled.bind { [weak self] value in
+            self?.contentView.alpha = value ? 1 : 0.45
+        }.store(in: &cancellables)
+    }
+}
+```
+
+Reserve `manager.reload`, `section.apply`, and row refresh APIs for structural changes, full model replacement, row replacement, or intended collection-view reconfiguration.
 
 ## SKPublished Transforms
 
@@ -246,30 +315,32 @@ var items: [Item] = []
 
 101. Section subscription overwrote local edits: the publisher is the source of truth; move the edit upstream or stop using `subscribe(models:)`.
 
-102. `changedPublisher` does not fire: verify the binding has a setter and the write happened through that binding.
+102. Progress/status updates flicker: if height and structure are unchanged, keep row model identity stable and bind `@SKPublished` fields inside the cell instead of repeatedly reloading/applying/refreshing.
 
-103. Binding writes do not mutate state: check for `SKBinding.constant` or a weak object that has already been released.
+103. `changedPublisher` does not fire: verify the binding has a setter and the write happened through that binding.
 
-104. Binding key returns nil: the section is not bound or the collection view is gone.
+104. Binding writes do not mutate state: check for `SKBinding.constant` or a weak object that has already been released.
 
-105. Binding key dictionary lookup is unstable: the key's wrapped value changed after hashing.
+105. Binding key returns nil: the section is not bound or the collection view is gone.
 
-106. Lifecycle publisher is late: it intentionally delays. Use `taskIfLoaded` or direct post-bind work for synchronous setup.
+106. Binding key dictionary lookup is unstable: the key's wrapped value changed after hashing.
 
-107. Event handlers from an old screen still fire: clear actions/event groups and cancel publisher sinks when reusing a section.
+107. Lifecycle publisher is late: it intentionally delays. Use `taskIfLoaded` or direct post-bind work for synchronous setup.
 
-108. Async menu action fails silently: catch and handle errors inside the `SKUIAction` handler.
+108. Event handlers from an old screen still fire: clear actions/event groups and cancel publisher sinks when reusing a section.
 
-109. Result-builder output misses a section: inspect optional branches and empty expressions before checking manager reload.
+109. Async menu action fails silently: catch and handle errors inside the `SKUIAction` handler.
 
-110. Feedback loop spikes CPU: find sinks that write to the same publisher or section they observe and add guards.
+110. Result-builder output misses a section: inspect optional branches and empty expressions before checking manager reload.
+
+111. Feedback loop spikes CPU: find sinks that write to the same publisher or section they observe and add guards.
 
 ## Framework Boundary
 
-111. Promote reactive helpers into SectionUI only when they are independent of app state machines, route names, request clients, and analytics taxonomy.
+112. Promote reactive helpers into SectionUI only when they are independent of app state machines, route names, request clients, and analytics taxonomy.
 
-112. Keep business-specific event streams, render-state enums, and retry policies outside framework-level examples.
+113. Keep business-specific event streams, render-state enums, and retry policies outside framework-level examples.
 
-113. Document binding recipes as state ownership and publisher semantics, not as a downstream app's architecture.
+114. Document binding recipes as state ownership and publisher semantics, not as a downstream app's architecture.
 
-114. Prefer small reference recipes over adding new APIs for one repeated screen pattern until the behavior is proven framework-level.
+115. Prefer small reference recipes over adding new APIs for one repeated screen pattern until the behavior is proven framework-level.

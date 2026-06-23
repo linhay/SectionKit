@@ -4,6 +4,19 @@ Use this guide when a SectionUI user reports a requirement, bug, missing capabil
 
 Repository: `linhay/SectionKit`
 
+## Quick Triage
+
+Pick the first matching row:
+
+| If the feedback says... | File this form |
+| --- | --- |
+| The skill named a stale API, wrong signature, missing symbol, or failed to route a query to the right reference | `sectionui-reference-api.yml` |
+| The user needs guidance for a real screen, data binding, layout plugin choice, architecture pattern, or production best practice | `sectionui-usage-recipe.yml` |
+| A copied example, template, or snippet does not compile, is outdated, or should show a newer SectionUI pattern | `sectionui-example-template.yml` |
+| The packaged skill, release zip, `BUILD_INFO.json`, install path, or version metadata is wrong | `sectionui-skill-packaging.yml` |
+| SectionUI runtime behavior is wrong: layout, selection, sizing, scrolling, plugin execution, performance, or regression | `sectionui-framework-behavior.yml` |
+| None of the above fits | Start as `question`; convert once a repository change is clear |
+
 ## Scenario Forms
 
 Choose the issue form that matches the workflow under investigation:

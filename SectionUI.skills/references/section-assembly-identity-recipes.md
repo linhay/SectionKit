@@ -1,6 +1,6 @@
 # Section Assembly Identity Recipes
 
-This reference captures exact contracts for `SectionArrayResultBuilder`, `SKCSectionCollector`, `SKWhen`, `SKBindingKey`, and `SKCHostingCollectionView` identity. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
+Use this reference when a SectionUI task needs exact contracts for `SectionArrayResultBuilder`, `SKCSectionCollector`, `SKWhen`, `SKBindingKey`, dynamic section identity, collector flattening, or `SKCHostingCollectionView` reload identity. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
 
 ## Contents
 
@@ -158,4 +158,3 @@ manager.reload(collector.sections)
 56. Keep generic assembly guidance in SectionUI: builder flattening, collector filtering/conversion, predicate composition, dynamic section-index binding, and identity rules.
 
 57. Keep product module order, business conditions, route handling, analytics, and feature-specific render states in integration layers.
-

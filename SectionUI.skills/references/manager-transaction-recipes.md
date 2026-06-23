@@ -1,6 +1,6 @@
 # Manager Transaction Recipes
 
-This reference captures production recipes for SectionUI manager binding, section identity, section transactions, row mutations, section injection, pending requests, and reload configuration. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves `SKCManager`, section binding, section identity, section transactions, manager reload/insert/remove/delete, row operation coordination, section injection, pending requests, or reload configuration. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

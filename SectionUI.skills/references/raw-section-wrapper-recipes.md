@@ -1,6 +1,6 @@
 # Raw Section Wrapper Recipes
 
-This reference captures recipes for `SKCRawSectionProtocol`, `SKCAnySectionProtocol`, and `SKCAnySingleTypeSectionProtocol`. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
+Use this reference when a SectionUI task involves `SKCRawSectionProtocol`, `SKCAnySectionProtocol`, `SKCAnySingleTypeSectionProtocol`, raw-section wrapper identity, forwarded style/plugins, wrapper lifecycle, or type-erased section boundaries. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
 
 ## Contents
 

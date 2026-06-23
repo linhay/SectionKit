@@ -1,6 +1,6 @@
 # Diagnostics And Utility Recipes
 
-This reference captures production recipes for SectionUI diagnostics, lightweight utility types, environment objects, cache helpers, weak wrappers, animation boxes, and identity wrappers. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves diagnostics, `SKPrint`, `SKPerformance`, utility wrappers, environment objects, cache helpers, weak wrappers, `SKAnimationBox`, identity boxes, counted stores, or debug-only tooling. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

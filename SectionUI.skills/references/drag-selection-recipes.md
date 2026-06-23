@@ -1,6 +1,6 @@
 # Drag Selection Recipes
 
-This reference captures production recipes for SectionUI drag selection, rectangular multi-select, auto-scroll, overlay styling, haptics, and gesture conflict handling. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves `SKCDragSelector`, rectangular multi-select, drag selection setup/reset, auto-scroll, selection overlays, haptics, or gesture conflict handling. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

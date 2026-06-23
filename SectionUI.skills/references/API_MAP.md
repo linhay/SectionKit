@@ -10,7 +10,7 @@ Use this file for concrete API names. If the user names a symbol, search here fi
 | `refresh(at:)`, `refresh(with:)`, `RefreshPayload`, `apply`, `config(models:)`, `reloadKind`, `append`, `insert`, `remove`, `delete` | `row-mutation-recipes.md` |
 | `@SKPublished`, `SKPublishedValue`, `modelsPulisher`, `subscribe(models:)`, `SKBinding`, `SKBindingKey` | `reactive-binding-recipes.md` |
 | `SectionArrayResultBuilder`, `SKCSectionCollector`, `SKWhen`, dynamic section indexes | `render-builder-recipes.md`, `section-assembly-identity-recipes.md` |
-| `SKLoadViewProtocol`, `SKLoadNibProtocol`, `SKConfigurableView`, `preferredSize(limit:model:)`, `config(_:)` | `view-cell-container-recipes.md`, `cell.md` |
+| `SKLoadViewProtocol`, `SKLoadNibProtocol`, `SKConfigurableView`, `preferredSize(limit:model:)`, `config(_:)` | `view-cell-container-recipes.md` |
 | `SKAdaptive`, `SKConfigurableAdaptiveView`, `SKConfigurableAdaptiveMainView`, auto adaptive sizing | `adaptive-sizing-recipes.md` |
 | `safeSize`, `cellSafeSize`, `supplementarySafeSize`, `SKSafeSizeProvider`, `SKSafeSizeTransform` | `safe-size-measurement-recipes.md` |
 | `SKHighPerformanceStore`, `SKKVCache`, `SKCountedStore`, `displayedTimes`, `model(displayedAt:)`, cache invalidation | `cache-exposure-recipes.md` |
@@ -20,16 +20,16 @@ Use this file for concrete API names. If the user names a symbol, search here fi
 | `SKCPrefetch`, `loadMorePublisher`, `onContextMenu`, `SKUIContextMenuResult`, `SKUIAction`, `move(from:to:)` | `prefetch-menu-reorder-recipes.md` |
 | `setHeader`, `setFooter`, `set(supplementary:)`, `SKCSupplementary`, `SKSupplementaryKind`, `hiddenHeaderWhenNoItem` | `supplementary-recipes.md` |
 | `indexTitle`, `indexTitleRow`, `sectionIndex`, collection index titles | `index-title-recipes.md` |
-| `SKCollectionFlowLayout`, `SKCLayoutPlugins.Mode`, `SKCLayoutPlugin`, `setAttributes`, `SKCPluginAdjustAttributes` | `layout-plugin-execution-recipes.md` |
-| `SKCLayoutDecoration`, `SKCLayoutDecorationPlugin`, `SKCDecorationView`, decoration z-index | `layout-decoration-recipes.md`, `decorations.md` |
-| `pinHeader`, `pinFooter`, pin distance, sticky supplementary | `navigation-scroll-recipes.md`, `pin.md` |
-| `SKScrollViewDelegateHandler`, `SKCDisplayTracker`, scroll observers, delegate forwarding | `navigation-scroll-recipes.md`, `scroll.md` |
-| `SKPageViewController`, `SKPageManager`, `SKZoomableScrollView`, `SKZoomableContext` | `page-zoom-recipes.md`, `page.md` |
+| `SKCollectionFlowLayout`, `SKCLayoutPlugins.Mode`, `SKCLayoutPlugin`, `setAttributes`, `SKCPluginAdjustAttributes`, `SKCPluginLayoutAttributesForElementsForward` | `layout-plugin-execution-recipes.md` |
+| `SKCLayoutDecoration`, `SKCLayoutDecorationPlugin`, `SKCDecorationView`, decoration z-index | `layout-decoration-recipes.md` |
+| `pinHeader`, `pinFooter`, pin distance, sticky supplementary | `navigation-scroll-recipes.md` |
+| `SKScrollViewDelegateHandler`, `SKCDisplayTracker`, scroll observers, delegate forwarding | `navigation-scroll-recipes.md` |
+| `SKPageViewController`, `SKPageManager`, `SKZoomableScrollView`, `SKZoomableContext` | `page-zoom-recipes.md` |
 | `SKUIView`, `SKUIController`, `SKPreview`, `STCHostingCell`, `SKCHostingSection`, `SKCHostingCollectionView` | `swiftui-hosting-recipes.md` |
 | `SKCSectionViewCell`, `SKCSingleSectionViewCell`, `wrapperToHorizontalSection` | `nested-section-cell-recipes.md` |
 | `SKCAnyViewCell`, `SKWrapperView`, `SKCWrapperCell`, `SKCWrapperReusableView` | `runtime-view-wrapper-recipes.md` |
 | `SKCRawSectionProtocol`, `SKCAnySectionProtocol`, `SKCAnySingleTypeSectionProtocol` | `raw-section-wrapper-recipes.md` |
 | `SKCDelegate`, `SKCDelegateForward`, `SKCDataSource`, `SKCDataSourcePrefetching`, `SKCDelegateFlowLayout`, `SKHandleResult` | `forwarding-extension-recipes.md` |
-| `SKPrint`, `SKPerformance`, `SKEnvironmentConfiguration`, `SKAnimationBox`, `SKWeakBox`, `SKIDBox`, `SKInout`, `SKActor`, `SKEventGroup` | `diagnostics-utility-recipes.md` |
+| `SKPrint`, `SKPerformance`, `SKEnvironmentConfiguration`, `SKAnimationBox`, `SKWeakBox`, `SKIDBox`, `SKInout`, `SKActorBox`, `SKEventGroup` | `diagnostics-utility-recipes.md` |
 
 When the mapped reference does not include the exact signature, inspect the source under `Sources/SectionUI` or `Sources/SectionKit`.

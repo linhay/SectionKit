@@ -1,6 +1,6 @@
 # Rendering And Performance Recipes
 
-This reference captures production recipes for SectionUI sizing, measurement, wrapper views, performance caches, SwiftUI hosting, nested sections, and waterfall layout. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves rendering performance, sizing, measurement, wrapper views, high-performance caches, SwiftUI hosting, nested sections, waterfall layout, or rendering debug checklists. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

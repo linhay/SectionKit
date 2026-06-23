@@ -92,16 +92,15 @@ let sections: [SKCSectionProtocol] = [
 
 ## Related Documentation
 
-- **[Events & Actions](section-events.md)** - Handle cell lifecycle and user interactions
-- **[Styling & Supplementary Views](section-styling.md)** - Customize appearance, headers, and footers
-- **[Advanced Features](section-advanced.md)** - Combine, drag & drop, context menus, and layout
-- **[Advanced Features (Part 2)](section-advanced-2.md)** - Display tracking, cell refresh, prefetching, and more
-- **[Data Operations](section-data-operations.md)** - CRUD operations and reload strategies
-- **[Best Practices](section-best-practices.md)** - Recommended patterns and optimization tips
+- **[Composition And Styling](composition-styling-recipes.md)** - Section assembly, optional state, and styling.
+- **[Row Mutation Recipes](row-mutation-recipes.md)** - CRUD operations and reload strategies.
+- **[Interaction State Recipes](interaction-state-recipes.md)** - Cell lifecycle and user interactions.
+- **[Supplementary Recipes](supplementary-recipes.md)** - Headers, footers, and custom supplementary views.
+- **[Custom Section Patterns](custom-section-patterns.md)** - Heterogeneous and custom section patterns.
 
 ## See Also
 
-- **[Cell Implementation](cell.md)** - How to create custom cells
-- **[Manager](manager.md)** - Section collection management
-- **[Performance](performance.md)** - Optimization techniques
-- **[Reactive Programming](reactive.md)** - Advanced Combine integration
+- **[Cell Implementation](view-cell-container-recipes.md)** - How to create custom cells
+- **[Manager](manager-transaction-recipes.md)** - Section collection management
+- **[Performance](rendering-performance-recipes.md)** - Optimization techniques
+- **[Reactive Binding](reactive-binding-recipes.md)** - Advanced Combine integration

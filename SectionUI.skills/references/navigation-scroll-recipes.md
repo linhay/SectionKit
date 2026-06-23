@@ -1,6 +1,6 @@
 # Navigation And Scroll Recipes
 
-This reference captures production recipes for SectionUI scroll observation, display tracking, pending scroll requests, pinning, controller paging, and zoomable content. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves scroll observation, display tracking, pending scroll requests, scroll-to-section/row, pin state, paging, nested scroll coordination, zoomable content, or scroll synchronization debugging. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

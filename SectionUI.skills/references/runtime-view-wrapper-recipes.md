@@ -1,6 +1,6 @@
 # Runtime View Wrapper Recipes
 
-This reference captures recipes for `SKCAnyViewCell`, `SKWrapperView`, `SKCWrapperCell`, and `SKCWrapperReusableView`. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
+Use this reference when a SectionUI task involves `SKCAnyViewCell`, `SKWrapperView`, `SKCWrapperCell`, `SKCWrapperReusableView`, runtime view ownership, wrapper sizing, nib behavior, or reusable wrapper debugging. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
 
 ## Contents
 

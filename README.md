@@ -312,6 +312,8 @@ ln -s "$(pwd)/SectionKit/SectionUI.skills" "$HOME/.agents/skills/sectionui"
 ```bash
 python3 SectionUI.skills/scripts/package_skill.py --output sectionui.skill.zip --json
 python3 SectionUI.skills/scripts/sync_release_version.py --version 2.5.4
+python3 SectionUI.skills/scripts/reference_compat.py --json
+python3 SectionUI.skills/scripts/verify_skill_package.py --output sectionui.skill.zip --json
 python3 -m unittest discover -s SectionUI.skills/tests
 ```
 

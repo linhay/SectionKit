@@ -1,6 +1,6 @@
 # Delegate Interaction Recipes
 
-This reference captures production recipes for SectionUI UIKit delegate interactions: highlight, select, primary action, display lifecycle, focus, edit, spring-load, multiple selection, context menus, and reorder gates. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves UIKit delegate routing, highlight/select gates, primary actions, display lifecycle, focus, editing, spring-load, multiple selection, context menus, reorder gates, or delegate override boundaries. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

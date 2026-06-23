@@ -1,6 +1,6 @@
 # Layout And Decoration Recipes
 
-This reference captures production recipes for SectionUI layout plugins, supplementary view correction, and decoration backgrounds. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves layout plugins, alignment, supplementary view correction, decoration backgrounds, cross-section decoration, decoration frames, z-index, or layout/decoration debugging. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Plugin Scope And Ordering
 

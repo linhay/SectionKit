@@ -1,6 +1,6 @@
 # Nested Section Cell Recipes
 
-This reference captures production recipes for `SKCSectionViewCell`, `SKCSingleSectionViewCell`, and `wrapperToHorizontalSection`. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
+Use this reference when a SectionUI task involves `SKCSectionViewCell`, `SKCSingleSectionViewCell`, `wrapperToHorizontalSection`, embedded horizontal sections, section-in-cell patterns, nested collection lifecycle, or nested sizing. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, or business event names.
 
 ## Contents
 

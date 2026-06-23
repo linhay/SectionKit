@@ -18,7 +18,9 @@ SCRIPT_ROOT = SKILL_ROOT / "scripts"
 sys.path.insert(0, str(SCRIPT_ROOT))
 
 import package_skill  # noqa: E402
+import reference_compat  # noqa: E402
 import sync_release_version  # noqa: E402
+import verify_skill_package  # noqa: E402
 
 
 class SkillMetadataTests(unittest.TestCase):
@@ -56,6 +58,29 @@ class SkillMetadataTests(unittest.TestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, api_map)
 
+    def test_reference_compatibility_checks_pass(self) -> None:
+        issues = reference_compat.run_checks(SKILL_ROOT, REPO_ROOT)
+        self.assertEqual([], issues)
+
+    def test_task_map_preserves_core_intent_routes(self) -> None:
+        task_map = (REFERENCES_ROOT / "TASK_MAP.md").read_text(encoding="utf-8").lower()
+
+        expected_routes = {
+            "visible cell mutation": "data-driven-best-practices.md",
+            "data binding strategy": "data-driven-best-practices.md",
+            "high-frequency progress": "data-driven-best-practices.md",
+            "stable cell view model": "reactive-binding-recipes.md",
+            "subscribe(models:)": "reactive-binding-recipes.md",
+            "plugin priority": "layout-plugin-execution-recipes.md",
+            "custom forward": "layout-plugin-execution-recipes.md",
+            "stale cached size": "safe-size-measurement-recipes.md",
+        }
+
+        for keyword, reference in expected_routes.items():
+            with self.subTest(keyword=keyword):
+                self.assertIn(keyword, task_map)
+                self.assertIn(reference, task_map)
+
     def test_package_skill_includes_build_info_and_routes(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             output = Path(temp_dir) / "sectionui.skill.zip"
@@ -72,9 +97,22 @@ class SkillMetadataTests(unittest.TestCase):
                 self.assertIn("ISSUE_GUIDE.md", names)
                 self.assertIn("references/TASK_MAP.md", names)
                 self.assertIn("references/API_MAP.md", names)
+                self.assertIn("scripts/reference_compat.py", names)
+                for removed in reference_compat.REMOVED_REFERENCES:
+                    self.assertNotIn(f"references/{removed}", names)
                 self.assertNotIn("SectionUI.skills/SKILL.md", names)
                 build_info = json.loads(archive.read("BUILD_INFO.json").decode("utf-8"))
                 self.assertEqual(build_info["name"], "sectionui")
+
+    def test_verify_skill_package_release_preflight_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = Path(temp_dir) / "sectionui.skill.zip"
+            payload = verify_skill_package.verify(REPO_ROOT, SKILL_ROOT, output, "v0.0.0-test")
+
+            self.assertTrue(payload["ok"])
+            self.assertEqual([], payload["issues"])
+            self.assertTrue(output.is_file())
+            self.assertEqual("v0.0.0-test", payload["buildInfo"]["releaseTag"])
 
     def test_feedback_workflow_is_documented(self) -> None:
         issue_guide = ISSUE_GUIDE_PATH.read_text(encoding="utf-8")

@@ -2,6 +2,18 @@
 
 Use this reference when a SectionUI task involves `SKCollectionFlowLayout`, `SKCLayoutPlugins.Mode`, section-level layout plugins, attribute adjustments, pinning, layout invalidation, or stale layout attributes.
 
+## Contents
+
+- [Execution Contract](#execution-contract)
+- [Plugin Selection](#plugin-selection)
+- [Collection-Level Modes](#collection-level-modes)
+- [Section-Level Plugins](#section-level-plugins)
+- [Attribute Adjustments](#attribute-adjustments)
+- [Layout Attributes Forward](#layout-attributes-forward)
+- [Layout Cache And Invalidation](#layout-cache-and-invalidation)
+- [Debug Checklist](#debug-checklist)
+- [Framework Boundary](#framework-boundary)
+
 ## Execution Contract
 
 `SKCollectionView` combines collection-level modes from `sectionView.set(pluginModes:)` with section-level plugins collected from bound sections. `SKCollectionFlowLayout` then sorts and executes the resolved mode list during layout.
@@ -17,6 +29,23 @@ Mode execution is priority-based, not call-order based:
 7. `.layoutAttributesForElements`
 
 Multiple `.attributes`, alignment, decoration, and `layoutAttributesForElements` modes are merged. The supplementary size/inset adjustment modes are singleton-by-priority; do not install duplicates in the same resolved mode list.
+
+## Plugin Selection
+
+Choose the smallest plugin surface that owns the behavior:
+
+| Need | Prefer | Avoid |
+| --- | --- | --- |
+| One section needs alignment, pinning, attributes, or decoration | Section-level helper on that section | Hard-coded section indexes or collection-wide modes. |
+| Every section follows the same layout rule | `sectionView.set(pluginModes:)` | Duplicating the same section plugin on every section. |
+| Header/footer size or inset correction is global or allow/deny-listed | Collection-level supplementary modes | Trying singleton modes through `section.addLayoutPlugins`. |
+| One section needs attribute tweaks | `section.setAttributes(...)` | A custom `layoutAttributesForElements` forward. |
+| Full attribute array must be inspected or rewritten | `SKCPluginLayoutAttributesForElementsForward` | A new layout subclass before existing helpers are exhausted. |
+| Flow layout cannot express the behavior | Custom layout | Keeping incompatible flow-layout plugins enabled. |
+
+Default to existing helpers: `addLayoutPlugins`, `setAttributes`, `pinHeader`, `pinFooter`, `pinCell`, and decoration APIs. Create custom forwards only when the behavior needs full-array context or scroll-dependent mutation.
+
+Bind plugin targets to section instances or `SKBindingKey` when optional sections, filtering, or reloads can change indexes.
 
 ## Collection-Level Modes
 

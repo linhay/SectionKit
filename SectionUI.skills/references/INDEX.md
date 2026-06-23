@@ -10,7 +10,7 @@ This index lists the bundled Markdown references. Use it to find a path before o
 
 ## Production Recipes
 
-- `data-driven-best-practices.md`
+- `data-driven-best-practices.md` - source-of-truth, binding strategy, high-frequency row state, update flow, and visible-cell anti-patterns.
 - `production-usage.md`
 - `production-tips.md`
 - `advanced-production-tips.md`
@@ -24,13 +24,10 @@ This index lists the bundled Markdown references. Use it to find a path before o
 
 - `manager-transaction-recipes.md`
 - `row-mutation-recipes.md`
-- `reactive-binding-recipes.md`
+- `reactive-binding-recipes.md` - `@SKPublished`, stable cell view models, `subscribe(models:)`, `SKBinding`, section publishers, and feedback-loop control.
 - `container-lifecycle-recipes.md`
 - `forwarding-extension-recipes.md`
 - `raw-section-wrapper-recipes.md`
-- `section-data-operations.md`
-- `manager.md`
-- `reactive.md`
 
 ## Cells, Sizing, And Rendering
 
@@ -42,9 +39,6 @@ This index lists the bundled Markdown references. Use it to find a path before o
 - `adaptive-sizing-recipes.md`
 - `rendering-performance-recipes.md`
 - `cache-exposure-recipes.md`
-- `cell.md`
-- `performance.md`
-- `advanced-sections.md`
 
 ## Interaction And State
 
@@ -60,32 +54,20 @@ This index lists the bundled Markdown references. Use it to find a path before o
 - `selection-sequence.md`
 - `selection-identifiable-sequence.md`
 - `selection-drag-selector.md`
-- `section-events.md`
 
 ## Layout, Decoration, Supplementary, Navigation
 
-- `layout-plugin-execution-recipes.md`
-- `layout-decoration-recipes.md`
-- `layout-plugins.md`
-- `decorations.md`
+- `layout-plugin-execution-recipes.md` - plugin scope, priority, attribute mutation, custom forwards, invalidation, and debugging.
+- `layout-decoration-recipes.md` - decoration frames, backgrounds, z-index, supplementary fixes, alignment, and plugin conflicts.
 - `supplementary-recipes.md`
 - `index-title-recipes.md`
 - `navigation-scroll-recipes.md`
 - `page-zoom-recipes.md`
-- `scroll.md`
-- `pin.md`
-- `page.md`
-- `plugins.md`
 
 ## Legacy And Broad Topic References
 
 - `section.md`
-- `section-advanced.md`
-- `section-advanced-2.md`
-- `section-best-practices.md`
-- `section-styling.md`
 - `diagnostics-utility-recipes.md`
-- `MISSING_FEATURES.md`
 
 ## Examples
 

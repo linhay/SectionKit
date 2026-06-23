@@ -1,6 +1,6 @@
 # Forwarding And Extension Recipes
 
-This reference captures production recipes for SectionUI manager forwarding chains, `SKHandleResult`, data source/delegate/flow layout/prefetch extension points, section injection, raw section wrappers, and advanced integration hooks. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves manager forwarding chains, `SKHandleResult`, data source/delegate/flow-layout/prefetch extension points, `SKCSectionInjection`, raw section wrappers, or advanced integration hooks. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

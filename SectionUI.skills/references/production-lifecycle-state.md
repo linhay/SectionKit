@@ -1,6 +1,6 @@
 # Production Lifecycle And State Tips
 
-This reference captures SectionUI lifecycle, state, reload, and binding patterns from complex app surfaces. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, or scan statistics.
+Use this reference when a SectionUI task involves lifecycle timing, loaded-state checks, manager binding, section identity, model publishers, reload strategy, render states, selection state, high-performance cache, or pending scroll requests. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, or scan statistics.
 
 ## Section Collection And Rendering
 

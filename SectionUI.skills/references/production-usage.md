@@ -1,6 +1,6 @@
 # Production Usage Patterns
 
-This reference captures generic SectionUI rules distilled from large application surfaces. It is not an index of downstream projects. Keep it focused on reusable framework guidance, not app names, file paths, or local business concepts.
+Use this reference when a SectionUI task needs distilled production defaults, framework-level rules, integration abstraction boundaries, or reusable list architecture guidance. It is not an index of downstream projects. Keep it focused on reusable framework guidance, not app names, file paths, or local business concepts.
 
 ### 1. Business lists are section compositions
 

@@ -1,6 +1,6 @@
 # Interaction And State Recipes
 
-This reference captures production recipes for SectionUI cell events, exposure tracking, selection state, incremental updates, prefetching, context menus, and reorder. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves cell actions, action ownership, exposure tracking, selection state, incremental updates, prefetch/load-more, context menus, reorder, section publishers, or interaction debugging. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

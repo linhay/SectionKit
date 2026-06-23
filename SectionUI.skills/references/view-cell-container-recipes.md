@@ -1,6 +1,6 @@
 # View Cell And Container Recipes
 
-This reference captures production recipes for SectionUI load protocols, configurable views, adaptive sizing, wrapper cells, supplementary wrappers, `SKCollectionView`, `SKCollectionViewController`, and UIKit/SwiftUI bridges. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves load protocols, `SKLoadViewProtocol`, `SKConfigurableView`, nib identifiers, configurable view contracts, adaptive sizing, wrapper cells/views, supplementary wrappers, `SKCollectionView`, `SKCollectionViewController`, or UIKit/SwiftUI bridges. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

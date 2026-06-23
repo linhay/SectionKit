@@ -1,6 +1,6 @@
 # SwiftUI Hosting Recipes
 
-This reference captures production recipes for SectionUI SwiftUI bridges, hosting cells, hosting sections, SwiftUI-backed collection previews, and ownership boundaries. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
+Use this reference when a SectionUI task involves SwiftUI bridges, `SKUIView`, `SKUIController`, `STCHostingCell`, `SKCHostingSection`, `SKCHostingCollectionView`, previews, hosting sizing, identity, or SwiftUI/SectionUI state ownership. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, or page names.
 
 ## Contents
 

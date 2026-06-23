@@ -7,7 +7,7 @@ metadata:
 
 # SectionUI Agent Guide
 
-Use this skill to design, implement, review, or debug SectionUI screens. Keep context small: route the task first, open only the matching reference files, then answer with code that follows the framework's data-driven model.
+Use this skill to design, implement, review, or debug SectionUI screens. Keep context small: route the task first, open only the matching reference files, then answer with code that follows the framework's data-driven and data-binding model.
 
 Paths like `references/...` are relative to this skill directory (`SectionUI.skills/`). If your current working directory is the repository root, prefix paths with `SectionUI.skills/`.
 
@@ -30,6 +30,7 @@ SectionUI's default model: after section / manager / view binding, business code
 Prefer these defaults:
 
 - Bind through `SKCManager` or `SKCollectionViewController`, then mutate source state, section models, selection state, or cache ownership.
+- Decide one source of truth per screen slice before writing update code: publisher-owned state uses `subscribe(models:)`; section-owned state uses `apply`, `refresh`, `append`, `insert`, `remove`, or `delete`.
 - Use many focused sections instead of one monolithic collection-view controller.
 - Prefer `wrapperToSingleTypeSection`, result builders, supplementary views, decoration plugins, selection state, publisher bindings, and nested sections before writing custom collection plumbing.
 - Keep repeated product patterns in app-level wrappers; keep framework usage generic and reusable.
@@ -38,7 +39,9 @@ Prefer these defaults:
 ## Routing
 
 1. Classify the request.
-   - Architecture, screen decomposition, source of truth, or anti-patterns: use `references/TASK_MAP.md`, then `references/data-driven-best-practices.md`.
+   - Architecture, screen decomposition, source of truth, UI update flow, binding strategy, high-frequency row state, or anti-patterns: use `references/TASK_MAP.md`, then `references/data-driven-best-practices.md`.
+   - Publishers, `@SKPublished`, stable cell view models, `subscribe(models:)`, `SKBinding`, or feedback loops: use `references/reactive-binding-recipes.md`, with `references/data-driven-best-practices.md` for ownership decisions.
+   - Layout plugins, plugin scope, plugin priority, attribute mutation, pinning, decorations, or invalidation: use `references/layout-plugin-execution-recipes.md`, then `references/layout-decoration-recipes.md` only for decoration/frame rules.
    - Concrete API, method, protocol, or type: search `references/API_MAP.md`, then open the mapped file.
    - Broad behavior such as selection, sizing, scrolling, layout, or SwiftUI hosting: use `references/TASK_MAP.md`.
    - Unknown domain: start with `references/INDEX.md`, then refine with `rg`.
@@ -51,7 +54,7 @@ Prefer these defaults:
 3. Open only target references.
    - For one topic, open one reference.
    - For cross-domain issues, open at most one adjacent reference unless the code proves more context is needed.
-   - Prefer `*-recipes.md` files for production guidance. Use older broad files like `section.md`, `reactive.md`, or `performance.md` for API overview only.
+   - Prefer `*-recipes.md` files for production guidance. Use older broad files like `section.md` for API overview only.
 
 4. Route actionable feedback.
    - If a reference is stale, an API signature is wrong, an example is broken, a packaging asset is missing, or a useful workflow is absent, use `ISSUE_GUIDE.md`.
@@ -74,6 +77,7 @@ From inside `SectionUI.skills/`, omit the `SectionUI.skills/` prefix.
 | User intent | Read first | Adjacent reference |
 | --- | --- | --- |
 | Data-driven architecture, source of truth, screen structure | `references/data-driven-best-practices.md` | `references/production-usage.md` |
+| Data binding strategy, publisher-owned vs section-owned updates, high-frequency row visual state | `references/data-driven-best-practices.md` | `references/reactive-binding-recipes.md` |
 | Section assembly, optional states, render builders | `references/composition-styling-recipes.md` | `references/render-builder-recipes.md` |
 | Manager binding, reload/insert/remove, section identity | `references/manager-transaction-recipes.md` | `references/container-lifecycle-recipes.md` |
 | Row refresh, append, insert, delete, `reloadKind` | `references/row-mutation-recipes.md` | `references/reactive-binding-recipes.md` |
@@ -81,7 +85,8 @@ From inside `SectionUI.skills/`, omit the `SectionUI.skills/` prefix.
 | Cell creation, wrappers, UIKit/SwiftUI containers | `references/view-cell-container-recipes.md` | `references/runtime-view-wrapper-recipes.md` |
 | Dynamic size, Auto Layout fitting, stale cached size | `references/safe-size-measurement-recipes.md` | `references/adaptive-sizing-recipes.md` |
 | Size cache, exposure counts, display tracking | `references/cache-exposure-recipes.md` | `references/rendering-performance-recipes.md` |
-| Layout plugins, decoration, pinning, alignment | `references/layout-plugin-execution-recipes.md` | `references/layout-decoration-recipes.md` |
+| Layout plugin system, scope, priority, invalidation, custom forwards | `references/layout-plugin-execution-recipes.md` | `references/layout-decoration-recipes.md` |
+| Decoration frames, backgrounds, z-index, supplementary alignment | `references/layout-decoration-recipes.md` | `references/layout-plugin-execution-recipes.md` |
 | Selection state, single/multi-select, reload-safe selection | `references/selection-ownership-recipes.md` | `references/interaction-state-recipes.md` |
 | Cell actions, exposure, context menu, prefetch, reorder | `references/interaction-state-recipes.md` | `references/delegate-interaction-recipes.md` |
 | Scroll observation, pending scroll, page/zoom | `references/navigation-scroll-recipes.md` | `references/page-zoom-recipes.md` |
@@ -96,9 +101,11 @@ Use these patterns unless an existing codebase has a stronger convention:
 - Cell: conform to `SKLoadViewProtocol` and `SKConfigurableView`.
 - Common section: `MyCell.wrapperToSingleTypeSection()` plus `config(models:)`.
 - Manager: call `manager.reload(sections)` for section replacement and section-local APIs for row mutations.
-- Reactive data: bind source state with `@SKPublished`, `SKPublishedValue`, or section subscriptions.
+- Reactive data: bind source state with `@SKPublished`, `SKPublishedValue`, or section subscriptions when the publisher owns the section; use stable cell view models for high-frequency visual fields that do not affect height or structure.
+- Imperative data: use section row mutation APIs directly when the section owner is already the source of truth.
 - Selection: store selection in `SKSelectionState`, `SKSelectionWrapper`, or `SKSelectionSequence`, not visible cells.
 - Sizing: prefer `safeSize`, `cellSafeSize`, adaptive sizing, and high-performance cache where applicable.
+- Plugins: prefer section-level plugins for section-specific behavior, collection-level modes for whole-screen rules, and existing helpers before custom forwards.
 - Closures: use `[weak self]` when capturing view controllers or long-lived owners.
 
 ## Boundaries
@@ -127,6 +134,8 @@ Use script-backed workflows for distribution and validation:
 
 - Package skill: `python3 SectionUI.skills/scripts/package_skill.py --output sectionui.skill.zip --json`
 - Sync release version: `python3 SectionUI.skills/scripts/sync_release_version.py --version 2.5.4`
+- Validate reference compatibility: `python3 SectionUI.skills/scripts/reference_compat.py --json`
+- Verify release package: `python3 SectionUI.skills/scripts/verify_skill_package.py --output sectionui.skill.zip --json`
 - Validate metadata: `python3 -m unittest discover -s SectionUI.skills/tests`
 
 <!-- version: 2.5.4 -->

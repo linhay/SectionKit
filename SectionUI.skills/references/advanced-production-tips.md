@@ -1,6 +1,6 @@
 # Advanced Production Tips
 
-This reference captures lower-frequency SectionUI APIs that show up in complex screens. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, or scan statistics.
+Use this reference when a SectionUI task involves lower-frequency production APIs, complex-screen edge cases, layout attribute fixes, pinning details, scroll tracking, prefetch, context menus, or reorder behavior. Keep it generic: no downstream project paths, product names, business module names, source-file indexes, or scan statistics.
 
 ## Layout Attribute Fixes
 

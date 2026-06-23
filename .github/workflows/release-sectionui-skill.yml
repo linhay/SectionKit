@@ -1,0 +1,328 @@
+name: Release SectionUI skill
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*.*.*"
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing release tag to republish. Leave empty to auto-increment from the latest bare semver tag."
+        required: false
+        default: ""
+        type: string
+      version_bump:
+        description: "Version bump to use when release_tag is empty"
+        required: false
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      draft:
+        description: "Create the GitHub Release as a draft"
+        required: false
+        default: false
+        type: boolean
+      prerelease:
+        description: "Mark the GitHub Release as a prerelease"
+        required: false
+        default: false
+        type: boolean
+      pod_publish:
+        description: "CocoaPods publish mode"
+        required: false
+        default: both
+        type: choice
+        options:
+          - both
+          - sectionui-only
+          - skip
+      skip_cdn_wait:
+        description: "Skip the CocoaPods CDN wait before publishing SectionUI"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sectionui-skill-release-${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish sectionui.skill.zip
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            release_tag="${{ inputs.release_tag }}"
+            git fetch --tags --force
+            if [[ -z "$release_tag" ]]; then
+              latest_tag=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+              if [[ -z "$latest_tag" ]]; then
+                echo "::error::No existing bare semver tag found. Create the first tag manually, for example 2.5.4."
+                exit 1
+              fi
+
+              IFS=. read -r major minor patch <<< "$latest_tag"
+              case "${{ inputs.version_bump }}" in
+                major)
+                  major=$((major + 1)); minor=0; patch=0
+                  ;;
+                minor)
+                  minor=$((minor + 1)); patch=0
+                  ;;
+                patch)
+                  patch=$((patch + 1))
+                  ;;
+                *)
+                  echo "::error::Unsupported version_bump: ${{ inputs.version_bump }}"
+                  exit 1
+                  ;;
+              esac
+              release_tag="$major.$minor.$patch"
+              if git rev-parse "$release_tag^{commit}" >/dev/null 2>&1; then
+                echo "::error::Auto-incremented tag '$release_tag' already exists."
+                exit 1
+              fi
+              echo "prepare_only=true" >> "$GITHUB_OUTPUT"
+            else
+              git checkout --detach "$release_tag"
+              echo "prepare_only=false" >> "$GITHUB_OUTPUT"
+            fi
+          elif [[ "${GITHUB_REF_TYPE}" == "branch" ]]; then
+            if git log -1 --pretty=%B | grep -q '^Release SectionUI '; then
+              echo "Release version commit detected; skipping auto-increment to avoid a release loop."
+              echo "prepare_only=skip" >> "$GITHUB_OUTPUT"
+              echo "release_tag=0.0.0" >> "$GITHUB_OUTPUT"
+              echo "version=0.0.0" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            git fetch --tags --force
+            latest_tag=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+            if [[ -z "$latest_tag" ]]; then
+              echo "::error::No existing bare semver tag found. Create the first tag manually, for example 2.5.4."
+              exit 1
+            fi
+
+            IFS=. read -r major minor patch <<< "$latest_tag"
+            patch=$((patch + 1))
+            release_tag="$major.$minor.$patch"
+            if git rev-parse "$release_tag^{commit}" >/dev/null 2>&1; then
+              echo "::error::Auto-incremented tag '$release_tag' already exists."
+              exit 1
+            fi
+            echo "prepare_only=true" >> "$GITHUB_OUTPUT"
+          else
+            release_tag="${GITHUB_REF_NAME}"
+            echo "prepare_only=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ ! "$release_tag" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release tag must look like 2.5.4 or v2.5.4; got '$release_tag'"
+            exit 1
+          fi
+
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+          echo "version=${release_tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Create auto-increment release tag
+        if: steps.release.outputs.prepare_only == 'true'
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_TAG: ${{ steps.release.outputs.release_tag }}
+        shell: bash
+        run: |
+          python3 SectionUI.skills/scripts/sync_release_version.py --version "$VERSION"
+          perl -0pi -e "s/s\.version\s*=\s*'[^']+'/s.version          = '$ENV{VERSION}'/g" SectionKit2.podspec SectionUI.podspec
+          perl -0pi -e "s/s\.dependency 'SectionKit2', '>= [^']+'/s.dependency 'SectionKit2', '>= $ENV{VERSION}'/" SectionUI.podspec
+
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add SectionKit2.podspec SectionUI.podspec SectionUI.skills/SKILL.md SectionUI.skills/UPDATE.md SectionUI.skills/VERSION.md
+          git commit -m "Release SectionUI $VERSION"
+          git tag "$RELEASE_TAG"
+          git push origin "HEAD:${GITHUB_REF_NAME}" "$RELEASE_TAG"
+
+      - name: Install CocoaPods
+        if: steps.release.outputs.prepare_only == 'false'
+        run: sudo gem install cocoapods --no-document
+
+      - name: Verify version metadata matches tag
+        if: steps.release.outputs.prepare_only == 'false'
+        shell: bash
+        run: |
+          python3 SectionUI.skills/scripts/sync_release_version.py --version "${{ steps.release.outputs.release_tag }}"
+          if ! git diff --exit-code -- SectionUI.skills/SKILL.md SectionUI.skills/UPDATE.md SectionUI.skills/VERSION.md; then
+            echo "::error::SectionUI skill version docs are not synced with ${{ steps.release.outputs.release_tag }}. Run sync_release_version.py, commit, then recreate the tag."
+            exit 1
+          fi
+
+      - name: Verify podspec versions match tag
+        if: steps.release.outputs.prepare_only == 'false'
+        shell: bash
+        run: |
+          version="${{ steps.release.outputs.version }}"
+          sectionkit2_version=$(ruby -rcocoapods -e "spec = eval(File.read('SectionKit2.podspec')); puts spec.version" 2>/dev/null || true)
+          sectionui_version=$(ruby -rcocoapods -e "spec = eval(File.read('SectionUI.podspec')); puts spec.version" 2>/dev/null || true)
+          sectionui_dependency=$(ruby -rcocoapods -e "spec = eval(File.read('SectionUI.podspec')); puts spec.dependencies.find { |d| d.name == 'SectionKit2' }.requirement" 2>/dev/null || true)
+          sectionkit2_source_tag=$(ruby -rcocoapods -e "spec = eval(File.read('SectionKit2.podspec')); puts spec.source[:tag]" 2>/dev/null || true)
+          sectionui_source_tag=$(ruby -rcocoapods -e "spec = eval(File.read('SectionUI.podspec')); puts spec.source[:tag]" 2>/dev/null || true)
+
+          if [[ "$sectionkit2_version" != "$version" ]]; then
+            echo "::error::SectionKit2.podspec version '$sectionkit2_version' does not match tag version '$version'"
+            exit 1
+          fi
+          if [[ "$sectionui_version" != "$version" ]]; then
+            echo "::error::SectionUI.podspec version '$sectionui_version' does not match tag version '$version'"
+            exit 1
+          fi
+          if [[ "$sectionui_dependency" != ">= $version" ]]; then
+            echo "::error::SectionUI dependency on SectionKit2 is '$sectionui_dependency', expected '>= $version'"
+            exit 1
+          fi
+          if [[ "$sectionkit2_source_tag" != "$version" || "$sectionui_source_tag" != "$version" ]]; then
+            echo "::error::Podspec source tags must match bare version '$version' because CocoaPods fetches s.source[:tag]. Got SectionKit2='$sectionkit2_source_tag', SectionUI='$sectionui_source_tag'."
+            exit 1
+          fi
+          if ! git rev-parse "$version^{commit}" >/dev/null 2>&1; then
+            echo "::error::Bare git tag '$version' is required for CocoaPods source resolution. Create/push that tag or run workflow_dispatch with pod_publish=skip."
+            exit 1
+          fi
+
+      - name: Validate references
+        if: steps.release.outputs.prepare_only == 'false'
+        run: python3 SectionUI.skills/scripts/reference_compat.py --json
+
+      - name: Run skill tests
+        if: steps.release.outputs.prepare_only == 'false'
+        run: python3 -m unittest discover -s SectionUI.skills/tests
+
+      - name: Verify release package
+        if: steps.release.outputs.prepare_only == 'false'
+        run: |
+          mkdir -p dist
+          python3 SectionUI.skills/scripts/verify_skill_package.py \
+            --output dist/sectionui.skill.zip \
+            --release-tag "${{ steps.release.outputs.release_tag }}" \
+            --json
+
+      - name: Write release notes
+        if: steps.release.outputs.prepare_only == 'false'
+        shell: bash
+        run: |
+          cat > dist/release-notes.md <<'EOF'
+          SectionUI skill release
+
+          Asset:
+          - sectionui.skill.zip
+
+          Validation:
+          - reference_compat.py
+          - verify_skill_package.py
+          - python3 -m unittest discover -s SectionUI.skills/tests
+          EOF
+
+      - name: Upload workflow artifact
+        if: steps.release.outputs.prepare_only == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sectionui.skill.zip
+          path: dist/sectionui.skill.zip
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: steps.release.outputs.prepare_only == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.release_tag }}
+        shell: bash
+        run: |
+          flags=()
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.draft }}" == "true" ]]; then
+            flags+=(--draft)
+          fi
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.prerelease }}" == "true" ]]; then
+            flags+=(--prerelease)
+          fi
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/sectionui.skill.zip --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/sectionui.skill.zip \
+              --title "$RELEASE_TAG" \
+              --notes-file dist/release-notes.md \
+              "${flags[@]}"
+          fi
+
+      - name: Publish CocoaPods
+        if: steps.release.outputs.prepare_only == 'false'
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        shell: bash
+        run: |
+          mode="both"
+          skip_cdn_wait="false"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            mode="${{ inputs.pod_publish }}"
+            skip_cdn_wait="${{ inputs.skip_cdn_wait }}"
+          fi
+
+          if [[ "$mode" == "skip" ]]; then
+            echo "CocoaPods publish skipped by workflow input."
+            exit 0
+          fi
+
+          if [[ -z "${COCOAPODS_TRUNK_TOKEN:-}" ]]; then
+            echo "::error::Missing COCOAPODS_TRUNK_TOKEN secret. Add a CocoaPods trunk token secret or run with pod_publish=skip."
+            exit 1
+          fi
+
+          publish_pod() {
+            local podspec="$1"
+            pod trunk push "$podspec" --allow-warnings
+          }
+
+          wait_for_cdn() {
+            if [[ "$skip_cdn_wait" == "true" ]]; then
+              echo "Skipping CocoaPods CDN wait."
+              return
+            fi
+            echo "Waiting 20 minutes for CocoaPods CDN propagation before publishing SectionUI..."
+            sleep 1200
+          }
+
+          if [[ "$mode" == "both" ]]; then
+            publish_pod SectionKit2.podspec
+            wait_for_cdn
+            publish_pod SectionUI.podspec
+          elif [[ "$mode" == "sectionui-only" ]]; then
+            wait_for_cdn
+            publish_pod SectionUI.podspec
+          else
+            echo "::error::Unsupported pod_publish mode: $mode"
+            exit 1
+          fi

@@ -20,6 +20,7 @@ Reference snapshot: bundled `references/` describe the local SectionUI / Section
 Install/update entrypoints:
 
 - Release asset: download `sectionui.skill.zip` from GitHub Releases.
+- Update guide: read `UPDATE.md`; current version is also mirrored in `VERSION.md`.
 - Local Codex: put or symlink `SectionUI.skills/` into `$REPO_ROOT/.agents/skills/sectionui`, `$HOME/.agents/skills/sectionui`, or another official Codex scan location.
 - Repository use: when this repository is the workspace, use `SectionUI.skills/` in place.
 

@@ -14,6 +14,8 @@ import reference_compat
 
 REQUIRED_ARCHIVE_ENTRIES = {
     "SKILL.md",
+    "UPDATE.md",
+    "VERSION.md",
     "BUILD_INFO.json",
     "ISSUE_GUIDE.md",
     "agents/openai.yaml",

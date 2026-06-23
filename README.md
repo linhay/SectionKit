@@ -275,7 +275,7 @@ section.model(displayedAt: .first) { context in
 
 ## AI Skill 包
 
-我们为 AI 编码助手（如 Codex、Claude Code、Gemini CLI）提供了 SectionUI skill。它不是普通文档 zip，而是按 `SKILL.md -> TASK_MAP/API_MAP -> INDEX -> reference` 组织的检索层，适合 agent 按需读取最小上下文。
+我们支持通过 SectionUI skills 给 AI agent 开发 SectionUI/SectionKit 功能。Codex、Claude Code、Gemini CLI 等编码助手可以安装 `sectionui.skill.zip`，按 `SKILL.md -> TASK_MAP/API_MAP -> INDEX -> reference` 读取最小上下文，生成、审查和调试数据驱动的列表页面。
 
 ### 下载
 
@@ -286,6 +286,8 @@ section.model(displayedAt: .first) { context in
 | 入口 | 说明 |
 |------|------|
 | `SKILL.md` | Agent 使用规则、版本、边界和路由入口 |
+| `VERSION.md` | 当前 skill 版本和发布元数据说明 |
+| `UPDATE.md` | 安装、替换、升级和本地软链开发说明 |
 | `references/TASK_MAP.md` | 按任务选择最小 reference |
 | `references/API_MAP.md` | 按具体 API / 类型名定位 reference |
 | `references/INDEX.md` | 全部 reference 路径索引 |
@@ -316,6 +318,14 @@ python3 SectionUI.skills/scripts/reference_compat.py --json
 python3 SectionUI.skills/scripts/verify_skill_package.py --output sectionui.skill.zip --json
 python3 -m unittest discover -s SectionUI.skills/tests
 ```
+
+### 发布流程
+
+发布走 GitHub Actions。常规发布在 Actions 页面手动运行 `.github/workflows/release-sectionui-skill.yml`，留空 `release_tag`，选择 `version_bump=patch|minor|major`。workflow 会从最新裸 semver tag 自增版本，更新 `SectionKit2.podspec`、`SectionUI.podspec` 和 `SectionUI.skills/SKILL.md`，提交版本变更并推送新 tag。
+
+新 tag 推送后，同一个 workflow 会自动校验 reference、运行 skill tests、生成 `sectionui.skill.zip`，并上传到对应 GitHub Release。也可以手动填写已有 `release_tag` 重新发布资产。保留直接推送 `*.*.*` / `v*.*.*` tag 的触发方式，但 CocoaPods source 依赖裸 tag，完整 pod 发布优先使用 `2.5.4` 这种 tag。
+
+同一个 workflow 也会发布 CocoaPods：先发布 `SectionKit2.podspec`，等待 CocoaPods CDN 同步，再发布依赖它的 `SectionUI.podspec`。仓库需要配置 `COCOAPODS_TRUNK_TOKEN` secret；手动触发时可选择 `pod_publish=sectionui-only` 恢复中断发布，或 `pod_publish=skip` 只重发 skill release 资产。
 
 ### 反馈流程
 

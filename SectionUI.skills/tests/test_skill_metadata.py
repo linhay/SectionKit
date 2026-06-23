@@ -12,6 +12,8 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = SKILL_ROOT.parent
 SKILL_PATH = SKILL_ROOT / "SKILL.md"
+UPDATE_PATH = SKILL_ROOT / "UPDATE.md"
+VERSION_PATH = SKILL_ROOT / "VERSION.md"
 REFERENCES_ROOT = SKILL_ROOT / "references"
 ISSUE_GUIDE_PATH = SKILL_ROOT / "ISSUE_GUIDE.md"
 SCRIPT_ROOT = SKILL_ROOT / "scripts"
@@ -31,12 +33,18 @@ class SkillMetadataTests(unittest.TestCase):
         metadata_version = re.search(r'version:\s*"(\d+\.\d+\.\d+)"', self.skill_text)
         visible_version = re.search(r"Current local skill version:\s*`v(\d+\.\d+\.\d+)`", self.skill_text)
         hidden_version = re.search(r"<!-- version:\s*(\d+\.\d+\.\d+)\s*-->", self.skill_text)
+        update_version = re.search(r"Current version:\s*`v(\d+\.\d+\.\d+)`", UPDATE_PATH.read_text(encoding="utf-8"))
+        version_doc = re.search(r"Current version:\s*`v(\d+\.\d+\.\d+)`", VERSION_PATH.read_text(encoding="utf-8"))
 
         self.assertIsNotNone(metadata_version)
         self.assertIsNotNone(visible_version)
         self.assertIsNotNone(hidden_version)
+        self.assertIsNotNone(update_version)
+        self.assertIsNotNone(version_doc)
         self.assertEqual(metadata_version.group(1), visible_version.group(1))
         self.assertEqual(metadata_version.group(1), hidden_version.group(1))
+        self.assertEqual(metadata_version.group(1), update_version.group(1))
+        self.assertEqual(metadata_version.group(1), version_doc.group(1))
 
     def test_routing_indexes_exist_and_cover_core_topics(self) -> None:
         task_map = (REFERENCES_ROOT / "TASK_MAP.md").read_text(encoding="utf-8")
@@ -93,6 +101,8 @@ class SkillMetadataTests(unittest.TestCase):
             with zipfile.ZipFile(output) as archive:
                 names = set(archive.namelist())
                 self.assertIn("SKILL.md", names)
+                self.assertIn("UPDATE.md", names)
+                self.assertIn("VERSION.md", names)
                 self.assertIn("BUILD_INFO.json", names)
                 self.assertIn("ISSUE_GUIDE.md", names)
                 self.assertIn("references/TASK_MAP.md", names)
@@ -132,6 +142,15 @@ class SkillMetadataTests(unittest.TestCase):
         for fragment in ["ISSUE_GUIDE.md", "Feedback Workflow", ".github/ISSUE_TEMPLATE/"]:
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, self.skill_text)
+
+    def test_update_and_version_docs_are_present(self) -> None:
+        update_text = UPDATE_PATH.read_text(encoding="utf-8")
+        version_text = VERSION_PATH.read_text(encoding="utf-8")
+
+        for fragment in ["sectionui.skill.zip", "BUILD_INFO.json", "VERSION.md", "SKILL.md"]:
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, update_text)
+        self.assertIn("Current version:", version_text)
 
     def test_sync_release_version_normalizes_tags(self) -> None:
         self.assertEqual(sync_release_version.normalize_version("2.5.4"), ("2.5.4", "v2.5.4"))

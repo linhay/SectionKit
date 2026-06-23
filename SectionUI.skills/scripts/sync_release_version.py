@@ -52,9 +52,22 @@ def sync_skill(skill_path: Path, bare_version: str, tag_version: str) -> None:
     skill_path.write_text(text, encoding="utf-8")
 
 
+def sync_version_doc(path: Path, tag_version: str) -> None:
+    text = path.read_text(encoding="utf-8")
+    text = replace_once(
+        text,
+        r"(Current version:\s*`)v\d+\.\d+\.\d+(`\.)",
+        rf"\g<1>{tag_version}\2",
+        str(path),
+    )
+    path.write_text(text, encoding="utf-8")
+
+
 def sync_release_version(root: Path, raw_version: str) -> tuple[str, str]:
     bare_version, tag_version = normalize_version(raw_version)
     sync_skill(root / "SectionUI.skills" / "SKILL.md", bare_version, tag_version)
+    sync_version_doc(root / "SectionUI.skills" / "VERSION.md", tag_version)
+    sync_version_doc(root / "SectionUI.skills" / "UPDATE.md", tag_version)
     return bare_version, tag_version
 
 

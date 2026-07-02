@@ -23,9 +23,12 @@ struct Test {
         
         var cancellables = Set<AnyCancellable>()
         @SKPublished var test: Value = .init(value: 0)
-        $test.bind { newValue in
-            print("test changed to \(test.value)")
-            test = Value(value: 1)
+        var didReenter = false
+        $test.bind { _ in
+            if !didReenter {
+                didReenter = true
+                test = Value(value: 1)
+            }
         }.store(in: &cancellables)
         Task {
             test = Value(value: 1)
@@ -34,6 +37,7 @@ struct Test {
             test = Value(value: 2)
         }
         try await Task.sleep(for: .seconds(1))
+        #expect(didReenter)
     }
 
 }

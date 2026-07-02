@@ -135,6 +135,61 @@ viewModel.$items.bind { [weak self] newItems in
 }.store(in: &cancellables)
 ```
 
+### Cell ViewModel 局部状态更新
+
+对于进度、状态文案、按钮可用态等不影响行高和列表结构的高频变化，保持同一个引用类型模型实例，只更新它的 `@SKPublished` 字段。这样 Cell 可以自己响应变化，不需要反复 `manager.reload` 或 `section.refresh`。
+
+```swift
+import Combine
+
+final class DownloadRowViewModel {
+    let id: String
+    let title: String
+
+    @SKPublished var progressText = "0%"
+    @SKPublished var isEnabled = true
+
+    init(id: String, title: String) {
+        self.id = id
+        self.title = title
+    }
+}
+
+final class DownloadCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableView {
+    typealias Model = DownloadRowViewModel
+
+    private var cancellables = Set<AnyCancellable>()
+    private let titleLabel = UILabel()
+    private let progressLabel = UILabel()
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cancellables.removeAll()
+    }
+
+    func config(_ model: DownloadRowViewModel) {
+        cancellables.removeAll()
+        titleLabel.text = model.title
+
+        model.$progressText.bind { [weak self] value in
+            self?.progressLabel.text = value
+        }.store(in: &cancellables)
+
+        model.$isEnabled.bind { [weak self] value in
+            self?.contentView.alpha = value ? 1 : 0.45
+        }.store(in: &cancellables)
+    }
+}
+
+let rows = files.map { DownloadRowViewModel(id: $0.id, title: $0.name) }
+let section = DownloadCell.wrapperToSingleTypeSection(rows)
+manager.reload(section)
+
+// 后续只改同一个 row view model 的可视状态
+rows[index].progressText = "80%"
+rows[index].isEnabled = false
+```
+
 ### 设置 Header 和装饰视图
 
 ```swift

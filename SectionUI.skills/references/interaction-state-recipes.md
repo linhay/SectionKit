@@ -164,100 +164,102 @@ Use this reference when a SectionUI task involves cell actions, action ownership
 
 67. `cancelPrefetchingPublisher` should cancel by model identity when network/image work can survive row movement.
 
-68. `loadMorePublisher` emits when the largest prefetched row reaches the current last item. Gate requests with `isLoading`, `hasMore`, or request state.
+68. `loadMorePublisher` emits when the largest prefetched row reaches the current load-more boundary. `loadMoreThreshold` defaults to `0`; set it to a positive row distance to trigger before the last item.
 
-69. Avoid using `loadMorePublisher` on an empty section. Load the first page explicitly, then enable prefetch-driven pagination after the list has a stable count.
+69. Prefer `statefulLoadMorePublisher` for pagination that must suppress duplicate requests. Call `finishLoadMore(hasMore:)` or `failLoadMore()` when the request finishes.
 
-70. When replacing all models, cancel outstanding prefetch tasks for old identities before accepting prefetch events for the new list.
+70. Avoid using `loadMorePublisher` on an empty section. Load the first page explicitly, then enable prefetch-driven pagination after the list has a stable count.
 
-71. If a section is nested in a reusable cell, clear or replace prefetch subscriptions when the parent cell is rebound.
+71. When replacing all models, cancel outstanding prefetch tasks for old identities before accepting prefetch events for the new list.
 
-72. Do not use prefetch as a visibility guarantee. It is an optimization hint and can be cancelled or skipped by UIKit.
+72. If a section is nested in a reusable cell, clear or replace prefetch subscriptions when the parent cell is rebound.
 
-73. For image/media prefetch, keep a small identity-keyed task store so cancellation and reuse are deterministic.
+73. Do not use prefetch as a visibility guarantee. It is an optimization hint and can be cancelled or skipped by UIKit.
 
-74. If load-more fires repeatedly, check request gating first, then verify that prefetch is not being re-enabled during every render without cancelling old sinks.
+74. For image/media prefetch, keep a small identity-keyed task store so cancellation and reuse are deterministic.
+
+75. If load-more fires repeatedly, check whether the code is using `loadMorePublisher` instead of `statefulLoadMorePublisher`, then verify cancellable ownership and render-time resubscription.
 
 ## Context Menu And Reorder
 
-75. Use `onContextMenu` when menu actions are row/model-specific and belong beside section event wiring.
+76. Use `onContextMenu` when menu actions are row/model-specific and belong beside section event wiring.
 
-76. Use `onContextMenu(where:)` to keep conditional menus composable. The first non-`nil` context menu result wins.
+77. Use `onContextMenu(where:)` to keep conditional menus composable. The first non-`nil` context menu result wins.
 
-77. Use `clearContextMenuActions()` before changing the menu policy of a reused section.
+78. Use `clearContextMenuActions()` before changing the menu policy of a reused section.
 
-78. Build context menus from `context.model` and `context.row`. `SKCContextMenuContext` does not provide a cell view.
+79. Build context menus from `context.model` and `context.row`. `SKCContextMenuContext` does not provide a cell view.
 
-79. Use `SKUIAction` when menu work is async and should stay on the main actor.
+80. Use `SKUIAction` when menu work is async and should stay on the main actor.
 
-80. Return `nil` from a menu provider when the row should not have a menu. Do not return an empty menu as a disabled state unless that visual affordance is intentional.
+81. Return `nil` from a menu provider when the row should not have a menu. Do not return an empty menu as a disabled state unless that visual affordance is intentional.
 
-81. Enable reorder with `onCellShould(.move, true)` or a predicate. Movement eligibility belongs in the section because UIKit asks by index path.
+82. Enable reorder with `onCellShould(.move, true)` or a predicate. Movement eligibility belongs in the section because UIKit asks by index path.
 
-82. The default same-section move swaps two models. Override or wrap the section if the desired behavior is insertion-style reorder.
+83. The default same-section move swaps two models. Override or wrap the section if the desired behavior is insertion-style reorder.
 
-83. Cross-section move removes from the source section and asserts if a destination single-type section is asked to accept a model it does not own. Handle cross-section moves explicitly.
+84. Cross-section move removes from the source section and asserts if a destination single-type section is asked to accept a model it does not own. Handle cross-section moves explicitly.
 
-84. After user reorder, immediately synchronize the canonical model array. A later render from stale state will undo the visible order.
+85. After user reorder, immediately synchronize the canonical model array. A later render from stale state will undo the visible order.
 
-85. Recompute row-dependent cell styles after reorder. Separators, rounded first/last rows, and rank labels often depend on final position.
+86. Recompute row-dependent cell styles after reorder. Separators, rounded first/last rows, and rank labels often depend on final position.
 
-86. Do not use reorder callbacks to mutate unrelated sections as a side effect. Update source state and rerender dependent sections from that state.
+87. Do not use reorder callbacks to mutate unrelated sections as a side effect. Update source state and rerender dependent sections from that state.
 
 ## Publishers And Cross-Cutting Observers
 
-87. `modelsPulisher` is a current-value stream. It emits the current model array to subscribers and every later replacement.
+88. `modelsPulisher` is a current-value stream. It emits the current model array to subscribers and every later replacement.
 
-88. `cellActionPulisher` and `supplementaryActionPulisher` are deferred pass-through streams. They are useful for analytics, debug tooling, and cross-cutting observers.
+89. `cellActionPulisher` and `supplementaryActionPulisher` are deferred pass-through streams. They are useful for analytics, debug tooling, and cross-cutting observers.
 
-89. Prefer direct `onCellAction` / `onSupplementaryAction` for feature-local behavior because it is easier to find beside the section declaration.
+90. Prefer direct `onCellAction` / `onSupplementaryAction` for feature-local behavior because it is easier to find beside the section declaration.
 
-90. Keep Combine cancellables owned by the section owner, view controller, or reusable section abstraction. Do not let section publishers retain stale screens.
+91. Keep Combine cancellables owned by the section owner, view controller, or reusable section abstraction. Do not let section publishers retain stale screens.
 
-91. If a publisher sink writes back to the same section, guard against feedback loops with identity checks, `removeDuplicates`, or a separate render coordinator.
+92. If a publisher sink writes back to the same section, guard against feedback loops with identity checks, `removeDuplicates`, or a separate render coordinator.
 
-92. Use `@SKPublished(kind: .passThrough)` for one-shot events and default current-value mode for persistent state.
+93. Use `@SKPublished(kind: .passThrough)` for one-shot events and default current-value mode for persistent state.
 
-93. Use `SKPublishedValue` inside cell models when a child view should react without replacing the whole section model.
+94. Use `SKPublishedValue` inside cell models when a child view should react without replacing the whole section model.
 
-94. When a reusable section is rebound to a new data source, cancel old subscriptions before calling `subscribe(models:)` again.
+95. When a reusable section is rebound to a new data source, cancel old subscriptions before calling `subscribe(models:)` again.
 
-95. Do not combine `subscribe(models:)` with manual local mutations unless the publisher remains the source of truth and will emit the reconciled result.
+96. Do not combine `subscribe(models:)` with manual local mutations unless the publisher remains the source of truth and will emit the reconciled result.
 
 ## Debug Checklist
 
-96. Tap handler fires twice: inspect duplicate `onCellAction` registrations and missing `clearCellAction`.
+97. Tap handler fires twice: inspect duplicate `onCellAction` registrations and missing `clearCellAction`.
 
-97. Tap handler retains old owner: replace manual captures with `onCellAction(on:owner, ...)` and clear actions when rebinding.
+98. Tap handler retains old owner: replace manual captures with `onCellAction(on:owner, ...)` and clear actions when rebinding.
 
-98. Exposure missing: verify `.willDisplay` fires, section is bound, row exists, and `feature.skipDisplayEventWhenFullyRefreshed` is not suppressing expected end-display behavior.
+99. Exposure missing: verify `.willDisplay` fires, section is bound, row exists, and `feature.skipDisplayEventWhenFullyRefreshed` is not suppressing expected end-display behavior.
 
-99. Exposure fires for old content: reset `displayedTimes` after replacing the model universe or rebinding a nested section.
+100. Exposure fires for old content: reset `displayedTimes` after replacing the model universe or rebinding a nested section.
 
-100. Selection UI stale: verify cells cancel old selection subscriptions and sequence reload/update follows model replacement.
+101. Selection UI stale: verify cells cancel old selection subscriptions and sequence reload/update follows model replacement.
 
-101. Unique selection not working: verify selection changes go through `select` / `toggle`, not direct unrelated UI state.
+102. Unique selection not working: verify selection changes go through `select` / `toggle`, not direct unrelated UI state.
 
-102. Diff animates incorrectly: check whether the predicate is stable identity rather than content equality.
+103. Diff animates incorrectly: check whether the predicate is stable identity rather than content equality.
 
-103. Row refresh does nothing: verify the row is still in bounds and the model was written before `refresh(at:)`.
+104. Row refresh does nothing: verify the row is still in bounds and the model was written before `refresh(at:)`.
 
-104. Load-more repeats: verify `manager.prefetching.isEnable`, request gating, cancellable ownership, and empty-section behavior.
+105. Load-more repeats: verify `manager.prefetching.isEnable`, request gating, cancellable ownership, and empty-section behavior.
 
-105. Context menu missing: verify at least one provider returns non-`nil` and the row is still valid.
+106. Context menu missing: verify at least one provider returns non-`nil` and the row is still valid.
 
-106. Reorder does not persist: verify the canonical source array is updated after the visible move.
+107. Reorder does not persist: verify the canonical source array is updated after the visible move.
 
-107. Old menu/actions appear after state change: call `clearContextMenuActions`, `clearCellAction`, or rebuild the section abstraction before rebinding.
+108. Old menu/actions appear after state change: call `clearContextMenuActions`, `clearCellAction`, or rebuild the section abstraction before rebinding.
 
-108. Async action updates the wrong row: reconcile by model identity, not by the row captured before `await`.
+109. Async action updates the wrong row: reconcile by model identity, not by the row captured before `await`.
 
 ## Framework Boundary
 
-109. Promote a new interaction API into SectionUI only when it is a reusable collection/list primitive.
+110. Promote a new interaction API into SectionUI only when it is a reusable collection/list primitive.
 
-110. Keep product analytics names, route names, permission prompts, and business-specific menu actions in the integration layer.
+111. Keep product analytics names, route names, permission prompts, and business-specific menu actions in the integration layer.
 
-111. Prefer section wrappers for repeated selectable lists, diffable lists, action sheets, and menu rows before adding core framework API.
+112. Prefer section wrappers for repeated selectable lists, diffable lists, action sheets, and menu rows before adding core framework API.
 
-112. Document interaction recipes as ownership and lifecycle rules. Do not encode one downstream app's navigation or event taxonomy as a SectionUI convention.
+113. Document interaction recipes as ownership and lifecycle rules. Do not encode one downstream app's navigation or event taxonomy as a SectionUI convention.

@@ -140,11 +140,11 @@ Use this reference when a SectionUI task involves `SKCManager`, section binding,
 
 55. The difference predicate describes identity equivalence, not full content equality.
 
-56. For `.difference(by:)`, unchanged identities with changed display content still need explicit row refresh or a model update path that reconfigures visible cells.
+56. For `.difference(by:)`, unchanged identities with changed display content refresh visible cells when no insert/delete difference exists, and visible rows are refreshed after an insert/delete batch completes.
 
 57. When old or new model arrays are empty, difference reload falls back to section reload.
 
-58. During difference updates, removals and insertions are applied inside `sectionInjection.pick`.
+58. During difference updates, removals and insertions are applied in one collection-view batch update. Do not call row mutation helpers from inside another batch for the same diff.
 
 59. Avoid calling `apply` again while a difference batch is in progress.
 

@@ -71,13 +71,15 @@ For "row contains a horizontal list" UI:
 
 Use `@SKPublished` / `SKPublishedValue` as lightweight reactive state primitives in reducers, views, switches, loading states, and expanding cells.
 
+`SKPublishedValue` stores the latest value immediately, can receive background sends, and delivers Combine subscribers on the main queue.
+
 Use transforms intentionally:
 
 ```swift
 @SKPublished(transform: [.removeDuplicates()]) var isExpanded = false
 ```
 
-Use a `SKPublishedValue<T>` model field when a cell or reusable view should observe a value directly without replacing the whole model.
+Use a `SKPublishedValue<T>` model field when a cell or reusable view should observe a value directly without replacing the whole model. Use `anyPublisher` when passing it through APIs that should only expose Combine observation.
 
 ### 7. Keep app-specific conveniences out of the framework
 

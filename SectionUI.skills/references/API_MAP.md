@@ -8,7 +8,7 @@ Use this file for concrete API names. If the user names a symbol, search here fi
 | `SKCollectionView`, `SKCollectionViewController`, `reloadSections`, `controllerStyle`, `sectionViewStyle`, `refreshable`, `scrollDirection` | `container-lifecycle-recipes.md` |
 | `SKCSingleTypeSection`, `wrapperToSingleTypeSection`, homogeneous section | `section.md`, `composition-styling-recipes.md` |
 | `refresh(at:)`, `refresh(with:)`, `RefreshPayload`, `apply`, `config(models:)`, `reloadKind`, `append`, `insert`, `remove`, `delete` | `row-mutation-recipes.md` |
-| `@SKPublished`, `SKPublishedValue`, `modelsPulisher`, `subscribe(models:)`, `SKBinding`, `SKBindingKey` | `reactive-binding-recipes.md` |
+| `@SKPublished`, `SKPublishedValue`, `SKPublishedKind`, `SKPublishedTransform`, `anyPublisher`, `bind`, `sink`, `send`, `modelsPulisher`, `subscribe(models:)`, `SKBinding`, `SKBindingKey` | `reactive-binding-recipes.md` |
 | `SectionArrayResultBuilder`, `SKCSectionCollector`, `SKWhen`, dynamic section indexes | `render-builder-recipes.md`, `section-assembly-identity-recipes.md` |
 | `SKLoadViewProtocol`, `SKLoadNibProtocol`, `SKConfigurableView`, `preferredSize(limit:model:)`, `config(_:)` | `view-cell-container-recipes.md` |
 | `SKAdaptive`, `SKConfigurableAdaptiveView`, `SKConfigurableAdaptiveMainView`, auto adaptive sizing | `adaptive-sizing-recipes.md` |
@@ -17,7 +17,7 @@ Use this file for concrete API names. If the user names a symbol, search here fi
 | `SKSelectionState`, `SKSelectionProtocol`, `SKSelectionWrapper`, `SKSelectionSequence`, `SKSelectionIdentifiableSequence` | `selection-ownership-recipes.md` |
 | `SKCDragSelector`, `SKCRectSelectionManager`, `SKSelectionOverlayView`, `SKAutoScrollManager` | `drag-selection-recipes.md` |
 | `onCellAction`, `onCellShould`, `SKCCellActionType`, `SKCCellShouldType`, `SKCSupplementaryActionType` | `interaction-state-recipes.md`, `delegate-interaction-recipes.md` |
-| `SKCPrefetch`, `loadMorePublisher`, `onContextMenu`, `SKUIContextMenuResult`, `SKUIAction`, `move(from:to:)` | `prefetch-menu-reorder-recipes.md` |
+| `SKCPrefetch`, `prefetchPublisher`, `cancelPrefetchingPublisher`, `loadMorePublisher`, `statefulLoadMorePublisher`, `loadMoreThreshold`, `finishLoadMore`, `failLoadMore`, `onContextMenu`, `SKUIContextMenuResult`, `SKUIAction`, `move(from:to:)` | `prefetch-menu-reorder-recipes.md` |
 | `setHeader`, `setFooter`, `set(supplementary:)`, `SKCSupplementary`, `SKSupplementaryKind`, `hiddenHeaderWhenNoItem` | `supplementary-recipes.md` |
 | `indexTitle`, `indexTitleRow`, `sectionIndex`, collection index titles | `index-title-recipes.md` |
 | `SKCollectionFlowLayout`, `SKCLayoutPlugins.Mode`, `SKCLayoutPlugin`, `setAttributes`, `SKCPluginAdjustAttributes`, `SKCPluginLayoutAttributesForElementsForward` | `layout-plugin-execution-recipes.md` |

@@ -1,0 +1,25 @@
+name: iOS
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test package on iOS
+        run: |
+          simulator_id="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin)["devices"]; phones=[d for ds in data.values() for d in ds if d.get("isAvailable") and d.get("name","").startswith("iPhone")]; print(phones[0]["udid"])')"
+          package_dir="$(mktemp -d)"
+          ln -s "$PWD/Package.swift" "$package_dir/Package.swift"
+          ln -s "$PWD/Package.resolved" "$package_dir/Package.resolved"
+          ln -s "$PWD/Sources" "$package_dir/Sources"
+          ln -s "$PWD/Tests" "$package_dir/Tests"
+          cd "$package_dir"
+          xcodebuild test \
+            -scheme SectionKit-Package \
+            -destination "platform=iOS Simulator,id=$simulator_id"

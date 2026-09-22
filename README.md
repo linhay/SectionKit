@@ -205,10 +205,12 @@ section
 ### 分页加载
 
 ```swift
-// 监听加载更多
-section.prefetch.loadMorePublisher
+// 监听加载更多, 防止一次加载未结束时重复触发
+section.prefetch.statefulLoadMorePublisher
     .sink { [weak self] in
-        self?.loadNextPage()
+        self?.loadNextPage {
+            section.prefetch.finishLoadMore(hasMore: $0)
+        }
     }
     .store(in: &cancellables)
 

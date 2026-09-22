@@ -164,25 +164,27 @@ selection.select(at: 0)
 
 39. Prefer `bind` when UI must render the current value immediately; prefer `sink` when only future changes matter.
 
-40. Use transforms at the property boundary:
+40. `SKPublishedValue` can be sent from background work, but subscribers are delivered on the main queue.
+
+41. Use transforms at the property boundary:
 
 ```swift
-@SKPublished(transform: [.removeDuplicates(), .receiveOnMainQueue()])
+@SKPublished(transform: [.removeDuplicates()])
 var state: State = .idle
 ```
 
-41. `SKPublishedValue<T>` is a useful model field for child views/cells that should observe a value without replacing the whole section model.
+42. `SKPublishedValue<T>` is a useful model field for child views/cells that should observe a value without replacing the whole section model.
 
-42. Use `replace(...)`-style APIs to inject a shared `SKPublishedValue` into reusable controls.
+43. Use `replace(...)`-style APIs to inject a shared `SKPublishedValue` into reusable controls.
 
-43. Use `SKAnimationBox<Value>` when a state change needs to carry both the new value and animation/delegate behavior.
+44. Use `SKAnimationBox<Value>` when a state change needs to carry both the new value and animation/delegate behavior.
 
 ```swift
 @SKPublished var selection: SKAnimationBox<Int> = 0
 selection = .init(value: index, animation: true, isEnabled: false)
 ```
 
-44. Clear old cancellables before rebinding a section or manager to a new data source.
+45. Clear old cancellables before rebinding a section or manager to a new data source.
 
 ## Incremental Updates
 

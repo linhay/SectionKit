@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SectionKit",
-    platforms: [.iOS(.v13), .macOS(.v11)],
+    platforms: [.iOS(.v13)],
     products: [
         .library(name: "SectionKit", targets: ["SectionKit"]),
         .library(name: "SectionUI", targets: ["SectionUI"]),
@@ -14,8 +14,8 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     ],
     targets: [
-        .target(name: "SectionKit"),
-        .target(name: "SectionUI", dependencies: ["SectionKit"]),
+        .target(name: "SectionKit", exclude: ["AGENTS.md"]),
+        .target(name: "SectionUI", dependencies: ["SectionKit"], exclude: ["AGENTS.md", "Beta"]),
         .testTarget(
             name: "SectionKitTests",
             dependencies: ["SectionKit", "SectionUI"]

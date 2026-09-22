@@ -152,7 +152,7 @@ Keep it generic: no downstream project paths, product names, business module nam
 
 60. The `.difference(by:)` predicate is identity equivalence, not content equality.
 
-61. If the same identity has changed display content, refresh changed rows separately or use a replacement path that reconfigures visible cells.
+61. If the same identity has changed display content, `.difference(by:)` updates the model snapshot and refreshes visible rows when there is no insert/delete difference. After insert/delete batches, visible rows are refreshed on completion.
 
 62. `.difference()` is available when `Model: Equatable` and uses `==` as the equivalence predicate.
 

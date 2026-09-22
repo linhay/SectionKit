@@ -25,8 +25,8 @@ public enum SKPublishedKind {
 
 extension Publisher {
 
-    public func ignoreOutputType() -> any Publisher<Void, Failure> {
-        self.map { _ in () }
+    public func ignoreOutputType() -> AnyPublisher<Void, Failure> {
+        self.map { _ in () }.eraseToAnyPublisher()
     }
 
     public func assign<Root: AnyObject>(
@@ -132,62 +132,40 @@ public struct SKPublishedTransform<Output, Failure: Error> {
 
 }
 
-public final class SKPublishedValue<Output>: Publisher, Sendable {
+public final class SKPublishedValue<Output>: Publisher, @unchecked Sendable {
 
     public typealias Failure = Never
     public typealias Transform = SKPublishedTransform<Output, Never>
 
+    private let lock = NSRecursiveLock()
+
     /// Backing storage for `value`.
-    ///
-    /// NOTE:
-    /// Subscribers are intentionally delivered on a deferred scheduler (see `deliveryQueue`)
-    /// to avoid Swift exclusivity traps when user code re-enters and reads the same
-    /// `@SKPublished` wrapped value while it's being mutated.
-    ///
-    /// Example that must be safe:
-    ///
-    /// ```swift
-    /// vm.$items.dropFirst().sink { _ in
-    ///   _ = vm.items   // re-entrant read while setter is in-flight
-    /// }
-    /// vm.items = [...]
-    /// ```
-    ///
-    /// If delivery were synchronous, the `sink` could run before the setter returns,
-    /// overlapping a write access to the property wrapper storage with a read access.
     private var _value: Output
 
     public var value: Output {
-        get { _value }
+        get { locked { _value } }
         set {
-            let oldValue = _value
-            _value = newValue
-
-            // Deliver Combine events through the deferred pipeline (`subject`).
-            // This guarantees user callbacks don't execute until after the caller
-            // has finished mutating the property wrapper.
-            currentValueSubject?.send(newValue)
-            passThroughSubject?.send(newValue)
-
-            // Also defer transform side-effects for the same reason.
-            // Only dispatch if there are actual onChanged handlers to avoid unnecessary async overhead.
-            let onChangedHandlers = transforms.compactMap(\.onChanged)
-            if !onChangedHandlers.isEmpty {
-                _SKPublishedDelivery.queue.async {
-                    onChangedHandlers.forEach { $0(oldValue, newValue) }
-                }
-            }
+            setValue(newValue)
         }
     }
 
     private let passThroughSubject: PassthroughSubject<Output, Failure>?
     private let currentValueSubject: CurrentValueSubject<Output, Failure>?
     private let subject: AnyPublisher<Output, Failure>
+    private var _transforms: [Transform] = []
 
-    public var transforms: [Transform] = []
+    public var transforms: [Transform] {
+        get { locked { _transforms } }
+        set { locked { _transforms = newValue } }
+    }
 
     public var publisher: AnyPublisher<Output, Failure> {
         return transforms.compactMap(\.publisher).reduce(subject) { $1($0) }
+            .eraseToAnyPublisher()
+    }
+
+    public var anyPublisher: AnyPublisher<Output, Failure> {
+        publisher
     }
 
     public convenience init(
@@ -207,7 +185,7 @@ public final class SKPublishedValue<Output>: Publisher, Sendable {
         wrappedValue: Output, kind: SKPublishedKind = .currentValue, transform: [Transform] = []
     ) {
         self._value = wrappedValue
-        self.transforms = transform
+        self._transforms = transform
 
         let baseSubject: AnyPublisher<Output, Failure>
         switch kind {
@@ -222,8 +200,34 @@ public final class SKPublishedValue<Output>: Publisher, Sendable {
             currentValueSubject = subject
             baseSubject = subject.eraseToAnyPublisher()
         }
-        // Defer downstream delivery to main queue to avoid exclusivity traps.
         self.subject = baseSubject.receive(on: _SKPublishedDelivery.queue).eraseToAnyPublisher()
+    }
+
+}
+
+extension SKPublishedValue {
+
+    fileprivate func setValue(_ newValue: Output) {
+        let update = locked { () -> (oldValue: Output, handlers: [Transform.TransformOnValueChanged]) in
+            let oldValue = _value
+            _value = newValue
+            currentValueSubject?.send(newValue)
+            passThroughSubject?.send(newValue)
+            return (oldValue, _transforms.compactMap(\.onChanged))
+        }
+
+        guard !update.handlers.isEmpty else { return }
+        _SKPublishedDelivery.queue.async {
+            update.handlers.forEach {
+                $0(update.oldValue, newValue)
+            }
+        }
+    }
+
+    private func locked<T>(_ body: () throws -> T) rethrows -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return try body()
     }
 
 }
@@ -268,7 +272,7 @@ extension SKPublishedValue {
 @propertyWrapper public struct SKPublished<Value> {
 
     public var wrappedValue: Value {
-        set { projectedValue.value = newValue }
+        set { projectedValue.setValue(newValue) }
         get { projectedValue.value }
     }
 

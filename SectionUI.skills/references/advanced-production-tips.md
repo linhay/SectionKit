@@ -132,12 +132,16 @@ section.pinHeader { options in
 
 50. `cancelPrefetchingPublisher` should cancel work keyed by row or model identity. Prefer model identity for network/image tasks that can survive row movement.
 
-51. `loadMorePublisher` fires when a prefetched row reaches the current last model. Gate it with an `isLoading` flag or request state to avoid duplicate pagination.
+51. `loadMorePublisher` fires when a prefetched row reaches the current load-more boundary. Set `loadMoreThreshold` to prefetch before the last row, or use `statefulLoadMorePublisher` to gate duplicate pagination.
 
 ```swift
-section.prefetch.loadMorePublisher
-    .filter { !state.isLoadingMore }
-    .sink { loadNextPage() }
+section.prefetch.loadMoreThreshold = 2
+section.prefetch.statefulLoadMorePublisher
+    .sink {
+        loadNextPage { result in
+            section.prefetch.finishLoadMore(hasMore: result.hasMore)
+        }
+    }
     .store(in: &cancellables)
 ```
 

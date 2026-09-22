@@ -23,9 +23,10 @@ Manager-level prefetch forwarding must remain installed and enabled before secti
 
 ## Load More
 
-`loadMorePublisher` emits when the largest prefetched row reaches the current last model index.
+`loadMorePublisher` emits when the largest prefetched row reaches the current load-more boundary. By default `loadMoreThreshold == 0`, so the boundary is the current last model index. Increase `loadMoreThreshold` to trigger earlier, such as `2` for "within two rows of the end".
 
 ```swift
+section.prefetch.loadMoreThreshold = 2
 section.prefetch.loadMorePublisher
     .sink { [weak self] in
         guard let self, !isLoading, hasMore else { return }
@@ -34,7 +35,19 @@ section.prefetch.loadMorePublisher
     .store(in: &cancellables)
 ```
 
-Load the first page explicitly. Avoid relying on `loadMorePublisher` for empty sections because it needs a meaningful current model count.
+Use `statefulLoadMorePublisher` when the section should gate duplicate pagination requests. It enters `.loading` after emitting; call `finishLoadMore(hasMore:)` or `failLoadMore()` when the request completes. `.failed` allows retry on the next boundary prefetch, while `.noMore` blocks until state is reset.
+
+```swift
+section.prefetch.statefulLoadMorePublisher
+    .sink {
+        loadNextPage { result in
+            section.prefetch.finishLoadMore(hasMore: result.hasMore)
+        }
+    }
+    .store(in: &cancellables)
+```
+
+Load the first page explicitly. `loadMorePublisher` does not emit for empty sections because it needs a meaningful current model count.
 
 When replacing the entire model list, cancel work for old identities before accepting new prefetch events.
 

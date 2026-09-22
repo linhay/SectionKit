@@ -10,7 +10,7 @@ import Foundation
 import SectionKit
 import Testing
 
-@Suite("SKPublished")
+@Suite("SKPublished", .serialized)
 class SKPublishedTests {
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
@@ -32,7 +32,7 @@ class SKPublishedTests {
                 print(vm.items)
             }.store(in: &cancellables)
         vm.items = [.init()]
-        try await Task.sleep(for: .seconds(2))
+        try await Task.sleep(for: .milliseconds(100))
     }
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
@@ -76,6 +76,31 @@ class SKPublishedTests {
     }
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("currentValue direct value setter updates value immediately and emits on main")
+    func currentValue_valueSetterUpdatesImmediatelyAndEmitsOnMain() async throws {
+        let values = ActorRecorder<Int>()
+        let recorder = ActorRecorder<Bool>()
+        let pub = SKPublishedValue(wrappedValue: 0, kind: .currentValue)
+        let cancellable = pub.sink {
+            let value = $0
+            let isMainThread = Thread.isMainThread
+            Task {
+                await values.append(value)
+                await recorder.append(isMainThread)
+            }
+        }
+
+        pub.value = 1
+        #expect(pub.value == 1)
+
+        let receivedValues = try await values.waitValues(count: 2, timeout: 1.0)
+        #expect(receivedValues.sorted() == [0, 1])
+        _ = try await recorder.waitValues(count: 2, timeout: 1.0)
+        #expect(await recorder.values.allSatisfy { $0 })
+        cancellable.cancel()
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
     @Test("passThrough kind does not replay past values to new subscribers")
     func passThrough_doesNotReplay() async throws {
         var cancellables = Set<AnyCancellable>()
@@ -98,6 +123,48 @@ class SKPublishedTests {
         pub.send(3)
         let values = try await recorder.waitValues(count: 1, timeout: 1.0)
         #expect(values == [3])
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("passThrough direct value setter updates value immediately and emits on main")
+    func passThrough_valueSetterUpdatesImmediatelyAndEmitsOnMain() async throws {
+        let values = ActorRecorder<Int>()
+        let recorder = ActorRecorder<Bool>()
+        let pub = SKPublishedValue(wrappedValue: 0, kind: .passThrough)
+        let cancellable = pub.sink {
+            let value = $0
+            let isMainThread = Thread.isMainThread
+            Task {
+                await values.append(value)
+                await recorder.append(isMainThread)
+            }
+        }
+
+        pub.value = 1
+        #expect(pub.value == 1)
+
+        #expect(try await values.waitValues(count: 1, timeout: 1.0) == [1])
+        _ = try await recorder.waitValues(count: 1, timeout: 1.0)
+        #expect(await recorder.values.allSatisfy { $0 })
+        cancellable.cancel()
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("cancelled subscription receives no later values")
+    func subscriptionCancelStopsEvents() async throws {
+        let values = ActorRecorder<Int>()
+        let pub = SKPublishedValue(wrappedValue: 0, kind: .passThrough)
+        let cancellable = pub.sink { value in
+            Task { await values.append(value) }
+        }
+
+        pub.send(1)
+        #expect(try await values.waitValues(count: 1, timeout: 1.0) == [1])
+        cancellable.cancel()
+        pub.send(2)
+        try await Task.sleep(for: .milliseconds(50))
+
+        #expect(await values.values == [1])
     }
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
@@ -222,6 +289,33 @@ class SKPublishedTests {
     }
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("drop while transform skips prefix only")
+    func transform_dropWhile() async throws {
+        var cancellables = Set<AnyCancellable>()
+
+        let pub = SKPublishedValue(
+            wrappedValue: 0,
+            kind: .currentValue,
+            transform: [.drop(while: { $0 < 3 })]
+        )
+
+        let recorder = ActorRecorder<Int>()
+        await MainActor.run {
+            pub.sink { value in
+                Task { await recorder.append(value) }
+            }.store(in: &cancellables)
+        }
+
+        pub.send(1)
+        pub.send(2)
+        pub.send(3)
+        pub.send(1)
+
+        let values = try await recorder.waitValues(count: 2, timeout: 1.0)
+        #expect(values == [3, 1])
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
     @Test("onChanged transform is called with old and new values")
     func transform_onChanged() async throws {
         var cancellables = Set<AnyCancellable>()
@@ -249,6 +343,27 @@ class SKPublishedTests {
         #expect(changes.count == 2)
         #expect(changes[0].0 == 0 && changes[0].1 == 1)
         #expect(changes[1].0 == 1 && changes[1].1 == 2)
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("Equatable onChanged transform suppresses duplicate values")
+    func transform_onChangedEquatableSkipsDuplicates() async throws {
+        let recorder = ActorRecorder<Int>()
+        let pub = SKPublishedValue(
+            wrappedValue: 0,
+            kind: .currentValue,
+            transform: .onChanged { value in
+                Task { await recorder.append(value) }
+            }
+        )
+
+        pub.send(0)
+        pub.send(1)
+        pub.send(1)
+        pub.send(2)
+
+        let values = try await recorder.waitValues(count: 2, timeout: 1.0)
+        #expect(values == [1, 2])
     }
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
@@ -281,6 +396,30 @@ class SKPublishedTests {
 
         let values = try await recorder.waitValues(count: 3, timeout: 1.0)
         #expect(values == [0, 1, 2])
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("mapPublisher transform supports custom pipelines")
+    func transform_mapPublisherCustomPipeline() async throws {
+        var cancellables = Set<AnyCancellable>()
+        let pub = SKPublishedValue(
+            wrappedValue: 0,
+            kind: .passThrough,
+            transform: .mapPublisher { $0.map { $0 * 10 } }
+        )
+
+        let recorder = ActorRecorder<Int>()
+        await MainActor.run {
+            pub.sink { value in
+                Task { await recorder.append(value) }
+            }.store(in: &cancellables)
+        }
+
+        pub.send(1)
+        pub.send(2)
+
+        let values = try await recorder.waitValues(count: 2, timeout: 1.0)
+        #expect(values == [10, 20])
     }
 
     // MARK: - PropertyWrapper Tests
@@ -316,7 +455,124 @@ class SKPublishedTests {
         #expect(optionalValue == nil)
     }
 
+    @MainActor
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("SKPublished wrappedValue defers publisher delivery until setter returns")
+    func propertyWrapper_defersPublisherDelivery() async throws {
+        var cancellables = Set<AnyCancellable>()
+        @SKPublished var value: Int = 0
+
+        var values: [Int] = []
+        $value.sink { values.append($0) }.store(in: &cancellables)
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(values == [0])
+
+        value = 1
+        #expect(value == 1)
+        #expect(values == [0])
+
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(values == [0, 1])
+    }
+
+    @MainActor
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("SKPublished currentValue replays latest value after immediate subscription")
+    func propertyWrapper_currentValueImmediateSubscriptionReplaysLatestOnce() async throws {
+        var cancellables = Set<AnyCancellable>()
+        @SKPublished var value: Int = 0
+
+        value = 1
+
+        var values: [Int] = []
+        $value.anyPublisher.sink { values.append($0) }.store(in: &cancellables)
+
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(values == [1])
+
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(values == [1])
+    }
+
+    @MainActor
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("SKPublished passThrough wrapper does not replay past async changes")
+    func propertyWrapper_passThroughDoesNotReplayPastChanges() async throws {
+        var cancellables = Set<AnyCancellable>()
+        @SKPublished(kind: .passThrough) var value: Int = 0
+
+        value = 1
+        try await Task.sleep(for: .milliseconds(50))
+
+        var values: [Int] = []
+        $value.sink { values.append($0) }.store(in: &cancellables)
+        #expect(values.isEmpty)
+
+        value = 2
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(values == [2])
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("SKPublished wrapper delivers changes on main thread")
+    func propertyWrapper_deliversChangesOnMainThread() async throws {
+        final class VM {
+            @SKPublished var value = 0
+        }
+
+        let vm = VM()
+        var cancellables = Set<AnyCancellable>()
+        let recorder = ActorRecorder<Bool>()
+        await MainActor.run {
+            vm.$value.sink { _ in
+                let isMainThread = Thread.isMainThread
+                Task { await recorder.append(isMainThread) }
+            }.store(in: &cancellables)
+        }
+
+        await Task.detached {
+            vm.value = 1
+        }.value
+
+        let values = try await recorder.waitValues(count: 2, timeout: 1.0)
+        #expect(values.allSatisfy { $0 })
+    }
+
     // MARK: - Publisher Extension Tests
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("anyPublisher exposes standard Combine publisher")
+    func publisher_anyPublisher() async throws {
+        let pub = SKPublishedValue(wrappedValue: 0, kind: .currentValue)
+        let anyPublisher: AnyPublisher<Int, Never> = pub.anyPublisher
+        let values = ActorRecorder<Int>()
+
+        let cancellable = anyPublisher.sink { value in
+            Task { await values.append(value) }
+        }
+        pub.send(1)
+
+        #expect(try await values.waitValues(count: 2, timeout: 1.0) == [0, 1])
+        cancellable.cancel()
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("publisher respects downstream demand")
+    func publisher_respectsDownstreamDemand() async throws {
+        let pub = SKPublishedValue(wrappedValue: 0, kind: .passThrough)
+        let subscriber = DemandSubscriber<Int>(initialDemand: .max(1))
+        pub.subscribe(subscriber)
+
+        pub.send(1)
+        pub.send(2)
+        #expect(try await subscriber.waitValues(count: 1, timeout: 1.0) == [1])
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(subscriber.snapshot == [1])
+
+        subscriber.request(.max(1))
+        pub.send(3)
+        #expect(try await subscriber.waitValues(count: 2, timeout: 1.0) == [1, 3])
+    }
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
     @Test("assign(onWeak:to:) assigns values and handles object deallocation")
@@ -371,26 +627,29 @@ class SKPublishedTests {
     // MARK: - Thread Safety Tests
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-    @Test("Events are delivered on main thread")
-    func mainThreadDelivery() async throws {
+    @Test("receiveOnMainQueue transform delivers on main thread")
+    func transform_receiveOnMainQueue() async throws {
         var cancellables = Set<AnyCancellable>()
 
-        let pub = SKPublishedValue(wrappedValue: 0, kind: .currentValue)
+        let pub = SKPublishedValue(
+            wrappedValue: 0,
+            kind: .passThrough,
+            transform: [.receiveOnMainQueue()]
+        )
 
         let isMainThreadRecorder = ActorRecorder<Bool>()
         await MainActor.run {
             pub.sink { _ in
-                Task { await isMainThreadRecorder.append(Thread.isMainThread) }
+                let isMainThread = Thread.isMainThread
+                Task { await isMainThreadRecorder.append(isMainThread) }
             }.store(in: &cancellables)
         }
 
-        // Send from background thread
         await Task.detached {
             pub.send(1)
         }.value
 
-        let values = try await isMainThreadRecorder.waitValues(count: 2, timeout: 1.0)
-        // All values should be delivered on main thread
+        let values = try await isMainThreadRecorder.waitValues(count: 1, timeout: 1.0)
         #expect(values.allSatisfy { $0 == true })
     }
 
@@ -435,8 +694,7 @@ class SKPublishedTests {
         let voidPublisher = subject.ignoreOutputType()
 
         var receivedCount = 0
-        let cancellable = (voidPublisher as! AnyPublisher<Void, Never>)
-            .sink { _ in receivedCount += 1 }
+        let cancellable = voidPublisher.sink { _ in receivedCount += 1 }
 
         subject.send(1)
         subject.send(2)
@@ -485,4 +743,54 @@ final class ManagedAtomicFlag {
         value = true
         return true
     }
+}
+
+final class DemandSubscriber<Input>: Subscriber {
+
+    typealias Failure = Never
+
+    private let lock = NSLock()
+    private let initialDemand: Subscribers.Demand
+    private var subscription: Subscription?
+    private var values: [Input] = []
+
+    init(initialDemand: Subscribers.Demand) {
+        self.initialDemand = initialDemand
+    }
+
+    var snapshot: [Input] {
+        lock.lock()
+        defer { lock.unlock() }
+        return values
+    }
+
+    func receive(subscription: Subscription) {
+        self.subscription = subscription
+        subscription.request(initialDemand)
+    }
+
+    func receive(_ input: Input) -> Subscribers.Demand {
+        lock.lock()
+        values.append(input)
+        lock.unlock()
+        return .none
+    }
+
+    func receive(completion: Subscribers.Completion<Never>) {}
+
+    func request(_ demand: Subscribers.Demand) {
+        subscription?.request(demand)
+    }
+
+    func waitValues(count target: Int, timeout: TimeInterval) async throws -> [Input] {
+        let deadline = Date().addingTimeInterval(timeout)
+        while snapshot.count < target {
+            if Date() >= deadline {
+                break
+            }
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        return snapshot
+    }
+
 }

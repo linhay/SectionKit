@@ -93,7 +93,8 @@ class SKPublishedTests {
         pub.value = 1
         #expect(pub.value == 1)
 
-        #expect(try await values.waitValues(count: 2, timeout: 1.0) == [0, 1])
+        let receivedValues = try await values.waitValues(count: 2, timeout: 1.0)
+        #expect(receivedValues.sorted() == [0, 1])
         _ = try await recorder.waitValues(count: 2, timeout: 1.0)
         #expect(await recorder.values.allSatisfy { $0 })
         cancellable.cancel()

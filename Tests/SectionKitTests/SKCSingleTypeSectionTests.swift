@@ -8,7 +8,7 @@ private final class SectionKitTestCell: UICollectionViewCell, SKLoadViewProtocol
         let id: Int
         let title: String
     }
-    
+
     private(set) var title = ""
 
     func config(_ model: Model) {
@@ -70,7 +70,7 @@ struct SKCSingleTypeSectionTests {
         #expect(section.models.map(\.id) == [1, 3, 4])
         #expect(collectionView.numberOfItems(inSection: 0) == 3)
     }
-    
+
     @MainActor
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
     @Test("difference reload refreshes visible equivalent rows")
@@ -88,19 +88,19 @@ struct SKCSingleTypeSectionTests {
             .init(id: 2, title: "B"),
         ])
         section.reloadKind = .difference(by: \.id)
-        
+
         manager.reload(section)
         collectionView.layoutIfNeeded()
         let firstCell = try #require(collectionView.cellForItem(at: .init(item: 0, section: 0)) as? SectionKitTestCell)
         #expect(firstCell.title == "A")
-        
+
         section.apply([
             .init(id: 1, title: "A+"),
             .init(id: 2, title: "B+"),
         ])
         try await Task.sleep(nanoseconds: 200_000_000)
         collectionView.layoutIfNeeded()
-        
+
         let refreshedCell = try #require(collectionView.cellForItem(at: .init(item: 0, section: 0)) as? SectionKitTestCell)
         #expect(refreshedCell.title == "A+")
         #expect(section.models.map(\.title) == ["A+", "B+"])

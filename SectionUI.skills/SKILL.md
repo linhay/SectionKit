@@ -2,7 +2,7 @@
 name: sectionui
 description: Use for SectionUI and SectionKit iOS development. Covers data-driven UICollectionView architecture in Swift, SKCManager, SKCollectionView, SKCSingleTypeSection, section builders, row mutation, reactive bindings, selection ownership, safe-size measurement, layout plugins, decorations, supplementary views, scroll/page behavior, SwiftUI hosting, nested sections, forwarding hooks, performance caches, and production list/feed/grid patterns.
 metadata:
-  version: "2.5.6"
+  version: "2.5.7"
 ---
 
 # SectionUI Agent Guide
@@ -13,7 +13,7 @@ Paths like `references/...` are relative to this skill directory (`SectionUI.ski
 
 ## Version
 
-Current local skill version: `v2.5.6`.
+Current local skill version: `v2.5.7`.
 
 Reference snapshot: bundled `references/` describe the local SectionUI / SectionKit APIs in this repository, not live remote docs. For "latest", compare with the repository source files and the current podspec version before answering.
 
@@ -139,4 +139,4 @@ Use script-backed workflows for distribution and validation:
 - Verify release package: `python3 SectionUI.skills/scripts/verify_skill_package.py --output sectionui.skill.zip --json`
 - Validate metadata: `python3 -m unittest discover -s SectionUI.skills/tests`
 
-<!-- version: 2.5.6 -->
+<!-- version: 2.5.7 -->

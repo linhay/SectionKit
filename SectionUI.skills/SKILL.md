@@ -40,6 +40,7 @@ Prefer these defaults:
 ## Routing
 
 1. Classify the request.
+   - Architecture, module boundaries, target dependencies, runtime call chain, or manager/section/layout relationship: use `references/architecture-map.md`, then route to the smallest adjacent reference.
    - Architecture, screen decomposition, source of truth, UI update flow, binding strategy, high-frequency row state, or anti-patterns: use `references/TASK_MAP.md`, then `references/data-driven-best-practices.md`.
    - Publishers, `@SKPublished`, stable cell view models, `subscribe(models:)`, `SKBinding`, or feedback loops: use `references/reactive-binding-recipes.md`, with `references/data-driven-best-practices.md` for ownership decisions.
    - Layout plugins, plugin scope, plugin priority, attribute mutation, pinning, decorations, or invalidation: use `references/layout-plugin-execution-recipes.md`, then `references/layout-decoration-recipes.md` only for decoration/frame rules.

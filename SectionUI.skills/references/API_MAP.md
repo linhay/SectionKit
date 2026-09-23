@@ -5,6 +5,7 @@ Use this file for concrete API names. If the user names a symbol, search here fi
 | API / keyword | Reference |
 | --- | --- |
 | `SKCManager`, `manager.reload`, `manager.insert`, `manager.append`, `manager.remove`, `sectionInjection`, `pick`, pending requests | `manager-transaction-recipes.md` |
+| `SKCManager`, `SKCollectionView`, `SKCollectionFlowLayout`, module boundaries, runtime call chain | `architecture-map.md` |
 | `SKCollectionView`, `SKCollectionViewController`, `reloadSections`, `controllerStyle`, `sectionViewStyle`, `refreshable`, `scrollDirection` | `container-lifecycle-recipes.md` |
 | `SKCSingleTypeSection`, `wrapperToSingleTypeSection`, homogeneous section | `section.md`, `composition-styling-recipes.md` |
 | `refresh(at:)`, `refresh(with:)`, `RefreshPayload`, `apply`, `config(models:)`, `reloadKind`, `append`, `insert`, `remove`, `delete` | `row-mutation-recipes.md` |

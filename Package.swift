@@ -15,7 +15,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "SectionKit", exclude: ["AGENTS.md"]),
-        .target(name: "SectionUI", dependencies: ["SectionKit"], exclude: ["AGENTS.md", "Beta"]),
+        .target(name: "SectionUI", dependencies: ["SectionKit"], exclude: ["AGENTS.md", "Experimental"]),
         .testTarget(
             name: "SectionKitTests",
             dependencies: ["SectionKit", "SectionUI"]

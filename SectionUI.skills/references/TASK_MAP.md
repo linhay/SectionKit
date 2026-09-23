@@ -5,6 +5,7 @@ Use this file to route user intent to the smallest reference set. Open the prima
 | Intent / keywords | Primary reference | Adjacent references |
 | --- | --- | --- |
 | architecture, source of truth, bind once, data-driven rendering, UI update flow, visible cell mutation, anti-pattern | `data-driven-best-practices.md` | `production-usage.md`, `composition-styling-recipes.md` |
+| architecture, module boundaries, target dependencies, runtime call chain, manager/section/layout relationship, skills index | `architecture-map.md` | `data-driven-best-practices.md`, `container-lifecycle-recipes.md` |
 | production conventions, app-scale list patterns, reusable wrappers | `production-usage.md` | `production-tips.md`, `advanced-production-tips.md` |
 | lifecycle state, loaded lifecycle, empty state, section publishers | `production-lifecycle-state.md` | `manager-transaction-recipes.md`, `reactive-binding-recipes.md` |
 | section composition, optional sections, render state, section styles, cell styles | `composition-styling-recipes.md` | `supplementary-recipes.md`, `render-builder-recipes.md` |

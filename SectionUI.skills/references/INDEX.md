@@ -8,6 +8,10 @@ This index lists the bundled Markdown references. Use it to find a path before o
 - `API_MAP.md` - concrete symbol routing.
 - `INDEX.md` - this file.
 
+## Architecture And Routing
+
+- `architecture-map.md` - module boundaries, target dependencies, runtime call chains, layout pipeline, view hosting patterns, and skill routing.
+
 ## Production Recipes
 
 - `data-driven-best-practices.md` - source-of-truth, binding strategy, high-frequency row state, update flow, and visible-cell anti-patterns.

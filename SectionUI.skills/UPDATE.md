@@ -1,6 +1,6 @@
 # Update SectionUI Skill
 
-Current version: `v2.5.8`.
+Current version: `v2.5.9`.
 
 ## From GitHub Releases
 

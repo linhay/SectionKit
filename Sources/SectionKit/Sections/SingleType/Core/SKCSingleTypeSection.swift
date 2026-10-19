@@ -223,6 +223,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
 
     open func item(willDisplay view: UICollectionViewCell, row: Int) {
+        prefetch.display(at: row)
         sendAction(.willDisplay, view: view as? Cell, row: row)
         displayedTimes.update(by: row)
     }

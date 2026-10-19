@@ -23,7 +23,7 @@ Manager-level prefetch forwarding must remain installed and enabled before secti
 
 ## Load More
 
-`loadMorePublisher` emits when the largest prefetched row reaches the current load-more boundary. By default `loadMoreThreshold == 0`, so the boundary is the current last model index. Increase `loadMoreThreshold` to trigger earlier, such as `2` for "within two rows of the end".
+`loadMorePublisher` emits when the largest prefetched row reaches the current load-more boundary. By default `loadMoreThreshold == 0`, so the boundary is the current last model index. Increase `loadMoreThreshold` to trigger earlier, such as `2` for "within two rows of the end". This is a best-effort prefetch signal: UIKit may skip or cancel prefetch callbacks.
 
 ```swift
 section.prefetch.loadMoreThreshold = 2
@@ -46,6 +46,20 @@ section.prefetch.statefulLoadMorePublisher
     }
     .store(in: &cancellables)
 ```
+
+For pagination that must run when the user reaches the end, use the display-driven publisher. It is emitted from the section's `willDisplay` lifecycle and does not depend on UIKit choosing to prefetch.
+
+```swift
+section.prefetch.statefulLoadMoreOnDisplayPublisher
+    .sink {
+        loadNextPage { result in
+            section.prefetch.finishLoadMore(hasMore: result.hasMore)
+        }
+    }
+    .store(in: &cancellables)
+```
+
+Choose one load-more trigger for a section. Subscribing to both the prefetch-driven and display-driven publishers can produce duplicate work when UIKit sends both signals for the same boundary.
 
 Load the first page explicitly. `loadMorePublisher` does not emit for empty sections because it needs a meaningful current model count.
 

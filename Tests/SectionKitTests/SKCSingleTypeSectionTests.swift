@@ -221,6 +221,69 @@ struct SKCSingleTypeSectionTests {
     }
 
     @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("load more on display does not depend on prefetch callbacks")
+    func loadMoreOnDisplayDoesNotDependOnPrefetchCallbacks() {
+        let prefetch = SKCPrefetch(count: { 10 })
+        var cancellables = Set<AnyCancellable>()
+        var hits = 0
+
+        prefetch.loadMoreOnDisplayPublisher
+            .sink { hits += 1 }
+            .store(in: &cancellables)
+
+        prefetch.loadMoreThreshold = 2
+        prefetch.display(at: 6)
+        #expect(hits == 0)
+
+        prefetch.display(at: 7)
+        #expect(hits == 1)
+    }
+
+    @MainActor
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("section willDisplay feeds display load more")
+    func sectionWillDisplayFeedsDisplayLoadMore() {
+        let section = SectionKitTestCell.wrapperToSingleTypeSection([
+            .init(id: 1, title: "A"),
+            .init(id: 2, title: "B"),
+        ])
+        var cancellables = Set<AnyCancellable>()
+        var hits = 0
+
+        section.prefetch.loadMoreOnDisplayPublisher
+            .sink { hits += 1 }
+            .store(in: &cancellables)
+
+        section.item(willDisplay: SectionKitTestCell(), row: 1)
+        #expect(hits == 1)
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    @Test("stateful load more on display gates repeated triggers")
+    func statefulLoadMoreOnDisplayGatesRepeatedTriggers() {
+        let prefetch = SKCPrefetch(count: { 2 })
+        var cancellables = Set<AnyCancellable>()
+        var hits = 0
+
+        prefetch.statefulLoadMoreOnDisplayPublisher
+            .sink { hits += 1 }
+            .store(in: &cancellables)
+
+        prefetch.display(at: 1)
+        prefetch.display(at: 1)
+        #expect(hits == 1)
+        #expect(prefetch.loadMoreState == .loading)
+
+        prefetch.finishLoadMore()
+        prefetch.display(at: 1)
+        #expect(hits == 2)
+
+        prefetch.finishLoadMore(hasMore: false)
+        prefetch.display(at: 1)
+        #expect(hits == 2)
+    }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
     @Test("load more threshold handles empty, negative, and oversized values")
     func loadMoreThresholdBoundaryValues() {
         var itemCount = 0

@@ -175,7 +175,7 @@ Use this reference when a SectionUI task involves manager forwarding chains, `SK
 
 72. If prefetching is disabled, the default forward handles the callback but does not emit section prefetch work.
 
-73. Enable prefetching before relying on `section.prefetch.prefetchPublisher`, `cancelPrefetchingPublisher`, or `loadMorePublisher`.
+73. Enable prefetching before relying on `section.prefetch.prefetchPublisher`, `cancelPrefetchingPublisher`, or `loadMorePublisher`. `loadMoreOnDisplayPublisher` is driven by `willDisplay` and does not require manager-level prefetching.
 
 74. The manager-level prefetch publishers emit collection index paths; section-level publishers emit section-local rows.
 

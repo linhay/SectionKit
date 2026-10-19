@@ -305,7 +305,7 @@ var items: [Item] = []
 
 97. For selection sequences derived from models, let `modelsPulisher` be the update trigger rather than polling section models from unrelated sinks.
 
-98. For load-more, use `statefulLoadMorePublisher` when duplicate request gating belongs to the section; call `finishLoadMore(hasMore:)` or `failLoadMore()` from the request completion.
+98. For prefetch-driven load-more, use `statefulLoadMorePublisher` when duplicate request gating belongs to the section; call `finishLoadMore(hasMore:)` or `failLoadMore()` from the request completion. For correctness-critical pagination, use `statefulLoadMoreOnDisplayPublisher` with the same completion methods.
 
 ## Debug Checklist
 

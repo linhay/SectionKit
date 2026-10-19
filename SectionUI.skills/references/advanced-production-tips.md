@@ -132,7 +132,7 @@ section.pinHeader { options in
 
 50. `cancelPrefetchingPublisher` should cancel work keyed by row or model identity. Prefer model identity for network/image tasks that can survive row movement.
 
-51. `loadMorePublisher` fires when a prefetched row reaches the current load-more boundary. Set `loadMoreThreshold` to prefetch before the last row, or use `statefulLoadMorePublisher` to gate duplicate pagination.
+51. `loadMorePublisher` fires when a prefetched row reaches the current load-more boundary. It is a best-effort UIKit prefetch signal, not a visibility guarantee. Set `loadMoreThreshold` to prefetch before the last row, or use `statefulLoadMorePublisher` to gate duplicate pagination.
 
 ```swift
 section.prefetch.loadMoreThreshold = 2
@@ -145,7 +145,9 @@ section.prefetch.statefulLoadMorePublisher
     .store(in: &cancellables)
 ```
 
-52. Enable prefetch-driven loading only after the first page has a stable model count. Empty sections can otherwise make load-more semantics unclear.
+For correctness-critical pagination, use `statefulLoadMoreOnDisplayPublisher`. It is driven by `willDisplay`, so it still emits when UIKit skips prefetch callbacks.
+
+52. Enable prefetch-driven loading only after the first page has a stable model count. Empty sections can otherwise make load-more semantics unclear. Use the display-driven publisher when reaching the end must trigger loading.
 
 53. When replacing all models, cancel outstanding prefetch tasks for old identities before subscribing work for the new list.
 

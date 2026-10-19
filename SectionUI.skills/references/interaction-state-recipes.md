@@ -164,21 +164,23 @@ Use this reference when a SectionUI task involves cell actions, action ownership
 
 67. `cancelPrefetchingPublisher` should cancel by model identity when network/image work can survive row movement.
 
-68. `loadMorePublisher` emits when the largest prefetched row reaches the current load-more boundary. `loadMoreThreshold` defaults to `0`; set it to a positive row distance to trigger before the last item.
+68. `loadMorePublisher` emits when the largest prefetched row reaches the current load-more boundary. `loadMoreThreshold` defaults to `0`; set it to a positive row distance to trigger before the last item. UIKit may skip prefetch callbacks, so use `loadMoreOnDisplayPublisher` when pagination must follow actual visibility.
 
 69. Prefer `statefulLoadMorePublisher` for pagination that must suppress duplicate requests. Call `finishLoadMore(hasMore:)` or `failLoadMore()` when the request finishes.
 
-70. Avoid using `loadMorePublisher` on an empty section. Load the first page explicitly, then enable prefetch-driven pagination after the list has a stable count.
+70. Use `statefulLoadMoreOnDisplayPublisher` for correctness-critical pagination. It is emitted from `willDisplay`, shares the same `LoadMoreState`, and does not depend on UIKit prefetch scheduling.
 
-71. When replacing all models, cancel outstanding prefetch tasks for old identities before accepting prefetch events for the new list.
+71. Avoid using `loadMorePublisher` on an empty section. Load the first page explicitly, then enable prefetch-driven pagination after the list has a stable count.
 
-72. If a section is nested in a reusable cell, clear or replace prefetch subscriptions when the parent cell is rebound.
+72. When replacing all models, cancel outstanding prefetch tasks for old identities before accepting prefetch events for the new list.
 
-73. Do not use prefetch as a visibility guarantee. It is an optimization hint and can be cancelled or skipped by UIKit.
+73. If a section is nested in a reusable cell, clear or replace prefetch subscriptions when the parent cell is rebound.
 
-74. For image/media prefetch, keep a small identity-keyed task store so cancellation and reuse are deterministic.
+74. Do not use prefetch as a visibility guarantee. It is an optimization hint and can be cancelled or skipped by UIKit.
 
-75. If load-more fires repeatedly, check whether the code is using `loadMorePublisher` instead of `statefulLoadMorePublisher`, then verify cancellable ownership and render-time resubscription.
+75. For image/media prefetch, keep a small identity-keyed task store so cancellation and reuse are deterministic.
+
+76. If load-more fires repeatedly, check whether the code is using a stateful load-more publisher, then verify cancellable ownership and render-time resubscription.
 
 ## Context Menu And Reorder
 

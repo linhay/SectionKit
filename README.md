@@ -205,14 +205,17 @@ section
 ### 分页加载
 
 ```swift
-// 监听加载更多, 防止一次加载未结束时重复触发
-section.prefetch.statefulLoadMorePublisher
+// 基于 cell 即将显示的生命周期触发分页，防止预取回调被 UIKit 跳过
+section.prefetch.statefulLoadMoreOnDisplayPublisher
     .sink { [weak self] in
         self?.loadNextPage {
             section.prefetch.finishLoadMore(hasMore: $0)
         }
     }
     .store(in: &cancellables)
+
+// `statefulLoadMorePublisher` 由 UIKit 的 prefetch 回调驱动，适合提前加载，
+// 但不保证触发；需要分页正确性时使用上面的 OnDisplay 版本。
 
 // 下拉刷新
 sectionView.refreshControl = UIRefreshControl()

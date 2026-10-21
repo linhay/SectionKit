@@ -102,6 +102,7 @@ Use these patterns unless an existing codebase has a stronger convention:
 
 - Cell: conform to `SKLoadViewProtocol` and `SKConfigurableView`.
 - Common section: `MyCell.wrapperToSingleTypeSection()` plus `config(models:)`.
+- `config(_:)` is a repeated render step. Keep it idempotent and register `onCellAction` once when the section is created; do not register additive actions from `config(_:)`.
 - Manager: call `manager.reload(sections)` for section replacement and section-local APIs for row mutations.
 - Reactive data: bind source state with `@SKPublished`, `SKPublishedValue`, or section subscriptions when the publisher owns the section; use stable cell view models for high-frequency visual fields that do not affect height or structure.
 - Imperative data: use section row mutation APIs directly when the section owner is already the source of truth.
@@ -109,6 +110,10 @@ Use these patterns unless an existing codebase has a stronger convention:
 - Sizing: prefer `safeSize`, `cellSafeSize`, adaptive sizing, and high-performance cache where applicable.
 - Plugins: prefer section-level plugins for section-specific behavior, collection-level modes for whole-screen rules, and existing helpers before custom forwards.
 - Closures: use `[weak self]` when capturing view controllers or long-lived owners.
+
+### Cell action registration
+
+`onCellAction` appends a handler to the section and handlers for the same kind all run in registration order. Register it once in the section declaration or a cell's stable lazy nested-section initialization chain. `config(_:)` runs again during cell requests, reuse, and reloads, so it must only update model and view state. Do not call `onCellAction`, `onAsyncCellAction`, `onCellShould`, `setCellStyle`, or subscribe/add observers from `config(_:)`; repeated calls accumulate work and can make one interaction fire more than once. See `references/section-events.md` for the full contract.
 
 ## Boundaries
 

@@ -114,6 +114,8 @@ let parentModel = SKCSectionViewCell.Model(
 
 27. If child sections are reused, reset state that is row-index based before rebinding a different model universe.
 
+> When a cell holds a stable lazy child section, register `onCellAction`, `onAsyncCellAction`, `onCellShould`, and `setCellStyle` in that lazy initialization chain. These APIs append handlers or styles; putting them in the parent cell's `config(_:)` repeats registration on every bind. Keep `config(_:)` focused on `childSection.config(models:)` and replaceable view state.
+
 ## State Ownership
 
 28. Nested exposure is usually child-section state. Reset `displayedTimes` when the child section is reused for different parent content.

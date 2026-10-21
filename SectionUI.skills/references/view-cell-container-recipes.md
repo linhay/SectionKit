@@ -47,6 +47,10 @@ Use this reference when a SectionUI task involves load protocols, `SKLoadViewPro
 
 14. `config(_:)` renders model state into the view. It should be idempotent and safe to call repeatedly during reuse.
 
+> `config(_:)` is not a one-time initializer. `SKCSingleTypeSection.item(at:)` calls it whenever a cell is requested, including reuse and reload paths. A `reloadKind == .configAndDelete` update can also configure visible cells directly. Keep it limited to rendering the current model and resetting replaceable state.
+>
+> Do not register append-style handlers or observers from `config(_:)`: `onCellAction`, `onAsyncCellAction`, `onCellShould`, `setCellStyle`, subscriptions, and notification observers accumulate when `config(_:)` runs again. Register section events once when the section is created. For a stable lazy nested section owned by a cell, put the event registration in the lazy initialization chain and let `config(_:)` call `section.config(models:)`.
+
 15. `preferredSize(limit:model:)` returns the final rendered size for the given measuring limit.
 
 16. Always handle `model == nil` defensively in `preferredSize`; returning `.zero` is usually the safest default.

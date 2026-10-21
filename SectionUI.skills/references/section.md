@@ -95,6 +95,7 @@ let sections: [SKCSectionProtocol] = [
 - **[Composition And Styling](composition-styling-recipes.md)** - Section assembly, optional state, and styling.
 - **[Row Mutation Recipes](row-mutation-recipes.md)** - CRUD operations and reload strategies.
 - **[Interaction State Recipes](interaction-state-recipes.md)** - Cell lifecycle and user interactions.
+- **[Section Events](section-events.md)** - Append-only action registration, ordering, and rebinding rules.
 - **[Supplementary Recipes](supplementary-recipes.md)** - Headers, footers, and custom supplementary views.
 - **[Custom Section Patterns](custom-section-patterns.md)** - Heterogeneous and custom section patterns.
 

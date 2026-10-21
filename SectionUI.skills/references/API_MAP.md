@@ -17,7 +17,7 @@ Use this file for concrete API names. If the user names a symbol, search here fi
 | `SKHighPerformanceStore`, `SKKVCache`, `SKCountedStore`, `displayedTimes`, `model(displayedAt:)`, cache invalidation | `cache-exposure-recipes.md` |
 | `SKSelectionState`, `SKSelectionProtocol`, `SKSelectionWrapper`, `SKSelectionSequence`, `SKSelectionIdentifiableSequence` | `selection-ownership-recipes.md` |
 | `SKCDragSelector`, `SKCRectSelectionManager`, `SKSelectionOverlayView`, `SKAutoScrollManager` | `drag-selection-recipes.md` |
-| `onCellAction`, `onCellShould`, `SKCCellActionType`, `SKCCellShouldType`, `SKCSupplementaryActionType` | `interaction-state-recipes.md`, `delegate-interaction-recipes.md` |
+| `onCellAction`, `onCellShould`, `SKCCellActionType`, `SKCCellShouldType`, `SKCSupplementaryActionType` | `section-events.md`, `interaction-state-recipes.md`, `delegate-interaction-recipes.md` |
 | `SKCPrefetch`, `prefetchPublisher`, `cancelPrefetchingPublisher`, `loadMorePublisher`, `statefulLoadMorePublisher`, `loadMoreOnDisplayPublisher`, `statefulLoadMoreOnDisplayPublisher`, `loadMoreThreshold`, `finishLoadMore`, `failLoadMore`, `onContextMenu`, `SKUIContextMenuResult`, `SKUIAction`, `move(from:to:)` | `prefetch-menu-reorder-recipes.md` |
 | `setHeader`, `setFooter`, `set(supplementary:)`, `SKCSupplementary`, `SKSupplementaryKind`, `hiddenHeaderWhenNoItem` | `supplementary-recipes.md` |
 | `indexTitle`, `indexTitleRow`, `sectionIndex`, collection index titles | `index-title-recipes.md` |

@@ -118,7 +118,7 @@ The closure form keeps header size and config in sync with the latest state.
 
 ## Events And Exposure
 
-25. Multiple `onCellAction(.selected)` registrations can be useful when separating navigation and analytics, but keep each closure focused. If ordering matters, combine them into one closure.
+25. Multiple `onCellAction(.selected)` registrations can be useful when separating independent navigation and analytics concerns, but register them once when the section is created. Never add them from a repeated `config(_:)` path; if ordering matters, combine them into one closure.
 
 26. Use `onCellAction(on: self, ...)` and `setCellStyle(on: self, ...)` helpers when available. They make the weak-owner contract explicit.
 

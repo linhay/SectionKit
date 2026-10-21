@@ -22,7 +22,7 @@ Use this file to route user intent to the smallest reference set. Open the prima
 | cache keys, high-performance cache, exposure counts, displayed times | `cache-exposure-recipes.md` | `rendering-performance-recipes.md`, `interaction-state-recipes.md` |
 | selection ownership, single select, multi select, ID-based selection | `selection-ownership-recipes.md` | `interaction-state-recipes.md`, `drag-selection-recipes.md` |
 | drag selection, rectangular selection, auto-scroll overlay | `drag-selection-recipes.md` | `selection-ownership-recipes.md` |
-| cell events, exposure, context menu, reorder, load more | `interaction-state-recipes.md` | `delegate-interaction-recipes.md`, `prefetch-menu-reorder-recipes.md` |
+| cell events, exposure, context menu, reorder, load more | `section-events.md`, `interaction-state-recipes.md` | `delegate-interaction-recipes.md`, `prefetch-menu-reorder-recipes.md` |
 | prefetch, load more, context menu, async menu action, reorder persistence | `prefetch-menu-reorder-recipes.md` | `interaction-state-recipes.md`, `delegate-interaction-recipes.md` |
 | UIKit delegate routing, highlight/select gates, display lifecycle, focus/editing | `delegate-interaction-recipes.md` | `forwarding-extension-recipes.md`, `interaction-state-recipes.md` |
 | layout plugin system, plugin scope, plugin priority, section-level plugins, collection-level modes, attribute adjustment, invalidation, custom forward | `layout-plugin-execution-recipes.md` | `layout-decoration-recipes.md`, `container-lifecycle-recipes.md` |

@@ -38,6 +38,7 @@ This index lists the bundled Markdown references. Use it to find a path before o
 - `view-cell-container-recipes.md`
 - `runtime-view-wrapper-recipes.md`
 - `nested-section-cell-recipes.md`
+- `section-events.md` - append-only cell and supplementary event registration, ordering, and rebinding.
 - `swiftui-hosting-recipes.md`
 - `safe-size-measurement-recipes.md`
 - `adaptive-sizing-recipes.md`

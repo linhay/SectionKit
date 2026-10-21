@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROUTER_FILES = ["SKILL.md", "references/TASK_MAP.md", "references/API_MAP.md", "references/INDEX.md"]
 ROOT_DOCS = {"ISSUE_GUIDE.md", "UPDATE.md", "VERSION.md"}
-REMOVED_REFERENCES = {"plugins.md", "layout-plugins.md", "advanced-sections.md", "MISSING_FEATURES.md", "manager.md", "cell.md", "decorations.md", "scroll.md", "pin.md", "page.md", "reactive.md", "performance.md", "section-advanced.md", "section-advanced-2.md", "section-best-practices.md", "section-styling.md", "section-events.md", "section-data-operations.md"}
+REMOVED_REFERENCES = {"plugins.md", "layout-plugins.md", "advanced-sections.md", "MISSING_FEATURES.md", "manager.md", "cell.md", "decorations.md", "scroll.md", "pin.md", "page.md", "reactive.md", "performance.md", "section-advanced.md", "section-advanced-2.md", "section-best-practices.md", "section-styling.md", "section-data-operations.md"}
 CORE_DOCS_WITH_CONTENTS = {
     "data-driven-best-practices.md",
     "reactive-binding-recipes.md",

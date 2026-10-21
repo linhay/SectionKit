@@ -1,6 +1,6 @@
 # SectionUI Skill Version
 
-Current version: `v2.5.9`.
+Current version: `v2.5.10`.
 
 Canonical source: `SectionUI.skills/SKILL.md` frontmatter `metadata.version`.
 

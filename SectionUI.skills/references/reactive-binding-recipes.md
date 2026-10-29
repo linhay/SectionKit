@@ -221,7 +221,9 @@ section.apply(rows)
 - This policy affects only `apply` / `config(models:)` / `subscribe(models:)` with `.difference`. `setHeader`, `setFooter`, `reload`, `refresh`, and `remove` / `delete` retain their existing side effects. In particular, `remove` reloads trailing rows after deletion or reloads the section when none remain; use `apply(finalRows)` for structural-only deletion.
 - Apply on the main thread and serialize structural batches; do not start another `apply` while an earlier batch is in progress. This policy does not provide a transaction queue.
 
-Regression coverage is in `Tests/SectionKitTests/ReactiveBindingTests.swift`: no-op UIKit operations, count updates, preserved visible bindings through insert/delete, empty transitions, reorder, default payload refresh, subscription cancellation, supplementary layout invalidation, and image request counts.
+Display-end events use the payload configured on the actual cell, tracked with weak cell keys. Row-index snapshots alone become stale after insertion/deletion; do not infer the displayed model from the current array at a callback row. This applies to both difference policies, including cells configured before becoming visible.
+
+Regression coverage is in `Tests/SectionKitTests/ReactiveBindingTests.swift`: no-op UIKit operations, count updates, preserved visible bindings through insert/delete, empty transitions, reorder, default payload refresh, subscription cancellation, supplementary layout invalidation, image request counts, and display-end model identity through structural changes and scrolling.
 
 ## Idempotent Image Binding
 

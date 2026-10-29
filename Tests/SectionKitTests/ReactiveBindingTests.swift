@@ -19,8 +19,10 @@ private final class ReactiveCell: UICollectionViewCell, SKLoadViewProtocol, SKCo
     private(set) var title = ""
     private(set) var imageRequests = 0
     private(set) var configurations = 0
+    private(set) var configuredModel: Model?
 
     func config(_ model: Model) {
+        configuredModel = model
         configurations += 1
         subscriptions.removeAll()
         model.$title.bind { [weak self] in self?.title = $0 }.store(in: &subscriptions)
@@ -343,5 +345,73 @@ struct ReactiveBindingTests {
             fixture.section.remove(0)
         }
         #expect(fixture.view.operations.contains("reloadItems"))
+    }
+
+    @Test("display-end reports configured models after insertion, scrolling and deletion", arguments: [false, true])
+    func displayEndModels(structuralOnly: Bool) async {
+        let rows = (1...30).map(ReactiveRow.init)
+        let fixture = ReactiveFixture(rows, structuralOnly: structuralOnly)
+        var ended = 0
+        fixture.section.onCellAction(.didEndDisplay) { context in
+            ended += 1
+            #expect(context.model === context.view.configuredModel)
+        }
+        await fixture.apply([ReactiveRow(0)] + rows)
+        fixture.view.scrollToItem(at: IndexPath(item: 30, section: 0), at: .bottom, animated: false)
+        fixture.view.layoutIfNeeded()
+        await deliverPublishedValues()
+        #expect(ended > 0)
+        fixture.view.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+        fixture.view.layoutIfNeeded()
+        await fixture.apply(rows)
+        fixture.view.scrollToItem(at: IndexPath(item: 29, section: 0), at: .bottom, animated: false)
+        fixture.view.layoutIfNeeded()
+        await deliverPublishedValues()
+    }
+
+    @Test("display-end follows cell identity even when row snapshots collide")
+    func shiftedDisplayEndModels() async throws {
+        let rows = [ReactiveRow(1), ReactiveRow(2)]
+        let fixture = ReactiveFixture(rows)
+        let first = try fixture.cell(0)
+        let second = try fixture.cell(1)
+        let inserted = ReactiveRow(0)
+        await fixture.apply([inserted] + rows)
+        let insertedCell = try fixture.cell(0)
+        var ended: [ReactiveRow] = []
+        fixture.section.onCellAction(.didEndDisplay) { ended.append($0.model) }
+        fixture.section.item(didEndDisplaying: first, row: 1)
+        fixture.section.item(didEndDisplaying: insertedCell, row: 0)
+        fixture.section.item(didEndDisplaying: second, row: 2)
+        #expect(ended.map(\.id) == [1, 0, 2])
+        // A cell can leave and re-enter display without being reconfigured.
+        fixture.section.item(willDisplay: first, row: 1)
+        fixture.section.item(didEndDisplaying: first, row: 1)
+        #expect(ended.last === rows[0])
+    }
+
+    @Test("direct configAndDelete reconfiguration updates the display model")
+    func directReconfigurationDisplayModel() throws {
+        let fixture = ReactiveFixture([ReactiveRow(1)])
+        let replacement = ReactiveRow(1)
+        fixture.section.reloadKind = .configAndDelete
+        fixture.section.apply([replacement])
+        let cell = try fixture.cell(0)
+        var ended: ReactiveRow?
+        fixture.section.onCellAction(.didEndDisplay) { ended = $0.model }
+        fixture.section.item(didEndDisplaying: cell, row: 0)
+        #expect(ended === replacement)
+    }
+
+    @Test("display model tracking does not retain reusable cells")
+    func weakCellTracking() {
+        let section = ReactiveCell.wrapperToSingleTypeSection([ReactiveRow(1)])
+        weak var releasedCell: ReactiveCell?
+        autoreleasepool {
+            let cell = ReactiveCell()
+            releasedCell = cell
+            section.item(willDisplay: cell, row: 0)
+        }
+        #expect(releasedCell == nil)
     }
 }

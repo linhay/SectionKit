@@ -150,6 +150,13 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     var highPerformanceID: HighPerformanceIDBlock?
 
     lazy var deletedModels: [Int: Model] = [:]
+    private final class ConfiguredModel {
+        let model: Model
+        init(_ model: Model) { self.model = model }
+    }
+    // Row offsets can change while a cell remains visible or prefetched. Weak
+    // keys keep the actual configured payload without retaining reusable cells.
+    private let configuredModels = NSMapTable<Cell, ConfiguredModel>.weakToStrongObjects()
     lazy var cellStyles: [SKCCellStyle<Cell>] = []
     lazy var cellContextMenus: [ContextMenuBlock] = []
 
@@ -198,6 +205,7 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     open func item(at row: Int) -> UICollectionViewCell {
         let cell = dequeue(at: row) as Cell
         let model = models[row]
+        configuredModels.setObject(ConfiguredModel(model), forKey: cell)
         cell.config(model)
         if !cellStyles.isEmpty {
             let result = SKCCellStyleContext(section: self, model: model, row: row, view: cell)
@@ -239,6 +247,10 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
     }
 
     open func item(willDisplay view: UICollectionViewCell, row: Int) {
+        if let cell = view as? Cell, configuredModels.object(forKey: cell) == nil,
+           models.indices.contains(row) {
+            configuredModels.setObject(ConfiguredModel(models[row]), forKey: cell)
+        }
         prefetch.display(at: row)
         sendAction(.willDisplay, view: view as? Cell, row: row)
         displayedTimes.update(by: row)
@@ -537,6 +549,7 @@ private extension SKCSingleTypeSection {
                 self.models = models
                 for (index, model) in models.enumerated() {
                     if let cell = self.cellForItem(at: index) {
+                        configuredModels.setObject(ConfiguredModel(model), forKey: cell)
                         cell.config(model)
                     } else {
                         sectionInjection?.reload()
@@ -846,12 +859,19 @@ public extension SKCSingleTypeSection {
     }
 
     func sendDeleteAction(_ type: SKCCellActionType, view: Cell?, row: Int) {
-        guard deletedModels[row] != nil || models.indices.contains(row) else {
+        let model: Model
+        if let view, let configured = configuredModels.object(forKey: view) {
+            model = configured.model
+        } else if let deleted = deletedModels[row] {
+            model = deleted
+        } else if models.indices.contains(row) {
+            model = models[row]
+        } else {
             return
         }
         let result = SKCCellActionContext<Cell>(section: self,
                                        type: type,
-                                       model: deletedModels[row] ?? models[row],
+                                       model: model,
                                        row: row, _view: view)
         deletedModels[row] = nil
         sendAction(result)

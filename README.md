@@ -259,6 +259,18 @@ section.reloadKind = .difference(by: \.id)
 section.reloadKind = .difference()
 ```
 
+稳定引用模型通过 Combine 自行更新内容时，可以选择仅处理身份结构变化：
+
+```swift
+section.reloadKind = .difference(by: \.id)
+section.differenceReloadPolicy = .structuralOnly
+section.apply(rows)
+```
+
+相同身份的列表不触发 UIKit 更新，插入/删除后也不会额外刷新保留的可见 Cell。保留的 ID 必须使用同一个模型实例；替换模型或依赖行位置的样式请保留默认 `.reloadVisible` 策略。该选项不改变显式 `remove` / `delete` 的刷新行为。
+
+Header/Footer 的高频计数或状态更新也应注册一次稳定模型，在可复用视图内部订阅字段，并在 `config` 和 `prepareForReuse` 中取消旧订阅。重复 `setHeader` / `setFooter` 会刷新整个 Section。完整示例及布局变化、图片请求去重说明见 [响应式绑定指南](SectionUI.skills/references/reactive-binding-recipes.md#stable-supplementary-view-models)。
+
 ### 固定 Header/Footer (Sticky)
 
 ```swift

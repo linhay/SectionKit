@@ -4,6 +4,8 @@ Use this reference when a SectionUI task involves `SKCSingleTypeSection` row mut
 
 Keep it generic: no downstream project paths, product names, business module names, source-file indexes, scan statistics, page names, route names, analytics events, or request-client names.
 
+For stable reactive models, `differenceReloadPolicy = .structuralOnly` avoids extra visible-item reloads during `apply` differences. Explicit `remove` / `delete` still reload trailing rows or the section; use `apply(finalRows)` for structural-only deletion. See [Identity-Only Structural Updates](reactive-binding-recipes.md#identity-only-structural-updates) for model identity and styling requirements.
+
 ## Contents
 
 - [Mutation Boundary](#mutation-boundary)
@@ -152,7 +154,7 @@ Keep it generic: no downstream project paths, product names, business module nam
 
 60. The `.difference(by:)` predicate is identity equivalence, not content equality.
 
-61. If the same identity has changed display content, `.difference(by:)` updates the model snapshot and refreshes visible rows when there is no insert/delete difference. After insert/delete batches, visible rows are refreshed on completion.
+61. With the default `.reloadVisible` policy, if the same identity has changed display content, `.difference(by:)` updates the model snapshot and refreshes visible rows when there is no insert/delete difference. After insert/delete batches, visible rows are refreshed on completion.
 
 62. `.difference()` is available when `Model: Equatable` and uses `==` as the equivalence predicate.
 
@@ -160,7 +162,7 @@ Keep it generic: no downstream project paths, product names, business module nam
 
 64. Avoid row index, title text, or transient display strings as difference identity.
 
-65. When either old or new models are empty, difference reload falls back to section reload.
+65. With the default `.reloadVisible` policy, empty transitions fall back to section reload. `.structuralOnly` instead uses insertion/deletion batches and skips all UIKit updates for an identity no-op, including empty-to-empty.
 
 66. Avoid switching `reloadKind` repeatedly from different feature paths. Set it near section creation unless a specific transition requires a documented change.
 

@@ -51,6 +51,16 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
 
     }
 
+    /// Controls the extra visible-item reloads performed by `ReloadKind.difference`.
+    public enum DifferenceReloadPolicy {
+        /// Refresh visible payloads and position-dependent styles (the default).
+        case reloadVisible
+        /// Only insert/delete identities. Retained models must be stable, self-binding
+        /// instances; payload replacement and position-dependent styling need an
+        /// explicit refresh. Reordering can still remove and reinsert moved items.
+        case structuralOnly
+    }
+
     public struct Feature {
         /// 忽略 apply 时记录删除数据, (大数据时可以提高性能)
         public var skipDisplayEventWhenFullyRefreshed: Bool = false
@@ -133,6 +143,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
 
     public private(set) lazy var publishers = SKCSingleTypePublishers()
     public var reloadKind: ReloadKind = .normal
+    /// Applies only to `.difference`; explicit reload/refresh/remove APIs keep their
+    /// existing behavior. Set before `apply` and serialize structural updates.
+    public var differenceReloadPolicy: DifferenceReloadPolicy = .reloadVisible
     var highPerformance: SKHighPerformanceStore<String>?
     var highPerformanceID: HighPerformanceIDBlock?
 
@@ -156,6 +169,9 @@ open class SKCSingleTypeSection<Cell: UICollectionViewCell & SKConfigurableView 
         self.init(models)
     }
 
+    /// Replaces the model snapshot using `reloadKind`. With `.difference`,
+    /// `differenceReloadPolicy` controls extra visible-item reloads; even a
+    /// structural no-op publishes the new snapshot through `modelsPulisher`.
     open func apply(_ models: [Model]) {
         if !feature.skipDisplayEventWhenFullyRefreshed {
             /// 大数据时会卡, 但是记录会保证 displayed 的正确性
@@ -543,7 +559,8 @@ private extension SKCSingleTypeSection {
 
     func reload(models: [Model], by areEquivalent: (Model, Model) -> Bool) {
         let oldModels = self.models
-        if models.isEmpty || oldModels.isEmpty {
+        let reloadVisible = differenceReloadPolicy == .reloadVisible
+        if reloadVisible && (models.isEmpty || oldModels.isEmpty) {
             self.models = models
             sectionInjection?.reload()
             return
@@ -557,7 +574,9 @@ private extension SKCSingleTypeSection {
         let difference = models.difference(from: oldModels, by: areEquivalent)
         guard !difference.isEmpty else {
             self.models = models
-            sectionInjection?.reload(cell: indexsForVisibleItems.filter { models.indices.contains($0) })
+            if reloadVisible {
+                sectionInjection?.reload(cell: indexsForVisibleItems.filter { models.indices.contains($0) })
+            }
             return
         }
 
@@ -590,7 +609,9 @@ private extension SKCSingleTypeSection {
                 sectionView.insertItems(at: insertIndexPaths)
             }
         } completion: { _ in
-            self.sectionInjection?.reload(cell: self.indexsForVisibleItems.filter { self.models.indices.contains($0) })
+            if reloadVisible {
+                self.sectionInjection?.reload(cell: self.indexsForVisibleItems.filter { self.models.indices.contains($0) })
+            }
         }
     }
 
@@ -632,6 +653,9 @@ public extension SKCSingleTypeSection {
         remove([row])
     }
 
+    /// Deletes rows, then reloads trailing rows (or the section if none remain).
+    /// For stable reactive models, use `apply` with a `.difference` reload kind
+    /// and `.structuralOnly` policy to avoid those additional reloads.
     func remove(_ rows: [Int]) {
         remove(rows, applySectionView: true)
     }

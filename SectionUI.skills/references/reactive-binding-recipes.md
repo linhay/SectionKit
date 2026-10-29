@@ -6,6 +6,9 @@ Use this reference when a SectionUI task involves `@SKPublished`, `SKPublishedVa
 
 - [SKPublished Semantics](#skpublished-semantics)
 - [Stable Cell View Models](#stable-cell-view-models)
+- [Stable Supplementary View Models](#stable-supplementary-view-models)
+- [Identity-Only Structural Updates](#identity-only-structural-updates)
+- [Idempotent Image Binding](#idempotent-image-binding)
 - [SKPublished Transforms](#skpublished-transforms)
 - [Section Model Subscription](#section-model-subscription)
 - [Section Publishers](#section-publishers)
@@ -120,6 +123,133 @@ final class RowCell: UICollectionViewCell, SKLoadViewProtocol, SKConfigurableVie
 ```
 
 Reserve `manager.reload`, `section.apply`, and row refresh APIs for structural changes, full model replacement, row replacement, or intended collection-view reconfiguration.
+
+## Stable Supplementary View Models
+
+Register one reference model once for a header or footer. For fixed-size title/count/status changes, bind the model fields directly to reusable-view controls. Repeated `setHeader` / `setFooter` calls replace the supplementary definition and reload the **entire section**, including unchanged cells; matching size or identity does not suppress that reload.
+
+```swift
+import Combine
+import SectionKit
+import UIKit
+
+final class SummaryViewModel {
+    @SKPublished var title = "Items"
+    @SKPublished var count = 0
+    @SKPublished var status = "Ready"
+    var height: CGFloat = 44
+}
+
+final class SummaryHeader: UICollectionReusableView, SKLoadViewProtocol, SKConfigurableView {
+    typealias Model = SummaryViewModel
+    private var subscriptions = Set<AnyCancellable>()
+    private let titleLabel = UILabel()
+    private let countLabel = UILabel()
+    private let statusLabel = UILabel()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        let stack = UIStackView(arrangedSubviews: [titleLabel, countLabel, statusLabel])
+        stack.spacing = 8
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+            stack.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func config(_ model: Model) {
+        subscriptions.removeAll()
+        model.$title.prepend(model.title).removeDuplicates()
+            .sink { [weak self] in self?.titleLabel.text = $0 }.store(in: &subscriptions)
+        model.$count.prepend(model.count).removeDuplicates()
+            .sink { [weak self] in self?.countLabel.text = String($0) }.store(in: &subscriptions)
+        model.$status.prepend(model.status).removeDuplicates()
+            .sink { [weak self] in self?.statusLabel.text = $0 }.store(in: &subscriptions)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        subscriptions.removeAll()
+    }
+
+    static func preferredSize(limit size: CGSize, model: Model?) -> CGSize {
+        CGSize(width: size.width, height: model?.height ?? 44)
+    }
+}
+
+// Configure and mutate UI-facing state on the main thread.
+let summary = SummaryViewModel()
+section.setHeader(SummaryHeader.self, model: summary)
+manager.reload(section)
+summary.count = 12
+summary.status = "Complete"
+```
+
+`prepend` gives an immediate initial value; `removeDuplicates` filters both repeated values and the deferred current-value replay. `bind` is also valid for cheap assignments, but its immediate callback is separate from publisher transforms, so it can deliver the initial value again. Clear subscriptions in both `config` and `prepareForReuse`: reconfiguration need not be preceded by reuse. The same recipe works with `setFooter` and a direct `UICollectionReusableView` subclass.
+
+For **layout-changing state**, a content subscription is not sufficient. Change the sizing model first, then invalidate the bound collection layout on the main thread:
+
+```swift
+summary.height = 80
+if section.isBindSectionView {
+    section.sectionView.collectionViewLayout.invalidateLayout()
+}
+```
+
+This recomputes geometry for an existing, self-binding supplementary without an intentional cell reload. Use `section.reload()` for definition/type/visibility changes that need dequeue or reconfiguration, including adding/removing supplementary views. Fixed `highestHeaderSize` / `highestFooterSize` overrides still win. If row sizes also change, invalidate the affected entries in the app-owned `SKHighPerformanceStore` (for example `sizeStore.remove(by: row.id)`) before invalidating layout; content binding and `apply` do not clear size caches. When coalescing layout work, clear stale caches immediately and throttle only the subsequent layout invalidation. Custom layouts/plugins must support their own invalidation contracts.
+
+## Identity-Only Structural Updates
+
+For stable reference models whose visible fields bind themselves:
+
+```swift
+section.reloadKind = .difference(by: \.id)
+section.differenceReloadPolicy = .structuralOnly
+section.apply(rows)
+```
+
+- `.reloadVisible` is the default and preserves existing behavior: visible items reload for an identity no-op and after insertion/deletion; empty transitions reload the section.
+- `.structuralOnly` suppresses those extra reloads. An identity no-op, including empty-to-empty, makes no collection-view update calls. The model array is still assigned and `modelsPulisher` still emits; subscriber side effects remain the caller's responsibility.
+- Insertions/deletions use one UIKit batch, including transitions to/from empty. Retained visible cells keep their bindings where UIKit can preserve them. Newly visible cells still configure normally. Reorders use the collection difference's remove/insert operations and may recreate moved cells.
+- Keep IDs unique and immutable, and keep the **same model object** for each retained ID. Replacing an object with another object of the same ID leaves an existing cell bound to the old object under this policy. Use the default policy or an explicit row refresh for replacement payloads.
+- Position-dependent separators, first/last styles, row-number labels, and `.config` handlers do not rerun for retained cells. Keep `.reloadVisible` if they need to rerun, or explicitly refresh affected rows.
+- This policy affects only `apply` / `config(models:)` / `subscribe(models:)` with `.difference`. `setHeader`, `setFooter`, `reload`, `refresh`, and `remove` / `delete` retain their existing side effects. In particular, `remove` reloads trailing rows after deletion or reloads the section when none remain; use `apply(finalRows)` for structural-only deletion.
+- Apply on the main thread and serialize structural batches; do not start another `apply` while an earlier batch is in progress. This policy does not provide a transaction queue.
+
+Regression coverage is in `Tests/SectionKitTests/ReactiveBindingTests.swift`: no-op UIKit operations, count updates, preserved visible bindings through insert/delete, empty transitions, reorder, default payload refresh, subscription cancellation, supplementary layout invalidation, and image request counts.
+
+## Idempotent Image Binding
+
+`removeDuplicates()` on the URL publisher helps within one subscription. It resets on reconfiguration, so also keep a URL guard in the reusable view. Even `bind`'s immediate call and current-value replay must not restart the same request:
+
+```swift
+// Cell-owned state, alongside its subscriptions and image view:
+private var requestedURL: URL?
+private var imageTask: Task<Void, Never>?
+
+// Called by the imageURL subscription on the main thread.
+private func configureImage(_ url: URL?) {
+    guard requestedURL != url else { return }
+    requestedURL = url
+    imageTask?.cancel()
+    imageTask = nil
+    imageView.image = nil
+    guard let url else { return }
+    // imageLoader is the app's injected asynchronous image pipeline.
+    imageTask = Task { @MainActor [weak self, imageLoader] in
+        let image = await imageLoader.image(for: url)
+        guard !Task.isCancelled, self?.requestedURL == url else { return }
+        self?.imageView.image = image
+    }
+}
+```
+
+In `prepareForReuse`, cancel subscriptions and the image task, set `requestedURL = nil`, and clear the image. In `config`, replace subscriptions but retain the URL guard and in-flight task until the URL actually changes. Include any rendition/size/authentication variant in the request key when URL alone does not identify the image. Retry failures through an explicit retry path that clears the guard. SectionKit does not implement image networking or caching; the regression uses a request spy to verify request initiation counts, not a network benchmark.
 
 ## SKPublished Transforms
 

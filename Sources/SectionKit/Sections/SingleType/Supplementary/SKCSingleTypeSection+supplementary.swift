@@ -28,6 +28,9 @@ public extension SKCSingleTypeSection {
         })
     }
 
+    /// Registers/replaces the header and reloads the entire bound section, including
+    /// cells. For frequent fixed-size content updates, register a stable reference
+    /// model once and observe its fields inside the reusable view instead.
     @discardableResult
     func setHeader<View>(_ type: View.Type,
                    model: View.Model,
@@ -35,6 +38,8 @@ public extension SKCSingleTypeSection {
         set(supplementary: .header, type: type, model: model, config: config)
     }
     
+    /// Registers/replaces the footer and reloads the entire bound section.
+    /// Stable, self-binding models avoid reloads for fixed-size content updates.
     @discardableResult
     func setFooter<View>(_ type: View.Type,
                    model: View.Model,

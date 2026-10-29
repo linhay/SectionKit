@@ -8,6 +8,7 @@ Use this file for concrete API names. If the user names a symbol, search here fi
 | `SKCManager`, `SKCollectionView`, `SKCollectionFlowLayout`, module boundaries, runtime call chain | `architecture-map.md` |
 | `SKCollectionView`, `SKCollectionViewController`, `reloadSections`, `controllerStyle`, `sectionViewStyle`, `refreshable`, `scrollDirection` | `container-lifecycle-recipes.md` |
 | `SKCSingleTypeSection`, `wrapperToSingleTypeSection`, homogeneous section | `section.md`, `composition-styling-recipes.md` |
+| `DifferenceReloadPolicy`, `differenceReloadPolicy`, `.structuralOnly` | `reactive-binding-recipes.md`, `manager-transaction-recipes.md` |
 | `refresh(at:)`, `refresh(with:)`, `RefreshPayload`, `apply`, `config(models:)`, `reloadKind`, `append`, `insert`, `remove`, `delete` | `row-mutation-recipes.md` |
 | `@SKPublished`, `SKPublishedValue`, `SKPublishedKind`, `SKPublishedTransform`, `anyPublisher`, `bind`, `sink`, `send`, `modelsPulisher`, `subscribe(models:)`, `SKBinding`, `SKBindingKey` | `reactive-binding-recipes.md` |
 | `SectionArrayResultBuilder`, `SKCSectionCollector`, `SKWhen`, dynamic section indexes | `render-builder-recipes.md`, `section-assembly-identity-recipes.md` |

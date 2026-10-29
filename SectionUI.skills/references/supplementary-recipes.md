@@ -34,7 +34,7 @@ Keep it generic: no downstream project paths, product names, business module nam
 
 7. It is safe to set header/footer before the section is bound. Registration is performed after binding.
 
-8. Setting or replacing a supplementary view reloads the section. Account for that when chaining several supplementary changes.
+8. Setting or replacing a supplementary view reloads the section. This includes unchanged cells even when the new model has the same size. For frequent fixed-size content changes, register one stable model and bind fields inside the reusable view; see [Stable Supplementary View Models](reactive-binding-recipes.md#stable-supplementary-view-models).
 
 9. Replacing a supplementary for the same kind overwrites the previous definition.
 
@@ -46,7 +46,7 @@ Keep it generic: no downstream project paths, product names, business module nam
 
 12. Use `setHeader(View.self, model:)` and `setFooter(View.self, model:)` when the model is known at section declaration time.
 
-13. Constant model overloads keep size and config stable until the supplementary definition is replaced.
+13. Constant model overloads retain the supplied model. Reference-model fields can change without replacing the definition; self-binding views observe content updates, while layout changes still need explicit invalidation.
 
 14. The optional `config` closure runs after `view.config(model)`.
 

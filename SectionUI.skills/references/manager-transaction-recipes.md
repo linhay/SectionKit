@@ -114,7 +114,7 @@ Use this reference when a SectionUI task involves `SKCManager`, section binding,
 
 43. When a section is unbound, row insertions and removals mutate only the section's model array.
 
-44. `section.remove(rows)` deduplicates rows, filters out-of-bounds rows, sorts descending, stores deleted models, deletes items, then reloads trailing rows after completion.
+44. `section.remove(rows)` deduplicates rows, filters out-of-bounds rows, sorts descending, stores deleted models, deletes items, then reloads trailing rows after completion (or reloads the section when no trailing rows remain). `differenceReloadPolicy` does not change this explicit removal path; use `apply(finalRows)` with `.structuralOnly` to avoid these extra reloads.
 
 45. The trailing-row reload after removal helps row-position styles, separators, and first/last visuals recover.
 
@@ -140,9 +140,9 @@ Use this reference when a SectionUI task involves `SKCManager`, section binding,
 
 55. The difference predicate describes identity equivalence, not full content equality.
 
-56. For `.difference(by:)`, unchanged identities with changed display content refresh visible cells when no insert/delete difference exists, and visible rows are refreshed after an insert/delete batch completes.
+56. By default (`differenceReloadPolicy = .reloadVisible`), `.difference(by:)` unchanged identities with changed display content refresh visible cells when no insert/delete difference exists, and visible rows are refreshed after an insert/delete batch completes.
 
-57. When old or new model arrays are empty, difference reload falls back to section reload.
+57. By default, when old or new model arrays are empty, difference reload falls back to section reload. Opt into `differenceReloadPolicy = .structuralOnly` for stable self-binding models: identity no-ops perform no UIKit updates, insertion/deletion does not reload retained visible items, and empty transitions use item batches. The model publisher still emits. Keep model instances stable for retained IDs; use the default or explicit refresh for payload replacement or position-dependent styles. See [Identity-Only Structural Updates](reactive-binding-recipes.md#identity-only-structural-updates).
 
 58. During difference updates, removals and insertions are applied in one collection-view batch update. Do not call row mutation helpers from inside another batch for the same diff.
 

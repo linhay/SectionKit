@@ -11,6 +11,7 @@ Use this file to route user intent to the smallest reference set. Open the prima
 | section composition, optional sections, render state, section styles, cell styles | `composition-styling-recipes.md` | `supplementary-recipes.md`, `render-builder-recipes.md` |
 | result builders, `SKCSectionCollector`, `SKWhen`, builder identity | `render-builder-recipes.md` | `section-assembly-identity-recipes.md` |
 | manager binding, `reload`, `insert`, `remove`, section identity, pending requests | `manager-transaction-recipes.md` | `container-lifecycle-recipes.md`, `forwarding-extension-recipes.md` |
+| reactive header/footer, stable supplementary view model, identity-only structural updates | `reactive-binding-recipes.md` | `supplementary-recipes.md`, `manager-transaction-recipes.md` |
 | row update, `refresh`, `apply`, append, insert, remove, delete, `reloadKind` | `row-mutation-recipes.md` | `reactive-binding-recipes.md`, `cache-exposure-recipes.md` |
 | data binding strategy, publisher-owned section, section-owned models, state-to-section mapping, high-frequency progress/status, non-layout row state | `data-driven-best-practices.md` | `reactive-binding-recipes.md`, `row-mutation-recipes.md` |
 | `@SKPublished`, stable cell view model, model publishers, `subscribe(models:)`, `SKBinding`, feedback loop | `reactive-binding-recipes.md` | `data-driven-best-practices.md`, `production-lifecycle-state.md` |
